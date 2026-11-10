@@ -1,0 +1,77 @@
+Point		@point-select
+
+
+(#define-menu-keys
+    (define-key "#point-menu-100"	    "\e[p100\n" "PointMenu100"
+	"point-select")
+)
+
+  (Point)	{ 100 /pointmenucallback ThisWindow send }
+
+
+
+
+Move... [1 4 16 64]
+	up		#1-24:previous-line
+	previous	#:previous-page
+	right		#:forward-character
+	next		#:next-page
+	down		#:next-line
+	end		:end-of-file
+	left		#:backward-character
+	beginning	:beginning-of-file
+
+(#define-menu-keys
+    (define-key "#menu-100" "\e[m100\n" "Menu100" "previous-line")
+    (define-key "#menu-101" "\e[m101\n" "Menu101" "previous-page")
+    (define-key "#menu-102" "\e[m102\n" "Menu102" "forward-character")
+    (define-key "#menu-103" "\e[m103\n" "Menu103" "next-page")
+    (define-key "#menu-104" "\e[m104\n" "Menu104" "next-line")
+    (define-key "#menu-105" "\e[m105\n" "Menu105" "end-of-file")
+    (define-key "#menu-106" "\e[m106\n" "Menu106" "backward-character")
+    (define-key "#menu-107" "\e[m107\n" "Menu107" "beginning-of-file")
+)
+
+/EmacsMoveMenu
+[
+  [1 1 10 {} for]	% #1-10
+  [1 1 5 {} for]	% #1-5
+  [1 1 10 {} for]	% #1-10
+  [1 1 5 {} for]	% #1-5
+  [1 1 10 {} for]	% #1-10
+  []			% 
+  [1 1 10 {} for]	% #1-10
+  []			% 
+[
+  (Up)		{ menuprefix 100 /menucallback ThisWindow send }
+  (Previous)	{ menuprefix 101 /menucallback ThisWindow send }
+  (Right)	{ menuprefix 102 /menucallback ThisWindow send }
+  (Next)	{ menuprefix 103 /menucallback ThisWindow send }
+  (Down)	{ menuprefix 104 /menucallback ThisWindow send }
+  (End)		{ 105 /menucallback ThisWindow send }
+  (Left)	{ menuprefix 106 /menucallback ThisWindow send }
+  (Beginning)	{ 107 /menucallback ThisWindow send }
+] /new ParamPieMenu send def
+
+  (Move...)	EmacsMoveMenu
+
+
+
+
+Mark...
+	Word		@mark-word
+	Line		@mark-line
+	Paragraph	@mark-paragraph
+	Buffer		@mark-whole-buffer
+
+
+
+Shell...
+	make		"make\n"
+	pwd		"pwd\n"
+
+/EmacsWordsMenu [
+  (make)		{ {BUCKY (make\n)} /sendstring ThisWindow send }
+  (pwd)			{ {BUCKY (pwd\n)} /sendstring ThisWindow send }
+] /new DefaultMenu send def
+

@@ -1,0 +1,476 @@
+%!
+% Character objects
+%
+% Copyright (C) 1987 by Don Hopkins
+%
+% Let's see what we can do with the NeWS 1.1 font machinery!
+%
+
+systemdict begin
+
+/Char Object
+dictbegin
+  /xoffset null def
+  /yoffset null def
+  /llx null def
+  /lly null def
+  /urx null def
+  /ury null def
+  /bbox-width null def
+  /bbox-height null def
+dictend
+classbegin
+  /new { % xoffset yoffset llx lly urx ury => obj
+    /new super send
+    begin
+      [/ury /urx /lly /llx /yoffset /xoffset]
+      {exch def} forall
+      /bbox-width urx llx sub def
+      /bbox-height ury lly sub def
+      currentdict
+    end
+  } def
+
+  /get-char-width { % - => xoffset yoffset
+    xoffset yoffset
+  } def
+
+  /get-char-bbox { % - => llx lly urx ury
+    llx lly urx ury
+  } def
+
+  /char-build {
+    get-char-width setcharwidth
+    char-show
+  } def
+
+  /char-show {
+    char-path char-fill
+  } def
+
+  /char-path { % - => -
+    SubClassResponsibility
+  } def
+
+  /char-fill { % - => -
+    SubClassResponsibility
+  } def
+
+classend def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/ImageChar Char
+dictbegin
+  /source-canvas null def
+  /source-width null def
+  /source-height null def
+  /char-canvas null def
+  /canvas-width null def
+  /canvas-height null def
+dictend
+classbegin
+  /new { % path-function canvas
+         % xoffset yoffset llx lly urx ury => obj
+    /new super send begin gsave
+      /source-canvas exch def
+      /path-function exch cvx def
+      % What I think this should /really/ do is to make the
+      % char-canvas be a transparent subcanvas of the source-canvas,
+      % sharing the same image. (Don't transparent canvases work that
+      % way?) I haven't been able to get it to work, however. (Server 
+      % crashes or nothing comes out...)
+
+       source-canvas setcanvas
+       clippath pathbbox points2rect
+       /source-height exch def  /source-width exch def  pop pop
+       /canvas-width bbox-width source-width mul def
+       /canvas-height bbox-height source-height mul def
+%%       /char-canvas framebuffer newcanvas def
+       /char-canvas source-canvas newcanvas def
+%      (sw % sh %  cw % ch %  bbw % bbh %  llx % lly %  urx % ury %\n)
+%      [source-width source-height canvas-width canvas-height
+%       bbox-width bbox-height llx lly urx ury]
+%      dbgprintf
+      char-canvas /Transparent true put
+      source-canvas setcanvas
+      llx lly canvas-width canvas-height rectpath
+      char-canvas reshapecanvas
+      currentdict
+    grestore end
+  } def
+
+  /char-path {
+    path-function
+  } def
+
+  /char-fill {
+    clip char-canvas imagecanvas
+  } def
+
+classend def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/ImageMaskChar ImageChar
+dictbegin
+  /Polarity false def
+dictend
+classbegin
+  /char-fill {
+    clip Polarity char-canvas imagemaskcanvas
+  } def
+
+% This still crashes the server! 
+  /char-build {
+    get-char-width get-char-bbox setcachedevice
+    char-show
+  } def
+
+classend def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/OutlineImageMaskChar ImageMaskChar
+dictbegin
+  /OutlineWidth 0 def
+  /OutlineColor 0 0 0 rgbcolor def
+  /OutlineDash [.05 .05] def
+dictend
+classbegin
+  /char-show {
+      char-path
+      gsave char-fill grestore
+      OutlineColor setcolor
+      OutlineWidth setlinewidth
+      OutlineDash 0 setdash
+      stroke
+  } def
+classend def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/FlippedImageMaskChar ImageMaskChar
+[]
+classbegin
+  /char-show {
+    gsave
+      1 0 translate
+      -1 1 scale
+      /char-show super send
+    grestore
+  } def
+classend def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/FlippedOutlineImageMaskChar OutlineImageMaskChar
+[]
+classbegin
+  /char-show {
+    gsave
+      1 0 translate
+      -1 1 scale
+      /char-show super send
+    grestore
+  } def
+classend def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+systemdict /fish-can known not {
+    /fishies
+      (/usr/NeWS/smi/Catalyst/Sciences) sprintf
+      readcanvas def
+    /fish-can framebuffer newcanvas def
+    gsave
+      fishies setcanvas clippath pathbbox exch
+      /fish-can-w exch def /fish-can-h exch def pop pop
+      framebuffer setcanvas
+      0 0 fish-can-w fish-can-h rectpath
+      fish-can reshapecanvas
+      fish-can setcanvas clippath pathbbox scale pop pop
+      1 0 translate 90 rotate
+      fishies imagecanvas
+    grestore
+    /fishies null def
+} if
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/square {
+  newpath
+  0 0 1 1 rectpath
+} def
+
+/triangle {
+  newpath
+  0 0 moveto  .375 .375 lineto  .750 0 lineto
+  closepath
+} def
+
+/circle {
+  newpath
+  .5 .5 .5 0 360 arc
+  closepath
+} def
+
+/stub-triangle {
+  newpath
+  0 0 moveto
+  1 .4 lineto
+  1 .6 lineto
+  0 1 lineto
+  closepath
+} def
+
+/short-rect {
+  0 0 1 .5 rectpath
+} def
+
+/bullet  {
+  newpath
+  .2 .5 .2 90 270 arc
+  1 .2 lineto
+  1 .8 lineto
+  closepath
+} def
+
+/penta-thing {
+  0 0 moveto
+  1 0 lineto
+  1 .4 lineto
+  0.8 .6 lineto
+  0 .35 lineto
+  closepath
+} def
+
+/ULength .25 def
+/QWidth ULength 3 div def
+/ULWidth ULength 3.35 div def
+/UWidth ULength 6 div def
+/UHwidth ULWidth 2 div def
+/UDraw {
+   /Uy exch def
+   /Ux exch def
+    Ux Uy UWidth add UHwidth add moveto
+    Ux ULength add Uy UWidth UHwidth add 90 -90 arcn
+    ULength neg 0 rlineto
+    0 ULWidth rlineto
+    Ux ULength add Uy UWidth UHwidth sub -90 90 arc
+    ULength neg 0 rlineto
+    closepath
+ }def
+/TwoU
+ { /Umat 6 array currentmatrix def
+   translate
+   0 0 QWidth sub UDraw
+   ULWidth 2 idiv
+   ULength UWidth .03 add add add
+   0 translate
+   180 rotate
+   0 0 QWidth sub UDraw
+   Umat setmatrix } def
+/sunlogo {
+    newpath
+    6 array currentmatrix
+   .5 .54 translate
+   45 rotate
+   4
+    {
+      QWidth ULWidth sub
+      0 QWidth dup add sub
+      TwoU
+      90 rotate
+    } repeat
+    setmatrix
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/newfont 50 dict def
+newfont begin
+
+/FontType 3 def
+/FontMatrix [1 0 0 1 0 0] def
+/FontBBox [0 0 1 1] def
+/Encoding [
+  32 {/.notdef} repeat
+  32 {/.notdef} repeat
+  /.notdef
+  /A /B /C /D /E /F /G /H
+  /I /J /K /L /M /N /O /P
+%  /Q /R /S /T /U /V /W /X
+  8 {/.notdef} repeat
+  7 {/.notdef} repeat
+  /.notdef
+  /a /b /c /d /e /f /g /h
+  /i /j /k /l /m /n /o /p
+%  /q /r /s /t /u /v /w /x
+  8 {/.notdef} repeat
+  7 {/.notdef} repeat
+  ] def
+
+/CharProcs 300 dict def
+CharProcs begin
+
+  /.notdef null def
+
+  /a /square fish-can
+     1.3 0 0 0 1 1 
+     /new ImageMaskChar send def
+
+  /b /stub-triangle fish-can
+     1.3 0 0.05 0.34 0.3 0.59
+     /new ImageMaskChar send def
+
+  /c /circle fish-can
+     1.3 0 0.17 0.74 0.4 0.87
+     /new ImageMaskChar send def
+
+  /d /short-rect fish-can
+     1.3 0 0.18 0.55 0.48 0.75
+     /new ImageMaskChar send def
+
+  /e /bullet fish-can
+     1.3 0 0.45 0.51 1 0.81
+     /new ImageMaskChar send def
+
+  /f /penta-thing fish-can
+     1.3 0 0.1 0.1 0.9 0.6
+     /new ImageMaskChar send def
+
+  /g /circle fish-can
+     1.3 0 0.65 0.29 0.8 0.39
+     /new ImageMaskChar send def
+
+  /h /sunlogo fish-can
+     1.3 0 0.17 0.74 0.4 0.87
+     /new ImageMaskChar send def
+
+  /i /square fish-can
+     1.3 0 0 0 1 1 
+     /new OutlineImageMaskChar send def
+
+  /j /stub-triangle fish-can
+     1.3 0 0.05 0.34 0.3 0.59
+     /new OutlineImageMaskChar send def
+
+  /k /circle fish-can
+     1.3 0 0.17 0.74 0.4 0.87
+     /new OutlineImageMaskChar send def
+
+  /l /short-rect fish-can
+     1.3 0 0.18 0.55 0.48 0.75
+     /new OutlineImageMaskChar send def
+
+  /m /bullet fish-can
+     1.3 0 0.45 0.51 1 0.81
+     /new OutlineImageMaskChar send def
+
+  /n /penta-thing fish-can
+     1.3 0 0.1 0.1 0.9 0.6
+     /new OutlineImageMaskChar send def
+
+  /o /circle fish-can
+     1.3 0 0.65 0.29 0.8 0.39
+     /new OutlineImageMaskChar send def
+
+  /p /sunlogo fish-can
+     1.3 0 0.17 0.74 0.4 0.87
+     /new OutlineImageMaskChar send def
+     p /OutlineDash [] put
+
+  /A /square fish-can
+     1.3 0 0 0 1 1 
+     /new FlippedImageMaskChar send def
+
+  /B /stub-triangle fish-can
+     1.3 0 0.05 0.34 0.3 0.59
+     /new FlippedImageMaskChar send def
+
+  /C /circle fish-can
+     1.3 0 0.17 0.74 0.4 0.87
+     /new FlippedImageMaskChar send def
+
+  /D /short-rect fish-can
+     1.3 0 0.18 0.55 0.48 0.75
+     /new FlippedImageMaskChar send def
+
+  /E /bullet fish-can
+     1.3 0 0.45 0.51 1 0.81
+     /new FlippedImageMaskChar send def
+
+  /F /penta-thing fish-can
+     1.3 0 0.1 0.1 0.9 0.6
+     /new FlippedImageMaskChar send def
+
+  /G /circle fish-can
+     1.3 0 0.65 0.29 0.8 0.39
+     /new FlippedImageMaskChar send def
+
+  /H /sunlogo fish-can
+     1.3 0 0.17 0.74 0.4 0.87
+     /new FlippedImageMaskChar send def
+
+  /I /square fish-can
+     1.3 0 0 0 1 1 
+     /new FlippedOutlineImageMaskChar send def
+
+  /J /stub-triangle fish-can
+     1.3 0 0.05 0.34 0.3 0.59
+     /new FlippedOutlineImageMaskChar send def
+
+  /K /circle fish-can
+     1.3 0 0.17 0.74 0.4 0.87
+     /new FlippedOutlineImageMaskChar send def
+
+  /L /short-rect fish-can
+     1.3 0 0.18 0.55 0.48 0.75
+     /new FlippedOutlineImageMaskChar send def
+
+  /M /bullet fish-can
+     1.3 0 0.45 0.51 1 0.81
+     /new FlippedOutlineImageMaskChar send def
+
+  /N /penta-thing fish-can
+     1.3 0 0.1 0.1 0.9 0.6
+     /new FlippedOutlineImageMaskChar send def
+
+  /O /circle fish-can
+     1.3 0 0.65 0.29 0.8 0.39
+     /new FlippedOutlineImageMaskChar send def
+
+  /P /sunlogo fish-can
+     1.3 0 0.17 0.74 0.4 0.87
+     /new FlippedOutlineImageMaskChar send def
+     P /OutlineDash [] put
+
+end % CharProcs
+
+/BuildChar {
+%  (building %\n) [2 index] dbgprintf
+  exch begin
+  Encoding exch get
+  CharProcs exch get
+  end
+  dup null ne {
+    /char-build exch send
+  } {pop} ifelse
+  pause
+} def
+
+end % newfont
+
+/FishFont newfont definefont pop
+
+end % systemdict
+
+framebuffer setcanvas
+1 fillcanvas
+10 10 moveto
+/FishFont findfont 45 scalefont setfont
+0 setgray
+(abcdefgABCDEFG) show
+(abcdefgABCDEFG) show
+

@@ -1,0 +1,681 @@
+%!
+% Date: Wed, 30 Aug 89 08:37:46 EDT
+% From: sjs@ctt.bellcore.com (Stan Switzer)
+% To: don@brillig.umd.edu
+% Subject: SlickWindow
+% 
+% Don,
+% 
+% Give it a spin.  Just don't send it around.
+% 
+% Stan
+% ----------------------
+%
+% SlickWindow: a nicer UI style
+%
+% Copyright (C) 1989 by Stan Switzer. All rights reserved.
+%
+% Unpublished work: No distribution of this program is allowed under
+% any circumstances except by the author.
+
+
+systemdict begin { end } pop
+
+systemdict /SlickWindow known {
+    SlickWindow /ParentDict get
+} {
+    DefaultWindow
+} ifelse
+    
+/SlickWindow exch dictbegin
+    /IconFrameCanvas	null def
+    /Confirmer		null def
+dictend classbegin
+    /BorderLeft	    8	def
+    /BorderRight    8	def
+    /BorderBottom   8	def
+    /BorderTop	    24	def
+
+    /UpperLeftCorner 32 32 1 [ 32 0 0 -32 0 32 ] { <
+	00000000000001002AAAAB2A155555552AAAAB2A155555552BFFFF7F16000000
+	2AAAAB2A165555552A800B2A16555D552A8AAB2A16555D552A8AAB2A16555D55
+	2A8AAB2A16555D552A8AAB2A167FFD552AAAAB2A165555557FFFFF7F03FFFFFF
+	2BAAAAAA175555552BAAAAAA175555552BAAAAAA175555552BAAAAAA17555555
+	> } buildimage def
+    /UpperRightCorner 32 32 1 [ 32 0 0 -32 0 32 ] { <
+	0000000000800001AAAAAAAB55955557AAAAAAAB55955557FFBFFFEB00000017
+	AAAAAAAB55955597AAAAA2AB55954797AAAA8AAB55951797AAAA2EAB55945D97
+	AAA8BAAB55917597AAA2EAAB5595D597AAAFAAAB55955597FFBFFFFFFFFFFF81
+	AAAAAA2B55555517AAAAAA2B55555517AAAAAA2B55555517AAAAAA2B55555517
+	> } buildimage def
+    /LowerLeftCorner 32 32 1 [ 32 0 0 -32 0 32 ] { <
+	2BAAAAAA175555552BAAAAAA175555552BAAAAAA175555552BAAAAAA17555555
+	7FAAAAAA015555552BAAAAAA175555552BAAAAAA175555552BAAAAAA17555555
+	2BAAAAAA175555552BAAAAAA175555552BAAAAAA175555552BAAAAAA17555555
+	2B000000160002002AAAAAAA155556552AAAAAAA155556553FFFFEFF7FFFFFFF
+	> } buildimage def
+    /LowerRightCorner 32 32 1 [ 32 0 0 -32 0 32 ] { <
+	AAAAAA2B55555517AAAAAA2B55555517AAAAAA2B55555517AAAAAA2B55555517
+	AAAAAA7F55555501AAAAAA2B55555517AAAAAA2B55555517AAAAAA2B55555517
+	AAAAAA2B55555517AAAAAA2B55555517AAAAAA2B55555517AAAAAA2B55555517
+	0000002B00800017AAAAAAAB55955557AAAAAAAB55955557FFBFFFFFFFFFFFFF
+	> } buildimage def
+    /TopBar 64 24 1 [ 64 0 0 -24 0 24 ] { <
+	00000000000000000000000000000000AAAAAAAAAAAAAAAA5555555555555555
+	AAAAAAAAAAAAAAAA5555555555555555FFFFFFFFFFFFFFFF0000000000000000
+	AAAAAAAAAAAAAAAA5555555555555555AAAAAAAAAAAAAAAA5555555555555555
+	AAAAAAAAAAAAAAAA5555555555555555AAAAAAAAAAAAAAAA5555555555555555
+	AAAAAAAAAAAAAAAA5555555555555555AAAAAAAAAAAAAAAA5555555555555555
+	AAAAAAAAAAAAAAAA5555555555555555FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+	> } buildimage def
+    /BotBar 64 8 1 [ 64 0 0 -8 0 8 ] { <
+	00000000000000000000000000000000AAAAAAAAAAAAAAAA5555555555555555
+	AAAAAAAAAAAAAAAA5555555555555555FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+	> } buildimage def
+    /LeftBar 8 64 1 [ 8 0 0 -64 0 64 ] <2B17> buildimage def
+    /RightBar LeftBar def
+    /FocusBar 64 8 1 [ 64 0 0 -8 0 8 ] <FF> buildimage def
+    /NoFocusBar 64 8 1 [ 64 0 0 -8 0 8 ] {<
+	5555555555555555AAAAAAAAAAAAAAAA
+	>} buildimage def
+    
+    /IconUpperLeftCorner 32 32 1 [ 32 0 0 -32 0 32 ] {<
+	00000000000000002AAAAAAA155555552AAAAAAA155555552BFFFFFF17FFFFFF
+	2BAAAAAA175555552BAAAAAA175555552BAAAAAA175555552BAAAAAA17555555
+	2BAAAAAA175555552BAAAAAA175555552BAAAAAA175555552BAAAAAA17555555
+	2BAAAAAA175555552BAAAAAA175555552BAAAAAA175555552BAAAAAA17555555
+	>} buildimage def
+    /IconUpperRightCorner 32 32 1 [ 32 0 0 -32 0 32 ] { <
+	0000000000000001AAAAAAAB55555557AAAAAAAB55555557FFFFFFEBFFFFFF97
+	AAAAAA2B55555517AAAAAA2B55555517AAAAAA2B55555517AAAAAA2B55555517
+	AAAAAA2B55555517AAAAAA2B55555517AAAAAA2B55555517AAAAAA2B55555517
+	AAAAAA2B55555517AAAAAA2B55555517AAAAAA2B55555517AAAAAA2B55555517
+	>} buildimage def
+    /IconLowerLeftCorner 32 32 1 [ 32 0 0 -32 0 32 ] { <
+	2BAAAAAA175555552BAAAAAA175555552BAAAAAA175555552BAAAAAA17555555
+	2A000000175555552AAAAAAA175555552AAAAAAA175555552AAAAAAA17555555
+	2AAAAAAA175555552AAAAAAA175555552AAAAAAA175555552AAAAAAA17555555
+	2AAAAAAA140000002AAAAAAA155555552AAAAAAA155555553FFFFFFF7FFFFFFF
+	>} buildimage def
+    /IconLowerRightCorner 32 32 1 [ 32 0 0 -32 0 32 ] { <
+	AAAAAA2B55555517AAAAAA2B55555517AAAAAA2B55555517AAAAAA2B55555517
+	0000002B55555517AAAAAAAB55555517AAAAAAAB55555517AAAAAAAB55555517
+	AAAAAAAB55555517AAAAAAAB55555517AAAAAAAB55555517AAAAAAAB55555517
+	AAAAAAAB00000017AAAAAAAB55555557AAAAAAAB55555557FFFFFFFFFFFFFFFF
+	>} buildimage def
+    /IconTopBar BotBar def
+    /IconBotBar 64 24 1 [ 64 0 0 -24 0 24 ] { <
+	00000000000000005555555555555555AAAAAAAAAAAAAAAA5555555555555555
+	AAAAAAAAAAAAAAAA5555555555555555AAAAAAAAAAAAAAAA5555555555555555
+	AAAAAAAAAAAAAAAA5555555555555555AAAAAAAAAAAAAAAA5555555555555555
+	AAAAAAAAAAAAAAAA5555555555555555AAAAAAAAAAAAAAAA5555555555555555
+	AAAAAAAAAAAAAAAA0000000000000000AAAAAAAAAAAAAAAA5555555555555555
+	AAAAAAAAAAAAAAAA5555555555555555FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+	>} buildimage def
+    /IconLowerLeftCornerNoLabel 32 32 1 [ 32 0 0 -32 0 32 ] { <
+	2BAAAAAA175555552BAAAAAA175555552BAAAAAA175555552BAAAAAA17555555
+	2BAAAAAA175555552BAAAAAA175555552BAAAAAA175555552BAAAAAA17555555
+	2BAAAAAA175555552BAAAAAA175555552BAAAAAA175555552BAAAAAA17555555
+	2B000000160000002AAAAAAA155555552AAAAAAA155555553FFFFFFF7FFFFFFF
+	>} buildimage def
+    /IconLowerRightCornerNoLabel 32 32 1 [ 32 0 0 -32 0 32 ] { <
+	AAAAAA2B55555517AAAAAA2B55555517AAAAAA2B55555517AAAAAA2B55555517
+	AAAAAA2B55555517AAAAAA2B55555517AAAAAA2B55555517AAAAAA2B55555517
+	AAAAAA2B55555517AAAAAA2B55555517AAAAAA2B55555517AAAAAA2B55555517
+	0000002B00000017AAAAAAAB55555557AAAAAAAB55555557FFFFFFFFFFFFFFFF
+	>} buildimage def
+    
+    ColorDisplay? not {
+	/FrameFillColor 1 1 1 rgbcolor def
+    } if
+	
+    /PaintFrameBorder { % - => - (Paint frame border areas)
+	FrameFillColor fillcanvas
+	0 setgray
+	TopBar 64 24 32 FrameHeight 24 sub FrameWidth 64 sub 24 SizedStampIt
+	BotBar 64  8 32 0 FrameWidth 64 sub 8 SizedStampIt
+	LeftBar 8 64 0 32 8 FrameHeight 64 sub SizedStampIt
+	RightBar 8 64 FrameWidth 8 sub 32 8 FrameHeight 64 sub SizedStampIt
+	0 0 gsave translate 32 32 scale
+	    LowerLeftCorner StampIt grestore
+	FrameWidth 32 sub 0 gsave translate 32 32 scale
+	    LowerRightCorner StampIt grestore
+	FrameWidth 32 sub FrameHeight 32 sub gsave translate 32 32 scale
+	    UpperRightCorner StampIt grestore
+	0 FrameHeight 32 sub gsave translate 32 32 scale
+	    UpperLeftCorner StampIt grestore
+	paintframelabel
+	ClientCanvas dup null eq { pop } {
+	  gsave setcanvas ClientFillColor fillcanvas grestore } ifelse
+    } def
+
+    /SizedStampIt { % im imw imh x y w h
+	gsave 4 2 roll translate % im imw imh w h
+	0 max exch 0 max exch 
+	4 copy 0 0 moveto rect clip scale
+	exch 4 -1 roll % im imh h w imw
+	exch 1 index add 1 sub exch idiv % im imh h nbr-across
+	3 1 roll 1 index add 1 sub exch idiv % im nbr-across nbr-down
+	{ % repeat
+	    gsave
+	    dup { true 2 index imagemaskcanvas 1 0 translate } repeat
+	    grestore
+	    0 1 translate
+	} repeat
+	pop pop
+	grestore
+    } def
+    
+    /StampIt {
+	true exch imagemaskcanvas
+    } def
+
+    /PaintFocus {
+	gsave FrameCanvas setcanvas FrameFont setfont
+	36 FrameHeight 19 sub moveto
+	FrameLabel stringwidth pop dup 1 and 1 eq { 1 add } if
+	dup 0 rmoveto currentpoint translate
+	FrameWidth exch sub 64 sub dup 8 rect
+	gsave FrameFillColor setcolor fill grestore
+	clip
+	KeyFocus? FocusBar NoFocusBar ifelse
+	0 setgray
+	0 0 moveto 64 8 scale
+	exch 64 idiv 1 add { dup StampIt 1 0 translate } repeat pop
+	grestore
+    } def
+
+    /PaintFrameLabel {
+	gsave
+	30 FrameHeight 21 sub moveto FrameLabel stringwidth pop 4 add 12 rect
+	FrameFillColor setshade fill
+	grestore
+	32 FrameHeight 20 sub moveto FrameLabel show
+    } def
+
+    /PaintFrameControls nullproc def
+
+    /reshape { % make sure bbox is even number of pixels!
+	exch dup 1 and 1 eq { 1 add } if
+	exch dup 1 and 1 eq { 1 add } if
+	/reshape super send
+    } def
+
+    /FixIcon { % - => - (Fix a damaged icon)
+	gsave IconFrameCanvas setcanvas
+	damagepath clipcanvas
+	PaintIconBorder
+	gsave IconCanvas setcanvas PaintIcon grestore
+	newpath clipcanvas grestore
+    } def
+    /PaintIconLabel nullproc def % FOO!
+    /LabBump { } def
+    /IconLabel? false def
+    /ShapeIconCanvas {
+	IconLabel null ne {
+	    IconLabel nullstring ne {
+		/LabBump { 16 add } def
+		/IconLabel? true def
+	    } if
+	} if
+	gsave
+	ParentCanvas setcanvas
+	0 0 IconWidth 16 add IconHeight 16 add LabBump rectpath
+	IconFrameCanvas reshapecanvas
+	IconFrameCanvas setcanvas
+	8 8 LabBump translate
+	0 0 IconWidth IconHeight rectpath IconCanvas reshapecanvas
+	grestore
+    } def
+    /CreateIconCanvas {
+        /IconFrameCanvas ParentCanvas newcanvas def
+	/xcurs /xcurs_m IconFrameCanvas setstandardcursor
+	/IconCanvas IconFrameCanvas newcanvas def
+	IconCanvas begin
+	    /Mapped true def
+	    /EventsConsumed /MatchedEvents def
+	end
+    } def
+    /GetCanvas { % - => canvas  (Returns window/icon canvas)
+	Iconic? {IconFrameCanvas} {FrameCanvas} ifelse
+    } def
+
+    /move { % x y => -  (Moves window/icon to x y.  Does not change mapping)
+	CheckCanvases
+	gsave
+	Iconic?
+	    {IconFrameCanvas /IconX /IconY}
+	    {FrameCanvas /FrameX /FrameY} ifelse
+	3 index def 3 index def
+	setcanvas [1 0 0 1 0 0] setmatrix movecanvas
+	grestore
+    } def
+
+
+    /painticon {
+	gsave IconFrameCanvas setcanvas PaintIconBorder grestore
+	/painticon super send
+    } def
+
+    /PaintIconBorder { % - => - (Paint frame border areas)
+	IconFillColor fillcanvas
+	0 setgray
+	IconTopBar 64 8 32 IconHeight 8 add LabBump
+	    IconWidth 48 sub 8 SizedStampIt
+	IconLabel? {
+	    IconBotBar 64 24 32 0 IconWidth 48 sub 24
+	} {
+	    BotBar 64 8 32 0 IconWidth 48 sub 8
+	} ifelse SizedStampIt
+	LeftBar 8 64 0 32 8 IconHeight 32 sub SizedStampIt
+	RightBar 8 64 IconWidth 8 add 32
+	    8 IconHeight 48 sub LabBump SizedStampIt
+	0 0 gsave translate 32 32 scale
+	    IconLabel? IconLowerLeftCorner IconLowerLeftCornerNoLabel ifelse
+	    StampIt grestore
+	IconWidth 16 sub 0 gsave translate 32 32 scale
+	    IconLabel? IconLowerRightCorner IconLowerRightCornerNoLabel ifelse
+	    StampIt grestore
+	IconWidth 16 sub IconHeight 16 sub LabBump gsave translate 32 32 scale
+	    IconUpperRightCorner StampIt grestore
+	0 IconHeight 16 sub LabBump gsave translate 32 32 scale
+	    IconUpperLeftCorner StampIt grestore
+		gsave
+	IconLabel? {
+	    IconFont setfont
+	    IconLabel stringwidth pop IconWidth 16 add 1 index sub 2 idiv 2 sub
+	    9 moveto gsave 4 add 12 rect IconFillColor setshade fill grestore
+	    IconTextColor setshade
+	    1 2 rmoveto IconLabel show
+	} if
+	PaintIcon
+    } def
+    
+    /PaintIcon { % - => - (Paint icon canvas)
+	gsave
+        IconCanvas setcanvas
+        IconImage null eq {
+	    IconFillColor fillcanvas
+        } {
+            IconFillColor fillcanvas IconBorderColor setcolor
+            0 0 moveto IconImage showicon
+        } ifelse
+	grestore
+    } def
+    
+    /CreateIconInterests { % - => - (Create icon control interests)
+        FrameInterests begin
+	    /IconOpenEvent
+	        PointButton /flipiconic
+	        DownTransition IconFrameCanvas eventmgrinterest def
+	    /IconMoveEvent
+	        AdjustButton /slide
+	        DownTransition IconFrameCanvas eventmgrinterest def
+	    /IconMenuEvent
+	        MenuButton {/showat IconMenu send}
+	        DownTransition IconFrameCanvas eventmgrinterest def
+	    /IconDamageEvent
+		/Damaged /FixIcon
+		null IconFrameCanvas eventmgrinterest def
+	    /IconIconicFcnKeyEvent
+		/WindowFunction /flipiconic
+		/FlipIconic IconFrameCanvas eventmgrinterest def
+	    /IconFrontFcnKeyEvent
+		/WindowFunction /totop
+		/FlipFront IconFrameCanvas eventmgrinterest def
+        end
+    } def
+
+    /CreateFrameInterests { % - => -  -- override framecontrol interests
+	/CreateFrameInterests super send
+	FrameInterests begin
+	    currentdict /FrameTopEvent undef
+	    currentdict /FrameCloseEvent undef
+	    currentdict /FrameMoveEvent undef
+	    currentdict /FrameStretchEvent undef
+	    /FramePointEvent PointButton /pointevent
+		DownTransition FrameCanvas eventmgrinterest def
+	    /FrameAdjustEvent AdjustButton /adjustevent
+		DownTransition FrameCanvas eventmgrinterest def
+	end
+    } def
+
+    /CreateFrameControls nullproc def
+    /MoveFrameControls nullproc def
+
+    /pointevent {
+	GetCorner
+	dup null ne {
+	    gsave ParentCanvas setcanvas
+	    Constraints exch get aload pop
+	    2 copy null eq exch null eq and { pop pop % no constraints
+	    } { % some constraint
+		dup null eq { % just bottom or top
+		    pop FrameWidth mul FrameX add /GA_value exch store
+		    /GA_constraint 0 store
+		} { % just left or right
+		    exch pop FrameHeight mul FrameY add /GA_value exch store
+		    /GA_constraint 1 store
+		} ifelse
+	    } ifelse
+	    exch FrameWidth  mul FrameX add
+	    exch FrameHeight mul FrameY add
+	    BBoxFromUser /reshape self send
+	    grestore
+	} { pop
+	    GetGadget { % case
+		1 { flipiconic }
+		-1 { confirmeddestroy }
+		/Default { totop }
+	    } case
+	} ifelse
+    } def
+
+    /adjustevent {
+	GetCorner
+	dup null ne {
+	    Constraints exch get
+	    dup 2 get null ne {
+		/GA_constraint 0 store
+	    } { dup 3 get null ne {
+		/GA_constraint 1 store
+	    } if } ifelse
+	    pop
+	    slide
+	} {
+	    GetGadget { % case
+		1 { flipmove }
+		/Default { slide }
+	    } case
+	} ifelse
+    } def
+
+    /GetCorner { % - =>  null -or- corner name
+	gsave FrameCanvas setcanvas currentcursorlocation grestore % x y
+	dup 8 le { % bottom
+	    1 index 24 le /BottomLeft {
+		1 index FrameWidth 24 sub ge /BottomRight /Bottom ifelse
+	    } ifelse
+	} { dup FrameHeight 8 sub ge { % top
+	    1 index 24 le /TopLeft {
+		1 index FrameWidth 24 sub ge /TopRight /Top ifelse
+	    } ifelse
+	} { % middle part	
+	    dup 24 le { % bottom
+		1 index 8 le /BottomLeft {
+		    1 index FrameWidth 8 sub ge /BottomRight null ifelse
+		} ifelse
+	    } { dup FrameHeight 24 sub ge { % top
+		1 index 8 le /TopLeft {
+		    1 index FrameWidth 8 sub ge /TopRight null ifelse
+		} ifelse
+	    } { % middle part	
+		1 index 8 le /Left {
+		    1 index FrameWidth 8 sub ge /Right null ifelse
+		} ifelse
+	    } ifelse } ifelse
+	} ifelse } ifelse
+	exch pop exch pop
+    } def
+
+    /GetGadget { % - -> gadget-position
+	% returns  null -or- 1 2 3 (from left) -3 -2 -1 (from right)
+	gsave FrameCanvas setcanvas currentcursorlocation grestore
+	dup FrameHeight 8 sub le exch FrameHeight 24 sub ge and {
+	    % in correct vertical range
+	    dup 8 ge 1 index FrameWidth .5 mul le and {
+		% left half
+		8 add 16 idiv
+	    }{ dup FrameWidth .5 mul ge 1 index FrameWidth 8 sub le and {
+		% right half
+		FrameWidth exch sub 8 add 16 idiv neg
+	    }{
+		pop null
+	    } ifelse } ifelse
+	} {
+	    pop null
+	} ifelse
+    } def
+
+    % Constraint info: [ fx fy ax ay ]
+    % where fx and fy are a fixed corner and
+    % ax and ay are null for "free"
+    % pretend the coordinates run 0..1
+    /Constraints 8 dict dup begin
+	/TopLeft [ 1 0 null null ] def
+	/Top [ 0 0 1 null ] def
+	/TopRight [ 0 0 null null ] def
+	/Bottom [ 1 1 0 null ] def
+	/BottomLeft [ 1 1 null null ] def
+	/BottomRight [ 0 1 null null ] def
+	/Left [ 1 1 null 0 ] def
+	/Right [ 0 0 null 1 ] def
+    end def
+    
+    /confirmeddestroy {
+	Confirmer null eq {
+	    /Confirmer ParentCanvas (Quit?) {
+		{ % bool comes as arg
+		    /destroy ThisWindow send
+		} {
+		    /unmap self 0 pop send % yuck!
+		} ifelse
+	    } /new SlickConfirm send def
+	} if
+	/mapatmouse Confirmer send
+    } def
+
+    /flipmove {
+	gsave
+	framebuffer setcanvas
+	/Iconic? Iconic? not def
+	currentcursorlocation
+	Iconic? {
+	    exch IconWidth 2 div sub exch IconHeight 2 div sub
+	} {
+	    exch FrameWidth 2 div sub exch FrameHeight 2 div sub
+	} ifelse
+	move
+	/Iconic? Iconic? not def
+	grestore
+	flipiconic slide
+    } def
+    
+    /flipiconic {	% Move to front when opened or closed - sjs
+	Iconic? { FrameCanvas } { IconCanvas } ifelse canvastotop
+	Iconic? not IconX null eq and {
+	    flipmove
+	} {
+	    /flipiconic super send
+	} ifelse
+    } def
+    
+    /ZoomProc {	       % no nonsense zoom proc
+	gsave fboverlay setcanvas
+	[ false true ] { [ false true ] {
+	    2 copy FrameHeight 0 ifelse FrameY add exch
+	    FrameWidth 0 ifelse FrameX add exch moveto
+	    2 copy IconHeight 0 ifelse IconY add exch
+	    IconWidth 0 ifelse IconX add exch lineto
+	    FrameX FrameY FrameWidth FrameHeight rectpath
+	    IconX IconY IconWidth IconHeight rectpath
+	    stroke
+	    pop } forall pop } forall
+	% .05 60 div sleep
+	pause
+	erasepage
+	grestore
+    } def
+
+classend def
+
+/SlickConfirm Object dictbegin
+    /Canvas    null   def
+    /EventProc null   def
+    /Message   ()     def
+    /Notify    nullproc def
+    /Selected  null   def
+dictend classbegin
+    /Width 64 def /Height 64 def
+    /FillColor 1 def /TextColor 0 def
+    /Font /Helvetica findfont 12 scalefont def
+    /new { /new super send begin % canvas notify -> obj
+	/Notify exch def
+	/Message exch def
+	/Canvas gsave exch dup setcanvas newcanvas dup begin
+	    /Transparent false def
+	    /Retained false def
+	    /Mapped false def
+	end def
+	0 0 moveto Width Height rect Canvas reshapecanvas
+	grestore
+	currentdict
+    end } def
+    /ExpressInterests {
+	% Damage Repair
+	createevent
+	dup /Name 1 dict dup begin
+	    /Damaged {
+		{   GSave damagepath clipcanvas
+		    Paint
+		    newpath clipcanvas grestore
+		} self 0 pop send
+	    } def
+	end put
+	dup /Canvas Canvas put
+	expressinterest
+	createevent
+	dup /Name 1 dict dup begin
+	    PointButton { /ButtonDown self 0 pop send } def
+	end put
+	dup /Canvas Canvas put
+	dup /Action /DownTransition put
+	expressinterest
+    } def
+    /move { % x y -> -
+	gsave Canvas setcanvas movecanvas grestore
+    } def
+    /StartEventProc {
+	/EventProc { % fork
+	    ExpressInterests
+	    { awaitevent pop } loop
+	} fork def
+    } def
+    /map { % - -> -
+	EventProc null eq { StartEventProc } if
+	Canvas canvastotop
+	Canvas /Mapped true put
+    } def
+    /unmap { Canvas /Mapped false put } def
+    /mapatmouse {
+	gsave Canvas /Parent get setcanvas currentcursorlocation grestore
+	exch Width .5 mul sub exch Height .5 mul sub move
+	map
+    } def
+    /ConfirmMask  64 64 1 [ 64 0 0 -64 0 64 ] { <
+	000000000000000000000000000000012AAAAAAAAAAAAAAB1555555555555557
+	2AAAAAAAAAAAAAAB15555555555555572BFFFFFFFFFFFFEB17FFFFFFFFFFFF97
+	2BAAAAAAAAAAAA2B17555555555555172BAAAAAAAAAAAA2B1755555555555517
+	2BAAAAAAAAAAAA2B17555555555555172BAAAAAAAAAAAA2B1755555555555517
+	2BAAAAAAAAAAAA2B17555555555555172BAAAAAAAAAAAA2B1755555555555517
+	2BAAAAAAAAAAAA2B17555555555555172BAAAAAAAAAAAA2B1755555555555517
+	2B0000000000002B17000000000001172B0000000000032B1715555555555717
+	2B2AAAAAAAAAAB2B17155555555557172B2AAAAAAAAAAB2B1715555555555717
+	2B2AAAAAAAAAAB2B17155555555557172B2AAAAAAAAAAB2B1715555555555717
+	2B2AAAAAAAAAAB2B17155555555557172B3FFFFFFFFFFF2B177FFFFFFFFFFF17
+	2B0000000000002B17000000000001172B2AAAAAAAAAAB2B1715555555555717
+	2B2AAAAAAAAAAB2B17155555555557172B2AAAAAAAAAAB2B1715555555555717
+	2B2AAAAAAAAAAB2B17155555555557172B2AAAAAAAAAAB2B1715555555555717
+	2B2AAAAAAAAAAB2B17155555555557172B3FFFFFFFFFFF2B177FFFFFFFFFFF17
+	2B0000000000002B16000000000000172AAAAAAAAAAAAAAB1555555555555557
+	2AAAAAAAAAAAAAAB15555555555555573FFFFFFFFFFFFFFF7FFFFFFFFFFFFFFF
+	> } buildimage def
+    /ReverseMask 64 16 1 [ 64 0 0 -16 0 16 ] { <
+	2BFFFFFFFFFFFF2B17FFFFFFFFFFFE172BEAAAAAAAAAA82B17D5555555555417
+	2BEAAAAAAAAAA82B17D55555555554172BEAAAAAAAAAA82B17D5555555555417
+	2BEAAAAAAAAAA82B17D55555555554172BEAAAAAAAAAA82B17D5555555555417
+	2BEAAAAAAAAAA82B17D55555555554172BE000000000002B1780000000000017
+	> } buildimage def
+    /Paint { % - -> -
+	gsave
+	    FillColor fillcanvas
+	    0 setgray
+	    Width Height scale true ConfirmMask imagemaskcanvas
+	grestore
+	Selected null ne {
+	    gsave
+	    0 8 Selected 16 mul add translate 64 16 scale
+	    FillColor setshade 0 0 moveto 1 1 rect fill
+	    0 setgray
+	    true ReverseMask imagemaskcanvas
+	    grestore
+	} if
+	32 44 moveto Message CShow
+	32 27 moveto (Yes) CShow
+	32 12 moveto (No) CShow
+    } def
+    /CShow {
+	dup stringwidth pop dup 2 idiv 2 add neg -1 rmoveto
+	4 add currentfont fontascent
+	gsave rect FillColor setshade fill grestore
+	2 1 rmoveto show
+    } def
+    /GSave { gsave Canvas setcanvas Font setfont TextColor setshade } def
+    /paint { GSave Paint grestore } def
+
+    /ButtonDown { null blockinputqueue { unblockinputqueue % fork
+	createevent
+	% dup /Canvas Canvas put
+	dup /Action /UpTransition put
+	expressinterest
+
+	createevent
+	dup /Name /MouseDragged put
+	expressinterest
+
+	{ % loop
+	    gsave Canvas setcanvas currentcursorlocation grestore
+	    exch dup 8 gt exch 56 lt and {
+		8 sub dup 0 lt { pop null } {
+		    16 idiv dup 2 ge { pop null } if
+		} ifelse
+	    } null ifelse
+	    dup Selected ne {
+		/Selected 1 index store
+		paint
+	    } if
+	    pop
+	    awaitevent /Action get /UpTransition eq { exit } if
+	} loop
+
+	Selected null ne {
+	    Selected 1 eq Notify
+	    /Selected null store
+	    paint
+	} if
+
+    } fork } def
+	    
+classend def
+
+{
+    {
+	/FrameLabel (SlickWindow) def
+	/IconLabel (SlickWin) def
+	/ClientFont /Helvetica-BoldOblique findfont 24 scalefont def
+	/PaintClient {
+	    ClientFont setfont
+	    ClientWidth .5 mul ClientHeight currentfont fontascent sub .5 mul
+	    moveto
+	    (SlickWindow) cshow
+	} def
+	reshapefromuser
+	map
+    } framebuffer /new SlickWindow send send
+} pop
+
+systemdict /DontSetDefaultWindow known not {
+  systemdict /DefaultWindow SlickWindow put
+} if
+
+{ begin } pop end % do it this way to fool formatters!

@@ -1,0 +1,77 @@
+====
+
+From:	      Russell Nelson [SMTP:nelson@crynwr.com]
+Sent:	      Friday, January 02, 1998 8:06 AM
+To:	      Hopkins, Don
+Subject:      piewm
+
+Hi.  I'm dragging piewm, kicking and screaming, into the late 90's.
+Could you make a link to it from your pie menus page?  The URL is
+http://www.crynwr.com/piewm.  I added your shaped pie menu code to
+it.  Looks way cool.
+
+Did you see that some luser patented a variant of pie menus where the
+labels are lined up in two columns?  He claims they're easier to read,
+although he presents no evidence for it on his web page.  It's patent
+#5,596,699 - spider menus.  And yes, it's full of references to pie
+menus, and yes, he got the patent anyway.
+
+-- 
+-russ <nelson@crynwr.com>  http://www.crynwr.com/~nelson  | Freedom is the
+Crynwr Software supports freed software | PGPok |   primary cause of peace.
+521 Pleasant Valley Rd. | +1 315 268 1925 voice | Obedient, Christian, statist:
+Potsdam, NY 13676-3213  | +1 315 268 9201 FAX   |    you only get to pick two.
+
+====
+
+From: Hopkins, Don [mailto:Hopkins, Don] 
+Sent: Monday, January 05, 1998 6:07 PM
+To: Russell Nelson
+Cc: Hopkins, Don
+Subject: RE: piewm
+
+I assume you mean this guy, Stanley Driskell:
+http://www-personal.umich.edu/~driskell/
+
+It's a nice way to lay out the labels, which wouldn't be hard to
+generalize and improve upon. How about I add a new layout style that
+looks like spider menus, but nicer and more flexable. The best way to
+deal with a patent of a variant is to make an unpatented variant of
+the variant, that's even better.
+
+I wonder if this guy has actually implemented them or just wrote up
+and patented the idea? What other URLs do you have? I found his home
+page with the spider menu pictures, his head, and his resume, but have
+not looked up the patent yet.
+
+I like the idea of mental and physical effort metrics, but they're
+hardly his "invention" or a new idea. Just common sense that every
+user interface programmer should be aware of, not patentable. And as
+for his "Method to Generate Usable Human-Computer Interfaces", well
+what can I say? You just can't patent a lot of hard work and sweat, or
+get around the fact that there's no substitute.
+
+I saw his proposal for a user interface course project that mentioned
+spider menus:
+
+http://sandcastle.cosc.brocku.ca/Offerings/3P99/new/ifde3.html
+
+Backing up from the URL reveals an interesting independent study
+course at Brock university, and it seems like this is just a proposal
+for a project for a student to work on, that hasn't been done
+yet. It's really very poorly written, trying to use fancy academic
+language to make a mountain out of a mole hill. I hope the students
+don't mistake the proposal as an example of a writing style to
+emulate!
+
+Alias marketing bozos managed to fool Kinetics programmers into
+thinking that Alias patented "marking menus", so Kinetics isn't using
+them, and they even lied to my face about it, saying Bill Buxton
+invented and patented them. Appearently there is no patent, but they
+just say so to generate Fear Uncertainty and Doubt with their
+competitors. Cheaper than paying the lawyers to process the paperwork,
+I suppose.
+
+      -Don
+
+====

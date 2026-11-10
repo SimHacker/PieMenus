@@ -1,0 +1,52 @@
+Date: Thu, 15 Feb 90 01:33:45 PST
+From: gnu@toad.com (John Gilmore)
+To: don@brillig.umd.edu
+Subject: Oh no!!!!!   Yet another AcROnYM from sUn...
+
+From pacbell!ames!uakari.primate.wisc.edu!brutus.cs.uiuc.edu!apple!sun-barr!newstop!sun!terra!brent Mon Feb 12 17:57:31 1990
+From: brent@terra.Sun.COM (Brent Callaghan)
+Newsgroups: comp.protocols.nfs
+Subject: NeFS Protocol Spec Available
+Keywords: NFS version 3
+Message-ID: <131732@sun.Eng.Sun.COM>
+Date: 13 Feb 90 01:57:31 GMT
+Sender: news@sun.Eng.Sun.COM
+
+NeFS is not NFS.  It started out as an NFS protocol rev
+(NFS version 3) but its protocol is a radical departure
+from the NFS's remote procedure call model.  In order
+to avoid confusion with NFS we're calling it NeFS for
+now - Network Extensible File System (the similarity of
+the name to a window system protocol is entirely intentional).
+
+A draft spec for this new protocol is available via anonymous
+FTP from titan.rice.edu (128.42.1.30) as
+
+	/public/nefs.doc.ps
+
+The file is ~250K of PostScript.  It prints 52 pages.
+The spec is not available in any other format.
+
+Comments, suggestions, flames etc are welcomed.  Direct them
+to "nfs3@sun.COM".
+
+	Thanks
+
+Made in New Zealand -->  Brent Callaghan  @ Sun Microsystems
+			 uucp: sun!bcallaghan
+			 phone: (415) 336 1051
+
+220 Sun.COM Sendmail 4.1/SMI-4.1 ready at Fri, 16 Feb 90 01:05:26 PST
+expn nfs3
+250-<tumm@alone>
+250-<lwe@santa_fe>
+250-<pugs@whitsun>
+250-<warrens@sunned>
+250-<marks@ferne>
+250-<brent@sparky>
+250-<vls@napoleon>
+250-<corbin@sunroof>
+250-<lhatt@boutique>
+250-<maleski@sunroof>
+250-<silveri@krungthep>
+250 <cs@sparky>

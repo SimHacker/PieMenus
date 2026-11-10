@@ -1,0 +1,263 @@
+%!
+%
+% Date: Tue, 26 Jul 88 21:27:39 EDT
+% To: NeWS-makers@brillig.umd.edu
+% Subject: Big brother
+% From: eagle!icdoc!Ist!jh@ucbvax.Berkeley.EDU  (Jeremy Huxtable)
+% 
+% Try this out on your NeWS server.....
+% 
+% eye.ps
+%
+% Jeremy Huxtable
+%
+% "Big Brother" implementation in PostScript.
+% 
+% Date: Sun, 31 Jul 88 04:12:50 EDT
+% To: NeWS-makers@brillig.umd.edu
+% Subject: smooth motion in Huxtable's eye.ps
+% From: icsia!fanty@ucbvax.Berkeley.EDU  (Mark Fanty)
+% 
+% NeWS animation which erases the old image before drawing the new one
+% often has an unpleasant flickering.  I liked Jeremy Huxtable's
+% recently posted eye.ps (Re: Big brother) so much I decided to attempt
+% a fix for the eyeballs.  My solution uses clipping to avoid erasing
+% any part of what will be the new eyeball.
+% 
+%         Mark Fanty
+%         International Computer Science Institute
+%         1947 Center Street., Suite 600
+%         Berkeley, CA 94704
+% 
+%         (415) 643-7294
+%         fanty@icsi.berkeley.edu
+%
+
+% Create an Eyeball class from the Default window class.
+
+/Eyeball DefaultWindow
+dictbegin
+    /EyeX 0 def                 % Current eyeball position
+    /EyeY 0 def
+    /MouseEventMgr null def     % Event manager
+    /PupilColor bordercolor def
+    /EyeColor backgroundcolor def
+    /BorderColor bordercolor def
+    /ClientMinWidth 2 def
+    /ClientMinHeight 2 def
+    /BorderLeft 8 def
+    /BorderRight 8 def
+    /BorderTop 8 def
+    /BorderBottom 8 def
+dictend
+classbegin
+    /Transform {
+	initmatrix initclip
+	clippath pathbbox scale pop pop
+	.5 .5 translate
+    } def
+
+    /ShapeFrameCanvas {
+	gsave ParentCanvas setcanvas
+	FrameX FrameY translate
+	FrameWidth FrameHeight scale
+	.5 .5 .5 0 360 arc FrameCanvas setcanvasshape
+%	.5 .5 .2 0 360 arc
+	grestore
+    } def
+
+    /ShapeClientCanvas {
+	gsave ParentCanvas setcanvas
+	FrameX FrameY translate
+	FrameWidth FrameHeight scale
+	.5 .5 .45 0 360 arc ClientCanvas setcanvasshape
+	grestore
+    } def
+
+    /PaintFrame { } def
+
+    /DrawFrame {
+      gsave
+	BorderColor setcolor clippath fill
+	0 0 .45 0 360 arc
+	EyeColor setcolor fill
+      grestore
+    } def
+
+%    /ShapeClientCanvas { } def
+
+%    /CreateClientCanvas { /ClientCanvas FrameCanvas newcanvas def } def
+
+    /PaintClient {
+      gsave
+	FrameCanvas setcanvas
+	damagepath clipcanvas
+	Transform DrawFrame clipcanvas
+	EyeX EyeY PupilColor painteyeball
+      grestore
+    } def
+
+    /PaintFocus { } def
+
+    /activate { % create event manager to watch the mouse.
+      gsave
+	FrameCanvas setcanvas
+	/MouseEventMgr [
+	    MouseDragged
+	    {
+		begin
+		    XLocation YLocation PupilColor painteyeball
+		    /EyeX XLocation store
+		    /EyeY YLocation store
+		    currentdict
+		end
+		redistributeevent
+	    }
+	    null % Action
+	    null % Canvas
+	    eventmgrinterest
+	] forkeventmgr def
+      grestore
+    } def
+
+    /painteyeball { % x y colour =>
+	setcolor
+	exch atan /angle exch def
+	angle cos .2 mul
+	angle sin .2 mul
+	2 copy 2 copy
+	Transform
+	gsave
+	0 0 .45 0 360 arc clip % avoid border
+	% clip around new eye before erasing to avoid flicker
+	.15 0 360 arc
+	.8 0 360 arc eoclip EyeColor fillcanvas
+        grestore
+	.15 0 360 arc fill
+    } def
+
+    % /painteyeball { % x y colour =>
+	% setgray
+	% exch atan /angle exch def
+	% angle cos .2 mul
+	% angle sin .2 mul
+	% Transform
+	% .15 0 360 arc fill
+    % } def
+
+    /clone {
+      { clear newprocessgroup
+	/EyeColor EyeColor  /PupilColor PupilColor  /BorderColor BorderColor
+        { countdictstack 2 le { exit } if end } loop
+	framebuffer /new Eyeball send
+        { def def def
+	  reshapefromuser
+	  /ClientMenu TestMenu def
+	  map activate
+	} exch send
+      } fork pop
+    } def
+
+    /destroy {
+      unmap
+      { MouseEventMgr killprocess } errored pop
+      FrameCanvas /Retained false put
+      /destroy super send
+    } def
+
+classend def
+
+% Color wheel pie menu
+
+    /color-menu-callback { % name color => -
+     { def
+       paint
+     } ThisWindow send
+     CurrentEvent /showat menu:emacs-color send
+    } def
+
+    /menu:emacs-color-wheel
+      { ColorName MenuValue color-menu-callback } /new ColorPie send def
+    menu:emacs-color-wheel /Wocka false put
+
+    /do-emacs-color-wheel {
+      { /BorderColor /PupilColor /EyeColor } MenuValue get
+      framebuffer /Color get {
+	menu:emacs-color-wheel
+	dup /ColorName
+	4 -1 roll
+	put
+	dup /Brightness
+	/value getmenuarg exec
+	put
+      } {
+	[ exch /value getmenuarg exec dup dup rgbcolor 
+	  /color-menu-callback cvx ] cvx
+      } ifelse
+    } def
+
+    /grayThing { % gray => -
+      exch {
+	/size { pop NumbRadius dup add dup }
+	/paint {
+	  gsave
+	    newpath
+	    0 0 NumbRadius Border sub 0 360 arc
+	    setgray
+	    fill
+	    0 0 NumbRadius 0 360 arc
+	    0 0 NumbRadius Border sub 0 360 arc
+	    MenuBorderColor setcolor
+	    eofill
+	  grestore }
+	/value { }
+      } case
+    } def
+
+    /menu:emacs-color [
+      [ 3 { { 0 grayThing } } repeat
+        0  1 32 div  1 { 
+	  [ exch /grayThing cvx ] cvx 
+	} for 
+      ]
+    ] [
+      (Border) /do-emacs-color-wheel cvx
+      (Pupil) /do-emacs-color-wheel cvx
+      (Eye) /do-emacs-color-wheel cvx
+    ] /new PulloutPieMenu send def
+    menu:emacs-color /EraseArgs? false put
+    menu:emacs-color /NumbRadius 25 put
+    menu:emacs-color /LabelMinRadius 45 put
+    menu:emacs-color /UseOverlay? false put
+
+/TestMenu [
+  (Color...) menu:emacs-color
+  (Frame...) /GetFrameMenu cvx
+  (Random) {
+    {
+      /EyeColor random random random rgbcolor def
+      /PupilColor random random random rgbcolor def
+      /BorderColor random random random rgbcolor def
+      paint
+    } ThisWindow send
+  }
+  (Clone) { /clone ThisWindow send }
+] /new DefaultMenu send def
+
+/GetFrameMenu {
+  /FrameMenu ThisWindow send
+} def
+
+% Now actually create a pair of eyes.
+/eyeball framebuffer /new Eyeball send def
+{ 100 700 30 30 /reshape eyeball send
+  /ClientMenu TestMenu def
+%  /ClientMenu menu:emacs-color def
+  map activate
+} eyeball send
+
+%/eyeball framebuffer /new Eyeball send def
+%eyeball /ClientMenu menu:emacs-color put
+%145 705 16 16 /reshape eyeball send
+%/map eyeball send
+%/activate eyeball send

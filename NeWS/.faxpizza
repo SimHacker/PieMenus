@@ -1,0 +1,201 @@
+/PizzaSpoolDirectory (/net/cirrus/home/cirrus/hopkins/PizzaSpool) def
+/FaxServer (b23b-fax) def
+/SendOrder { % - => -
+  {
+  20 dict begin
+    /UniqueName
+      % Goofy way to generate a unique name:
+      (echo $USER-`hostname`-$$) pipe pop 100 string readline pop
+      PizzaSpoolDirectory
+      (%/PizzaOrder-%) sprintf
+    def
+
+    /PostScriptFileName UniqueName (%.ps) sprintf def
+    /RasterFileName UniqueName (%.can) sprintf def
+
+    /f PostScriptFileName (w) file def
+    f (%!PS-Adobe-2.1
+%%Pages: 1
+%%EndComments
+/P { % x y w h b => -
+  string /s exch def /h exch def /w exch def /y exch def /x exch def
+  gsave
+    {1 exch sub} settransfer
+    x y translate
+    1 1 idtransform
+    abs exch abs exch scale
+    w h scale
+    w h 1 [w 0 0 h 0 0]
+    {currentfile s readhexstring pop}
+    image
+  grestore
+} def
+/Q { % r f x y w h rasterfilename => -
+  /fn exch def /h exch def /w exch def /y exch def /x exch def
+  /f exch def /r exch def
+  gsave
+    x y translate
+    w h scale
+    newpath
+    .5 .5 r .5 mul 180 dup 360 f mul add arc closepath
+    clip newpath
+    fn { readcanvas } stopped { pop } {
+%      0 0 0 setscreen % Get default halftone screen
+      imagecanvas
+    } ifelse
+  grestore
+} def
+/S {
+  1 setgray
+  -1.5 .5 1.5 { /x exch def
+    -1.5 .5 1.5 { /y exch def
+      gsave x y rmoveto dup show grestore
+    } for
+  } for
+  0 setgray show
+} def
+/RS {dup stringwidth exch neg exch rmoveto S} def
+/L { 0 moveto S } def
+/R { 0 moveto RS } def
+/D { 0 -25 translate } def
+/T0 0 def /T1 50 def /T2 160 def /T3 180 def
+%%EndProlog
+%%Page: 1 1
+
+16 0 translate
+
+) writestring
+
+  gsave
+    framebuffer
+    /buf Pizza newcanvas def
+    buf /Transparent true put
+    Pizza setcanvas
+    /size Pizza send
+    2 copy sub		% w h difference
+    dup 0 lt {
+      -.5 mul exch pop	% w difference/2
+      0 exch		% w 0 difference/2
+      3 -1 roll dup	% 0 difference/2 w w
+    } {
+      .5 mul 0		% w h difference/2 0
+      4 2 roll		% difference/2 0 w h
+      exch pop dup	% difference/2 0 h h
+    } ifelse
+    rectpath buf reshapecanvas
+    buf /Mapped true put
+    buf setcanvas
+    RasterFileName writecanvas
+    buf /Mapped false put
+    /buf null def
+  grestore
+
+  RasterFileName
+  /fraction Pizza send
+  /radius Pizza send
+  (% % 40 50 530 530 (%) Q\n) sprintf
+  f exch writestring
+
+  (
+gsave
+  50 730 translate
+
+  0 setgray
+
+  /Palatino-Bold findfont
+  20 scalefont setfont
+
+) f exch writestring
+
+    f ((To pizza parlor:) T2 R\n) writestring
+    { /value self send 0 get /item self send 0 get
+    } pizzaparlormenu send
+    ((%) T3 L D\n) sprintf
+    f exch writestring
+    
+    f ((Food order from:) T2 R\n) writestring
+    /value namefield send
+    ((%) T3 L D\n) sprintf
+    f exch writestring
+
+    f ((Phone:) T2 R\n) writestring
+    /value phonefield send
+    ((%) T3 L D\n) sprintf
+    f exch writestring
+    
+    f ((Address:) T2 R\n) writestring
+    /value addressfield send
+    ((%) T3 L D\n) sprintf
+    f exch writestring
+
+    f (D\n) writestring
+
+    { (We will eat the food there.)
+      (This order is to go.)
+      (This order is "Take & Bake".)
+      (Please deliver to the above address.)
+    } /value deliverymenu send 0 get get
+    ((%) T0 L D\n) sprintf
+    f exch writestring
+
+    f (D\n) writestring
+
+    { 10 14 16 18 }
+    /value pizzasizesettings send 0 get get
+    { (whole) (half of a) }
+    /value pizzafractionsettings send 0 get get
+    (One % % inch pie:) sprintf
+    ((%) T0 L D\n) sprintf
+    f exch writestring
+
+    /style Pizza send /name exch send ((%) T0 L D\n) sprintf
+    f exch writestring
+    /extratoppings Pizza send {
+      /name exch send ((Add %) T1 L D\n) sprintf
+      f exch writestring
+    } forall
+
+    f (D\n) writestring
+
+    [ instructionfield0 instructionfield1 instructionfield2
+      instructionfield3 instructionfield4 instructionfield5
+    ] {
+      /value exch send
+      dup length 0 eq { pop (D\n) } {
+          ((%) T0 L D\n) sprintf
+      } ifelse
+      f exch writestring
+    } forall
+
+    f (\n) writestring
+
+    (
+grestore
+grestore
+showpage
+%%EOF
+) f exch writestring
+
+    f closefile
+
+    /value pizzaparlormenu send 0 get {
+      0 {
+	/FaxPhone (9658882) def		% Tony & Alba's
+      }
+      1 2 3 {
+        /FaxPhone (3363551) def		% Blg23 Demo Room
+      }
+      4 {
+        /FaxPhone (9697269) def		% Blg23 Upstairs
+     }
+    } case
+    PostScriptFileName
+    { /value self send 0 get /item self send 0 get
+    } pizzaparlormenu send
+    FaxPhone FaxServer
+    (sunfax -ser % -faxp % -ton 'Pizza Chef' -com "%" -sub 'Pizza Order' %)
+    sprintf runprogram
+  end
+  } fork pop
+} def
+

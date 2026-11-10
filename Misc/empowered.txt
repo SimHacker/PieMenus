@@ -1,0 +1,147 @@
+* how to sequence this? (as many things in parallel as possible)
+
+
+* mousee (runs continuously)
+  "this is what I'm doing with the mouse"
+* pie menus
+  pop up frame menu on mousee
+  "mousee also shows where menus pop up"
+* window management
+  open flag windows
+  "small pie menu"
+  "huge pie menu"
+  "frame menu"
+  "sub menus"
+* mouse ahead display supression (pac-man)
+  "top, bottom"
+  "do it fast"
+  "supresses menu display"
+  "shows subliminal pacman instead"
+  "mousee displayes menu anyway"
+  "random flags"
+  "stretch, up, down, iconify, move"
+  "zap"
+* psiber
+  "direct stack manipulation"
+* data structures (arpanet)
+  "postscript data structure editor"
+  "selectable data"
+* command pallets (use to start other demos)
+  "pallette of executable postscript commands"
+  "editable data just like everything else"
+* zoom animation (runs continuously)
+  "animated movie of a distilled pseudoscientific visualization"
+  "Object, root of the X11/NeWS class hierarchy"
+* pull-out pie menu
+  "point size, and other view attributes"
+* color pie menu
+  "distance selects brightness and pops up submenu"
+  "submenu direction selects hue, distance selects saturation"
+* font pie menu
+  "menu of font foundries"
+  "submenu of font families"
+  "submenu of font styles, pull out to select point size"
+* pseudo scientific visualizer (arpanet, adventure, litemenu tree)
+  "the data structure browser for the other half of your brain"
+  "fish-eye lens for the macroscopic examination of data"
+  "arpanet -- homogenous"
+  "adventure -- clumpy"
+  "menu tree -- complex"
+* metacircular postscript interpreter algorithm animation (runs continuously)
+  "a PostScript interpreter written in PostScript"
+  "animation of quicksort algorithm"
+** open visualizer on string array 
+  "visualize an array of unsorted strings"
+** sort an array of strings
+  "vertical axis is operand stack depth"
+  "horizontal axis is execution stack depth"
+** refresh string array visualization while sorting
+  "visualize data being sorted in place"
+* open deeper and deeper visualizer windows
+  "traveling across the country over the arpanet"
+  "deeper into the collosal cave of adventure"
+  "climbing the menu tree"
+* highlight mouse selectable targets
+  "these flashing dots are selectable pieces of information"
+* pop up lots of hands
+  "anthropomorphic link back to the left brain"
+* rotate color map
+  "psychodellic color map manipulation"
+
+
+* Setup:
+** Programs to run before hand
+*** figure out where zoom animation is
+*** figure out where algorithm animation is
+*** mousee
+**** position window in corner
+*** flag waving application (window managment)
+**** position icons in a stack on edge
+**** position 4 windows, different places, partially overlapping
+*** psiber
+**** position icon on edge
+**** position window almost full screen
+**** load up font cache with font menus
+**** load arpanet
+**** load adventure
+**** setup pseudoscientific visualizer parameters
+***** not too deep, several processes, lines
+**** load metacircular postscript interpreter
+**** load command pallette
+***** Commands on psiber pallette
+****** push useful data
+******* font (some font that will be seen when changed)
+******* color (some color that will be seen when changed)
+******* arpanet
+******* adventure
+******* litemenu tree
+******* unsorted array, strings: (a) (bb) (ccc) (dddd) ...
+****** zoom animation
+****** algorithm animation
+****** clear stack
+*** color wheel
+**** position icon on edge
+**** position small window, over icon
+**** setup to rotate whole color map
+
+
+* Software and data I need to bring
+** this file
+** phone list (including Craig's number)
+** pertinant email (from chi box, dominic)
+** NeWS directorty and init files (~/{.*.ps,NeWS,gn,merge,n} ...)
+** psiber directory (litecyber)
+** performance directory (souped up pie menus, mousee, etc)
+** mapper directory (animation program)
+** spin directory (animation data)
+** flags demo
+** news-tape directory (NeWS demos)
+** latest todo NeWS software (brillig)
+** HyperNeWS directory (HyperNeWS demos)
+** graphics/images directory (optional)
+** NeWS 1.1 distribution (optional)
+** Open Windows distribution (optional)
+** UniPress Emacs (optional)
+** pixscript (optional)
+
+
+* Other stuff to bring
+** Zoolook tape
+** Tangerine Dream CD
+** CD player and cords
+** extra Sun tapes
+** video tapes of psiber demos + extras
+** psiber papers
+** pastels, paper, and other art supplies
+** camera
+** clothes
+** math book
+
+
+* stuff to fix
+** make mapper read from stdin if input file is "-" (replace seek w/ read?)
+** make pseudoscientific visualizer choose background hue randomly
+** make popup pointing hand one of several random flesh colors
+  /orange /wheat /pink /plum /yellow /brown /firebrick /salmon /khaki 
+  /sienna /coral /gold /tan /goldenrod /gray /green /mediumgoldenrod 
+** deactivate Open Look root menu

@@ -1,0 +1,72 @@
+%!
+% Color hue pie menu
+% Don Hopkins
+% 
+
+systemdict begin
+
+/ColorPieMenu PieMenu
+dictbegin
+  /Hues 64 def
+  /HueStep null def
+dictend
+classbegin
+  /PaintMenuItems {
+      MenuGSave
+        PieRadius dup translate
+
+	/HueStep 360 Hues div def
+	/ThisAngle PieInitialAngle HueStep 2 div sub def
+
+	0 1 Hues div .99 {
+	  newpath
+	  0 0 PieRadius
+% XXXXX
+	} repeat
+
+        MenuItems {					% item
+	begin
+	  MenuTextColor setcolor
+	  /Key load X Y ShowThing
+
+% There seems to be a NeWS line clipping bug with lines with one 
+% endpoint the right of the hole in the center of the menu ... 
+
+	  2 setlinequality % Solves SOME of the line glitches ...
+          MenuLineWidth setlinewidth
+	  MenuLineCap setlinecap
+
+	  SliceWedges {
+	    gsave
+	      newpath
+	      ang PieSliceWidth 2 div sub rotate
+	      NumbRadius 0 moveto
+	      LabelRadius Gap sub 0 lineto
+              MenuBorderColor setcolor
+	      stroke
+ 	    grestore
+	  } if
+
+	  SliceArrows {
+	    gsave
+	      MenuArrowWidth setlinewidth
+	      MenuArrowCap setlinecap
+	      newpath
+	      ang rotate
+	      NumbRadius 0 moveto
+	      LabelRadius .5 mul 0 lineto
+	      currentpoint
+	      LabelRadius .4 mul LabelRadius .04 mul lineto
+	      moveto
+	      LabelRadius .4 mul LabelRadius -.04 mul lineto
+              MenuBorderColor setcolor
+	      stroke
+ 	    grestore
+	  } if
+        end
+        } forall
+      grestore
+  } def
+classend def
+
+end %  systemdict

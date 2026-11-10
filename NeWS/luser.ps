@@ -1,0 +1,152 @@
+% frob cursor
+/beye /beye_m framebuffer setstandardcursor
+
+% Load Debugger
+(NeWS/debug.ps) run
+
+% Debugger Aliases
+/dbe	{dbgbreakenter} def
+/dbx	{dbgbreakexit} def
+/dc	{dbgcontinue} def
+/dcb	{dbgcontinuebreak} def
+/dcc	{dbgcopystack dbgcontinue} def
+/dcs	{dbgcopystack} def
+/de	{dbgenter} def
+/deb	{dbgenterbreak} def
+/dgb	{dbggetbreak} def
+/dk	{dbgkill} def
+/dkb	{dbgkillbreak} def
+/dlb	{dbglistbreaks} def
+/dmp	{dbgmodifyproc} def
+/dp	{dbgpatch} def
+/dpe	{dbgprintfenter} def
+/dpx	{dbgprintfexit} def
+/dw	{dbgwhere} def
+/dwb	{dbgwherebreak} def
+/dx	{dbgexit} def
+
+% Useful aliases
+/fb	{framebuffer} def
+/?	{load ==} def
+/vl	{[currentdict {pop} forall] ==} def
+
+/setdefaultwindow { % class => -
+  /DefaultWindow exch store
+} def
+
+% Load pie menus
+(NeWS/piemenu.ps) LoadFile pop
+
+/redefinemenu { % /menu parent (name) => 
+  /searchkey 2 index send {
+    exch /getmenuaction exch send
+    def
+  } {
+    pop pop
+  } ifelse
+} def
+
+% redefine menus in systemdict after flipstyle!
+
+/applicationsmenu rootmenu (Applications =>) redefinemenu
+/terminalmenu applicationsmenu (Terminals =>) redefinemenu
+/fixedterminalmenu terminalmenu (Fixed Startup =>) redefinemenu
+/rootdemomenu rootmenu (Demos =>) redefinemenu
+/userinterfacemenu rootmenu (User Interface =>) redefinemenu
+/lookandfeelmenu userinterfacemenu (Look & Feel =>) redefinemenu
+
+% set up the user interface menu
+(Window Management Style =>) /searchkey userinterfacemenu send {
+  dup /getmenuaction userinterfacemenu send
+  1 index /deleteitem userinterfacemenu send
+  (WM Style =>) exch /insertitem userinterfacemenu send
+} if
+
+% Set up the application menu
+4 /deleteitem applicationsmenu send % remove journaling (added again later)
+4 (MouSee)	{(mousee.ps) LoadFile pop}
+/insertitem applicationsmenu send
+
+% Set up the terminal menu
+7 /deleteitem terminalmenu send
+6 /deleteitem terminalmenu send
+4 (H19 32)	 { (psterm -t h19 -li 32) forkunix }
+/insertitem terminalmenu send 
+5 (H19 48)	 { (psterm -t h19 -li 48) forkunix }
+/insertitem terminalmenu send 
+3 (aaa)		 { (psterm -f -t aaa) forkunix }
+/insertitem fixedterminalmenu send
+
+% make rlogin menu
+/rloginmenu
+  [ 24 32 48 ]
+  [ (brillig) (gyre) (ballast) (tumtum) (amanda) (bensun) (haigha) (mimsy) ]
+  [ { (rsh % -n setenv NEWSSERVER % ; psterm -t h19 -bg -fl % -il % -li %)
+      [ currentkey
+	(NEWSSERVER) getenv (;) search {exch pop exch pop} if
+        currentkey dup getmenuarg
+      ] sprintf
+      forkunix } ]
+  /new LayeredPieMenu send
+  dup /LabelMinRadius 30 put
+def
+
+% add rlogin menu
+2 (Rlogin =>) rloginmenu /insertitem rootmenu send
+
+% fix lookandfeelmenu
+1 /deleteitem lookandfeelmenu send
+0 /deleteitem lookandfeelmenu send
+
+0 (NeWS) { LitePullRightMenu setdefaultmenu
+	   LiteWindow setdefaultwindow }
+/insertitem lookandfeelmenu send
+1 (SunView) { SunViewMenu setdefaultmenu
+	      SunViewWindow setdefaultwindow }
+/insertitem lookandfeelmenu send
+2 (Pie) { PieMenu setdefaultmenu
+	  NeatWindow setdefaultwindow }
+/insertitem lookandfeelmenu send
+
+% Load junk
+(NeWS/getanimated.ps) LoadFile pop
+(NeWS/neatwin.ps) LoadFile pop
+(NeWS/term.ps) LoadFile pop
+(NeWS/animator.ps) LoadFile pop
+
+/NetSecurityWanted false def
+
+/dragframe? true def
+
+% Set key repeat parameter
+UserProfile begin
+    /KeyRepeatThresh	1 60 div .8 mul userdefault
+    /KeyRepeatTime	1 60 div 10 div userdefault
+end
+
+(NeWS/journalling.ps) LoadFile pop
+
+(Journalling =>) /searchkey rootmenu send {
+  dup /getmenuaction rootmenu send
+  /journalmenu exch def
+  /deleteitem rootmenu send
+  3 (Journalling =>) journalmenu /insertitem applicationsmenu send
+  end
+} if
+
+/playdemo { % playbackfilename => -
+  Journal begin
+    State /Stopped eq {
+      { PlaybackFile
+	/PlaybackFile 3 -1 roll def
+        newprocessgroup
+        framebuffer setcanvas
+        journalplay
+	/PlaybackFile exch def
+      } fork pop
+    } if
+    pop
+  end 
+} def
+
+(.NeWS) LoadFile pop

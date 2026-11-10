@@ -1,0 +1,80 @@
+From hopkins Thu Jun  6 13:48:41 1991
+Date: Tue, 4 Jun 91 05:11:32 PDT
+From: hopkins (Don Hopkins)
+To: tnt-core, hopkins
+Subject: menus
+
+I've had a virus or something lately, and had to go to kaiser for some
+bug fixes (now I'm on penicillin ;-), so I've been resting and working
+on V2 at home.
+
+In TNT2.0, I've prototyped an overhaul of menus, which simplifies
+things (eliminating 2 classes, ClassMenuHeader and ClassPinnedMenu, by
+making ClassMenu a subclass of ClassPopupWindow instead of
+ClassBorderBag), so pinned and unpinned menus have the same structure,
+an architectural change that will make it possible to pin a menu and
+have *that* menu *stay* up on the screen, no flicker or nuthin,
+defering creating the copy of the menu until it's actually needed (if
+ever)! This should require no api changes.  (I've talked it over with Bob,
+and he pointed out that this *is* however a pretty drastic *user*
+interface change, if the mental paradigm you're expecting to relate to
+is a universe in which objects poked by push pins temporarily pop out
+of existence, eventually reappearing in the general vicinity but with
+subtly different visual characteristics, which is the paradigm he is
+used to living with.  I countered that he might be taking this What
+You See Is What You Get stuff a bit too seriously, since what you see
+is 100% bullshit, but at least that's consistant with what you get.
+But then Warren walked in and asked what all the white noise was
+about, and we had to take a break from the heavy work to be friendly
+and sociable for a while.)
+
+In the current menu implementation, the client has a handle on the
+unpinned menu, and the class takes care of updating the other menu, so
+the client doesn't have to worry or even know about the pinned copy.
+This is still the case, except now the client's menu may or may not be
+pinned, so after the client gives that menu to the menu service by
+/MenuStart, the menu service must ask that menu for the menu to
+*actually* pop up (and make the CurrentClient of the menu service). If the
+client's menu is not pinned, then it returns itself.  Otherwise it
+realizes that it needs to appear in two places at once, so it makes a
+copy of itself, caches that copy (unpromoting when unpinned), and
+returns the copy for the menu service to pop up.  So when you pin the
+original popup menu, it can just hang around on the screen like a lazy
+bum with nothing to do.
+
+I have to think about it some more, but these changes might help to
+solve some problems of sharing pinned menus. A /MenuPinned notifier
+would also help (whose argument is the menu that the client has ahold
+of). And a /MenuSetDefault notifier would help solve problems such as
+synchronizing shared menu defaults across framebuffers, associating
+shared menu defaults with individual windows, or informing the client
+about changes to menu defaults, so it could save and restore menu
+defaults across sessions, or whatever.
+
+The argument to the /MenuSetDefault notifier would be an array of
+menus whose defaults were set, in the order they were popped up, from
+the base menu to the current menu.  All the menus passed to the client
+will be the original descendants of the original base menu that the
+client has a handle on. This will be the case even if some or all of
+the actually menus tracking are not the ones the client knows about.
+They are replaced by their "known" original copies before the array is
+handed to the client, since by then they will have had their default
+value synchronized with the actual tracking menus.  Menus can be
+nested in a tree, and you can set the default while tracking anywhere
+in the menu tree, so the defaults of all the menus and submenus up to
+and including the current submenu are set to their current value.
+
+The /MenuSetDefault notifier must pass enough information that you can
+tell which menus were effected, what state they are in, and where they
+are in the tree.  So it passes the array of the menus themselves, in
+the order popped up, but it doesn't need to pass item indices, since
+you can forall over the array asking each menu what its current
+default is, to find out the item index of the each submenu.  On the
+other hand, /MenuSetDefault could pass just the base menu, and you
+could climb down the menu tree to find the leaf default, but then you
+wouldn't be able to distinguish between setting the default to a leaf
+n levels down, from setting the default of the top level menu to a
+submenu who already has a default set that leads down to a nth level
+leaf. Or does it even matter? (Since it's *still* all 100% bullshit.)
+
+	-Don

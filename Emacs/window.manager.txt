@@ -1,0 +1,25 @@
+Emacs as a window manager, toolkit server, and tty window server, and
+selection service. 
+
+It should function as a programmable window manager. It should perform
+all the functions of uwm: icon and window placement and sizing,
+program invocation, etc...
+
+It should perform the functions of a toolkit manager, by providing
+interactive toolkit widget services, such as menus, scroll bars,
+type-in windows, display gadgets, and other graphical input/output
+devices. 
+
+It should provide a terminal emulator window service, to store buffers
+of text, or other information, such as display lists, and display them
+by translating them into window system calls. It can pre-process
+certian user input, and should handle window damage repair for its
+clients.
+
+It should perform selection services, managing the cut buffers,
+allowing the user to load them, edit them, move them around, and apply
+functions to them.
+
+It should be extremely modular, programmable, and flexable. 
+
+Much of this is obviously quite insane.

@@ -1,0 +1,99 @@
+#!/bin/sh
+psh "$@" << '%EOF'
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% KooshTool
+% Don Hopkins
+
+/NeWS 3 0 findpackage beginpackage
+/TNTCore 3 0 findpackage beginpackage
+/TNT 3 0 findpackage beginpackage
+
+/ClassKooshCanvas ClassCanvas []
+classbegin
+
+  /StartX 0 def
+  /StartY 0 def
+  /Hue 0 def
+
+  /Cursors [
+    0 22.5 337.5 {
+      [30 0 0 30 -1 -1]
+      exch matrix rotate
+      matrix concatmatrix
+      /ZapfDingbats findfont exch makefont
+      14 dup 3 -1 roll newcursor
+    } for
+  ] def
+
+  /Cursor Cursors 0 get def
+
+  /UpdateCursor { % - => -
+    gsave
+      self setcanvas
+      StartX StartY translate
+      currentcursorlocation
+      2 copy 0 eq exch 0 eq exch and { pop pop 0 } {
+        exch atan
+	11.25 add 22.5 div floor cvi 16 mod
+      } ifelse
+      Cursors exch get
+      /Cursor exch def
+    grestore
+  } def
+
+  /preferredsize { 300 300 } def
+
+  /Trackable? true def
+
+  /TrackStart { % event => /Default true
+    gsave
+      self setcanvas
+      dup begin /StartX XLocation /StartY YLocation end
+      promote promote
+      /Hue random .2 lt { { random } } { random } ifelse promote
+    grestore
+    /TrackMotion self send
+    /Default true
+  } def
+
+  /TrackStop { % event => -
+    /TrackMotion self send
+  } def
+
+  /TrackMotion { % event => -
+    gsave self setcanvas
+      StartX StartY moveto
+      begin XLocation YLocation end lineto
+      Hue random sqrt random sqrt sethsbcolor
+      stroke
+      /UpdateCursor self send
+    grestore
+  } def
+
+classend def
+
+/can framebuffer /new ClassKooshCanvas send def
+
+/win can framebuffer /new ClassBaseWindow send def
+
+(KooshTool) dup /setlabel win send /seticonlabel win send
+{ /size eq { 64 64 } {
+    gsave
+      currentpoint translate 32 32 scale 1 1 translate
+      newpath 0 setlinewidth
+      random 100 {
+        random 360 mul rotate
+        dup random sqrt random sqrt sethsbcolor
+	0 0 moveto random sqrt 0 lineto stroke
+      } repeat pop
+    grestore
+  } ifelse
+} /seticonimage win send
+
+/new ClassEventMgr send /activate win send
+
+/place win send /map win send
+
+newprocessgroup currentfile closefile
+
+%EOF

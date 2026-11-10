@@ -1,0 +1,131 @@
+%!PS-Adobe 2.0
+
+/setscreen systemdict /setscreen get def
+
+/step .01 def
+
+systemdict /rgbcolor known not {
+  /_rgbcolor { % r g b => color
+    [ 4 1 roll ]
+  } def
+  /setcolor {
+    aload pop setrgbcolor
+  } def
+  /colorhsb {
+    gsave setcolor currenthsbcolor grestore
+  } def
+} {
+  /_rgbcolor /rgbcolor load def
+} ifelse
+
+/rgbcolor { 
+  {
+    { _rgbcolor }						% 0: Color
+    { pop pop 1 exch sub dup dup _rgbcolor }		% 1: Red
+    { pop exch pop 1 exch sub dup dup _rgbcolor }		% 2: Green
+    { exch pop exch pop 1 exch sub dup dup _rgbcolor }	% 3: Blue
+    { _rgbcolor colorhsb exch pop exch pop		% 4: Black
+      sqrt
+      dup dup _rgbcolor }
+  } pass get exec
+} def
+
+systemdict /pause known not { /pause {} def } if
+statusdict begin 0 setjobtimeout end
+
+/R 150 def /r R 30 sub def
+/t 7 def
+
+/emboss { % proc => -
+  gsave
+    dx dy rmoveto
+    dim setcolor
+    dup exec
+  grestore
+  gsave
+    dx neg dy neg rmoveto
+    bright setcolor
+    dup exec
+  grestore
+  normal setcolor
+  exec
+} def
+
+/no {
+  currentpoint
+  newpath
+  2 copy R 0 360 arc closepath
+  2 copy moveto
+  45 t add cos r mul 45 t add sin r mul rmoveto
+  2 copy r 45 t add 225 t sub arc closepath
+  2 copy moveto
+  225 t add cos r mul 225 t add sin r mul rmoveto
+  r 225 t add 45 t sub arc closepath
+} def
+
+/fake {
+  /ZapfChancery-MediumItalic findfont
+  110 scalefont setfont
+  95 210 moveto
+  {(Fake) show} emboss
+  120 120 moveto
+  {(3-D) show} emboss
+} def
+
+/yow {
+  gsave
+    /dx -1 def /dy 1 def
+    /normal 0 0 1 m mul rgbcolor def
+    /dim 0 0 .4 m mul rgbcolor def
+    /bright .7 m mul .7 m mul 1 m mul rgbcolor def
+    fake
+
+    /dx 1 def /dy -1 def
+    /normal 1 m mul 0 0 rgbcolor def
+    /dim .4 m mul 0 0 rgbcolor def
+    /bright 1 m mul .7 m mul .7 m mul rgbcolor def
+    200 200 moveto
+    { no eofill } emboss
+
+    200 200 moveto
+    no eoclip
+
+    /dx -1 def /dy 1 def
+    /normal .8 m mul 0 .9 m mul rgbcolor def
+    /dim .7 m mul 0 .1 m mul rgbcolor def
+    /bright 1 m mul .7 m mul 1 m mul rgbcolor def
+    fake
+  grestore
+} def
+
+/zap {
+  gsave
+    currentscreen 
+    dup 0 eq {
+      pop pop pop
+      16 70 {dup mul exch dup mul add 1 exch sub}
+    } if
+    exch
+    { {} {pop 105} {pop 0} {pop 75} {pop 45} } pass get exec
+    exch setscreen
+
+    50 150 translate
+    0 step 1 { /i exch def
+      i = flush
+      /m i sqrt def
+      gsave
+	pause yow pause
+      grestore
+      R dup translate
+	1.005 1.005 scale
+      R neg dup translate
+      .25 .15 translate
+    } for
+  grestore
+} def
+
+%/pass 0 def  zap  showpage
+
+%/pass 1 def  zap  showpage
+%/pass 3 def  zap  showpage
+/pass 4 def  zap  showpage

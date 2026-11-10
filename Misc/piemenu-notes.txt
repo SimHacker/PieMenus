@@ -1,0 +1,476 @@
+====
+
+From: Hopkins, Don [mailto:Hopkins, Don] 
+Sent: Wednesday, August 12, 1998 9:42 PM
+To: 'Rajat Paharia'
+Cc: weiser.pa@xerox.com; selker@almaden.ibm.com; dhopkins@maxis.com
+Subject: RE: Pie Menus
+
+Hi, Rajat, thanks for your email!
+
+> Hi Don - 
+>
+> I somehow stumbled upon your web page last year and read all about Pie
+> Menus. The idea kind of stuck, so I used it in an exploration of an idea
+> for a class at Stanford (if you're feeling bored,
+> http://www.stanford.edu/~rajat/public/cs447/knet/default.htm  then click
+> on kitchennet and then Final Presentation if you have Shockwave). I'm
+> currently working on another exploratory project at the IBM Almaden
+> Research Center (my summer job) - an electronic wallet. Right now we're
+> exploring different hard and soft control mechanisms, and once again I'm
+> looking at pie menus for function selection as well as for a virtual
+> keyboard. 
+
+I liked reading about your fridge project. It sounds like a fun class!
+Are you working in Ted Selker's lab at Almaden? He's a great and funny
+guy! I hope he convinces IBM to make a line of leather thinkpads -- I
+want one!
+
+Did you hear about the digital tattoo that Dave Singer at Interval
+patented? I'm reading a really horrible cyberpunk book called "Mir."
+The author must have read and misunderstood that news article, then
+extrapolated it way far out. The tattoos in the book crawl all around
+your body and jump onto other people, and they're "avatars" in
+cyberspace too! (Whoooopie! I SAID it was a really horrible book,
+didn't I?)
+
+> So I've got a couple of questions for you:
+> - Has anyone tried using pie menus with touch interfaces?
+>  " with small screen interfaces (the wallet will be 200x320 black and white)
+
+Not that I can recall. Touch screens have that annoying "finger in the
+way of seeing the screen" problem, and they're absolute so you can't
+move the cursor position the way you can with a mouse (the nulling
+problem), but other than that they should work ok. The screen edge
+problem is: if the pie menu pops up near the screen edge, you may not
+be able to select the items off the edge of the screen. So pie menus
+near the screen edge need to be moved so they fit entirely on the
+screen, and the mouse cursor needs to be moved the same ammount as the
+menu was moved, so it points to the place you'd expect. You don't want
+to move the menu out from under the cursor so you end up pointing at a
+slice instead of starting in the middle. But at popup time, they don't
+just move the cursor to the middle, because some motion may have
+occurred in the mean time. The thing to do is to displace the cursor
+from its current position by the same offset the window needed to be
+moved to fit onscreen. Touch screen pie menus should not move to fit
+on the screen, since they can't physically move your finger by the
+same offset. Since they can't do that, then part of the menu that lies
+off the screen may not be selectable. Of course with a small screen
+the screen edge problem is magnified. You could design menus that pop
+up semicircles when you touch the screen edge, like partial pies with
+slices only in the selectable directions. (i.e. a quarter pie would
+pop up in the corner, a half pie would pop up along the edge). Or you
+could use the screen edges for some other purpose (like scrolling /
+navigation) and restrict the pie menus to the center.
+
+>  " with a trackpointer (the little pointing stick in IBM and other laptops)?
+
+Oh yeah, the "Joy Button"! Trackpoints work very well with pie
+menus. They don't have the "nulling" problem that the touch screen
+has. The nulling problem is: how do you reset an input device to the
+center to "null" it? Relative input devices like mice or trackpoints
+don't have the nulling problem. Joysticks have the nulling problem,
+but force feedback joysticks (and joysticks with springs) are actually
+capable of physically returning to the center. Nulling a joystick is
+more physically obtrusive than nulling a mouse by moving the cursor,
+though, but less physically obtrusive than, say, a robot arm or
+tractor beam pushing your finger back to the center of a touch screen.
+
+> Has anyone tried using pie menus as a virtual keyboard? This seems to be
+> an interesting area. Rather than learning graffiti or some other
+> unistroke variant, instead you remember the position of keys in 2-deep
+> pie-space. Then should you arrange the letters alphabetically or try to
+> use similar motions for letters where applicable (N and SE for "N", NE
+> and SE for "A") and sort the rest alpha or some other way?
+>
+> Anyway - thought I'd throw some questions your way and see what you thought.
+> thanks - rajat
+
+I think Mark Weiser at PARC did something like that. Mark, any
+references?
+
+> .. can I get a copy of the ActiveX pie menu component you mention on
+> the pie menu page, as I'm doing my prototyping in Visual Basic and it
+> would save me from having to write code to do it myself.
+
+Sure, I'll send you a copy. I just installed visual basic at home so
+tonight I'll give it a try and see if it works well in that
+environment, and hopefully I can fix any bugs that prevent it from
+working well with vb. (You gotta test those so-called "components"
+everywhere they can plug into since nothing ever really works the
+first time like it's supposed to.)
+
+      -Don
+  
+====
+
+From:	      Rajat K. Paharia [SMTP:rajat@cs.stanford.edu]
+Sent:	      Wednesday, August 12, 1998 11:35 PM
+To:	      Hopkins, Don
+Subject:      RE: Pie Menus
+
+Hey Don -
+
+Much thanks for replying so quickly! I'm out of the office for the
+next two days on a Ted sponsored mandatory corporate fun trip
+(canoeing and camping up near the Russian River), but am looking
+forward to playing with the activex control and trying out some
+informal experiments with pie menus in general. As an added question,
+this whole mindset of designing for very small screens (200x320 b&w in
+this case) is taking me into new territory.  Would you happen to know
+of any good resources (people, articles, books) I could use to get
+some ideas, pointers, "rules", etc.?
+
+> I liked reading about your fridge project. It sounds like a fun
+> class!  Are you working in Ted Selker's lab at Almaden? He's a great
+> and funny guy!  I hope he convinces IBM to make a line of leather
+> thinkpads -- I want one!
+
+The class was great and I learned a LOT about the power of a good
+story - it was taught by Terry Winograd, David Kelley and Ted was a
+consulting professor (he showed up twice).
+
+And I am in Ted's lab. He's a nutcase. Here's some pointers to recent
+news articles about the NPUC (New Paradigms for Using Computers)
+Conference he put on at IBM last month - with mentions of my last
+project - the Exercise Machine that barks at you in an Hans and Franz
+accent...
+
+(this link is too long and will probably need to be pieced
+together. It features a very bad picture of me.)
+
+http://www.sfgate.com/cgi-bin/article.cgi?file=/chronicle/archive/1998/07/17
+/BU67916.DTL&type=tech_article
+
+http://www.sjmercury.com/columnists/gillmor/docs/dg071798.htm
+
+Thanks. - rajat
+
+====
+
+From: Hopkins, Don [mailto:Hopkins, Don] 
+Sent: Thursday, August 13, 1998 2:15 PM
+To: Rajat K. Paharia
+Cc: Hopkins, Don
+Subject: RE: Pie Menus
+
+Well you might look at some of the original Macintosh guidelines,
+which were written when the *Mac* had a very small screen, and compare
+them to how the Mac user interface has evolved to deal with bigger
+screens. Also look at some of the extensions people have written for
+the Mac to fill in the gaps themselves (don't wait for Apple to admit
+they were wrong).
+
+For example, the eventual emergence of pop-up menus on the Mac (first
+as an extension, and now I think they're built in) is (arguably) a
+reaction to the fact that the menu bar is way the hell up there on a
+large screen, which wasn't originally a problem when the screen was so
+small. (There are other reasons for having pop-up menus, but large
+screens was one of them.)
+
+See Bruce Tognazini's writings on "the 1000 mile high menu bar" or
+something like that, in his user interface book. He celebrates the
+fact that the top of the screen is virtually a 1000 mile high target,
+since the mouse stops moving when you get to the top. I think he even
+quotes Fitts law in his argument that the menu bar should be at the
+top of the screen, since it's easy to point to. But Fitts Law relates
+target distance as well as target size to selection speed and error
+rate, and the bigger the screen the further the top of it is away from
+the average cursor position, no matter how big its virtual area
+is. You might follow his argument to the logical conclusion and put
+menu bars along all four edges of the screen. I know you can move the
+Windows task bar around to any edge you want, but I don't know if you
+can have four of them on different edges at once (but it might be
+worth hacking that up)!
+
+Graphical user interfaces that were designed when larger screens were
+available (like Windows and Open Look) tend to put a separate "menu
+bar" up at the top of each window. Not only is it closer to the mouse,
+but it can contain window specific menus, so the top of screen menu
+bar does not have to change all the time, and the global system
+commands (like the stuff in the windows task bar) is separated from
+the window specific commands (in the window menu).
+
+If you screen is really small, you might want to avoid windows and
+context sensitive menus entirely.  Popup menus could take up the whole
+screen (since a big overlapping menu on a small screen would not leave
+much useful information displayed around its edges, why not give the
+whole screen to the menu?)
+
+Instead of displaying a cursor where your finger is (no use since you
+can't see through your finger anyway), the menu could track the
+relative motion of your finger over the screen, so if you knew you
+wanted the right most item, you could touch the left edge and drag all
+the way over to the right edge, to get a very accurate selection. The
+menu would pop up full screen with its center in the center of the
+screen, and the items would highlight to show the direction between
+the place you touched and the current position of your
+finger. Decoupling the finger position and the cursor position (by
+eliminating the cursor!) is one way around that pesky nulling
+problem. (Check out the Mac game Crystal Quest, which does that).
+
+	-Don
+
+====
+
+From omoteso@visidel.cau.edu Mon Oct 19 18:33 EDT 1998
+Date: Mon, 19 Oct 1998 18:30:47 -0400
+From: Olugbenga Omoteso <omoteso@visidel.cau.edu>
+Organization: ViSiDeL
+To: ben@cs.umd.edu
+Subject: Research
+
+Dear Dr Ben Shneiderman,
+               I am Gbenga Omoteso,a Computer Science student at Clark
+Atlanta University,working on the Research topic "PIE AND LINEAR MENUS
+MENUS COMPARISON---a new theoretical approach and review of empirical
+research to/on menu selection"and my professor is Dr.Max M North.
+              I have searched on the web for related journals/articles
+and found out that you have already done some interesting work on the
+issue of pie and linear menus menus comparison.I desire that you send
+some of your journals/articles in this area to me.I believe menu
+selection is emerging as an important mode of human/computer
+interaction.
+
+Yours sincerely,
+Gbenga Omoteso.
+omoteso@visidel.cau.edu
+
+====
+
+From:	      ben@cs.umd.edu [SMTP:ben@cs.umd.edu]
+Sent:	      Wednesday, October 21, 1998 8:09 PM
+To:	      omoteso@visidel.cau.edu
+Cc:	      Hopkins, Don
+Subject:      Re: Research
+
+Thanks for your interest in Pie menus...please get in touch with
+Don HOpkins and see his web site:
+
+Dhopkins@maxis.com
+http://www.catalog.com/hopkins/piemenus/index.html
+
+Best wishes...Ben
+
+====
+
+From: Hopkins, Don [mailto:Hopkins, Don] 
+Sent: Wednesday, October 21, 1998 9:18 PM
+To: omoteso@visidel.cau.edu; ben@cs.umd.edu
+Cc: dhopkins@maxis.com
+Subject: RE: Research
+
+Hi, Gbenga! Ben forwarded your message to me. Thanks for your
+interest!  There's a lot of really great territory to be covered so
+you'll never be bored with pie menus!
+
+Component software has finally come of age, which solves the biggest
+obstacle to integrating pie menus into real applications.  I've
+developed an ActiveX Pie Menu control, that you can plug into web
+pages, the desktop, applications, visual basic projects, etc.  And I'm
+working on a window manager for Windows that lets you control your
+windows with pie menus!  I hope it will save you a lot of trouble!
+ActiveX pie menus have a lot of adjustable options, and the source
+code is available for free so you can read it to see how it works (and
+pick up some windows programming tricks), and if you like you can
+modify it to do what you want, if it does not go far enough to meet
+your needs.  Or you can just ask me, since I'm never finished working
+on them and always adding features.
+
+http://www.catalog.com/hopkins/piemenus/ActiveXPieMenus.html
+
+There are a lot of techniques and variations on the theme that need to
+be tested, to see which actually help users and which are just
+cosmetic icing.
+
+One new idea that hasn't been scientifically evaluated yet, is paging
+pie menus.  Pie menus with 8 items are ideal to use, but more items
+make them difficult to select from.  So I've implemented a paging
+technique that limits the number of active items in the pie to 8,
+while allowing you to page the pie up and down groups of 8 items at a
+time.  Kind of like having your pie and eating it too.
+
+There are lots of illustrations on my web page:
+http://www.catalog.com/hopkins/piemenus/PieMenuDescription.html
+
+It would really be great to find out how people actually perform with
+paging pie menus.  Another thing I've implemented but have not tested,
+is reading order layout.  So if you have the whole alphabet in a
+paging pie menu (as illustrated on the web page referenced above),
+it's much easier to find any letter. And it's much easier for menu
+designers to specify the items in reading order layout, I believe.
+
+Usability is important for user interface designers as well as user
+interface users.  Nobody will want to design pie menus into their
+applications, if they're hard to integrate and configure.  So the
+ActiveX pie menus have features to make life easier for user interface
+designers who want to design their own pie menus, as well as the users
+who will be popping up the menus.
+
+One example is that ActiveX pie menus support a simple indented
+outline nested menu description syntax, so you can type in a tree of
+menus and submenus as text, by indenting the submenus like an outline.
+
+More stuff on the web pages! Enjoy! Sorry about the rushed email but I
+am starving and want to go home!
+
+Thanks to you for sending the email to Ben, and thanks to Ben for
+forwarding it to me!
+
+       -Don
+
+====
+
+From:	      Todd Larason [SMTP:jtl@webcoi.com]
+Sent:	      Thursday, October 22, 1998 12:17 AM
+To:	      Hopkins, Don
+Subject:      Re: pie menu algorithm/code license
+
+On 981021, Hopkins, Don wrote:
+> I'd love to see some screen dumps, please! 
+
+I've put some up at http://huis-clos.mit.edu/scwm/pie.gif and
+http://huis-clos.mit.edu/scwm/circle-pie.gif .  They aren't linked to
+from the main page yet, but will be when the 0.9 release is done, probably
+next week.
+
+> Have you created a web page about your window manager? I would love to
+> make a link to it from my pie menu web page. 
+
+The main page is http://huis-clos.mit.edu/scwm/ .  It isn't 'my' window
+manager; I'm pretty new on the project.
+
+> I know what you mean about round windows getting rather large. 
+> I've had more success shrink wrapping the menus by unioning together the
+> regions around all the text labels, 
+
+I've looked at those screenshots, and some of 'em look pretty nice.  More
+fiddling is on the (always way too long) to-do list.
+
+I'll make sure your pie menu page URL is mentioned in the 'what's new'
+for the next release.
+-- 
+"You keep claiming things don't work. Im just going to sit here proving
+they do. If you play this game for long enough we might even find a real
+library bug" -- Alan Cox <alan@lxorguk.ukuu.org.uk>
+
+====
+
+From: Hopkins, Don [mailto:Hopkins, Don] 
+Sent: Thursday, October 22, 1998 4:47 PM
+To: 'Todd Larason'
+Cc: dhopkins@maxis.com
+Subject: RE: pie menu algorithm/code license
+
+Cool! A scheme window manager must be very fun to use and especially
+program!  Any plans to plug the GhostScript imaging library into that
+thing? :-) At least you should have a good set of region manipulation
+functions (create various region shapes, union, intersection,
+subtraction, text to region, bitmap to region, and shape window to
+region, you could then go to town defining cool window shapes!
+
+One really useful feature is defining the menu shape and background by
+an image with a transparent color, like a gif file.  There's code in
+the ActiveX pie menu you can copy and easily adapt, that goes from a
+bitmap to a list of rectangles, that is used to implement custom
+bitmap window shapes.
+
+The user (artist/menu designer) has to be able to specify where 
+in the bitmap is the center of the menu, as well as an transparent color.
+But I found it simpler to specify the x,y location of a transparent pixel,
+defaulting to 0,0, instead of bothering the user with typing in a pixel index. 
+And usually the upper left corner is transparent so you can use the default. 
+A graphical tool would let you click on the image to specify both parameters. 
+
+  -Don
+
+====
+
+From: Hopkins, Don [mailto:Hopkins, Don] 
+Sent: Thursday, October 22, 1998 6:50 PM
+To: 'Todd Larason'
+Subject: RE: pie menu algorithm/code license
+
+Wow that's wild looking!  Did you ever see any technical reports or
+screen snapshots of the work Apple ATG was doing with Sk8?
+
+Sk8 was kind of like Dylan (but different) or ScriptX (but also
+different) [makes you wonder about Apple, huh?], and written in Mac
+Common Lisp.  It used a prototype schema based object system that was
+very dynamic, that you could browse around and edit a lot like
+Smalltalk.
+
+They had really cool shaped window frames with nice textures like that
+root menu.  And you could modify a prototype window frame and all the
+ones based on it would dynamically reflect the changes. In that way it
+was also somewhat like Garnet (also written in Common Lisp, but on
+Unix, from Brad Meyers at CMU).
+
+Mac Common Lisp really rocks, with full blown Mac Toolbox access, and
+the ability to suck in and call any library, you could do just about
+anything you want.  It was even better when they finally delivered a
+power pc version, but by then the Sk8 project was long dead.
+
+    -Don
+
+====
+
+From:	      Todd Larason [SMTP:jtl@webcoi.com]
+Sent:	      Friday, October 23, 1998 12:31 AM
+To:	      Hopkins, Don
+Subject:      Re: pie menu algorithm/code license
+
+On 981022, Hopkins, Don wrote:
+> Did you ever see any technical reports or screen snapshots of the work
+> Apple ATG was doing with Sk8? 
+
+No, I don't recall ever having heard of Sk8.  Do you know of any
+papers still available?
+
+> Mac Common Lisp really rocks, with full blown Mac Toolbox access, and 
+> the ability to suck in and call any library, you could do just about
+> anything you want. 
+
+oooh...I have a Mac I've been meaning to learn more about.  This could
+be a way to kill two birds with one stone.  Is MacCL still available?
+It's an Apple product?
+
+====
+
+From: Hopkins, Don [mailto:Hopkins, Don] 
+Sent: Friday, October 23, 1998 6:03 PM
+To: 'Todd Larason'
+Subject: RE: pie menu algorithm/code license
+
+Here's a web site about sk8.
+
+http://sk8.research.apple.com/sk8/sk8.html
+
+Check out the visual programming language for kids they did in sk8
+called cocoa.  Cocoa was originally written in yet another visual
+programming language called ProGraph, but they reimplemented it later
+in sk8.
+
+They have a demo you can download, but I don't know how old it is!
+
+Also the Dylan project is a good thing to mine for ideas.  A lot of
+the cool stuff they did would be easy to implement in scheme.
+
+http://dir.yahoo.com/Computers_and_Internet/Programming_Languages/Dylan/
+
+Apple farmed off Mac Common Lisp (originally from Corel, acquired by
+Apple) to Digitools, which eventually had a good effect of finally
+getting the PowerPC release out the door.  There is a lot of good code
+written for and ported to Mac Common Lisp.  A whole lot of packages
+from the Lisp Machine have been ported, so it's the closest thing you
+can get to a Lisp Machine environment on modern hardware.  Plus it can
+make the Mac do anything you want. Somebody wrote a nice interface to
+QuickTime for example.  (It must be pretty amazing to use on one of
+those new power pc's, though I haven't tried myself.)
+
+http://www.digitool.com/
+
+	-Don
+
+====
+

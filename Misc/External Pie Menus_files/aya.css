@@ -1,0 +1,33 @@
+BODY {
+	COLOR: #000080; BACKGROUND-COLOR: #fefeff
+}
+H1 {
+	MARGIN-TOP: 0px; FONT-SIZE: 200%; COLOR: #0000e0; PADDING-TOP: 0px
+}
+H2 {
+	BORDER-RIGHT: slateblue 1px solid; BORDER-TOP: slateblue 1px solid; PADDING-LEFT: 32px; FONT-SIZE: 140%; PADDING-BOTTOM: 2px; MARGIN-LEFT: 0px; BORDER-LEFT: slateblue 1px solid; COLOR: #ffffff; MARGIN-RIGHT: 0px; PADDING-TOP: 2px; BORDER-BOTTOM: slateblue 1px solid; BACKGROUND-COLOR: #8080f0
+}
+H3 {
+	FONT-SIZE: 120%
+}
+H3.large {
+	PADDING-LEFT: 2px; FONT-SIZE: 120%
+}
+H4 {
+	BORDER-RIGHT: slateblue 1px solid; PADDING-RIGHT: 10pt; BORDER-TOP: slateblue 1px solid; PADDING-LEFT: 10pt; MARGIN-LEFT: 20%; BORDER-LEFT: slateblue 1px solid; COLOR: slateblue; MARGIN-RIGHT: 20%; BORDER-BOTTOM: slateblue 1px solid; BACKGROUND-COLOR: white; TEXT-ALIGN: center
+}
+H4.language {
+	BORDER-RIGHT: 1px; PADDING-RIGHT: 0pt; BORDER-TOP: 1px; PADDING-LEFT: 0pt; FONT-SIZE: 90%; MARGIN-LEFT: 0px; BORDER-LEFT: 1px; COLOR: slateblue; MARGIN-RIGHT: 0px; BORDER-BOTTOM: 1px; TEXT-ALIGN: right
+}
+UL {
+	FONT-SIZE: 100%; LINE-HEIGHT: 150%
+}
+.left {
+	FLOAT: left
+}
+.clear {
+	CLEAR: both
+}
+.box {
+	PADDING-RIGHT: 12px; PADDING-LEFT: 12px; PADDING-BOTTOM: 12px; PADDING-TOP: 12px
+}

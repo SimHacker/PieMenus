@@ -1,0 +1,24 @@
+initmatrix initclip
+
+/roundmenu
+[
+ [ (File) 0 -3]
+ [ (Save) 3 -6 ]
+ [ (Tie) 3 -8 ]
+ [ (Insert) -6 -8 ]
+ [ (Paste) -3 -6 ]
+ [ (Cut) 0 -3 ]
+]
+[ {(file\n) print} {(save\n) print} {(tie\n) print}
+  {(insert\n) print} {(paste\n) print} {(cut\n) print} ]
+/new SlicedPieMenu send def
+{ /MenuFont /Times-Bold findfont 16 scalefont def
+  /LabelMinRadius 35 def
+} roundmenu send
+
+(done!\n\n) print
+300 300 /showat roundmenu send
+/Damaged null 0 0 E
+MouseDragged null 10 20 E
+MenuButton UpTransition 10 20 E
+10 20 showmouse  showpage quit

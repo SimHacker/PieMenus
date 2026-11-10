@@ -1,0 +1,128 @@
+To: dshr@sun.com, jag@sun.com
+Subject: NeWS improvements
+--text follows this line--
+Here are some suggested improvements to NeWS, that myself and others
+have been kicking around.
+
+     -Don
+
+* Fix bytesavailable to return the sum of file->_cnt and ioctl(file,FIONREAD)
+* jobtimeouterror isn't in errordict, so impolite processes just
+  dissappear. Raise the default jobtimeout time so that innocent
+  processes that just cause lots of paging don't die on 3/50's.
+* Leave the stack in a restartable state after errors, especially
+  jobtimeout error. Operator on top, all the args underneath. "exec
+  dcc" from the debugger should always work. I tried making jobtimeout
+  error do a pause and an exec, in order to fake premptive scheduling,
+  but it broke.
+* Please map signals to events, as promised in event.c! I don't care
+  if the server may be corrupt, just stop the light weight process
+  that caused it and tell me about it. If you get a whole shitload of
+  signals in a row, then maybe it's time to die, but I usually want to
+  be able to find out what caused it. So make it an option!  I'm so
+  tired of waiting for the 3/50 to start up a new server, not knowing
+  what it was I did that was wrong.
+* Reinitialize upon receiving an -INT signal. Reset everything, kill
+  off and fork new processes: server, keyboard handler, root event
+  manager, etc... Restart the interpreter.
+* FIFO files: "(%fifo) (rw) file", and ways to control the
+  high/low water marks, etc. It would be cool to have useful filters
+  implemented as as fast C primitives, and support
+  for NeWS streams. Provide stuff like %lineedit, compress and
+  uncompress, byte swapping, user PostScript functions, etc...
+  FIFO's are mucho fun -- Rehmi Post put them into the multitasking
+  PostScript interpreter he wrote for UniPress, and they're great!
+* I want dynoload back!!!!! At least include it rot13'ed with the
+  sources, or something!
+* I want to be able to receive an event when there's input, output, or
+  an exception (closes) on a file. i.e.
+  /Name currentfile def /Action [/Input /Output /Exception] def
+* Processes should have /Stdin, /Stdout, and /Stderr keys. Need I say
+  why? Much pleasure could be derived from such a feature. You should
+  also be able to use strings as well as files. (stdin is the
+  subinterval not yet read, stdout is the subinterval not yet written
+  into. Attempts to read/write past end of string block process.
+  Setting stdin/stdout of a process unblocks it if it's blocked
+  reading/writing.
+* Processes should have /GraphicsState key. As well as any other state
+  it has. 
+* tilecanvas and tilemaskcanvas: tile the clipping region with the
+  canvas, at the device resolution. Lower left corner of the canvas
+  lines up with CTM origin (0,0).
+* There should be a way to seek around in a file, and find out its
+  size, and find your current offset into it, if the file supports it. 
+* There should be a way to pop the current file off the execution
+  stack, instead of reading all the way to the end. For example, if
+  you load a file that decides it doesn't need to be reloaded, it
+  could pop itsself instead of wrapping an { ... } if around the
+  entire rest of the file. Maybe "currentfile closefile" would work.
+  (Then again, I've gotten core dumps doing things to closed files.) 
+* I want to be able to reshape the framebuffer so it's upside down (or
+  sideways, or ...), and have all my windows come out that way,
+  without core dumping the NeWS server. 
+* When you're on a canvas other than the framebuffer, and set the
+  /XLocation or /YLocation of an event, then read it right back, it's
+  different!! Something ist upgefukt.
+* /SendContexts keeps references to objects around that screw up
+  garbage collection. i.e. window1 sends /showat to menu1, whose event
+  manager will have a SendContexts of [window1]. So if menu1 has a
+  selection that makes a new window2, window2's event manager will
+  have a SendContexts of [window1 menu1], and window1 won't go away
+  until window2 is zapped. Newly forked processes should be created
+  with empty SendContexts, except that it's needed so ThisWindow
+  works, though. i.e. when window2 sends /showat to menu2, the menu
+  event manager's sendcontexts is [window1 menu1 window2], and
+  ThisWindow returns window2, while menu1's ThisWindow is window1. But
+  window2 doesn't need window1 or menu1 in its SendContexts any more
+  though. Could soft references be used to make this work right,
+  somehow? 
+* XDR and RPC support! It's easy to open up connections and have
+  conversations with text-based servers like ftp and nntp from NeWS,
+  but it would be fun to have primitives for talking directly to RPC
+  servers, and implementing RPC servers in NeWS.
+* append as a primitive? sprintf as a primitive?
+* Some way to change a process's systemdict. (For Display PostScript
+  compatibility, among other things.)
+* User definable magic variables, ala PIX. i.e.:
+  /key {accesser function} defmagic
+  The function is called with:
+  <dict> <key> 'get' or <dict> <key> <val> 'put' 
+  on the stack whenever that key of that dict is read or written. 
+  This would be great for debugging! And so much more!
+* Support for alternate framebuffers (Like a fake framebuffer in a
+  window.) Each framebuffer might need its own systemdict, unless
+  framebuffer, fboverley, rootmenu, ColorDisplay?, etc, were defined
+  in userdict or something.  (Stan Switzer wants to try this out in
+  NeWS 1.1.)
+* A function to turn a bitmap into a shape, such that I can fill,
+  clip, or reshape a canvas to. Even better, a path that I could scale,
+  rotate, etc. This could get slow for hairy images, but it would be
+  worth it.
+* Canvas magic dicts should have /X /Y /Width /Height and /Depth fields. They 
+  should be in terms of the current coordinate system. Depth will
+  distinguish between 1 bit monochrome canvases and deeper greyscale
+  canvases. Really need a faster way to find out the canvas size than:
+  gsave setcanvas clippath pathbbox points2rect 4 2 roll pop pop grestore
+* A function to read the pixels back out of a canvas, just the
+  opposite of buildimage. I need it for generating printable
+  PostScript files from NeWS! Just being able to write out Sun
+  rasterfiles isn't enough!
+* Indirect submenu references in menu actions. Instead of having
+  references to actual submenus, just have their executable names. So
+  you can redefine submenus without having to redefine their
+  supermenus, and so you can have functions that compute the submenu
+  or menu action. (i.e. brightness menu deciding to pop up a
+  hue/saturation menu, or leave it at that.) Currently implemented in
+  piemenu.ps, thusly:
+
+  /getmenuaction { % index => action
+    dup null ne {
+	MenuActions 1 index MenuActions length 1 sub min get
+% Execute actions that are names! (This is so we can have references
+% to submenus (executable names) as actions, as opposed to having the
+% submenu object dict itsself!) 
+	dup type /nametype eq { exec } if
+    } {nullproc} ifelse
+    exch pop
+  } def
+

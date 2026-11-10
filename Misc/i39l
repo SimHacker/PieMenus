@@ -1,0 +1,589 @@
+* synchronous tnt calls -vs- asynchronous icccm requests
+** Can't just stop and wait because we might be running in the LEM
+** We have to break the synchronous model
+
+* Focus
+** TNT needs to be able to inhibit focus changes, in order for secondary
+   selections to work, and in order to implement proper mouse tracking
+   in certain situations.
+*** could do that by grabbing the pointer, but need a new operator
+	Who's going to implement the new operator? Resources are tight.
+	We've needed pointer grabbing for a long time, to get rid of
+	the FullScreen hack. 
+	Why is it now politically correct to add these primatives when
+	it didn't used to be before?
+	It pisses me off that we didn't get these server enhancements
+	we needed so badly back then to solve NeWS problems, but now
+	that they're needed to solve X problems, it suddenly becomes a
+	possibility (as long as we do it ourselves).
+** Still does not solve the focus tracking problems. 
+   X window managers *cannot* track focus properly. TNT can, but not
+   if managed by an X window manager.
+
+* OWM will require lots of testing
+** Test many X applications against one Open Window Manager
+** First priority would be perfect interoperability with deskset
+*** OLIT, XView, Sun products, X demos and contrib, other X products
+
+* ICCCM windows will require much more testing
+** test a crossbar of many TNT applications against many X window managers
+** much higher order of difficulty than testing OWM
+** thorough testing is absolutely necessary, since the whole point of
+   ICCCM windows is interoperability of all TNT applications with as
+   many X window managers as possible, and since quirky incompatibile 
+   secret protocols are the hallmark of X window managers. 
+
+* menus
+** can't just revert to old model without breaking certain bugs that were fixed
+** menu header clipping
+   Under ICCCM there is no way to calculate the proper minimum size
+   so the menu label isn't clipped. The menu overhaul made it possible to
+   fix that bug, but ICCCM windows would require it to be broken again.
+** pinned menus
+   The menu overhaul made it possible to pin a menu without it
+   disappearing or repainting. 
+   Under ICCCM, menus must dissappear when pinned, in order to
+   reappear inside a frame under control of the window manager. 
+   No ICCCM compliant way of pinning the menu in the right place.
+** Push pins
+   There is no way to tell if the window manager will decorate the
+   frame with a push pin, so pinned menus may have to do without pins.
+   Even if the window manager can be trusted to handle the pin, it
+   will be impossible implement setting the pinned menu default to be
+   the pin (a dubious feature we don't currently implement, but there
+   is a bug filed against it). Otherwise a pinned menu would have to
+   draw its own pin, and since the pin is adjacent to the label, it
+   would have to draw its own label as well, so it may not be in the
+   same color or font as the window manager would display it in. And
+   since the pin requires mouse tracking, menus must be very careful
+   to pass mouse events over the label on to the window manager in the
+   hopes that it will do the right thing with the event (for example
+   when the user tries to drag a pinned menu by pressing down over the
+   label that TNT is managing).
+
+* notices
+   Notices need to take the input focus. But in order to take the
+   input focus, they must be managed by the X window manager, probably
+   as WM_TRANSIENT_FOR windows. But it is not ICCCM compliant to
+   assume the notice window will not be reparented or repositioned by
+   the window manager, so TNT has no way of knowing where to put the
+   notice tail, which is a separate canvas. The notice tail can be a
+   non-X canvas or an OverrideRedirect X canvas, because it doesn't
+   need keyboard input, but the notice itself does (return selects the
+   default button). Another approach would be to sacrifice the notice
+   tail, for simplicity. Taking this approach a bit further, we could
+   sacrifice those problematic push pins as well, and we would be well
+   on our way to Motif.
+
+* arbitrarily shaped windows
+  NeWS's model of window shaping is poorly matched to the X
+  nonrectangular shape extension. There is no way for NeWS to reshape a
+  canvas without effecting its bounding box. X windows using the shapes
+  extension have their client shapes automatically clipped to the actual
+  bounding box the window manager gives them, and if they change their
+  client shape to anything, and the actual window bounding box will
+  remain the same. There is no way for NeWS to change the window shape
+  without effecting the bounding box of the window, which should be
+  under the control of the window manager.  This causes very strange
+  interactions when resizing the PizzaTool popup window with half a
+  pizza selected.
+
+* speed
+  ICCCM windows will be slower. Everything is a request that must
+  be serviced by the window manager in a different address space.
+  Much more context switching.
+  
+* size
+  ICCCM windows make each TNT applications use lots more memory.
+  They still have the TNT window canvas, plus the window manager's
+  frame and any other subwindows of that as well (resize corners, etc).
+  Even if you're not using an ICCCM window manager you pay for the
+  code complexity, all those "ifelse" branches, mixin classes, and
+  extra methods, in speed and size.
+
+** Measure the size of the ICCCM sampler versus the native sampler.
+** Server working set size after "refresh all"
+
+* flexability
+  We will pay dearly in flexability.
+
+* bugs
+** Can you have a retained canvas? RasterRap depends on this. How
+   often are you damaged?
+
+* Class*Window subclassers
+** pinned menus
+** help window
+** NeWSRooms
+** virtual window manager
+** wire client mixin
+** guide
+   ClassPopupWindow: /TakeDownIfNonPinned
+** demo methods ...
+** tab windows
+** pizzatool
+** eyeball
+** jet
+** NeWSClock
+** NeWS challenge ...
+** CD times
+   cd /net/attention.corp/cdrom
+** framemaker
+  Subclasses ClassNotice to make it look like a window
+  ClassFmDialogBehavior
+    keyable, code for mouseless operation of controls
+
+* Subclassing reasons
+** overriding attributes
+    /Pin? /Reshape? /Footer? /Label? /Close? ...
+** initialization & cleanup
+  adding clients, cleaning up, maintaining circular self reference
+  /NewInit /destroy
+** client composition
+  adding and accessing clients
+  /NewInit, new method names
+** painting
+  jed and jet paint a border around the center client
+  simple text message display window subclass (FlightPlan)
+  /Paint
+** shaped windows
+  pizzatool, eyeball
+** icons
+  interesting painting, interesting shapes
+  /PaintIcon /IconFont /path
+** notification
+  /open /close /ToggleOpened /unpin /DismissFromUser
+  /HelpFromUser /QuitFromUser
+  /move /reshape (before and after the fact)
+** interposition
+  /setlabel (jet calls super, and UpdateCommand)
+** placement
+  custom automatic window placement
+** WM_COMMAND
+  jet keeps WM_COMMAND property up to date by overriding all methods
+  that change a characteristic that effects it, to call UpdateCommand.
+
+========================================================================
+
+I39L window management complicates pinned menus enormously. TNT menus
+pin correctly, so that when you push the pin in, the menu window
+simply stays up on the screen, just like you'd expect.  This is not
+the case with XView or even OLWM.  Under an I39L window manager, the
+Open Look pinned menu metaphor completely breaks down.  When you pin
+an X menu, it dissappears from the screen for an instant, then comes
+back at a different place, at a different size, with a different look
+and feel.  If you're not running just the right window manager, pinned
+menus don't even have pins! There is no need for such "ICCCM
+compliant" behavior with TNT menus. When they're pinned, they can just
+stay there and manage themselves. But were TNT windows managed by an
+external I39L window manager, they would have to degenerate to the
+level of X menus.
+
+Under the OWM solution, pinned TNT menus work correctly, and they
+inherit their pinned window behavior from ClassPopupWindow, the same
+class managing pinned X menus.  The look and feel is high quality,
+consistant, maintainable, and intentionally extensible.  
+
+If I18L window management has such a negative impact on pinned menus,
+how else will it impact other parts of the toolkit and applications?
+
+Will it effect popup notices? Since they need keyboard input for the
+buttons, will they have to play the I18L window management game? How
+do we get the notice tail (a separate canvas) to line up, if the
+window manager decides to wrap a frame around the notice window? 
+
+It is impossible to know how it will effect TNT applications, because
+the toolkit was specifically designed to be subclassed and extended in
+areas that overlap with I39L window management.  NeWSRoom and the TNT
+virtual window manager are examples of simple, interesting extensions
+to the window class that are in direct conflict with I39L window
+management.  We would be giving up a lot of actual and potential
+functionality, that we designed the toolkit to support in the first
+place.  We need to redesign the window class for greater flexbility
+and easier subclassability, but those goals are at odds with I39L
+window management. The result of a cross of these two opposing goals
+would be massivly complex and would sacrifice most of the important
+advantages of the TNT approach. However, the OWM approach to window
+management, wrapping X windows in instances of the TNT window class,
+synergizes with extensions to the window classes. As an extreme
+example, you can make OWM wrap window frames with title tabs that pop
+up pie menus full of handy window management functions around all your
+X windows.
+
+There are several other technological advantages of managing X windows
+internally with NeWS, over managing them externally with X.  By an
+external window manager, I mean one that is in a separate address
+space as the windows. Relative to the server, all windows are
+internal, all X "Xlib" and NeWS "wire service" clients are external,
+and NeWS canvas objects and light weight processes are internal.  But
+an external X window manager is in a different address space must try
+to manage many shared resources at a distance, an intrinsicly
+difficult task, imposing limitations on the whole system and
+unavoidably restricting the user interface possibilities.
+
+The management of arbitrarily shaped windows becomes very complicated
+under an I39L window manager. In contrast, PizzaTool has a popup pizza
+preview window, whose shape is a rectangular frame around a round (or
+semi-circular, depending on your appetite) pizza window, with the
+space between the inside of the frame and the pizza cut out.  It was
+very easy to implement, by subclassing ClassPopupWindow and overriding
+the /path method to cut out the inside of the frame and ask the center
+pizza client to add its shape to the path.  When you move or stretch
+the window, you see a rubber-band preview of the actual shape the
+window will take when you release the button. The pizza path procedure
+knows to maintain a 1:1 aspect ratio (no oval pizzas), that centers
+the round pizza in the frame as you drag the resize corner around. The
+shape of a TNT window is not simply defined by curves or bitmaps -- it
+is defined by a method of the window object, which can apply
+constraints and may depend on the state of other objects in the
+system, like the size or number of slices of the pizza inside the
+frame. All this nice interactive feedback is totally trivial to
+implement with TNT, and is completely impossible with an I39L window
+manager. And even if an I39L window manager could be programmed to
+perform such custom feedback, it would still have to grab the server
+and lock out all other animation in the process, instead of using
+nondestructive overlays like TNT.
+
+X11 window managers must grab the server in order to animate
+rubber-band feedback over the screen when resizing and moving windows.
+This grabbing causes many problems with NeWS synchronous interests,
+that can be demonstrated by pressing the "Help" key while dragging out
+a rectangle on the root background. NeWS can do a much better job at
+managing global resources in the server because it is in the same
+address space and it has facilities like the overlay plane
+specifically designed to implement such window management functions,
+without even grabbing the server.  This antisocial server grabbing
+behavior is just one symptom of a general class of problems with
+external X window management, including other important issues such as
+keyboard and colomap focus.
+
+If NeWS alone manages the input focus, it can manage it perfectly. An
+X window manager alone cannot, because it runs in a foreign address
+space, and is not in a position to synchronously block the input queue
+and directly effect the distribution of events the way NeWS is. But
+even worse is when an X window manager *and* NeWS both try to manage
+the input focus at once, which is the situation we are in today. The
+input focus problem could be solved in several ways: OWM solves the
+problem elegantly, as PSWM did in the past; OLWM could be made NeWS
+aware, so that when our own customers run our own external X window
+manager on our own server that we ship preinstalled on the disks of
+our own computers, OLWM could download some PostScript and let NeWS
+handle the focus management the way it was designed.
+
+It's criminally negligent to ship a product that is incapable of
+keeping the input focus up to date with the cursor position, when you
+have the technology to do so.  Your xtrek has paged the window manager
+out of core, and the console beeps and you suddenly need to move the
+cursor into the terminal emulator and type the command to keep the
+reactor from melting down, but the input focus stays in the xtrek for
+three seconds while the window manager pages in, but you keep on
+typing, and the keys slip right through to xtrek, and you accidentally
+fire off your last photon torpedoe and beam twelve red shirt engineers
+into deep space!
+
+========================================================================
+
+Date: Wed, 10 Jul 91 19:15:15 PDT
+From: sydney@sundeck (Sydney Springer)
+To: drach@parhelion, hopkins@sundeck, jpayne@sundeck, owen@sundeck,
+        patl@sundeck, rxb@sundeck, siegel@sundeck, sydney@sundeck,
+        woods@sundeck
+Subject: ICCCM Review
+
+Here is a draft of the document we will deliver to Paula concerning
+ICCCM window management for TNT.  We would like to hold a meeting
+tomorrow afternoon to review this document as a group before handing
+it off.  The meeting is tentatively scheduled for 1:30 p.m.  Your
+input is important so please let me know asap if you can't make it 
+and we'll try to adjust.  I'll try to get Golden Gate or Pons. 
+
+thanks,
+sydney
+
+------------------------------------------------------------------------------  
+
+		ICCCM Window Management for TNT 
+
+
+
+Executive Summary:
+----------------------------------------------------------------------
+
+    A prototype of ICCCM window management for TNT was implemented.
+    Several TNT programs were converted to use the new prototype.
+    Although the prototype was by no means complete, we
+    believe the problems are now sufficiently understood to
+    evaluate the proposed ICCCM window management.
+    
+	-The TNT/NeWS API for window management will change in
+	 subtle but significant ways.  Ex:  /open, /close,
+	 /reshape and /map all turn into asynchronous requests
+	 rather than occur immediately.  Also, the parameters
+	 to /reshape have different meaning to ICCCM.
+	
+	-The internal subclassing structure for windows will
+	 radically change.  This means any program which
+	 subclasses ClassWindow will likely fail.  An
+	 investigation into TNT applications shows that most do
+	 such subclassing, thus a conversion to ICCCM windows
+	 will break most applications.
+	
+	-Several TNT demos and applications were reworked for
+	 ICCCM window managment with success.
+	
+	-As part of the prototype, we implemented the ability
+	 to switch between ICCCM management and "native" window
+	 management, thus allowing ICCCM to be a form of graceful
+	 degradation.  This worked with moderate success.
+
+    Thus the work went as expected: it works well enough that
+    we believe success could be achieved.  It will significantly
+    break existing applications, however.  Our recommendations
+    and impact assessment are presented below.	
+
+
+History:
+----------------------------------------------------------------------
+One component of X-NeWS interoperability is window management and
+sharing of global resources such as the keyboard and mouse.  In the
+past, this has been done by an attempt at peaceful coexistence;
+NeWS/TNT supplying its own light-weight windows and global event
+management, and X clients using ICCCM window managers.
+
+Although reasonably successful, there are some problems that this
+approach cannot solve.  Two parallel prototype efforts were put in
+place to investigate alternative paths to shared window management for
+X and NeWS.
+
+The first prototype (OWM) implemented an external window manager for
+ICCCM X clients which uses the TNT toolkit.  This was done by wrapping
+X clients within a new TNT class, ClassXClient, and creating a special
+"mixin" class for ClassBaseWindow and ClassPopupWindow which knew about
+ClassXClient clients.  TNT clients were unchanged.
+
+The second prototype (ICCCM windows) implemented a TNT class which
+would allow TNT clients to be managed by arbitrary X ICCCM window
+managers.  This was done by adding a "mode" to ClassWindow which would
+shrink the window to have only a footer, and to manage the ICCCM
+protocol for the client.  This document discusses the ICCCM prototype
+in greater detail.
+
+
+The Prototype:
+----------------------------------------------------------------------
+The prototype added a new concept to ClassWindow: shrink-wrapping
+standard windows for ICCCM usage.  Specifically, a TNT OpenLook window
+contains optional ornamentation: reshape corners, pins, close box,
+label and footer.  ICCCM window managers deal with all but the footer.
+Therefore, to convert an existing TNT application to use ICCCM
+management, the standard TNT window would simply shrink itself by
+having none of the window ornamentation except the footer.  It would
+also make itself available to ICCCM managers by setting its
+OverrideRedirect to false.
+
+Note that a benefit of this approach is that it serves both the
+OWM and ICCCM window design: it preserves ClassWindow and its
+subclasses for use by either OWM, by ICCCM, and even as a fallback
+to the current status-quo of "peaceful coexistence".
+
+The primary problem encountered was that the majority of TNT
+applications subclass ClassWindow for their own purposes such as:
+
+        -Notification
+        -Interposition
+        -SaveWorkspace
+        -Parsed argument processing
+        -Complex Icons
+
+Because the restructuring of ClassWindow was fairly pervasive, these
+applications would fail with the new structure.  We feel, however, that
+this is less a problem with ICCCM, and more a problem with TNT windows:
+they need to be completed in a few areas:
+
+        -SaveWorkspace MUST be completed, and integrated into TNT.
+        -The ParsedArg negotiation must be completed.
+        -Icons must provide for client-supplied icon canvases.
+        -A notification model needs to be included into ClassWindow.
+
+On the positive side, the majority of the /demo methods ran fine under
+ICCCM management; the failures likely being a problem with the prototype
+implementation (It turns off tracking; breaking Region clients).  Also
+note that solutions to these issues are required for either the OWM
+approach or the ICCCM approach, thus must be done for either solution.
+
+Several clients were explicitly adjusted to use the new ClassWindow
+prototype correctly.  The problems that occurred were:
+
+        -Enter/Exit sync interests cause problems with server grabs.
+	-Pinned menus, which are now subclasses of ClassPopupWindow,
+	 will have to revert to previous model or be rewritten to deal
+	 with the Puffed implementation model.
+        -DnD failed.
+        -Secondary selections still fail.
+
+These problems are being pursued.  We feel, however, with the exception
+of the pinned menus, they are not fundamental problems with ICCCM
+window management.
+
+There are some issues relating to the model used by ICCCM.
+
+	-Geometry: The ICCCM model is quite indirect in terms of
+	 setting a window's size and location.  /reshape, for
+	 example, is not typically used by X clients.  Rather,
+	 a request containing the position of the window, and the
+	 desired size of the client is used.
+	-Requests: Requests to ICCCM window managers are asynchronous; 
+	 they occur after the request is made.  Should we use some sort
+	 of mechanism to preserve the TNT synchronous model?
+
+Our over-all evaluation of the prototype is:
+
+	-A reasonable fall-back from OWM to ICCCM management can be
+	 achieved, but it will be imperfect; creating a potentially
+	 serious set of bug reports.  It should be considered
+	 a "graceful degradation" from OWM.
+
+	-To achieve better ICCCM behavior, a fairly major design
+	 effort will be required, including changes in the semantics of
+	 windows and documentation of these differences.
+
+	-The suggested approach is to add basic X11 property utilities
+	 to ClassCanvas, and to have ClassWindow use these utilities.
+
+	-With the completion of TNT window design mentioned above,
+	 the need for clients to subclass ClassWindow will be
+	 considerably reduced, thus making the ICCCM style reasonably
+	 transparent.  Pinned menus will be an exception.
+
+
+Recommendation:
+----------------------------------------------------------------------
+Our recommendation is two-fold:
+
+	-ClassCanvas: Make available to TNT clients all the facilities
+	 needed to be ICCCM compliant.  This will be done by adding a
+	 set of X access utilities and services to ClassCanvas.  This
+	 will be entirely new API's, thus will NOT break existing
+	 applications, but instead will offer them the ability use the
+	 X application model directly.
+
+	-ClassWindow: Adapt the current API to ICCCM as well as possible,
+	 but allowing for minor failures.  This work has two
+	 components.  First: complete the window design to minimize the
+	 need for subclassing.  Second: add the shrink-wrap model of
+	 ICCCM management.  The goal of this effort is to keep the
+	 existing client API and eliminate the need for the subclassing
+	 API being used.  The NeWSClock demo will serve as the
+  	 completion proof for this ClassWindow work, i.e., it 
+	 must work in both puffed and unpuffed modes. 
+
+It is important to note that these two tasks will not solve all
+interoperability problems.  We still have keyboard focus problems, and
+secondary selections still do not work correctly.  To solve these, our
+suggestion is to provide server support which exposes to NeWS the X
+input grab facilities.  In addition, server support for translating
+X data structures to and from NeWS will simplify the ClassCanvas
+work.
+
+
+Impact:
+----------------------------------------------------------------------
+It is our estimate that the two tasks outlined above will take 8 weeks
+for design and implementation by the equivalent of 4 full-time, expert
+(i.e., NeWSTech) engineers.  This estimate does not include a formal
+test cycle or changes to documentation; nor does it include solving other,
+non-window, interoperability problems such as the focus and selection
+problems mentioned above.
+
+We estimate the impact on ClassCanvas to be no more than an additional
+20K in code size and 1-2K per ICCCM instance.  The impact on ClassWindow
+will be roughly the same.
+
+
+Prototype Details:
+----------------------------------------------------------------------
+The following is an extremely detailed break-down of the prototype.
+
+The prototype modified these existing 24 methods:
+    /EInset /HandleDamage /HandleDoubleClick /InCloseArea?
+    /InReshapeArea? /NInset /Paint /PaintFocus /PaintFooter
+    /PaintHeader /PaintLabel /SInset /WInse /bbox /close /destroy
+    /location /map /open /reshape /setlabel /setvisualstate /size
+    /unmap
+The prototype introduced these new utilities:
+    /AdjustServices /Puffed? /Redirected?  /SetX11Properties
+    /WM_DELETE_WINDOW /WM_SAVE_YOURSELF /WM_TAKE_FOCUS /_OL_WIN_ATTR
+    /puff /unpuff /wm_hints /wm_protocols /wm_size_hints
+
+The prototype can be broken down into several areas.
+    Accessers: /puff & /unpuff, /Puffed?
+	The shrink-wrap state is managed by a variable: /Puffed?
+	(Puffed? = false => ICCCM shrink-wrapped).  There are two
+	accessers, /puff and /unpuff, which are used to switch
+	between the two modes.
+    Borderbag params: /WInse, /EInset, /NInset, /SInset
+	The four window border-bag parameters have to change depending
+	on whether or not the window is "puffed".  This was done by:
+	    /WInset {Puffed? {BorderEdge} {0} ifelse} def
+    Painting: /setvisualstate, /setlabel, /Paint, /PaintHeader,
+              /PaintFocus, /PaintLabel, /PaintFooter
+        These typically added a "Puffed? and" to existing booleans
+        used to decide whether to paint parts of the unpuffed window.
+        PaintFooter used Puffed? to adjust its geometry.
+    Services: /AdjustServices, /HandleDamage
+        /AdjustServices was added to turn on/off services depending
+        on the Puffed? state.  /HandleDamage was modified to invert
+        the CTM from X's coordinates to NeWS's.
+    Parent passalong: /location, /size, /bbox, /reshape
+        Certain methods had to be adjusted to return the Parent's
+        data, not that of the ICCCM shrunken window.  Similarly,
+        the /reshape method needs to be passed along to the Parent
+        as a request.  It is not clear what the parameters to the
+        request should be.
+    Tracking: /InReshapeArea?, /InCloseArea?, /HandleDoubleClick
+        Similar to painting: three interaction methods needed to
+        include a "..Puffed? and" fragment.
+    WMgr Notification: /unmap, /destroy, /setvisualstate
+        Certain activities by ClassWindow needed to notify
+        the ICCCM window manager.  These all simply created
+        and sent an event, then called super:
+	    /unmap {
+		Puffed? not {<create UnmapNotify event> sendevent} if
+		/unmap super send
+	    } def
+    Requests: /open, /close, /reshape, /map, /Redirected?, /SetX11Properties
+    	      /wm_protocols, /wm_size_hints, /wm_hints, WM_TAKE_FOCUS,
+    	      /WM_DELETE_WINDOW, /WM_SAVE_YOURSELF, /_OL_WIN_ATTR
+	/open, /close, /reshape and /map had to be overridden to
+	conform to the X request model.  The remaining methods are
+	new utilities and variables.
+	    /open {Puffed? {...} {/map self send} ifelse} def
+	    /close {Puffed? {...} {<clientmessage> sendevent} ifelse} def
+	    /Redirected? {Puffed? {false} {<Parent Redirected?>} ifelse} def
+	    /reshape {
+		Redirected? {
+		    <create ConfigureRequest event> sendevent
+		} {
+		    /reshape super send
+		} ifelse
+	    } def
+	    /map {
+		Redirected? {
+		    self /SetX11Properties self send pop
+		    <create MapRequest event> sendevent
+		} {
+		    /map super send
+		} ifelse
+	    } def
+	    /SetX11Properties {     %   can  =>  can
+		Puffed? {
+		    dup /OverrideRedirect true put
+		    dup /WM_STATE .. /XID get .. /WM_STATE 32 xsetproperty
+		} {
+		    dup /OverrideRedirect false put
+		    dup /WM_NAME Label ... xsetproperty
+		    dup /WM_NORMAL_HINTS wm_size_hints ... xsetproperty
+		    dup /WM_HINTS wm_hints ... xsetproperty
+		    dup /WM_PROTOCOLS wm_protocols ... xsetproperty
+		} ifelse
+	    } def

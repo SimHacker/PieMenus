@@ -1,0 +1,526 @@
+Slider Design Document
+------------------------------------------------------------------------
+
+* THE PROBLEM:
+
+> (Why are we doing this? what features/capabilities are required? What
+> if any performance problems is this work meant to address?)
+
+The tNt 1.0 slider implementation was a subclass of ClassDialControl,
+which was a subclass of ClassControl. It needed to be reimplemented,
+directly as a subclass of ClassCanvas (with ClassTarget mixed in), and
+had to be taught to play games with the services architecture, and
+brought in line with the controls architecture.  All that hot air from
+the collapse of the ParentDictArray had to go somewhere, so the slider
+was graphically "puffed up" with a fake 3-D look. It is hoped that the
+result of this transfer of energy will result in a net decrease in
+size and increase in speed. To cope with the increase in complexity of
+drawing special effects, a form of inlining or macro expansion similar
+to "backquote" in lisp was used, to promote fast drawing procedures
+into slider instances. 
+
+Stuff that needed to be changed:
+  - subclass ClassCanvas instead of "control/dial" intrinsics
+  - use services architecture
+  - bring in line with controls architecture
+  - fake 3-d look
+  - smaller and faster
+
+* THE MODEL:
+
+> (What is the big picture for this design? Exactly how does it fit
+> into the big picture of the toolkit? If your design introduces any new
+> names or acronyms into the toolkit, define them!)
+
+Normalization
+Delta
+Tick Marks
+Min/Max labels
+
+  (from dial.ps):
+
+  % A slider is a linear control with a numerical value bounded by min
+  % and max values.  User interaction with the slider may change its
+  % value either to an absolute value, the min or max, or to a value
+  % computed by adding or subtracting a delta to the current value.
+  % If the delta has not been specified (i.e. it's 0), the slider is
+  % changed by +-1.  Values are constrained to be between the min and
+  % max values.  The granularity of the slider may be controled via
+  % "normalization".  The normalization value, which may be either
+  % constant or dynamically computed, specifies the difference between
+  % consecutive legal values of the slider.  For example, a slider
+  % with a minimum value of 0, a maximum value of 100 and a
+  % normalization of 2 could have only even values between 0 and 100.
+  % You can specify how many tickmarks you want to see.  The distance
+  % argument defines the distance between 2 tickmarks in user space.
+
+  If there are tick marks, the min/max labels are below the min and max
+  tick marks. Otherwise, they are at each end of the slider, outside
+  the end boxes (if any).
+
+  % The Normalization controls the slider granularity.  It can be a
+  % number or a dynamic procedure returning a number. If the
+  % normalization is positive, the slider value is constrained to
+  % multiples of the normalization (plus the Min value). If the
+  % normalization is negative, the slider value is constrained to
+  % multiples of the reciprocal of the normalization. If the
+  % normalization is zero, the slider value is not constrained.
+
+* THE INTERFACE:
+
+> (Explain the exact syntax and semantics of the API.  If this work has
+> any implications on the UI, explain these carefully too. If this is an
+> OpenLook component explain fully the level of OpenLook complience)
+
+** API:
+
+  /value { % - => value
+  /setvalue { % val => -
+	Calls /checkrange to keep value between Min and Max, but does
+	not call /normalize.
+
+  /range { % - => min max
+  /setrange { % min max => -
+	Also adjusts value so it lies within the range.
+
+  /checkrange { % value => new-value
+	Forces the value to be in range.
+	Done automatically by /setvalue, so does this need to be exposed?
+
+  /normalization { % - => granularity
+  /setnormalization { % granularity => -
+  /normalize { % value => value'
+        The Normalization controls the slider granularity.  It can be a
+        number or a dynamic procedure returning a number. If the
+        normalization is positive, the slider value is constrained to
+        multiples of the normalization (plus the Min value). If the
+        normalization is negative, the slider value is constrained to
+        multiples of the reciprocal of the normalization. If the
+        normalization is zero, the slider value is not constrained.
+
+  /delta { % - => step
+  /setdelta { % step => -
+	Controls the slider step delta. This is the step by which
+	the slider steps when the user clicks to the left or the right
+	of the puck. If delta is zero, then the slider moves by 1. 
+	REMIND: Or should the slider just not step at all when the delta is
+		zero?
+	REMIND: If the delta is too small to step it by one normalized 
+	        unit, then it will stay in one place. Is this reasonable 
+		behavior? Should it be documented?
+
+  /tickmarks { % - => distance
+  /settickmarks { % distance => -
+	Controls the distance between tick marks in user space (0 for
+	no tick marks).
+
+  /setnotifier { % name|proc => -
+  /notifier { % - => name|proc
+  /executenotifier { % - => -
+	Should we remember the last notified value and only notify if it
+	has changed? I don't think so. The client's handler can take care
+	of that if it cares to.
+	The notifier takes two arguments: value self
+	My /executenotifier differs from the scrollbar method in that
+	it puts the "value self" args to the notification proc on the
+	stack itsself. I think the stack comments for /executenotifier
+	in the scrollbar source are wrong since that methods should consume
+	two arguments, instead of providing them itsself. For consistency,
+	maybe it should do the latter. 
+
+  /setpreviewer { % name|proc => -
+  /previewer { % - => name|proc
+  /executepreviewer { % - => -
+	As per controls architecture.
+	Calls the previewer proc with two arguments: value self
+	The value is not normalized.
+
+  /reshape { % x y w h => -
+	Promotes painting procedures inlined with backquote.
+
+  /minsize { % - => w h
+	Needs fixing.
+
+  /update { % - => -
+	You have to do it after /setvalue.
+
+  /demo { % - => slider
+	Slider demo. The notify procedure excites the slider for a
+	couple of seconds.
+
+** Level of Open Look compliance:
+  To be done.
+
+* THE IMPACT:
+
+> (What parts of the toolkit will have to change because of this work?
+> Provide before-and-after code fragments for application programmers if
+> this change will affect them in any way.)
+
+tNt 1.0 differences:					WHERE	WHAT
+
+    instance variables:
+      /NotifyUser renamed /Notifier			control	changed
+      /PaintedValue renamed /LastSliderX		control	changed
+      /Enabled?						control	obsolete
+          TODO 1: Implement enable/disable? (no, use visual state)
+      /NotifiedValue					control	missing
+          TODO 2: Implement redundant notification supression?
+      /Motion /MotionAmount /Deltas			dial	obsolete
+          Not necessary.
+
+    class variables:
+      /ControlButton /ControlAction			control	missing
+          Should it be easy for subclassers to redefine buttons?
+      /DefaultDeltas					dial	obsolete
+          Not necessary.
+
+    methods:
+      /callnotify renamed /executenotfier		control	changed
+      /notifyproc renamed /notifier			control	changed
+      /setnotifyproc renamed /setnotifier		control	changed
+      /ClientStartTime renamed /ScrollThresh		control	changed
+      /ClientRepeatTime renamed /ScrollDelay		control	changed
+      /enable /disable /enabled?			control	obsolete
+          TODO 1: Implement enable/disable? (no, use visual state)
+      /checknotify /notifiedvalue /CallNotify?		control	missing
+          TODO 2: Implement redundant notification supression?
+      /CheckValueBounds renamed /checkrange		control	changed
+      /motion /incrementvalue /SetMotion		dial	obsolete
+          Not necessary.
+      /setposition					dial	obsolete
+          Not necessary?
+      /XYToMetric /MetricToValue /ValueToMetric		dial	obsolete
+      /MinMetric /MaxMetric /Scale
+          Not necessary, done by hand.
+
+* THE PROTOTYPE:
+
+> (Reference and explain the prototype that you will make available to
+> accompany this document. Be explicit about how much of the problem it
+> addresses.)
+
+The prototype is in "~hopkins/tnt/slider/slide.ps". psh it in and go
+"/demo ClassSlider send". The notify procedure excites the slider for
+a couple of seconds.
+
+(in no particular order)
+
+TODO 1: Implement disabled controls.
+	/enable /disable /enabled?
+	XXX: Obsolete. Implement as a visual state
+TODO 2: Implement redundant notification supression.
+	/checknotify /notifiedvalue /CallNotify?
+	Is this necessary?
+	I don't think it's desirable with text fields.
+	Client's notification proc can do supression.
+TODO 3: Implement tick marks.
+TODO 4: Implement min/max labels.
+TODO 5: Implement current value field.
+TODO 6: Implement support for numeric type-in.
+        Issue: External connections and complex controls.
+	How to implement complex controls and connect them?
+          1. Text field child of slider.
+	     (slider must be a bag)
+	  2. Text field and slider child of complex control.
+	     (parent control must forward messages to children)
+	  3. Text field and slider siblings in bag.
+	     (preferred)
+TODO 7: Implement /starttimer in track service and use it.
+        Also needed for scrollbar and selection autoscroll.
+	Issue: variable or constant time delta?
+	I prefer variable (add delta to currenttime instead of timestamp).
+TODO 8: Remove dependancy of Min<Max.
+TODO 9: Factor out value=>label function for subclassers (promoters?).
+TODO 10: Implement /clientdata /setclientdata.
+	 Ala controls, e.g. for value=>label mappings.
+TODO 11: Implement /executepreviewer /previewer /setpreviewer /Previewer.
+	 *done*
+         Should scroll bars have a previewer as well?
+TODO 12: Implement /setvisualstate /visualstate /VisualState.
+         Replaces /enable /disable /enabled?.
+	 /active /inactive /busy
+TODO 13: Factor out stuff in common with gages.
+TODO 14: Put these in order of priority.
+
+* THE PERFORMANCE:
+
+> (Show speed and space (both code and instance data) measurements of
+> your prototype and if appropriate compare these to previous
+> measurements. Make predictions about the performance of your final
+> implementation.
+
+** PostScript backquote:
+
+Date: Wed, 18 Jul 90 06:38:20 PDT
+From: hopkins@poit (Don Hopkins)
+To: tnt@poit
+Subject: inlining and promoting drawing procedures
+
+Here's a technique I tried to speed up the drawing of sliders.
+"bindinline" is kinda like backquote in lisp. It takes a procedure,
+and returns a new one, replacing "<object> ," with the result of
+executing <object>. <object> can be the name of a variable you want to
+inline, or a procedure that does some calculation and pushes some
+numbers on the stack. The idea is to have a template method in the
+class that you bindinline and promote to a painting method at
+validation time. But wait -- that's not all! If you define "," as "/,
+{exec} def", then you can simply execute the template from the class
+to draw the same picture, just a tiny bit slower. Now how much would
+you pay? Order before midnight tonight, or it will be tomorrow!
+
+	-Don
+
+/bindinline { % proc => newproc
+    dup wcheck 					% Has to be readonly
+    1 index xcheck and				% Has to be excutables
+    1 index type /arraytype eq and		% Has to be arraytype
+    {   [ exch {				% mark p
+	    dup type /arraytype eq {		% p i pi
+	        bindinline readonly		% embedded procs are readonly
+	    } {
+	        dup xcheck 1 index type /nametype eq and {
+		    dup /, eq {
+		        pop exec
+		    } if
+	        } if
+	    } ifelse
+        } forall ] cvx
+    } if
+} def
+
+% Here's the original /PaintSlide method defined in the class.
+% (it's not really needed since it's always promoted, but it's here
+% for comparison).
+
+  /PaintSlide {
+    10 dict begin gsave
+      self setcanvas
+      SlideX SlotY translate
+      /c Value Min sub SlideScale div SliderWidth 2 div add def
+      /r SlideWidth SlotEnd sub def
+
+      FG setcolor
+      1 SlotHeight moveto  SlideWidth 1 sub SlotHeight lineto  stroke
+      1 0 c SlotHeight 2 sub  rectpath
+      0 1 3 3 rectpath  fill
+      BG setcolor
+      SlotEnd SlotHeight 1 sub moveto  r SlotHeight 1 sub lineto  stroke
+      c 0 r c sub SlotHeight 1 sub  rectpath  fill
+      BG0 setcolor
+      c 1 moveto  SlideWidth 1 sub 1 lineto
+      SlideWidth 2 moveto  SlideWidth 4 lineto  stroke
+    grestore end
+  } def
+
+% Here's the template that draws the same thing when inlined. Note
+% that the layout variables can be inlined, but the number that depends
+% on the value that changes during tracking is calculated on the stack 
+% once at the beginning of the function.
+
+  /InlinePaintSlide {
+    {SlideX SlotY} , translate
+
+    Value Min , sub SlideScale , div {SliderWidth 2 div} , add
+
+    FG , setcolor
+    1 SlotHeight , moveto
+    {SlideWidth 1 sub SlotHeight} , lineto  stroke
+    1 0 2 index {SlotHeight 2 sub} ,  rectpath
+    0 1 3 3 rectpath  fill
+    BG , setcolor
+    {SlotEnd SlotHeight 1 sub} , moveto
+    {SlideWidth SlotEnd sub  SlotHeight 1 sub} , lineto  stroke
+    dup 0 {SlideWidth SlotEnd sub} , 2 index sub {SlotHeight 1 sub} ,
+    rectpath  fill
+    BG0 , setcolor
+    1 moveto  {SlideWidth 1 sub} , 1 lineto
+    SlideWidth , 2 moveto  SlideWidth , 4 lineto  stroke
+
+    {SlideX neg SlotY neg}, translate
+  } def
+
+% Here's the result of inlining the above template. (indented for clarity)
+
+{ 9 5 'translate'
+  Value 1 'sub' 0.0403 'div' 4.5 'add'
+  color(0.00,0.00,0.00) 'setcolor'
+  1 5 'moveto'
+  480.0 5 'lineto'  'stroke'
+  1 0 2 'index' 3 rectpath
+  0 1 3 3 rectpath 'fill'
+  color(0.85,0.85,0.85) 'setcolor'
+  3 4 'moveto'
+  478.0 4 'lineto'  'stroke'
+  'dup' 0 478.0 2 'index' 'sub' 4
+  rectpath 'fill'
+  color(0.95,0.95,0.95) 'setcolor'
+  1 'moveto'  480.0 1 'lineto'
+  481.0 2 'moveto'  481.0 4 'lineto' 'stroke'
+  -9 -5 'translate'}
+
+PS: Yes I know this painting code is quite cheezy, but it demonstrates
+the point and I want to go home and sleep now!
+
+	-Don
+
+Date: Wed, 18 Jul 90 16:42:18 PDT
+From: hopkins@poit (Don Hopkins)
+To: jfarrell@jf
+Subject: Re:  inlining and promoting drawing procedures
+Cc: tnt@poit
+
+I'll make the optimization you mentioned, thanks, Jerry! I started with
+the definition of "bind" and buchered it to do what I wanted (which
+turned out to be a lot simpler than what bind did). Another thing I
+forgot to do was make it use packed arrays.
+
+One interesting feature of this approach is that since "," is the
+defined as "/, {exec} def", you can execute and debug the templates in
+the class by using them as class methods instead of inlining and
+promoting them as instance methods.
+
+I'm thinking of renaming "bindinline" to "`" -- like backquote from lisp.
+How's this look:
+
+systemdict begin
+
+/` { % proc => newproc
+    dup xcheck
+    1 index type /arraytype eq and
+    {   mark exch {
+	    dup type /arraytype eq { % recurse on executable arrays
+	        `
+	    } { % execute objects followed by ,
+	        dup xcheck 1 index /, eq and {
+		    pop exec
+	        } if
+	    } ifelse
+        } forall
+	counttomark packedarray cvx exch pop
+    } if
+} def
+
+/, {
+  exec
+} def
+
+end
+
+% an example of how to inline invarients for a fast loop:
+
+/Step .003 def
+framebuffer setcanvas clippath pathbbox
+/Height exch def /Width exch def pop pop
+
+/PaintRoot { 
+  gsave framebuffer setcanvas
+    random { Step Width mul } , mul
+    random { Step Height mul } , mul  translate
+    { RootColor } , setcolor
+    0 Step , 1 {
+      dup Width , mul dup 0 moveto  Height , lineto
+      Height , mul 0 1 index moveto  Width , exch lineto
+      stroke
+    } for
+  grestore
+} ` store
+true setpaintroot
+/damage framebuffer send
+
+% an example of a Paint and validate method:
+
+/Paint {
+  {X Y Width Height} , rectpath
+  FillColor , setcolor fill
+  {X Width 2 div add  Y Height 2 div add  Width Height min 2 div} ,
+  0 360 arc StrokeColor , setcolor stroke
+} def
+
+/validate {
+  /validate super send
+  /Paint unpromote
+  /Paint dup load ` promote
+} def
+
+Date: Fri, 20 Jul 90 02:19:24 PDT
+From: hopkins@poit (Don Hopkins)
+To: hopkins@poit, tnt@poit, wmb@mitch
+Subject: Re: PostScript backquote
+
+
+----- Begin Included Message -----
+
+To: hopkins@poit
+Subject: Re: PostScript backquote
+Date: 19 Jul 90 19:23:19 PDT (Thu)
+From: wmb@mitch
+
+Is this sort of like a generalization of Forth's "literal" ?
+
+Mitch
+
+----- End Included Message -----
+
+It can be used similar to how literal is used with [ and ] in forth,
+for compiling calculated literals into code.  The nice thing is that
+the code with the commas in it can be either executed directly (because
+"," is just exec), or inlined to a procedure that will produce the same
+results, at any time. It is different from Lisp backquote in that you
+can keep around the code with commas, and inline it using backquote
+whenever and in whatever context you want. Generally you would have a
+method in a class with commas, that's promoted to a method in an
+instance when the instance is resized and validated.  Many instances
+can generate their painting procedures from one macro, in different
+contexts.
+
+	-Don
+
+** Space/Time comparisons:
+  To be done.
+    Size.
+    Speed.
+    Execute normal paint method in class.
+    Execute macro template in class.
+    Execute expanded macro in instance.
+    Time typical paint proc expanions.
+    Consider inlining and promoting only at start of tracking.
+
+* DESIGN CHOICES:
+
+> (Explain the options that were available to you in designing this
+> component, and why you chose the one you did. Give pros and cons for
+> the important design tradeoffs.)
+
+** /setdelta /delta /Delta
+  HandleSliderStep will step the slider by +-delta if delta is non-zero.
+  Otherwise it steps by +-normalization unit if normalization is non-zero.
+  Otherwise it steps by +-1.
+  XXX: Simplified: Step by +-delta if delta is non-zero, else +-1.
+  *done*
+
+** auto repeating and cursor warping
+  Only do a setcursorlocation if the cursor is in the dragging rectangle,
+  and must be pushed by the autorepeating slider.
+  Only change the x-coordinate of the cursor, instead of moving its y
+  location to the center of the slider.  
+  Stop autorepeating when it gets to the end of the slider.
+  *done*
+
+** space/time tradeoffs
+
+  The backquote technique speeds up drawing but takes up space. But
+  the macro templates (defined as methods that are inlined and
+  promoted) can still be executed even if they haven't been promoted.
+  There is a small hit for executing "," which is defined as "/,
+  {exec} def" (since it can't be defined as "/, /exec load def"
+  because of autobind).  And of course the templates are slower than
+  the their inlined promoted expansions, because they're calculating
+  the values each time instead of just pushing constants. Right now,
+  the promotion happens upon /reshape, when the size is known and the
+  layout can be calculated. Another space saving trade-off might be to
+  only expand and promote the macros at the start of tracking, during
+  which parts of the control must be frequently repainted, and
+  unpromote it upon completion of tracking.
+
+========================================================================

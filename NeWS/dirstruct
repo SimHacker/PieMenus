@@ -1,0 +1,24 @@
+#!/bin/csh -f
+set dir=$1
+if (x$2 == x) then
+  set level=1
+else
+  set level=$2
+endif
+cd $dir
+echo "$3" "(`basename $dir`)" 300 dict begin
+foreach file (`/bin/ls -a`)
+  set info = (`/bin/ls -lgd $file`)
+  if (-d $file && $file != . && $file != .. && $level > 1 && $#info != 11) then
+    @ level--
+    dirstruct "$dir/$file" $level "$3  "
+    @ level++
+  else
+    echo -n "$3" "  {($dir/$file) ($info[1]) $info[3] $info[4] $info[5] ($info[6-8]) ($info[9])"
+    if ($#info == 11) then
+      echo -n " symlink ($info[11])"
+    endif
+    echo "} dup 6 get exch def"
+  endif
+end
+echo "$3" dictend dup select-object def pause % "$dir"

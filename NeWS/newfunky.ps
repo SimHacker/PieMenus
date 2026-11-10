@@ -1,0 +1,378 @@
+%!/usr/NeWS/bin/psh
+
+systemdict begin
+newprocessgroup
+
+/funkyTTY TTY
+dictbegin
+  /FontSize 12 def
+  /FontName /Times-Roman def
+  /Auto-CR true def
+dictend
+classbegin
+  /reshape-lines {
+    /OldLines Lines def
+    /Lines [
+      OldLines null ne { OldLines length } { 0 } ifelse
+      Rows max { 
+	Columns string
+	dup 0 Spaces 0 Columns getinterval putinterval
+      } repeat
+    ] def
+    OldLines null ne {
+      0 1 OldLines length 1 sub { /i exch def
+        Lines i get 0
+        OldLines i get
+	dup length Columns gt {
+          0 Columns getinterval
+	} if
+        putinterval
+      } for
+    } if
+    /OldLines null def
+    /TopMargin 0 def
+    /BottomMargin Rows def
+    /CurX CurX Columns 1 sub min def
+    /CurY CurY Rows 1 sub min def
+    update-cursor
+  } def
+
+  /fit-font {
+    gsave
+      ClientCanvas setcanvas
+      clippath pathbbox points2rect
+      TextMargin dup add sub CharHeight div floor 1 max
+      Rows null ne {Rows max} if
+      /Rows exch def
+      TextMargin dup add sub CharWidth div floor 1 max
+      Columns null ne {Columns max} if
+      /Columns exch def
+      pop pop
+      reshape-lines
+    grestore
+  } def
+
+  /CreateClientCanvas {
+    /CreateClientCanvas super send
+    /ClientMenu funkyfontmenu def
+  } def
+
+  /shape-cursor nullproc def
+  /paint-cursor nullproc def
+  /cursor-on nullproc def
+  /cursor-off nullproc def
+  /update-cursor nullproc def
+  /new-cursor nullproc def
+  /FlashCursor nullproc def
+classend def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/PieSliderMenu NicePieMenu
+dictbegin
+  /LastMenuArg null def
+  /ArgDistance null def
+  /ArgDivisions 5 def
+  /HiLiteWithArrow? false def
+dictend
+classbegin
+
+    /DragProc {
+	ChildMenu null eq {
+          MenuGSave
+	    PieRadius dup translate
+	    CurrentEvent begin XLocation YLocation end		% x y
+	    SetMenuValue
+
+	    MenuValue PaintedValue ne {
+	        PaintMenuValue
+	        trackmenuarg
+	    } {
+		MenuArg LastMenuArg ne {
+		  trackmenuarg
+		} if
+            } ifelse
+	    
+          grestore
+	} if
+    } def
+
+    /popdown {
+      gsave fboverlay setcanvas erasepage grestore
+      /popdown super send
+    } def
+
+    /trackmenuarg {
+      gsave fboverlay setcanvas erasepage grestore
+      MenuArg null ne {
+        MenuItems MenuValue get dup type /dicttype eq {
+          self
+          /track 2 index /Key get send
+        } { pop } ifelse
+      } if
+    } def
+
+    /SetMenuValue { %  x y => -
+      /SetMenuValue super send
+      /MenuArg 
+        MenuValue dup null ne {
+          MenuItems exch get type /dicttype eq {
+            PieDistance NumbRadius sub ArgDistance div floor
+	    ArgDivisions 1 sub min
+	  } { 
+	    pop null
+	  } ifelse
+        } if
+      def
+    } def
+
+    /layout {
+      /layout super send
+      /ArgDistance LabelRadius Gap sub NumbRadius sub ArgDivisions div def
+    } def
+
+    /PaintMenuItems {
+      MenuGSave
+	false setprintermatch
+        PieRadius dup translate
+
+        MenuItems {					% item
+	begin
+	  Key X Y ShowThing
+
+% There seems to be a NeWS line clipping bug with lines with one 
+% endpoint the right of the hole in the center of the menu ... 
+
+	1 setlinequality % Solves SOME of the line glitches ...
+
+	  SliceWedges {
+	    gsave
+	      newpath
+	      ang PieSliceWidth 2 div sub rotate
+	      NumbRadius 1 sub 0 moveto
+	      LabelRadius Gap sub 0 lineto
+              MenuTextColor setcolor
+	      0 setlinecap
+	      4 setlinewidth
+	      stroke
+	      1 setlinecap
+	      3 setlinewidth
+	      NumbRadius 0 translate
+	      ArgDivisions 1 add {
+	        0 -5 moveto
+		0 5 lineto
+		stroke
+	        ArgDistance 0 translate
+	      } repeat
+ 	    grestore
+	  } if
+        end
+        } forall
+      grestore
+    } def
+
+classend def
+
+/FontTrackThing Object
+dictbegin
+  /TrackFontName null def
+  /TrackFontSizes null def
+  /TrackFonts null def
+  /LabelFontSize 18 def
+  /LabelFont null def
+  /Label null def
+dictend
+classbegin
+  /paint {
+    gsave
+      LabelFont setfont
+      false setprintermatch
+      0 setgray
+      Label show
+    grestore
+  } def
+
+  /size { % - => w h
+    gsave
+      LabelFont setfont
+      false setprintermatch
+      Label stringwidth pop currentfont fontheight
+    grestore
+  } def
+
+  /new { %  Label FontName [Font Sizes]
+    /new super send begin
+      /TrackFontSizes exch def
+      /TrackFontName exch def
+      /Label exch def
+      /TrackFonts [
+        TrackFontSizes { TrackFontName findfont exch scalefont } forall 
+      ] def
+      /LabelFont TrackFontName findfont LabelFontSize scalefont def
+    currentdict end
+  } def
+
+  /track { % MenuItem Menu => -
+    gsave
+    exch begin
+      begin
+        fboverlay setcanvas
+        MenuX PieRadius add MenuY PieRadius add translate
+	MenuArg
+	/LastMenuArg MenuArg def
+      end
+      TrackFonts 1 index get setfont
+      TrackFontSizes exch get (% point) sprintf
+      false setprintermatch
+      dup stringbbox points2rect
+      x .55 mul  y .55 mul  moveto
+      -.35 mul exch -.5 mul exch rmoveto
+      pop pop
+      show
+    end
+    grestore
+  } def
+classend def
+
+end % systemdict 
+
+100 dict begin
+
+/myHelvetica
+  (Helvetica) /Helvetica
+  [10 12 14 18 24]
+  /new FontTrackThing send def
+/myHelvetica-Bold
+  (Bold) /Helvetica-Bold
+  [10 12 14 18 24]
+  /new FontTrackThing send def
+/myHelvetica-Oblique
+  (Oblique) /Helvetica-Oblique
+  [10 12 14 18 24]
+  /new FontTrackThing send def
+/myHelvetica-BoldOblique
+  (BoldOblique) /Helvetica-BoldOblique
+  [10 12 14 18 24]
+  /new FontTrackThing send def
+
+/funkyhelveticamenu
+  [ myHelvetica myHelvetica-Oblique myHelvetica-BoldOblique myHelvetica-Bold ]
+  [ { currentkey begin TrackFontName TrackFontSizes end 
+      MenuArg get
+      /setfontnamesize myterm send } ]
+  /new PieSliderMenu send def
+funkyhelveticamenu /LabelMinRadius 117 put
+funkyhelveticamenu /LabelRadiusPerKey 0 put
+
+/myTimes
+  (Times-Roman) /Times-Roman
+  [10 12 14 18 24]
+  /new FontTrackThing send def
+/myTimes-Bold
+  (Bold) /Times-Bold
+  [10 12 14 18 24]
+  /new FontTrackThing send def
+/myTimes-Italic
+  (Italic) /Times-Italic
+  [10 12 14 18 24]
+  /new FontTrackThing send def
+/myTimes-BoldItalic
+  (BoldItalic) /Times-BoldItalic
+  [10 12 14 18 24]
+  /new FontTrackThing send def
+
+/funkytimesmenu
+  [ myTimes myTimes-Italic myTimes-BoldItalic myTimes-Bold ]
+  [ { currentkey begin TrackFontName TrackFontSizes end 
+      MenuArg get
+      /setfontnamesize myterm send } ]
+  /new PieSliderMenu send def
+funkytimesmenu /LabelMinRadius 107 put
+funkytimesmenu /LabelRadiusPerKey 0 put
+
+/myCourier
+  (Courier) /Courier
+  [10 12 14 16 18 24]
+  /new FontTrackThing send def
+/myCourier-Bold
+  (Bold) /Courier-Bold
+  [10 12 14 16 18 24]
+  /new FontTrackThing send def
+/myCourier-Oblique
+  (Oblique) /Courier-Oblique
+  [10 12 14 16 18 24]
+  /new FontTrackThing send def
+/myCourier-BoldOblique
+  (BoldOblique) /Courier-BoldOblique
+  [10 12 14 16 18 24]
+  /new FontTrackThing send def
+
+/funkycouriermenu
+  [ myCourier myCourier-Oblique myCourier-BoldOblique myCourier-Bold ]
+  [ { currentkey begin TrackFontName TrackFontSizes end 
+      MenuArg get
+      /setfontnamesize myterm send } ]
+  /new PieSliderMenu send def
+funkycouriermenu /LabelMinRadius 142 put
+funkycouriermenu /ArgDivisions 6 put
+
+/funkyfontmenu
+  [ 
+    [(Helvetica) /Helvetica findfont 24 scalefont]
+    [(Courier) /Courier findfont 24 scalefont]
+    [(Times-Roman) /Times-Roman findfont 24 scalefont]
+    /eye
+  ]
+  [
+    funkyhelveticamenu
+    funkycouriermenu
+    funkytimesmenu
+    { /Icon 1 /setfontnamesize myterm send }
+  ]
+  /new NicePieMenu send def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  20 dict begin
+    /myterm framebuffer /new funkyTTY send def
+    50 100 600 700
+    /reshape myterm send
+    /map myterm send
+    /term myterm send
+'Twas brillig and the slithy toves
+Did gyre and gymble in the wabe.
+All mimsy were the borgroves
+And the mome raths outgrabe.
+
+"Beware the Jabberwock, my son:
+The jaws that bite, the claws that catch
+Beware the Jubjub bird, and shun
+The frumious Bandersnatch."
+
+He took his vorpal sword in hand
+Long time the manxome foe he sought
+So rested he by the Tumtum tree
+And stood a while in thought.
+
+And as in uffish thought he stood
+The Jabberwock with eyes of flame
+Came whiffling through the tulgey wood
+And burbled as it came.
+
+One-two!  One-two! and through and through
+The vorpal blade went snicker-snack!
+He left it dead, and with its head
+He went galumphing back.
+
+"And hast thou slain the Jabberwock?
+Come to my arms, my beamish boy!
+Oh frabjous day - calloo, callay!"
+He chortled in his joy.
+
+'Twas brillig and the slithy toves
+Did gyre and gymble in the wabe.
+All mimsy were the borgroves
+And the mome raths outgrabe.
+
+	Lewis Carroll
+slow-refresh breakpoint currentprocess killprocessgroup

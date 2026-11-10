@@ -1,0 +1,18 @@
+%!
+% Menu selection logging.
+% Don Hopkins
+
+{
+  /log-menu { % name => -
+    createevent begin
+      /Name /MenuLog def
+      /Action exch def
+      /ClientData self def
+      currentdict sendevent
+    end
+  } def
+
+  /showat dup load {/ShowAt log-menu} exch append cvx def
+
+  /popdown dup load {/PopDown log-menu} exch append cvx def
+} LiteMenu send

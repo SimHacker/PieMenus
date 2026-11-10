@@ -1,0 +1,71 @@
+From:	      Ted Nelson [SMTP:ted@xanadu.net]
+Sent:	      Wednesday, October 07, 1998 10:49 PM
+To:	      don@toad.com
+Cc:	      ted@sfc.keio.ac.jp; marlene@xanadu.net; xanni@xanadu.net; eharter@din.or.jp
+Subject:      Your piece on X is BRILLIANT!
+
+Hi--
+
+I just keeled over laughing at your piece on X.
+ It educates and is written brilliantly at the same time.
+ Dunno if we've met, seems likely.
+
+Anyhow, one of your pages says you're interested in
+ graphical user interfaces-- which haven't been TRIED
+ yet, only the PARC paradigm of disconnected windows.
+
+Fer openers, you might want to look at my ZigZag program
+ at www.xanadu.net-- some people get it already, others
+ may have to wait till we hook in some graphics.
+ "No metaphors, no icons, no paper simulation, no
+ hierarchies, and best of all-- no applications."
+
+Best, TN
+(Is NeWs (or whatever) still available?  (I know you're
+ at toad.com and Hugh Daniel raves about News,
+ so I presume you're friends.))
+
+____________________________________________________
+Theodor Holm Nelson, Visiting Professor of Environmental Information
+ Keio University, Shonan Fujisawa Campus, Fujisawa, Japan
+ Home Fax from USA: 011-81-466-46-7368  (If in Japan, 0466-46-7368)
+Professorial home page http://www.sfc.keio.ac.jp/~ted/ 
+_____________________________________________________
+Permanent: Project Xanadu, 3020 Bridgeway #295, Sausalito CA 94965
+ Tel. 415/ 331-4422, fax 415/332-0136  
+http://www.xanadu.net
+PERMANENT E-MAIL: ted@xanadu.net
+_____________________________________________________
+Quotation of the day, 98.10.08:
+"The technical difference between a language and a dialect: a language is a
+dialect with an army."  --Author unknown 
+"The technical difference between a religion and a cult: a religion is a
+cult with downtown lawyers."  TN89
+
+
+From: Hopkins, Don [mailto:Hopkins, Don] 
+Sent: Friday, October 09, 1998 12:15 PM
+To: 'Ted Nelson'
+Cc: dhopkins@maxis.com
+Subject: RE: Your piece on X is BRILLIANT!
+
+Thanks for your message! 
+Yes I've worked with ||ugh on NeWS at at least a couple of companies. 
+We go way back, but not nearly as far back as you two to Anne Arbor!
+The first time I saw you and ||ugh (but I didn't meet either of you then, 
+but distinctly remembered ||ugh when I really met him years later) 
+was at MIT Tech Square, it might have been the 5th floor or thereabouts, 
+where you guys were giving this great hypertext demo, and wearing hats 
+with wings. I was there visiting the hacker mecca, the 9th floor ai lab,
+and friends I had around the area. Later Hugh and I would hack NeWS
+in a wedge shaped office on Mass Ave, back around black monday. 
+And then still later in San Francisco for John Gilmore's company 
+Grasshopper Group. Both companies ported NeWS to the Mac 
+(one MacOS and one A/UX), but never really went anywhere. 
+I don't think NeWS is still available, but people have written clones
+and mutants that it inspired. The hard nut to crack was the PostScript
+imaging model. PostScript seems to have died out in that I can't view
+a PostScript document on any Mac or PC. Funny thing that's the 
+one thing Unix is still good for these days. 
+
+    -Don

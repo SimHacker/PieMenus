@@ -1,0 +1,554 @@
+Utilities:
+
+/sendtoemacs { % string => -
+/sendtoemacsframe { % string frame => -
+/execforemacs { % any => -
+/EmacsPsDir
+/EmacsPsPath
+/runforemacs {	% name => -
+/getfromemacs { % filename => -
+/exitrecursiveedit {
+
+Class definitions:
+
+/EmacsDict [] []
+classbegin
+  /tRunFile 0 def
+  /tVersionOk 1 def
+  /tFontInfo 2 def
+  /tCreateFrame 3 def
+  /tFrameBBox 4 def
+  /tEngineType 5 def
+  /DebugLevel 1 def
+  /SlowMotion .04 60 div def
+
+  % Emacs CPS interface.
+
+  % ps_CursorShow(cstring str, x, y)
+  /CS { % str x y => -
+  % ps_CursorHide()
+  /CH { %
+  % ps_setHL0()
+  /HL0 { %
+  % ps_setHL1()
+  /HL1 { %
+  % ps_wipescreen()
+  /CL { %
+  % ps_blanks(x,y,n)
+  /ER { % x y n => -
+  % ps_writechars(x, y, cstring str)
+  /WC { % x y str => -
+  % ps_inslines(y,dy,nl)
+  /IL { % y dy nl => -
+  % ps_dellines(y,dy,nl)
+  /DL { % y dy nl => -
+  % ps_frametotop()
+  /TP { %
+  % ps_frametobottom()
+  /BT { %
+  % ps_beginrepair()
+  /BRP { %
+  % ps_endrepair()
+  /ERP { %
+  % ps_switchframe(n)
+  /SF { % n => -
+  % ps_initialize(type, width, height) => tEngineType(type, width, height)
+  /INIT { % - => - (tEngineType type width height)
+  % ps_createtrm()
+  /CT { %
+  % ps_createframe(ei)
+  /CF { % ei => -
+  % ps_resumeframe(n)
+  /RF { % n => -
+  % ps_suspendframe(n)
+  /SFR { % n => -
+  % ps_destroyframe(n)
+  /DF { n => -
+  % ps_openframe()
+  /OF { %
+  % ps_closeframe()
+  /CLF { %
+  % ps_mapframe()
+  /MF { %
+  % ps_unmapframe()
+  /UF { %
+  % ps_paintframe()
+  /PF { %
+  % ps_setframecolorscheme(string s)
+  /SFCS { % s => -
+  % ps_setframelabel(string s)
+  /SFL { % s => -
+  % ps_seticonlabel(string s)
+  /SIL { % s => -
+  % ps_seticonimage(string s)
+  /SII { % s => -
+  % ps_seticonlocation(x, y)
+  /SILO { % x y => -
+  % ps_setdefaultframeshape (int x, y, w, h)
+  /SDS { % x y w h => -
+  % ps_setframeshape (int x, y, w, h)
+  /SFS { % x y w h => -
+  % ps_framebbox (int x, y, w, h)  => tFrameBBox (h, w, y, x)
+  /FB { % - => - (tFrameBBox x y w h)
+  % ps_setframelocation(x, y)
+  /SFLO { % x y => -
+  % ps_setframesize(w, h)
+  /SFSI { % w h => -
+  % ps_setclientsize(x, y)
+  /SCSI { % x y => -
+  % ps_setmouseposition(x, y)
+  /SMP { % x y => -
+  % ps_setmousecursor(ci)
+  /SMC { % ci => -
+  % ps_OpenFont(int fi, string fname, int psize)
+  /OFO { % fi fname psize => -
+  % ps_CloseFont(int fi)
+  /CFO { % fi => -
+  % ps_SetFrameFont(int fi)
+  /SFF { % fi => -
+  % ps_beep()
+  /BEEP { %
+  % ps_tone(on)
+  /TONE { % on => -
+  /DING { %
+  /CLICK { %
+  /NARK { % proc => -
+
+  % Global text selection support
+
+  /SelectionDict
+  /set-primary-selection { % string => -
+  /window-line-widths { % top [line widths] => -
+  /fake-selection { % x y x1 y1 => -
+  /start-selection { %
+  /extend-selection { %
+  /outline-selection { %
+  /selection-line-width { % y => width
+  /finish-selection { %
+  /show-selection { %
+  /hide-selection { %
+  /stuff-selection { % SelectionName => -
+  /stuff-primary-selection { %
+  /stuff-shelf-selection { %
+  /primary-selection-to-shelf { %
+
+classend def
+
+
+/EmacsTrm [Object EmacsDict]
+dictbegin
+    /trmFrames    null def  % the frames on this term
+    /trmNumFrames null def  % number of frames on this term
+    /trmFonts	  null def  % the fonts open on this term...
+    /trmFontNames null def  % ... their family names ...
+    /trmFontSizes null def  % ... and their sizes
+    /trmNumFonts  null def  % number of fonts open on this term
+    /focusFrameID -1 def    % frame that last sent string to client
+    /kbdMonitor	  null def  % synchronizes user input events from all frames
+    /tickInterval 1 def  % interval of periodic timer
+    /dflFrameW	   500 def
+    /dflFrameH	   125 def
+    /dflFrameX	   framebuffer-width dflFrameW sub def
+    /dflFrameY	   framebuffer-height dflFrameH sub def
+    /dflFrameLabel  (UniPress Emacs X2.20) def
+    /dflFrameFont   0 def
+    /dflIconLabel   (Emacs) def
+    /dflIconImage   /emacs def
+    /dflIconX	    null def
+    /dflIconY	    null def
+    /dflIconic?	    false def
+    /terminterest null def	    % interests with null canvas
+    /termeventmgr null def	    % interests with null canvas
+    /timerEvent	null def	    % timer event
+dictend
+classbegin
+    /maxFrames	  256 def    % max # frames per term (per server)
+    /maxFonts	  64 def    % max # fonts per term (per server)
+    /defaultpointsize 12 def
+    /defaultfont (Screen) def  % NB: must always be available!
+    /framebuffer-height exch def
+    /framebuffer-width exch def
+    /BUCKY  16#80 def
+
+    /new { % - => obj
+    /killallframes { %
+    /ageallframes { %
+    /createframe { % trmframeid => trmframeid | -1
+    /destroyframe { % n => -
+    /switchFrame { % n => -
+    /resumeframe { % n => -
+    /suspendframe { % n => -
+    /setdefaultshape { % x y w h => -
+    /getdefaultshape { % - => x y w h true | false
+    /OpenFont { % index family size => index
+    /CloseFont { % index => -
+    /SetFrameFont { % index => -
+    /getdefaultfont { % - => font
+    /getfontinfo { % index => family size
+    /SendFontInfo { % index => -
+    /FRAME	16#c0 def
+    /FONTINDEX	16#d0 def
+    /FONTNAME	16#d1 def
+    /FONTSIZE	16#d2 def
+    /FONTWIDTHS	16#d3 def
+    /stringToClientDict 10 dict def
+    /stringToClient { % str => -
+    /encodeframe { % frame => code
+    /stringFromFrame { % str frame => -
+    /cStringFromFrame { % cstring => -
+    /tagStrFromFrame { % tag string => -
+    /focusinvalid { %
+    /withstreamsuspended { % func => -
+
+classend def
+
+
+/EmacsFrame [Object EmacsDict]
+dictbegin
+    /frameIndex 0 def		    % id of this frame
+    /frameParentCanvas null def
+    /frameDsp null def
+    /frameKbd null def
+    /isResumed false def
+    /cursorShapes [] def
+    /cursorMasks [] def
+    /localdict null def
+    /inputCanvas null def	    % canvas we service events on
+    /sisterDsp null def		    % dsp we ask for size
+    /emacsinterest null def	    % our own special interests
+    /globalinterest null def	    % interests with null canvas
+    /motioninterest null def	    % matches mouse motions (for collapsing)
+    /thekbdinterests null def	    % addkbdinterests
+    /fkeyinterest null def	    % addfunctionstringsinterest
+    /focusinterest null def	    % prescript only
+    /stopmainloopevent null def
+    /MotionOnlyEvent null def
+    /MotionOnlyDelay .075 60 div def
+    /NonMotionPend false def
+    /inputproc null def
+    /isResumed false def
+    /collapsemouse true def
+    /metadown false def
+    /shiftdown false def
+    /ctrldown false def
+    /EmacsMouseX -1 def
+    /EmacsMouseY -1 def
+    /MouseWasDragged false def
+    /MouseMotionEvent null def
+dictend
+classbegin
+    /new { % id canvas => EmacsFrame
+    /resume { %
+    /suspend { %
+    /destroy { %
+    /switchTo { %
+    /setMouseCursor { % n => -
+
+    % Keyboard stuff
+
+    /BUCKY	16#80 def
+    /BUTUP	16#a0 def
+    /BUTDN	16#a8 def
+    /MDRAG	16#b0 def
+    /FMZAP	16#b1 def
+    /FMOPN	16#b2 def
+    /FMCLS	16#b3 def
+    /FMENT	16#b4 def
+    /FMEXT	16#b5 def
+    /FMRSZ	16#b6 def
+    /FMMOV	16#b7 def
+    /FCRSZ	16#b8 def
+    /FCPNT	16#b9 def
+    /FMMAP	16#ba def
+    /FMUNM	16#bb def
+    /ICONMOVED	16#bc def
+    /COLORSCHEME 16#bd def
+    /ENDSP	16#be def
+    /NODSP	16#bf def
+    /FRAMELABEL	16#d4 def
+    /ICONLABEL	16#d5 def
+    /ICONIMAGE	16#d6 def
+    /FCDAM	16#d7 def
+    /PC_META	1 def
+    /PC_SHIFT	2 def
+    /PC_CTRL	4 def
+    /FRAMERESUMED   (\200\033[300z) def
+
+    /sendstring { % string => -
+    /poststring { % string => -
+    /encode16 { % 16bit => lo hi
+    /encodexy { % code x y => code xlo xhi ylo yhi
+    /encodexywh { % code x y w h => code xlo xhi ylo yhi wlo whi hlo hhi
+    /setemacsmousepos { % event => -
+    /encodemousepos { % event code => code xlo xhi ylo yhi
+    /encodemousebutton { % event button => event code
+    /4Sight framebuffer /GLCanvas known def
+    /shift-cases [] def
+    /encodebuckybits { % event => code
+    /sendmousebutton { % event button => -
+    /sendmousemotion { % event => -
+    /sendfcrsz {   % w h => -
+    /sendfmrsz {   % w h => -
+    /sendfmmov { % x y => -
+    /sendiconmoved { % x y => -
+    /sendframelabel { % label => -
+    /sendiconlabel {   % label => -
+    /sendiconimage {   % imagename => -
+    /sendcolorscheme { % scheme => -
+    /sendascii { % event code => -
+    /sendframe { %
+    /sendfmzap { %
+    /sendfmopn { %
+    /sendfmcls { %
+    /sendfment { %
+    /sendfmext { %
+    /sendfmmap { %
+    /sendfmunm { %
+    /sendframeresumed { %
+    /sendfcpnt { %
+    /sendfcdam { % x y w h => -
+    /sendnodsp { %
+    /sendendsp { %
+
+    /onnonmotionevent { %
+    /dispatchevent { % event => -
+    /addemacsinterests { %
+    /revokeemacsinterests { %
+    /startdispatch { %
+    /stopdispatch { %
+
+classend def
+
+
+/EmacsSounder	Object
+dictbegin
+    /soundFile	    null def	% file for sound device
+    /soundInterest  null def	% interest in soundEvent
+    /soundEvent	    null def	% event signaling end of beep
+    /beepMS	    150 def	% duration of beep in milliseconds
+    /beeping	    null def	% monitor for locking beep
+dictend
+classbegin
+    /new { % - => obj
+    /beep { %
+    /click { %
+    /tone { %
+classend def
+
+/EmacsDsp DefaultWindow
+dictbegin
+    /oneCharString nullstring def   % used by things in this dsp
+    /parentFrameIndex null def
+    /isStarted false def
+    /isMapped false def
+    /FgColor textcolor def
+    /BgColor backgroundcolor def
+    /HlFgColor backgroundcolor def
+    /HlBgColor textcolor def
+    /IconAge 0 def
+    /IconAgeIncrement 0.0025 def
+    /textCursor? true def
+    /dspFont	    null def		    % current font in this frame
+    /fontDescent    0 def
+    /fontHeight	    0 def
+    /fontWidth	    0 def
+    /lineHeight	    0 def
+    /lineSpace	    1 def
+    /isFixedPitch   true def
+    /cursX 0 def		    % most recent position of cursor
+    /cursY 0 def
+    /cursChar nullstring def	    % char most recently under cursor
+    /frameWidth	0 def		    % width of frame in characters
+    /frameHeight 0 def		    % height of frame
+    /cellMatrix null def	    % matrix used for locating char cells
+    /showMatrix null def	    % matrix used for "show" operations
+    /DamageX null def		    % Bounding box of damage path
+    /DamageY null def
+    /DamageW null def
+    /DamageH null def
+    /MenuX null def		    % position the menu button was pressed
+    /MenuY null def
+    /Selecting? false def	    % flag => doing selection?
+    /SelectionOn? false def	    % selection hilited?
+    /SelDragCan null def	    % Selection feedback overlay canvas
+    /SelectionPath null def	    % Path around selected text
+    /SelectionCan null def	    % Path around selected text
+    /StartSelectionEvent null def   % Event that started the selection
+    /MouseDownX null def	    % positions of selection actions
+    /MouseDownY null def
+    /MouseUpX null def
+    /MouseUpY null def
+    /SelectionX null def
+    /SelectionY null def
+    /SelectionX1 null def
+    /SelectionY1 null def
+    /isRetained false def
+dictend
+classbegin
+    /Edge	    1 def
+    /RoundRubberBand? true def
+    /CenterCharacters? false def
+    /new { % parentFrameIndex parentcanvas -- EmacsDsp
+    /CreateFrameCanvas { %
+    /PaintClient { %
+    /parentFrame { % => frame
+    /destroy { %
+    /destroywin { %
+    /DestroyControls { %
+    /bbox { % - => x y w h 
+    /setpaintclient { % proc => -
+    /flipiconic { %
+    /open { %
+    /close { %
+    /ShowIconAge { %
+    /ageicon { %
+    /move { % x y => -
+    /reshape { % x y w h => -
+    /ReshapeControls { %
+    /map { %
+    /unmap { %
+    /Mapped? { % => bool
+    /resume { %
+    /suspend { %
+    /sendstring { % string => -
+    /setframelocation { % x y => -
+    /getframelocation { % - => x y
+    /setframesize { % w h => -
+    /getframesize { % - => w h
+    /setclientsize { % rows cols => -
+    /getclientsize { % - => w h
+    /seticonlabel { % label => -
+    /seticonlocation { % x y => -
+    /setframelabel { % label => -
+    /seticonimage { % string => -
+    /colortorgb { % color => red green blue
+    /colortostring { % color => string
+    /ColorSchemeColors [] def
+    /ColorScheme { % - => scheme
+    /setframecolorscheme { % scheme => -
+    /showmenu { % event => -
+    /menucallback { % num => -
+    /pointmenucallback { % num => -
+
+    % TextFrame definitions
+
+    /getdimensions { % - => w h
+    /SetFrameFont { % font => -
+    /ding { %
+    /cursorDraw { % c show x y => -
+    /cursorShow { % c x y => - 
+    /cursorHide { %
+    /eraseBlanks { % n x y => -
+    /writeChars	{ % str x y => -
+    /insertLines { % y dy nl => -
+    /deleteLines { % y dy nl => -
+    /hiliteOff { %
+    /hiliteOn { %
+    /clearScreen { %
+    /beginRepair { %
+    /endRepair { %
+    /setMousePos { % x y => -
+    /SendClearSelection { %
+    /ClearMySelection { %
+    /DrawSelection { % state => -
+    /StartSelection { % event => -
+    /xyStartSelection { % x y => -
+    /DragSelection { % event => -
+    /xyDragSelection { % x y => -
+    /ExtendSelection { % - => -
+    /FinishSelection { % - => -
+
+classend def
+
+
+/MainEmacsWindow EmacsDsp
+dictbegin
+    /BorderLeft	     6 def
+    /BorderRight     6 def
+    /BorderBottom    6 def
+    /BorderTop	    20 def
+    /FrameFont /Times-Bold findfont 16 scalefont def
+    /IconLabelHeight 15 def
+    /IconLabelWidth 100 def
+    /IconLabelColor  1 def
+    /overHang	     0 def	% label overhangs icon by this much
+dictend
+classbegin
+    /ShapeIconCanvas { %
+    /PaintIconLabel { %
+classend def
+
+
+/dBoxEmacsWindow EmacsDsp
+dictbegin
+dictend
+classbegin
+    /BorderThickness	3 def
+    /BorderLeft		5 def
+    /BorderBottom	5 def
+    /BorderRight	5 def
+    /BorderTop		5 def
+    /PaintFrameLabel nullproc def
+    /PaintFocus nullproc def
+    /PaintFrameBorder { %
+    /PaintFrame { %
+classend def
+
+
+/BorderlessEmacsWindow EmacsDsp
+dictbegin
+dictend
+classbegin
+    /BorderThickness	0 def
+    /BorderLeft		0 def
+    /BorderBottom	0 def
+    /BorderRight	0 def
+    /BorderTop		0 def
+    /PaintFrameLabel nullproc def
+    /PaintFocus nullproc def
+    /PaintFrameBorder nullproc def
+    /PaintFrame nullproc def
+classend def
+
+
+/TabEmacsWindow MainEmacsWindow
+dictbegin
+    /BorderTop		6 def
+    /BorderTopArgh	BorderTop def
+    /TabX		0 def
+    /TabY		0 def
+    /TabHeight		15 def
+    /TabWidth		0 def
+    /TabNumber		0 def
+    /HalfPixelX		null def
+    /HalfPixelY		null def
+dictend
+classbegin
+
+    /new { % parentFrameIndex parentcanvas -- EmacsDsp
+    /CalcTabPos { %
+    /SetTabNumber { % n => -
+    /FramePath { % x y w h => -
+    /PaintFrameBorder { %
+    /PaintFrameLabel { %
+    /ClientPath { % x y w h => -
+    /setframelabel { % label => -
+    /PaintFocus { %
+    /flipiconic { %
+    /PaintFrameControls { %
+classend def
+
+/EmacsTabWindow TabEmacsWindow def % For old times sake.
+
+  /getmenuaction { % index => action
+/getmenuaction dup load /def LiteMenu send
+
+EmacsDict begin
+
+/EmacsDefaultPopupMenu
+/EmacsDefaultSystemMenu 
+/menukey { % num => -
+/menustring { % string => -
+/getThisWindowModeMenu { % - => menu | proc
+/TryAgain { %
+/GlobalMainMenu null def

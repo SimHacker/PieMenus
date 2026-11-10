@@ -1,0 +1,173 @@
+From: Hopkins, Don [mailto:Hopkins, Don] 
+Sent: Monday, May 18, 1998 4:09 PM
+To: Benjamin Levy; rdm@test.legislate.com; haynes@best.com; elbows@mc.lcs.mit.edu
+Cc: Hopkins, Don
+Subject: RE: NeWS
+
+[Somebody forwarded me this snippet of NeWS discussion. I haven't read
+the rest of the discussion but I couldn't resist commenting on the one
+message I read...]
+
+
+Date: Thu, 14 May 1998 13:09:43 -0400
+From: Raul Miller <rdm@test.legislate.com>
+To: Charles Haynes <haynes@best.com>, elbows@mc.lcs.mit.edu
+Subject: Re: Linux swapspace (was Re: ADE: Linux drive partitioning)
+
+Charles Haynes <haynes@best.com> wrote:
+> IIRC NeWS does not handle either printing or sound.
+
+ Printing is a trivial enhancement.
+
+HyperLook (written in NeWS) supported printing very nicely.  You could
+copy any PostScript graphic to the clipboard, paste it into the
+drawing editor, edit it, print it, etc. Any window could be copied as
+PostScript and the graphics would retain their structure, so you could
+take the image of the window apart in the graphics editor, if you felt
+like it. Any HyperLook application could incorporate the drawing
+editor widget, as well. I ported SimCity to HyperLook, and implemented
+a print city function that not only printed the city, but could also
+bring up a drawing editor on the image of the city map, that you could
+annotate, clip to any shape, and print however you want.
+
+http://www.catalog.com/hopkins/hyperlook
+
+I implented a sound mixer in HyperLook to which you sent messages
+through the NeWS server, that would mix any number of sounds from any
+number of applications in real time, vary the speed and volume, loop
+them, etc (whoop dee doo).
+
+When I later ported SimCity to X11, I had to implement my own sound
+server as a TCL/Tk client you sent messages to through the X server,
+much in the same way the NeWS sound server worked. So you would run
+the sound server locally, and you could run multi player SimCity
+remotely or locally, connected to several players on different
+workstations, and it would bounce messages off the X servers to all
+the local sound servers with the TCL "send" command. I layered the
+sound mixer on top of the low level Sun and SGI and HP sound
+libraries, as well supporting the NCD remote sound server library
+(based on the X11 server protocol and client library, but for
+sound). [In the NCD sound server case, the "PlaySound" message came
+from the SimCity X11 client, bounced off the X server in the X
+terminal, back to the TCL sound mixer client (usually back on the
+machine running SimCity), and then back to the sound server on the X
+terminal. What a rube goldberg device, just to play sounds in X11! It
+just goes to show what you get when you let computer hardware and
+network manufacturers design a window system.]
+
+The sound server situation with X11 was shameful, last time I cared
+about it.  Last I checked there were several competing sound servers
+for X11, none of them widely used. And the X consortuim as promising
+to make them all obsolete when they finally came out with their fancy
+new multimedia stuff, that never materialized. (I think they got
+distracted by the idea of putting an X-Windows server into a NetScape
+plug-in window, not realizing how ridiculous that was, and just
+assumed all their sound server and multimedia problems would be solved
+once their plug-in was tightly plugged into Netscape. Wheee-oooh!)
+
+The whole point of having a sound server is that there should only be
+one, that all applications share. Not zero. Not ten. There were so
+many lame standards to choose from, and every company was making
+different promises they didn't intend to keep about what they were
+going to standardize on. Way back when I was at Sun, I was trying to
+convince them to make a simple sound server, but there were these guys
+working on a super fancy overengineered one written in C++ that used
+threads, and it wasn't done yet, and wouldn't ever be. Then there were
+*two* from DEC, one by DEC research that they were giving away for
+free, and another from the VMS weenies that they wanted to charge
+money for and railroad their customers into using. The VMS weenies
+wanted to destroy the research weenie's sound server, so they could
+make some bucks off of the whole deal. But the research weenies freed
+their source code, so at one time they were the only contender to
+NCD's audio server. Eventually somebody announced plans to merge the
+functionality of the DEC and NCD servers (one was good for downloading
+and playing back samples [ncd] and the other was better for streaming
+playback [dec]). And of course it never went anywhere from there (or
+maybe I just stopped paying attention in disgust).
+
+The NCD server had the obnoxious behavior of attenuating the sound
+volume, the more channels you mix together. Let me state very clearly
+that this is the WRONG THING!  Their rationel was that they "averaged"
+the sound waves together like ((sound1 + sound2) / 2) or (sound1 +
+sound2 + sound3) / 3, so that they would never overflow, so they
+didn't have to clip (add with saturate). But the average value of a
+sound signal is zero [unless it has DC current], and 0+0=0, so the
+average of two sounds is 0.  The correct way to mix sounds is the add
+them and saturate [clip to min and max values], and it should be up to
+the application to control the volume level during playback, and up to
+the game designer to produce and play back the sounds at the proper
+volume.
+
+Averaging is stupid because it changes the volume of all playing
+sounds in a bad way that you have no control over (especially if the
+sounds are being played by some other application). The server has no
+way of knowing how the sounds are being used, so it has no business
+changing their volume. If you're playing background music, you don't
+want it to become half as loud when you play a footstep sound effect,
+and then at the end of the footstep to jump back up to full
+volume. Any human not deaf since birth can tell you that more sounds
+you make the louder it gets, but this fact seemed to be lost on the
+technicians at NCD, who obviously didn't have the slightest idea what
+people would be using the speaker in the X-Terminals for. I tried in
+vain to convince them otherwise, to no avail. The only way to get it
+right is to mix all your sounds yourself and stream them to the sound
+server.
+
+A few years later I read an article in a computer gaming magazine that
+pointed out that the Mac sound manager does the same damn thing, and
+that it's wrong. I'm so sorry I had to wait for Microsoft to get it
+right with DirectSound, but if the X-Windows and Unix vendors (and
+Apple for that matter) are so out of touch with developers that the
+can't standardize on a sound mixer that works, they to hell with them,
+because they deserve for Microsoft to eat their lunch and piss on
+their parade.
+
+> >Also, the real world has requirements for printing and file services.
+> 
+> It also has requirements for ending hunger and promoting world
+> peace.  We can argue what requirements are relevant to a distributed
+> window system. Your complaint seems to be that we should not have
+> designed a distributed window system, we should have designed a
+> distributed extensible UI architecture.
+
+Good point. The real world also has the requirement that promises be
+delivered.  What is the X-Consortium doing now? What ever happened to
+the grandious suite of multimedia libraries, application frameworks,
+and integrated authoring tools, that they promised?
+
+My complaint is more about the design of the communications aspect of
+the system than about what it looks like. You're confusing me with a
+bunch of the other critics of X.
+
+The same people who promised all you that X-Windows stuff will tell
+you these days that you should be using CORBA, and used to tell you to
+use OpenDoc. Oh, well.
+
+[Though, from an analysis viewpoint, if you muck up in one area it
+will have consequences in other areas -- so in that sense they're
+related.]
+
+I mean, sure: ICCM is a sick joke, to make something work you have to
+futz around learn how the sixty applications you want to interoperate
+with really communicate. But I think of that as a symptom, not a
+cause.
+
+Don't even get me started on ICCCM. 
+
+> We disagree(d). We considered that, and explicitly rejected it. You
+> are free to argue that we were boneheads for rejecting it, but I
+> still think we made the right choice. I am less sanguine about our
+> choice of mechanism not policy, but that is a different argument.
+
+Maybe. If you expand that to UI mechanism, not UI policy, you might
+have a point. X *does* have policies (policies are the level of
+abstraction between goals and procedures, if you don't have policy you
+must be missing either goals or procedures).
+
+To illustrate this, consider issues like alpha channel, displays which
+can change their resolution or color depth.
+
+The secret X-Windows design goal was: "Politics, not Policy".
+
+    -Don
+ 

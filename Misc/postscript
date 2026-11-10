@@ -1,0 +1,93 @@
+To: wmb@sun.com
+Subject: Forth/PostScript
+--text follows this line--
+After having programmed in PostScript for some time, how do you feel
+about its relation to Forth? Have your feelings about Forth changed
+any? They are somewhat different languages, suitable for different
+applications, but there is a lot of overlap, however. There are 
+features and problems that each has that the other lacks. I have
+thought a lot about doing in PostScript some of the things one can do
+in Forth, as well as Lisp. In writing the code for the PieMenus on the
+Laser Writer, I had to come up with some way to make objects, not
+unlike flavors. It would also be interesting to make objects in the
+manner of <builds and does>. Objects are obviously implemented as
+dictionaries. Instance variables and messages are just bindings in the
+dictionary. The question is how do you build the dictionaries? You
+can have PostScript functions that build them by hand, or you can have
+it more data driven. (Not to say that PostScript functions aren't data.
+Weee!) But how do you represent the data? You want to specify
+defaults when creating a class, and values when instantiating objects.
+Should the creation of classes and objects be the same operation? (As
+with XLisp.) 
+The required instance variable values could be taken as arguments when
+instantiating an object of some class, and the optional ones
+
+How about object instantiation consuming required values? 
+right off the stack? 
+How would inheritance work? By concatinating
+dictionaries, or by nesting them? 
+
+It sure doesn't take much code to do this stuff. This is because
+PostScript has a very general set of building blocks for just such
+things. 
+
+What about immediate execution of keywords withing literal executable
+arrays? All the elements before it on the stack, up to the mark, and
+everything after it is on the input stream. 
+
+/bindnames      % value1 ... valuen [name1 ... namen] ==> ---
+{       dup length
+	dup 0 eq { pop pop exit } if
+	1 sub -1 0
+        {                               % valuei names i
+                1 index exch get        % valuei names names[i]
+                3 -1 roll               % names names[i] valuei
+                def                     % names
+        } for
+        pop
+} def
+
+/vanilla
+[] 2 null [/require /extraslots /parent]
+dup length dict begin bindnames currentdict end def
+
+/current_date
+{ /Wednesday /October 22 1986 } def
+
+/person
+[	/require [/name /ssn]
+	/planet /Earth
+	/created [ current_date ]
+	/favorite_font /SloppyHandWriting
+vanilla object def
+
+/don
+[	(Don Hopkins) (220-94-0339)
+	/net (don@brillig.umd.edu)
+	/home [((301) 474-8027) ((301) 474-7232)]
+	/work [((301) 454-1516) ((301) 454-7690)]
+	/planet 9
+person object def
+
+/odd { 1 mod 1 eq } def
+
+/create % -mark- required... bindings... parent ==> object
+{
+	counttomark require length sub
+	dup odd { (Bad number of args to create_object) barf } if
+	2 idiv  dup
+	require length add  extraslots add  2 add  dict  
+	currentdict exch begin
+	/parent exch def
+	cvi { def } repeat
+	require bindnames
+	currentdict
+	end
+	exch pop
+} def
+
+/object % ... parent ==> object
+{	
+	begin create end 
+} def
+

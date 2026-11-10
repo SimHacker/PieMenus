@@ -1,0 +1,269 @@
+%!PS-HyperNeWS drawing-
+%%Creator:hopkins
+%%Title:HyperNeWS drawing.
+%%BoundingBox:0 0 240 479
+%%TemplateBox:0 0 240 479
+%%EndComments
+save /psnewssav exch def
+
+% "@(#)drawlib.ps 3.1 3/19/90 Arthur van Hoff (Turing Institute)";
+
+% -- drawlib.ps -- Header file for PostScript drawings.
+/SC {dup type /arraytype eq {aload pop setrgbcolor} {setgray} ifelse} def
+/MX {1 0 0 1} def
+/CT {curveto} def
+/CP {closepath} def
+/LT {lineto} def
+/PT {moveto} def
+/PC {{lineto} stopped {moveto} if} def
+/LN {0 0 PT LT} def
+/LC {0 0 PC LT} def
+/FL {SC fill} def
+/ST {SC setlinewidth stroke} def
+/FS {gsave FL grestore ST} def
+/CM {matrix currentmatrix exch concat} def
+/SM {setmatrix} def
+/BO {gsave newpath concat} def
+/EO {grestore} def
+/SG {gsave SC eofill grestore ST} def
+/FG {SC eofill} def
+
+/AR {	%  c s a x y --
+	newpath matrix currentmatrix 5 1 roll
+	newpath translate rotate
+	0 0 moveto 0 0 3 -1 roll -20 20 arc 0 0 lineto
+	setmatrix FL
+} def
+/DA {	% x y --
+	matrix currentmatrix 3 1 roll
+	scale 0 1 1 -90 0 arc
+	setmatrix
+} def
+/DR {	% w h --
+	0 0 moveto
+	exch dup 0 lineto
+	1 index lineto
+	0 exch lineto
+	closepath
+} def
+/DO {	% w h --
+	matrix currentmatrix 3 1 roll
+	scale 1 0.5 moveto 0.5 0.5 translate 0 0 0.5 0 360 arc closepath
+	setmatrix
+} def
+/RR {	% w h c --
+	10 dict begin 
+	2 index abs 2 index abs 
+	dup 2 index lt {exch pop} {pop} ifelse 2 div
+	dup 2 index lt {exch pop} {pop} ifelse
+	/c exch def /h exch def /w exch def
+	c 0 moveto
+	mark
+	w 0 w h c arcto
+	w h 0 h c arcto
+	0 h 0 0 c arcto
+	0 0 w 0 c arcto
+	cleartomark closepath
+	end
+} def
+/DP {	% d1 d2 w h --
+	matrix currentmatrix 5 1 roll scale
+	0.5 0.5 moveto
+	0.5 0.5 0.5 5 -2 roll arc
+	0.5 0.5 lineto
+	setmatrix
+} def
+/SF {	% text col fontsize font -- text width
+	findfont exch scalefont setfont SC
+	1 1 index {stringwidth pop abs 2 copy lt {exch} if pop} forall
+} def
+/TS {	% width w h --
+	exch 2 index div exch scale
+} def
+/TL {	% text w h lh --
+	5 dict begin /h exch def 0 exch moveto pop
+	{gsave show grestore 0 h rmoveto} forall
+	end
+} def
+/TR {	% text w h bh --
+	5 dict begin /h exch def moveto 
+	{ gsave dup stringwidth pop neg 0 rmoveto show 
+	  grestore 0 h rmoveto} forall
+	end
+} def
+/TC {	% text w h bh --
+	5 dict begin /h exch def 
+	exch 2 div exch moveto 
+	{ gsave dup stringwidth pop 2 div neg 0 rmoveto show 
+	  grestore 0 h rmoveto} forall
+	end
+} def
+/IR {	% w h
+	DR gsave 1 setgray fill grestore 0 setgray stroke
+} def
+/IC {	% str w h --
+	scale LoadImage imagecanvas
+} def
+/IM {	% ... --
+	/pstr exch string def
+	0 exch translate scale
+	{} settransfer
+	0 0 3 -1 roll 0 0 6 array astore
+	{currentfile pstr readhexstring pop} image
+} def
+/EPSdict 10 dict begin
+/initmatrix {
+	#Matrisk# setmatrix 
+} def
+/initgraphics {
+	systemdict /initgraphics get exec 
+	#Matrisk# setmatrix 
+} def
+/showpage {} def
+currentdict end def
+/BEPS {
+	save 5 1 roll
+	EPSdict begin
+	gsave scale translate
+	matrix currentmatrix /#Matrisk# exch def
+	systemdict /initgraphics get exec
+	#Matrisk# setmatrix
+	500 dict begin
+} def
+/EEPS {
+	end grestore end
+	restore
+} def
+gsave
+[1 0 0 1 0 0 ] BO
+[1 0 0 1 0 4 ] BO
+[1 0 0 1 0 0 ] CM
+[1 0 0 1 120 0 ] CM
+CP
+0 408 PT
+0 408 0 408 0 204 CT
+0 0 0 0 0 0 CT
+0 0 0 0 36 0 CT
+72 0 72 0 76 4 CT
+80 8 80 8 80 36 CT
+80 64 80 64 64 64 CT
+48 64 48 64 44 72 CT
+40 80 40 80 36 88 CT
+32 96 32 96 36 100 CT
+40 104 40 104 40 112 CT
+40 120 40 120 52 116 CT
+64 112 64 112 68 120 CT
+72 128 72 128 88 128 CT
+104 128 104 128 108 132 CT
+112 136 112 136 108 144 CT
+104 152 104 152 92 156 CT
+80 160 80 160 80 164 CT
+80 168 80 168 96 168 CT
+112 168 112 168 112 176 CT
+112 184 112 184 108 188 CT
+104 192 104 192 112 200 CT
+120 208 120 208 100 220 CT
+80 232 80 232 80 240 CT
+80 248 80 248 68 252 CT
+56 256 56 256 64 264 CT
+72 272 72 272 60 284 CT
+48 296 48 296 60 296 CT
+72 296 72 296 68 308 CT
+64 320 64 320 56 324 CT
+48 328 48 328 44 332 CT
+40 336 40 336 40 344 CT
+40 352 40 352 32 356 CT
+24 360 24 360 28 364 CT
+32 368 32 368 24 376 CT
+16 384 16 384 8 396 CT
+0 408 0 408 0 408 CT
+CP
+SM
+[-1 0 0 1 120 0 ] CM
+CP
+0 408 PT
+0 408 0 408 0 204 CT
+0 0 0 0 0 0 CT
+0 0 0 0 36 0 CT
+72 0 72 0 76 4 CT
+80 8 80 8 80 36 CT
+80 64 80 64 64 64 CT
+48 64 48 64 44 72 CT
+40 80 40 80 36 88 CT
+32 96 32 96 36 100 CT
+40 104 40 104 40 112 CT
+40 120 40 120 52 116 CT
+64 112 64 112 68 120 CT
+72 128 72 128 88 128 CT
+104 128 104 128 108 132 CT
+112 136 112 136 108 144 CT
+104 152 104 152 92 156 CT
+80 160 80 160 80 164 CT
+80 168 80 168 96 168 CT
+112 168 112 168 112 176 CT
+112 184 112 184 108 188 CT
+104 192 104 192 112 200 CT
+120 208 120 208 100 220 CT
+80 232 80 232 80 240 CT
+80 248 80 248 68 252 CT
+56 256 56 256 64 264 CT
+72 272 72 272 60 284 CT
+48 296 48 296 60 296 CT
+72 296 72 296 68 308 CT
+64 320 64 320 56 324 CT
+48 328 48 328 44 332 CT
+40 336 40 336 40 344 CT
+40 352 40 352 32 356 CT
+24 360 24 360 28 364 CT
+32 368 32 368 24 376 CT
+16 384 16 384 8 396 CT
+0 408 0 408 0 408 CT
+CP
+SM
+SM
+[1 0 0 1 112 376 ] CM
+16 -16 DO
+SM
+[0 0.49 0] FG
+EO
+[1 0 0 1 106 377 ] BO
+5 23 PT
+5 23 5 23 2.5 39 CT
+0 55 0 55 3 75 CT
+6 95 6 95 13 98.5 CT
+20 102 20 102 22 93 CT
+24 84 24 84 25.5 67 CT
+27 50 27 50 24.5 26.5 CT
+22 3 22 3 16 1.5 CT
+10 0 LT
+3 [0 0.42 0.46] ST
+EO
+[0.985 0.174 -0.174 0.985 51.449 165.718 ] BO
+[1 0 0 1 0 59 ] BO
+145 -43 DR
+[0.87 0.87 0.87] FL
+EO
+[1 0 0 1 5 0 ] BO
+[(CAR-FRESHNER)()] [0 0.49 0] 18.2727 /Helvetica-Bold SF 134 1 TS 28.7273 -20.2727 TL
+EO
+EO
+[0.891 0 0 0.891 108 163 ] BO
+[0.850 0 0 0.850 0 28.050 ] BO
+33 -33 DO
+3 [0.87 0.87 0.87] ST
+EO
+[0.850 0 0 0.850 7.640 0.900 ] BO
+[(R)] [0.87 0.87 0.87] 20.1667 /Helvetica-Bold SF 15 1 TS 6.83333 -22.1667 TL
+EO
+EO
+[0.986 0 0 0.881 48 0 ] BO
+[1 0 0 1 0 59 ] BO
+145 -43 DR
+[0.87 0.87 0.87] FL
+EO
+[1 0 0 1 8 0 ] BO
+[("ROYAL PINE")()] [0 0.49 0] 18.2727 /Helvetica-Bold SF 129.004 1 TS 28.7273 -20.2727 TL
+EO
+EO
+EO
+grestore psnewssav restore

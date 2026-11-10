@@ -1,0 +1,444 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Floating Eyes
+%
+% Don Hopkins
+%
+
+/is_v2? systemdict /findpackage known not def
+is_v2? not {
+  /NeWS 3 0 findpackage beginpackage
+  /TNTCore 3 0 findpackage beginpackage
+  /TNT 3 0 findpackage beginpackage
+} if
+
+/ClassEyeBall ClassBaseWindow
+dictbegin
+  /Direction 0 def
+  /Distance 0 def
+dictend
+classbegin
+  /BackgroundColor 1 1 1 rgbcolor def
+
+  is_v2? {
+      /Cursor Cursors /xhair get def
+  } {
+      /Cursor /xhair /findcursor ClassCanvas send def
+  } ifelse
+
+  /PupilSize .8 def
+  /DistanceScale 1 1000 div def
+
+  /NewInit { % client => - 
+    /NewInit super send
+    /EyeInterest
+      null null 1 dict
+        dup /MouseDragged { % event => -
+	  /WatchMouseMotion 1 index /Interest get /ClientData get send
+	} put
+      /new ClassInterest send
+      dup /ClientData self put
+    promote
+  } def
+
+  /destroy { % - => -
+    /EyeInterest unpromote
+    /unmap self send
+    /destroy super send
+  } def
+
+  /activate { % eventmgr => -
+    EventMgr null eq {
+      EyeInterest /addclient 2 index send
+    } if
+    /activate super send
+  } def
+
+  /deactivate { % - => -
+    EventMgr null ne /EyeInterest promoted? and {
+      EyeInterest /removeclient EventMgr send
+    } if
+    /deactivate super send
+  } def
+
+  /WatchMouseMotion { % event => -
+    gsave
+      self setcanvas
+      /size self send 2 div exch 2 div exch translate
+      begin
+        YLocation XLocation
+      end
+      dup dup mul 2 index dup mul add sqrt
+      DistanceScale mul 1 min
+      /Distance 1 index def
+      0 eq { pop pop 0 } { atan } ifelse
+      /Direction exch def
+    grestore
+    /look self send
+  } def
+
+  /look { % - => -
+    /Center /client self send {
+      gsave
+        self setcanvas
+	/size self send scale
+	.5 .5 translate
+	Direction rotate
+	Distance .5 mul 0 translate
+	Direction neg rotate
+	/size 1 index send -.5 mul exch -.5 mul exch
+	2 index movecanvas
+        /look exch send
+      grestore
+    } if
+  } def
+
+  /Layout { % - => -
+    /size self send		% w h
+    2 copy min PupilSize mul	% w h s
+    dup 4 1 roll		% s w h s
+    sub .5 mul			% s w h-s/2
+    dup /SInset exch def 1 add /NInset exch def % s w
+    exch sub .5 mul		% w-s/2
+    dup /WInset exch def 1 add /EInset exch def %
+    /Layout super send
+  } def
+
+  /path { % x y w h => -
+    ovalpath
+  } def
+
+  /Paint { % - => -
+    BackgroundColor /FillCanvas self send
+    /Center /client self send {
+      /bbox exch send
+      .5 mul exch .5 mul exch xyadd
+      gsave translate
+        360 random mul rotate
+	17
+	360 1 index div exch {
+	  0 0 moveto  1000 0 lineto
+	  dup rotate
+	} repeat
+	pop
+	1 0 0 setrgbcolor stroke
+      grestore
+    } if
+  } def
+
+  /preferredsize { % - => w h
+%    128 64
+    132 64
+  } def
+
+  /minsize { % - => w h
+    4 4
+  } def
+
+  is_v2? {
+    /IsDouble? { % event => bool
+      dup /TimeStampMS get 
+      TrackStopTime sub UserProfile /MultiClickThresh get le
+    } def
+  } {
+    /IsDouble? { % event => bool
+      dup /TimeStamp get 
+      TrackStopTime timeval subtimeval UserProfile /MultiClickThresh get
+      cmptimeval 0 le
+    } def
+  } ifelse
+
+  is_v2? {
+    /TrackStart { % event => /Default true
+      gsave 
+	  self setcanvas 
+	  dup /Name get AdjustButton eq Opened? and {
+	      /BBoxStart /BBoxMotion /BBoxStop 
+	  } {
+	      dup InReshapeArea? Reshape? and Opened? and {
+		  /BBoxStart /BBoxMotion /BBoxStop 
+	      } {
+		  IsDouble?
+		  {
+		      /NullNotifyProc /NullNotifyProc /HandleDoubleClick 
+		  } {
+		      /MoveStart /MoveMotion /MoveStop 
+		  } ifelse 
+	      } ifelse 
+	  } ifelse     
+	  TrackDict begin 
+	      /Stop exch def 
+	      /Motion exch def 
+	      /Start exch def             
+	  end 
+	  [ exch TrackDict /Start get self ] /sendmanager EventMgr send 
+	  /Default true 
+      grestore
+    } def
+  } {
+    /TrackStart { % event => /Default true
+      gsave 
+	  self setcanvas 
+	  /WindowTracking? true promote
+	  dup /Name get AdjustButton eq Opened? and {
+	      /BBoxStart /BBoxMotion /BBoxStop /BBoxCancel
+	  } {
+	      dup InReshapeArea? Reshape? and Opened? and {
+		  /BBoxStart /BBoxMotion /BBoxStop /BBoxCancel
+	      } {
+		  IsDouble? {
+		      /NullNotifyProc /NullNotifyProc /HandleDoubleClick
+		      /NullNotifyProc
+		  } {
+		      /MoveStart /MoveMotion /MoveStop /MoveCancel
+		  } ifelse 
+	      } ifelse 
+	  } ifelse     
+	  TrackDict begin 
+	      /Cancel exch def
+	      /Stop exch def 
+	      /Motion exch def 
+	      /Start exch def             
+	  end 
+	  [ exch TrackDict /Start get self ] /sendmanager EventMgr send 
+	  /Default true 
+      grestore
+    } def
+  } ifelse
+
+  /Close? false def
+  /Footer? false def
+  /Label? false def
+  /Pin? false def
+  /Reshape? true def
+
+  /InReshapeArea? { % event => bool
+    gsave
+      self setcanvas
+      /Center /client self send {
+        {/bbox self send /path self send} exch send
+      } {
+        BorderEdge /bbox self send insetrect
+	/path self send
+      } ifelse
+      begin XLocation YLocation end
+      pointinpath not
+    grestore
+  } def
+
+  /InCloseArea? { % event => bool
+    pop false
+  } def
+
+  /DragFrame? false def
+
+  /MoveStart { % event => -
+    gsave /framebufferof self send setcanvas
+      /location self send
+      /totop self send
+%      /Mapped false def
+      /Parent currentcanvas def
+      /move self send
+      /MoveStart super send
+    grestore
+  } def
+
+/XTrackMotion {
+(TM\n)print
+TrackDict "
+/TrackMotion ?
+/TrackMotion super send
+} def
+
+
+  /MoveMotion { % event => -
+      TrackHasMoved? not {
+	  /TrackHasMoved?
+	      1 index begin XLocation YLocation end TrackStartXY
+	      xysub abs MoveThresh ge exch abs MoveThresh ge or store
+      } if
+      gsave
+	  TrackDictBegin TrackDictEnd			% x y
+	  DragFrame? {
+	      /size self send /path self send
+	      stroke
+	  } {
+	      /move self send
+	  } ifelse
+      grestore
+  } def
+
+  /MoveStop { % event => -
+    gsave /framebufferof self send setcanvas
+      dup /MoveStop super send
+      begin XLocation YLocation end
+/Mapped false def
+      canvasesunderpoint
+/Mapped true def
+      arrayreverse {
+	dup /descendantof? ClassIris send
+	1 index /Center /client self send not { null } if ne and {
+	  gsave
+	    setcanvas
+	    /location self send
+	    /Parent currentcanvas def
+	    /move self send
+	  grestore
+	} { pop } ifelse
+      } forall
+      /Mapped true def
+    grestore
+  } def
+
+  /PaintFocus { % - => -
+  } def 
+
+  /ToggleOpened { % - => -
+    /ToggleOpened super send
+    /Center /client self send {
+      Opened? not {
+	gsave self setcanvas
+	0 0 /size self send
+	PupilSize mul exch PupilSize mul exch
+	min dup
+	/reshape 5 index send
+	/map exch send
+      } {
+        /layout self send pop
+      } ifelse
+      /look self send
+    } if
+  } def
+
+  /IconSize { % - => w h
+    64 32
+  } def
+
+  /PaintIcon { % - => -
+    /Center /client self send {
+      /paint exch send
+    } {
+      /PaintIcon super send
+    } ifelse
+  } def
+
+  /SplitEye { % ctl => -
+    pop
+    gsave
+      Parent setcanvas
+      /bbox self send			% x y w h
+      2 copy ge {
+        exch .5 mul exch		% x y w/2 h
+	4 copy /reshape self send
+	4 -1 roll	     		% y w/2 h x 
+	2 index add			% y w/2 h x+w/2
+	4 1 roll			% x+w/2 y w/2 h
+      } {
+        .5 mul				% x y w h/2
+	4 copy /reshape self send
+	dup 4 -1 roll	     		% x w h/2 h/2 y
+	add				% x w h/2 y+h/2
+	3 1 roll			% x y+h/2 w h/2 
+      } ifelse
+      Parent setcanvas
+      /demo ClassEyeBall send
+      /reshape exch send
+    grestore
+  } def
+
+  % Makes an eyeball on the current canvas
+  %
+  /demo { % - => eye
+    currentcanvas /new ClassIris send
+    currentcanvas /new ClassEyeBall send
+    /new ClassEventMgr send
+    dup /ProcessName (EyeBall Tracker) put
+    /activate 2 index send
+    /place 1 index send
+    /map 1 index send
+  } def
+
+classend def
+
+/ClassIris ClassCanvas
+dictbegin
+dictend
+classbegin
+
+  /Transparent false def
+  /Mapped true def
+
+  /Cursor Cursors /beye get def
+
+  /Menuable? true def
+  /Menu /Grid framebuffer /new ClassMenu send def
+  [ [ (Split)
+	{ exch pop /SplitEye /sendtarget 2 index send} ]
+    [ (Quit)
+	{ exch pop /QuitEye /sendtarget 2 index send} ]
+  ] /setitemlist Menu send
+  
+  /SplitEye { % ctl => -
+    /SplitEye Parent send
+  } def
+
+  /QuitEye { % ctl => -
+    /QuitFromUser Parent send
+  } def
+
+  /BackgroundColor 0 0 0 rgbcolor def
+
+  /Paint {
+    BackgroundColor /FillCanvas self send
+    /Iris self send
+  } def
+
+  /Iris {
+    gsave
+      /size self send scale .5 .5 translate
+
+      0 setlinewidth
+
+      0 1 0 setrgbcolor
+      360 16 div
+      16 {
+        .2 0 moveto 1 0 lineto
+	dup rotate
+      } repeat
+      stroke
+      .5 mul rotate
+
+      0 0 1 setrgbcolor
+      360 16 div
+      16 {
+        .3 0 moveto 1 0 lineto
+	dup rotate
+      } repeat
+      stroke
+      .5 mul rotate
+
+    grestore
+  } def
+
+  /path { % x y w h => -
+    ovalpath
+  } def
+
+  /minsize { % - => w h
+    2 2 
+  } def
+
+  /destroy {
+    { /children self send { /destroy exch send } forall } fork pop
+    /destroy super send
+  } def
+
+  % Subclasser hook: do something interesting!
+  %
+  /look { % - => -
+  } def
+
+classend def
+
+/demo ClassEyeBall send
+
+%newprocessgroup currentfile closefile

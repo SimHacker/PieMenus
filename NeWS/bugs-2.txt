@@ -1,0 +1,643 @@
+
+Several of these bug reports refer to files in the news-tape directory.
+It is available via anonymous ftp from tumtum.cs.umd.edu, in the file
+"NeWS/news-tape.tar.Z". While you're at it, grab a copy of "NeWS/tab.ps".
+
+	-Don Hopkins (don@brillig.umd.edu)
+
+========================================================================
+
+* focus follows cursor:
+
+ARRRGH!!! DON'T FORCE PEOPLE TO SUFFER WITH CLICK-TO-TYPE!!!!!!
+
+Click-to-type is the focus of evil in the modern window system!
+
+The XView applications and some X applications go deaf to keyboard 
+input when you force NeWS into focus-follows-cursor mode with
+"/CursorFocus setfocusmode". 
+
+When in focus-follows-cursor mode, the window header of NDE OPEN 
+LOOK X11 window frames blinks off and on whenever you move the mouse
+in or out of the X window border, so that every time you move the cursor
+into an X window, the header turns on when you enter the frame, blinks on
+and off when you exit the frame and enter the border, and on and off
+again as you exit the border and enter the window. Maybe there 
+should be a preemptable time delay on the focus highlighting.
+
+========================================================================
+
+* textedit:
+
+Bring up a "Load" dialog box from the "File" menu, and enter a 
+non-existant file name. As soon as you press Return, the error message 
+pops up, and pops back down *immediatly* when you release the return key.
+There is no time to read it. Even worse, if you keep holding the Return key
+down, it starts to autorepeat, and the error message pops up and down and up
+and down and up and down and up and down and up and down and up and down and
+up and down ... 
+
+========================================================================
+
+* journalling:
+
+Can't drag the slider around with the left mouse button. You can make it
+move left and right a relative ammount by clicking to the left or right of it,
+but you can't press down ?right? on the slider itsself and drag it to an
+absolute location. 
+
+When you select a piece of text from a text input fields, by holding down
+the left button and dragging over the characters, it works OK if you drag 
+left to right, but if drag right to left un-selects letters you've just
+dragged over, so that the selection shrinks down to the one chartacter after
+the cursor. 
+
+========================================================================
+
+* psterm:
+
+Triple clicking on a line in psterm doesn't actually seem to select the 
+whole line.
+
+========================================================================
+
+* xterm:
+
+You *REALLY* should include xterm with the distribution -- it runs like 
+a bat out of hell!!!
+
+========================================================================
+
+* stopwm:
+
+When you type "stopwm" into a psh in a grasshopper psterm window, the window
+loses the keyboard focus, and you have to move the mouse out and in to type in
+it again.
+
+========================================================================
+
+twm:
+
+After I've typed "stopwm", and run the X "twm" window manager, the process
+that's listening for left and middle mouse down's on the framebuffer and
+rubberbanding rectangles (the desktop manager?) seems to lose mouse events, so
+that it either doesn't stop rubberbanding when the mouse button goes up, or it
+starts rubberbanding again immediatly. Reproduce by going: 
+
+echo "stopwm" | psh
+twm
+(wait for it to start up)
+click the left button on the root background very fast. 
+
+An obnoxious rubber band rectangle gets "stuck" on the mouse -- just
+clicking somewhere won't get rid of it. I can sometimes make it stop
+by clicking the mouse button down and up and down on a LiteWindow frame.
+Very annoying. (May not depend on twm.)
+
+========================================================================
+
+/usr/unimacs/src/D.term/TrmPS.cps: (the emacs.ps file) [UniPress Emacs]
+
+    /setemacsmousepos { % event => -
+      begin gsave
+% X11/NeWS: The following line didn't work since X11/NeWS doesn't molest the
+% /Canvas fields of delivered events. -Don
+%        Canvas setcanvas % event loc reported relative to currentcanvas
+        Interest /Canvas get % Look in the interest instead.
+	setcanvas % event loc reported relative to currentcanvas
+        frameDsp /cellMatrix get setmatrix
+        /EmacsMouseX XLocation
+        /EmacsMouseY YLocation 1 add
+      end grestore
+      def def
+    } def
+
+% ...
+
+    % Pops up either the ClientMenu, if it exists, or the MainMenu.
+    %
+    /showmenu { % event => -
+	dup begin gsave
+% X11/NeWS: The following line didn't work since X11/NeWS doesn't molest the
+% /Canvas fields of delivered events. -Don
+%	    Canvas setcanvas
+	    Interest /Canvas get setcanvas % Look in the interest instead.
+	    cellMatrix setmatrix
+	    /MenuX XLocation  /MenuY YLocation 1 add
+	grestore end
+	def def
+
+========================================================================
+
+* version:
+
+The X11/NeWS 'version' function returns (1.0), and that fools emacs into 
+thinking that it's running under ancient NeWS 1.0, so it would use old 
+crufty NeWS 1.0 specific font measuring code. 
+
+I think it's a bad idea for the X11/NeWS version number to be 1.0. 
+(I think Josh Siegel's LGATE application had a problem with that too.)
+There's just something fishy about the sequence 1.0 => 1.1 => 1.0 ... 
+Is the next version of X11/NeWS going to be 1.1? Augh! That's going to 
+confuse even more programs! 
+
+========================================================================
+
+* controlpoint:
+ doesn't work! (or rcontrolpoint!) They draw straight lines!
+
+========================================================================
+
+* popmsg:
+
+The windows displayed by popmsg pop down immediatly.  They seem to be
+getting /Damage events immediatly after they are mapped, and they exit
+when they get damage (for some strange reason).  popmsg is calling
+damagepath, to clear the damage path, but it doens't seem to do the
+right thing under X11/NeWS.  I took out the /Damage interest and it
+worked OK.  Don't know why that interest was in there anyway.  While
+you're at it, *please* make the popmsg canvas pass unmatched events
+through, because when somebody does a currentcursorlocation [(foo)(bar)]
+popmsg, in response to something you type, or while you're typing
+somewhere else, the window pops up right under your cursor, and if
+you're not one of those weirdo preverts who uses click-to-type, you lose
+the input focus, and have to take your hands off the keyboard and move
+the mouse to get rid of it.  Maybe typing at it should get rid of it,
+but then it would end up eating the character you typed, which could be
+serious pisser if you were just typing away mindlessly (like I am right
+now) and the damn thing popped up under your cursor, ate one character,
+and dissappeared before you could read it. Redistributing the key event
+that you type to make it go away would also be debatably annoying. But 
+at the very least, please set the popmsg's canvas's /EventsConsumed field 
+to /MatchedEvents, so it doesn't eat keystrokes when it pops up under the
+cursor!
+
+========================================================================
+
+* NeWS executive, debugger:
+
+Debugger gets into an infinite /ioerror loop when one debugger connection
+has been lost, and somebody tries to dbgprintf.
+Has something to do with the fact that executive is calling execfile.
+
+The core of the problem is that whenever the executive loops back after
+handling an error, it does an "execfile cvx exec", which depends on
+execfile, which is defined in userdict.  You get hosed if userdict was
+end'ed off the dict stack, or (the more common case) there's a
+*DIFFERENT* userdict on the dict stack, like when you dbgenter another
+process, getting a copy of its dict stack, ergo its userdict, possibly
+with its very own execfile.  So when you make an error when debugging
+another executive connection, guess what file *your* executive cvx
+exec's after you make an error!  And if it's not an executive
+connection, then execfile is just plain undefined, and that causes an
+error, but the debugger doesn't allow recursive debugging, and that
+causes another error, but the debugger doesn't allow recursive
+debugging, and that causes another error, but the debugger doesn't allow
+recursive debugging, and that causes another error, but the debugger
+doesn't allow recursive debugging, and that causes another error, but
+the debugger doesn't allow recursive debugging, and that causes another
+error, but the debugger doesn't allow recursive debugging, and that
+causes another error, but the debugger doesn't allow recursive
+debugging, and that causes another error, but the debugger doesn't allow
+recursive debugging, and that causes another error, but the debugger
+doesn't allow recursive debugging, and that causes another error...
+
+A better solution might be to leave execfile as it is right now, but
+change executive, so it uses "currentprocess /Stdout get" instead of
+"execfile".  Or better yet, put a /Stdin field into the process magic
+dictionary, just for that purpose!  It can look down the execution stack
+for the last file if it has to (unless there's an easier way) (why
+wasn't /Stdin put in at the same time as /Stdout and /Stderr?).  It also
+would be nice if it did the right then when you set a process's /Stdin
+field, whatever that is.
+
+Here's executive with the /Stdout patch:
+
+/executive { % - => - (Execute current file)
+    countdictstack 1 eq {200 dict begin} if % make sure there is a userdict
+    currentprocess /ErrorDetailLevel 1 put
+    /execfile currentfile dup null eq {pop (%stdin) (r) file} if def
+
+    (Welcome to %NeWS Version %\n) [XNeWS?{(X11/)} {()} ifelse version] printf
+    {   % restart loop for errors.
+% Removed references to execfile (screws up debugger). -Don
+%	{ execfile cvx exec } stopped pop
+%	execfile status not { quit } if	% quit if file closed
+	{ currentprocess /Stdout get cvx exec } stopped pop
+	currentprocess /Stdout get status not { quit } if % quit if file closed
+	ExecutiveErrorHandler
+    } loop
+} def
+
+I also added an interest in the debug client process's death, to the
+DbgEventMgr process's interests, in debug.ps, so it can clean up when
+the client dies:
+
+/DbgDeathHandler { % event => - (clean up after debugger client death)
+    dup /Action get
+    DbgDicts exch undef
+    DbgDicts currentprocess undef
+    currentprocess killprocess
+} def
+
+/dbgstart { % - => -
+    % Build a userdict if not there yet.
+%    countdictstack 1 eq {100 dict begin} if
+
+    % Build the shaired DbgBreaks if not already existing.
+    DbgUsers 0 eq {
+	systemdict /DbgBreaks 100 dict put
+	systemdict /DbgDicts 20 dict put
+	systemdict /DbgOldErrorDict
+	    systemdict /errordict known {errordict} {null} ifelse put
+	systemdict /errordict DbgErrorDict put
+%	systemdict /errordict DbgBreakingErrorDict put
+    } if
+
+    % Build the per-debugger client stuff.
+    % Note: We build a seperate DbgEventMgr per debugger so that each client
+    % can recieve messages from it.  This means each client is re-stuffing
+    % the break data into DbgBreaks.  This is considered exceptable, mainly
+    % because DbgBreaks is a dict, thus the redundant storing is "free".
+    DbgDicts currentprocess known {
+        (Debugger already installed.\n) print
+    } {
+	DbgDicts currentprocess 100 dict put
+	DbgDicts currentprocess 100 dict dup begin
+%	    /DbgExecutive currentprocess def
+	    /DbgEventMgr [
+		/DbgBreakEvent /DbgBreakHandler null null eventmgrinterest
+		/DbgPrintEvent /DbgPrintHandler null null eventmgrinterest
+		/ProcessDied /DbgDeathHandler currentprocess null
+		eventmgrinterest % Clean up after debugger client death. -Don
+	    ] forkeventmgr def
+    
+	    /DbgEnteredProcess null def
+
+	    % currently there are 2 entries in DbgDicts for each debugger,
+	    % one for the telnet connection, one for the listner.  They
+	    % both have the DbgDict as their value.  This may go away.
+	    DbgDicts DbgEventMgr currentdict put
+	end put
+	
+	/DbgUsers DbgUsers 1 add store
+        (Debugger installed.\n) print
+	countdictstack 1 ne {
+	    userdict /execfile known not
+		{(Installing executive.\n) print executive} if
+	} if
+    } ifelse
+} def
+
+========================================================================
+
+* getfilename:
+
+How about a file name lookup mechanism, say 'getfilename'?
+
+(.startup.ps) (r) file getfilename =
+(/tumtum/don/n/startup.ps)
+
+If you look up a file on a search path, you might want to pass 
+the file name to a client, who doesn't necessarily have the same search 
+path. You'd want to pass absolute file names (absolute with respect to the
+directory names in the search path, not absolute names in the file system 
+after symbolic links have been followed.) For example, say there was a help 
+path: "/tumtum/don/help:/usr/local/lib/help:/usr/lib/help", and I looked up
+the file name "spam.help", it might return /usr/local/lib/help/spam.help,
+but I'd rather it didn't return /export/usr.mc68020/local/lib/help/spam.help
+(Or whetever /usr might be *actually* mounted.) 
+
+% Returns absolute path names of files:
+(/usr/local/bin/help) (r) file =
+(/usr/local/bin/help)
+% Resolves references to the NeWS server's current directory:
+(user.ps) (r) file =
+(/tumtum/don/n/user.ps)
+% Polymorphic search path version:
+(spam.help) (/tumtum/don/help:/usr/local/lib/help:/usr/lib/help) getfilename =
+(/usr/local/lib/help/spam.help)
+
+========================================================================
+
+* etc/NeWS/liteitem.ps, etc/NeWS/litemenu.ps:
+
+Now that the 'type' of a font is /dicttype, and you have to call
+'truetype' on a font to get back /fonttype, the following change has
+to be made to the Thing handling code in liteitem.ps and litemenu.ps
+(it ammounts to changing 'type' to 'truetype').
+
+etc/NeWS/liteitem.ps:
+
+    /ThingSize { % thing textfont => width height
+    gsave
+	setfont
+	dup truetype {
+	    /stringtype {stringwidth pop currentfont fontheight}
+	    /nametype {
+		dup { load } stopped pop xcheck {
+		    false exch cvx exec
+		} {
+		    iconfont setfont iconstring stringbbox 4 2 roll pop pop
+		} ifelse
+	    }
+	    /nulltype {0 0}
+	    /Default {0 0}
+	} case
+    grestore
+    } def
+    /ShowThing { % thing color x y textfont => -
+    gsave
+	setfont translate setcolor
+	0 0 moveto % moveto establishs current pt.
+	dup truetype {
+	    /stringtype {0 currentfont fontdescent rmoveto show}
+	    /nametype {
+		dup { load } stopped pop xcheck {
+		    true exch cvx exec
+		} {
+		    iconfont setfont iconstring show
+		} ifelse
+	    }
+	    /nulltype {pop}
+	    /Default {pop}
+	} case
+    grestore
+    } def
+
+etc/NeWS/litemenu.ps:
+
+    /&ShowThingDict 20 dict dup begin
+	/fonttype {setfont dup truetype exec} def
+	/colortype {setcolor dup truetype exec} def
+	/integertype {rmoveto dup truetype exec} def
+	/realtype {rmoveto dup truetype exec} def
+	/stringtype {0 currentfont fontdescent rmoveto show} def	
+	/nametype {iconfont setfont IconString show} def
+	/arraytype {
+	    dup xcheck {/paint exch exec} {aload pop dup truetype exec} ifelse
+	} def
+	/dicttype {/paint exch send} def
+    end def
+    /&ThingSizeDict 20 dict dup begin
+	/fonttype {setfont dup truetype exec} def
+	/colortype {setcolor dup truetype exec} def
+	/integertype {pop pop dup truetype exec} def
+	/realtype {pop pop dup truetype exec} def
+
+	/stringtype {stringwidth pop currentfont fontheight} def
+	/nametype {iconfont setfont IconString stringbbox 4 2 roll pop pop} def
+	/arraytype {
+	    dup xcheck {/size exch exec} {aload pop dup truetype exec} ifelse
+	} def
+	/dicttype {/size exch send} def
+    end def
+
+========================================================================
+
+* (/dev/null) (r) file:
+
+When I go: "(/dev/null) (r) file", it returns "file('/dev/null',R)", but
+also prints the error "make_async: No such device" to the console.
+
+========================================================================
+
+* canvas bounding boxes:
+
+Somehow (grubbing around the canvas heirarchy in CyberSpace) I got ahold 
+of the following canvas:
+
+canvas(0x0,transparent,retained)
+
+The CyberSpace deck choked on it because it was not expecting a canvas
+without a bbox! (Which it shows in the canvas's printed representation.)
+
+When I did a "clippath pathbbox", I got a "nocurrentpoint" error.
+When I did a "clippath emptypath =", I got "true".
+When I did a "currentcanvas getbbox", I got an wierd error (NeWS disconnected).
+The canvas was the /TopChild of another canvas, whose ClassName was 
+/OpenLookFrame.
+
+Can this be reproduced by going "newpath can reshapecanvas"? 
+
+Maybe getbbox should return 0 0 0 0, or would that be a lie? The size
+is obviously 0 0, and wouldn't getcanvaslocation return 0 0?
+
+========================================================================
+
+* share/src/xnews/client/technichron:
+
+Missing the #include file "worldmap.ps"
+
+========================================================================
+
+* DragFrame?:
+
+"ClassCanvas /DragFrame? false put" does not give the expected results with 
+NDE frames. (frame canvases dragging around instead of just rubberbanding.)
+There is also the variable "dragframe?" defined in userdict, which effects
+LiteWindows, but not NDE windows. (I think. Or was that from my user.ps?)
+
+========================================================================
+
+* etc/NeWS/NDE/pstermutil.ps:
+
+In the class definition:
+
+/ClassPsTermFrame OpenLookFrame []
+
+It should be a subclass of the default frame, not OpenLookFrame!
+Please change it to:
+
+/ClassPsTermFrame /defaultclass ClassFrame send []
+
+========================================================================
+
+* etc/NeWS/NDE/bagutil.ps:
+
+Shouldn't the following comment say "the bottom left corner"?
+
+    % should be placed. For example [/sw {200 300} client] ==>
+    % the top left corner of the client will be at location (200, 300)
+    % in the bag.
+
+========================================================================
+
+* overlay plane:
+
+  When I fill a shape on the overlay plane, it gets stroked instead!
+
+========================================================================
+
+* rasterfile color tables:
+
+There should be a way to read in a color rasterfile *and* the colormap object 
+associated with it, without having the rasterfile's colors mapped to NeWS's
+color map. So if I wanted to display an image in its true colors, I could 
+install that color map when the cursor was in the window, or whatever. 
+
+(filename.im8) readcolorcanvas dup /Colormap get % canvas colormap
+
+========================================================================
+
+* CPS byte encoded canvases:
+
+There should be a byte encoding for canvases. When the NeWS scanner 
+recognizes the CPS canvas byte code, it should call readcanvas, which chomps
+up the rasterfile immediatly following in the stream, and returns it to
+the scanner. It should work correctly even if readcanvas is extended to
+recognize different image formats (like Grasshopper Group has 
+done to MacNeWS!).
+
+That would make it possible to send shitloads of canvases all wrapped up in 
+an executable array {which imposes no limit on length}, instead of having to 
+push them onto the operand stack [which imposes a limit]. 
+
+To be consistant, 'typedprint' should be extended to write out canvases 
+using this byte encoding, and CPS-like preprocessors should be extended to 
+support canvas arguments. (The format of the canvas on the client side would 
+be an implementation dependant issue of course).
+
+'writecanvas' and 'typedprint' should probably always write canvases in the 
+same format. Maybe there should be some way to select between various canvas 
+output formats. But it's not as important as being able to read various
+canvas input formats, though. 
+
+========================================================================
+
+* typedprint:
+
+It would be nice to have a form of 'typedprint' and 'tagprint' that took
+an explicite output file as an argument. That may not be necessary now that 
+you can change a process's /Stdout, though. 
+
+========================================================================
+
+* event /KeyState:
+
+The /KeyState field of events does not reflect the state of any of
+the shift keys, until some process has actually gotten keyboard input.
+i.e. if the server starts up fresh, and the user.ps puts up a window that 
+responds to shifted mouse clicks, then the shift keys will not be noticed
+until you start a psterm or something and type into (??) it. 
+
+This problem can be demonstrated by autoloading from .startup.ps a
+version of tab.ps with "/demo TabFrame send" at the end uncommented. 
+Put the following into your .startup.ps, and tab.ps into your NeWS 
+subdirectory (tab.ps is available via anonymous ftp from tumtum.cs.umd.edu, 
+in NeWS/tab.ps).
+
+UserProfile /OpenLookFrame {
+  ClassFrame /DefaultClass { TabFrame } put
+} put
+
+[
+  /TabFrame (NeWS/tab.ps)
+] DefineAutoLoads
+
+========================================================================
+
+* news-tape/applications/calctool/ps_calctool:
+
+calctool, By Rich Burridge, rburridge@sun.com
+
+X11/NeWS: The text in the numeric display at the top gets put in the
+wrong place. (too high up, the top half of the characters are clipped
+off the top of the window).
+
+========================================================================
+
+* news-tape/fun/15puzzle.ps :
+
+Fixed X11/NeWS /Canvas bug:
+%	   this /Canvas get setcanvas
+	   this /Interest get /Canvas get setcanvas % Fixed for X11/NeWS -Don
+
+========================================================================
+
+* news-tape/fun/boing.ps:
+* news-tape/fun/wbounce.ps:
+
+  The imagemaskcanvas of the Earth comes out way too big. 
+  There's something fishy about the way imagemaskcanvas works, now,
+  isn't there?
+
+========================================================================
+
+* news-tape/fun/breakout.ps:
+
+  It runs, but the functions keys to move the paddle around don't work.
+
+========================================================================
+
+* news-tape/fun/interpolate.ps:
+
+  Core dumps X11/NeWS server!
+
+#!/usr/NeWS/bin/psh
+%
+% Date: Tue, 17 Jan 89 11:33:30 EST
+% To: NeWS-makers@brillig.umd.edu
+% Subject: Forcing NeWS *NOT* to interpolate colors canvases
+% From: alexis%yummy@gateway.mitre.org
+% 
+% Is there a way to stop NeWS from interpolate between pixels of a
+% color canvas?  I'm trying to draw something which I'd like to look
+% like a bunch of colored squares.  If I use a color canvas, NeWS is
+% "helpful" and spends lots of time and energy interpolating.  It's
+% all very pretty ... but it's very slow and not what I want.  You
+% end up with star-bursts and colors where you never put them.
+% 
+% As a quick example try running the following.  It's quite pretty,
+% but first time you try it make the window SMALL (as in postage
+% stamp size). It's most interesting big, but it tends to break
+% due to the time it takes to compute (my sun 4 can do about a 5x5).
+% 
+%%%%%%%%%%%%  Try This Sample Code, It's Fun And Easy  %%%%%%%%%%%%%
+
+/img 16 16 24 [16 0 0 -16 0 16]
+     {random 0.5 gt {(\000)} {(\377)} ifelse} buildimage def
+/win framebuffer /new DefaultWindow send def
+{  /PaintClient { ClientCanvas setcanvas
+		  clippath pathbbox scale pop pop
+     random .5 lt { .5 .5 translate 360 random mul rotate
+		    -.5 -.5 translate } if
+		  img imagecanvas } def
+} win send
+/reshapefromuser win send
+/map win send
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% Please don't tell me to:
+%   a) make a canvas the same size that I'm going to display [one of the
+%        whole reasons for using NeWS is so the window can be resized.]
+%   b) draw actual squares [that's what I do now -- it works, but for
+%        large images it's even slower than the above.]
+%   c) go editing NeWS or any other fool thing.
+% 
+% I just want a way to turn off this interpolation "feature" occasionally.
+% 
+% Alexis P. Wieland
+% MITRE Corporation
+% 7525 Colshire Dr.
+% McLean, VA  22102
+% (703) 883-7476
+% alexis%yummy@gateway.mitre.org
+
+========================================================================
+
+* news-tape/fun/kanji.ps:
+
+  The Kanji browser doesn't doesn't display any Kanji characters! 
+  White window. Doesn't bomb or core dump at least.
+
+========================================================================
+
+* news-tape/fun/track.ps:
+
+  Does not draw anything.
+  When you select "Raw Trajectory" from the menu, it should draw lines 
+  between mouse movements, but it draws them from the canvas origin 
+  (0,0) to the mouse instead. Something strange going on in /update-cursor. 
+
+========================================================================

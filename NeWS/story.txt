@@ -1,0 +1,61 @@
+To: dj@toaster, newstech, wert@toaster, vikas@Eng, milind@Eng, jag,
+	paolo@Eng, recker@Eng, jdn@Eng, opcode@Eng, lien@Eng,
+	maynard@Eng, sevans@Eng, leo@glop, chuck.price@Eng, flar@Eng
+In-reply-to: Deron Dann Johnson's message of Tue, 4 Jun 91 09:32:46 PDT <9106041632.AA01355@sunhigh.Eng.Sun.COM>
+Subject: a story
+--text follows this line--
+> From: dj@sunhigh (Deron Dann Johnson)
+
+> My personal feeling is that Sun needs to have a story when an ISV
+> wants to port an existing DPS application to OpenWindows which is
+> better than saying simply saying "convert it to NeWS."   How this 
+> is achieved is not within my domain of expertise.  
+
+I have very strong personal feelings on this matter, having worked
+full time, consulted, and volunteered my time to more than a few
+"ISV's" (or whatever you call them), developing software for NeWS.
+
+Judging from my past experiences and the experiences of many of my
+friends who have worked in the field, Sun has *always* had a story to
+tell people who want to develop software for NeWS. And that's all it's
+ever been: a story.  Time and time again we have been told that Sun
+has finally gotten its shit together and is now really 100% totally
+behind NeWS.
+
+Recently I was asked to attend a demonstration given by a professor
+from Rochester of a delightful CAD system written in the NeWS toolkit.
+This long time loyal NeWS software developer was visiting Sun to
+decide if he should lay it all on the line, and incorporate a company
+to develop and market his CAD system using the NeWS toolkit.
+
+He knew all about Sun's story. Year after year he went back to his
+university, repeating that story, and they laughed at him for
+believing it. But he stuck with NeWS, and now he's got an excellent
+unique marketable application to show for it, to demonstate to us, and
+to sell. 
+
+But this time I was in the room too, and we all heard the same old
+story.  He said we weren't telling him anything he hadn't
+heard before, and we all knew exactly what he meant.  We all admitted
+he would've been right to give up, all those times before; but the
+only thing that could *possibly* be worse than that, would be for him
+to give up *this* time, after *never* giving up before, because *this*
+time it was for real, we *are* shipping a stable high quality product,
+which we *will* support and promote, and the high level executives at
+Sun are *all* totally committed to NeWS.
+
+I sure wanted to believe that argument, and I know he did, too. I
+don't know what came of the meeting, and I don't know what to believe,
+but I do know that Sun had better start living up to its story about
+commitment to NeWS before we start making up stories about how we'll
+treat vendors porting to Display PostScript. We should tell those
+vendors the same story we've always told NeWS vendors, then we should
+do all we can to help them port their applications to NeWS. Our
+cooperation with Frame and Turing are excellent examples, and the
+results have been fabulous, something to be shown to vendors who think
+they want Display PostScript.  But we could still ruin them, in spite
+of all the work they've done, if we repeat what we've done so many
+times before. If we screw them with NeWS, we'll screw them with
+Display PostScript.
+
+	-Don

@@ -1,0 +1,129 @@
+To: Steven.Hoover@edrc.cmu.edu
+In-reply-to: Steven.Hoover@edrc.cmu.edu's message of Tue, 23 Aug 88 08:42:43 EDT
+Subject: Questions about windowing systems: NeWS?
+--text follows this line--
+   Date:    Tue, 23 Aug 88 08:42:43 EDT
+   From:    Steven.Hoover@edrc.cmu.edu
+
+   There seems to be a proliferation of graphics tools and windowing systems
+   for Sun machines and I'm confused.  So please excuse my ignorance and help
+   me by answering some very basic questions.  I realize that these may
+   require some long uninteresting answers to the experienced SUN hackers out
+   there so please mail your responses to me.  I will summarize if there is
+   interest.
+
+   1.)  Under SunOS 4.0 what are the functions of Suntools, SunView, 
+	SunCGI, Xwindows and NeWs?
+
+Well, Suntools is Sun's original window system, and SunView is the
+user interface toolkit on top of it. 
+The window system code lives partially in the operating system
+kernel, and partially linked into the client. (A client
+is a program 
+that runs under the window system, and uses its services). Each
+SunView client must run on the same machine whose display it is using,
+and have the huge SunView libraries linked into it. The latter is not
+such a problem with SunOS 4.0, which has shared libraries, but right
+now, SunView program right can't be run on a remote display over the
+network. This will change with the next version, SunView 2.0, which is
+built on top of X11/NeWS. The toolkit will still be linked into
+clients, but the graphics code will reside in the X11/NeWS server.
+
+I've never used SunCGI, but I think it's a package that runs on top of
+SunView. I guess that it will migrate to SunView 2.0.
+
+X-Windows is a public domain network based window system devaloped by
+MIT, for DEC and other companies. X10 was a earlier, simpler version,
+that is now pretty much obsolete. X11 is the latest version, which is
+what you have been hearing all the industry hype about. The X server is a
+program that runs on the machine with the display, and contains all of
+code to do graphics. X clients talk to the X server over the network
+or via local interprocess communication.  The X11 interprets a set of
+commands called the "X Protocol", that your client uses though a
+library called "XLib". 
+There is a way to add extensions to the X server (by recompiling the
+server and starting another one, unless it supports dynamic linking),
+and a way for clients to ask the server if it supports a particular
+extension. XLib is a rather low level interface to write an
+application with, so there are several user interface toolkits
+available written on top of XLib that save you the trouble of dealing
+with it directly, such as the X-Toolkit, Andrew, and Interviews. The
+toolkits available under X are linked into window system clients --
+they are not a part of the X server. 
+
+NeWS is Sun's PostScript based network window system. It is similar to
+X in that clients can use the window system over the network, but the important
+difference is that NeWS, like the Emacs editor, is extensible! The
+NeWS server provides a multitasking, object oriented, device
+independant PostScript programming environment. NeWS clients customize
+the server to their needs by sending PostScript programs and data over
+the network. The toolkit is written in PostScript, and runs in the
+server, instead of being completely linked into the clients. Clients
+running on different remote machines can all share the same PostScript
+code, which runs in the NeWS server on the machine where the mouse,
+keyboard, and display is. It can respond quickly to user input
+without the lag of network communication, and process input locally to
+cut down on the ammount of network utilization. 
+
+
+   2.)  To what extent are any of the above compatible or mutually exclusive?
+
+   and most importantly
+
+   3.)  If I have a Sun-3/160 running 4.0 and NeWs networked with another
+	unix workstation (Specfically an IRIS 4-D system) which runs NeWs
+	what functionality does this give me? 
+
+   Thanks,
+
+   Steve Hoover
+
+   sph@edrc.cmu.edu
+
+   Department of Mechanical Engineering
+   Carnegie-Mellon University
+   Pittsburgh, PA 15217
+
+Well, this summer, I have been using a color Sun-4/110, a monochrome Sun-3/160,
+and a color SGI IRIS 4-D, all running NeWS 1.1. I've been working on
+the NeWS display driver for Unipress Emacs, building an interface to 
+windows, menus, control panels (buttons, scroll bars, etc), text selection
+(rubber-band highlighting of text during mouse dragging, moving text
+between NeWS and Emacs, etc...). Once we got 4Sight 1.1 from SGI
+(their NeWS 1.1), I 
+had all that PostScript code that had been developed on the Sun up and
+running very quickly! It only took one night and a big mug of Capachino to
+get the Emacs display driver working, and to make pie menus run in the SGI
+overlay plane, and then a week or so to smooth it out and get the
+driver into shape so that it would work on any of the machines. There
+are a few differences between SGI's NeWS 1.1 and Sun's, that I had to
+cope with. 
+
+The most noticible thing is that the default transformation
+matrix under 
+Sun NeWS is [1 0 0 1 0 0], so the width and height of a pixel is 1,
+while it's [1.324 0 0 1.324 0 0] on the SGI, so the width and height
+of a pixel is 0.756. PostScript is resolution independant, but there
+were a few assumptions in the code about pixel size -- drawing borders
+and such, and I hade to make sure the transformation matrix I was
+using to place characters was lined up with the pixels so there was
+the same ammount of vertical space between each line. 
+I had to fix some problems with font turds -- I got tired of watching
+it leave the tips of p's and q's around. 
+
+Another problem was with the keyboard -- SGI was doing the keyboard
+translation in C instead of in PostScript, so I could not tell if the
+meta keys were down. The state of the shift keys were not being
+encoded in the events as high level names like /Control and /Shift, but
+as raw key stations. There was no way to tell if the Alt (meta) key
+was pressed that I could figure out. This was a problem that they say
+will be fixed in the next release. 
+
+Also, the SGI is VERY slow at scrolling and blinking the screen, or
+any task where the main CPU needs to read data out of graphics memory.
+It's *VERY* fast at rendering text, though! If Emacs is run with a
+4Sight NeWS server, it repaints instead of scrolling (setq
+use-ins/del-line/char 0), and beeps the keyboard instead of blinking
+the screen (setq visible-bell 0).
+
+

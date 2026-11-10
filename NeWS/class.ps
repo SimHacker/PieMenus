@@ -1,0 +1,339 @@
+%
+%               @(#)class.ps 9.6 88/01/19 Copyr 1985 Sun Micro
+%
+%  Objects and Classes.
+%
+
+/ObjectTemplate dictbegin	% All objects have these fields:
+    /ParentDict		null def	% link to my parent dict; stops at null.
+    /ParentDictArray	null def	% complete parent chain to Object!
+dictend def
+/ClassTemplate dictbegin	% Class objects have these fields in addition:
+    /InstanceVars	null def	% this class' additional inst vars
+    /InstanceVarDict	null def	% this class' total inst vars
+    /InstanceVarExtra	10 def		% extra space for class var over-rides
+    /ClassName		null def	% name of the class (as a keyword)
+    /SubClasses		nullarray def	% Tom's suggested subclass list
+dictend def
+/SubClassResponsibility {NotDefined} def % Deliberate error!
+
+% Create a sub-class of the given class.
+%    The instancevariables may be either an array or a dict.
+%    The advantage of using a dict is that the variables will be
+%    pre-initialized to a value you chose, rather than "null".
+/classbegin {   % classname superclass insvars => - (newclass on dict stack)
+    dictbegin
+    % We salt the args away in a private dictionary.
+    % This is to allow use of send inside of class creation.
+	10 dict begin
+	    /InstanceVars exch def
+	    /ParentDict exch def
+	    /ClassName exch def
+	    currentdict
+	end
+	/ClassBeginArgs! exch def
+} def
+/classend { %  - => classname newclass
+    	ObjectTemplate {def} forall   % Now initialize the class structure.
+    	ClassTemplate {def} forall
+    	ClassBeginArgs! {def} forall
+    	currentdict /ClassBeginArgs! undef
+        
+	% Compile all the methods in this class:
+        currentdict {
+            dup xcheck {ParentDict methodcompile def} {pop pop} ifelse
+        } forall
+
+	% Initialize InstanceVarDict & ParentDictArray
+	/InstanceVarDict InstanceVars def
+	/ParentDictArray [] def
+
+	% Convert InstanceVarDict to dict if was an array
+        InstanceVarDict type /arraytype eq {
+            /InstanceVarDict InstanceVarDict length dict dup begin
+                InstanceVarDict {null def} forall
+            end def
+        } if
+        
+	% Optimizations:
+	%	-Make InstanceVarDict the sum of its parents instance vars.
+	%	-Create an array of all the parent dicts so that send
+	%	 doesnt have to run down the ParentDict pointers.
+	% Also check for redundant instance variables and add me to my
+	% super class' list of subclasses.  This is to allow easy
+	% cross referencing in the future.
+        ParentDict null ne {
+            ParentDict /SubClasses 2 copy get [ClassName] append put
+	    /InstanceVarDict
+	        ParentDict /InstanceVarDict get InstanceVarDict append def
+	    /ParentDictArray
+	        ParentDict /ParentDictArray get [ParentDict] append def
+
+% Check for multiply defined instance variables:
+%	    InstanceVarDict length InstanceVars length sub
+%	    ParentDict /InstanceVarDict get length ne {
+%	        ClassName
+%	        InstanceVarDict length
+%	        InstanceVars length
+%	        ParentDict /InstanceVarDict get length
+%	        ForceAnError!
+%	    } if
+	} if
+	
+	ClassName	% return the class name
+    dictend
+} def
+% Crack open the methods and fix for "super send" and "self send"
+/&tempdict 15 dict def
+(foobar\n) print
+/&sendbinding /send load cvlit def
+/methodcompile { % method parentdict => newmethod
+//&tempdict begin
+    /superpending false def
+    /selfpending false def
+    /ParentDict exch def
+    [ exch {
+        dup type /arraytype eq {
+	    ParentDict methodcompile
+        } {
+            dup dup /send eq exch //&sendbinding eq or {
+		superpending selfpending or {
+		    pop pop
+		    superpending
+			{ParentDict /ClassName get cvx /supersend cvx}
+			{cvx} ifelse
+		} if
+	    } if
+        } ifelse
+	dup /super eq /superpending exch def
+	dup /self eq /selfpending exch def
+    } forall
+    ] cvx
+end
+} ?def
+
+%
+% send & sendstack:
+%	Send a message to an object.
+%	Get the current send stack (popped send contexts)
+%
+/send { % <args> message object => <results>
+    dup currentdict eq { % test for self
+        pop cvx exec
+    } {
+        % pop off any existing instance.
+	currentdict /ParentDict known {
+	    currentdict
+	    ParentDictArray length 1 add {end} repeat
+	    1 dict begin /PoppedSendContext! exch def
+	} if
+	
+	% push on the object context, call the method, pop context.
+	dup /ParentDictArray get {begin} forall begin
+	    cvx exec
+	ParentDictArray length 1 add {end} repeat
+    
+    	% restore existing instance.
+	currentdict /PoppedSendContext! known {
+	    PoppedSendContext! end
+	    dup /ParentDictArray get {begin} forall begin
+	} if
+    } ifelse
+} ?def
+
+currentprocess /SendContexts known {
+    /sendstack { % - => array
+	currentprocess /SendContexts get
+    } ?def
+} {
+    /sendstack { % - => array
+	[   self
+	    currentprocess /DictionaryStack get
+	    dup length 1 sub -1 0 {		% [ .. a i
+		1 index exch get		% [ .. a ai
+		/PoppedSendContext! 2 copy known {get exch} {pop pop} ifelse
+	    } for
+	    pop
+	]
+    } ?def
+} ifelse
+
+% Hack: Send a message to super without poping myself.  Could be
+% replaced by actually resolving super, and doing a send.  Users
+% generally rely on the method compiler to replace "super send"
+% with <superclassName> supersend.
+/supersend { % <args> keywordmessage superclass => <results>
+    exch { 2 copy known {exit} {exch /ParentDict get exch} ifelse } loop
+    get exec
+} ?def
+% Put me on the operand stack.
+/self {/ParentDict where pop} ?def
+
+% Your basic object!
+/Object null [] classbegin
+% class variables
+% methods
+    /new { % - => instance (Can be sent to either a class or an instance)
+	ClassName load currentdict ne {end} if % Yukko send to ins' class!
+%	ObjectTemplate length InstanceVarDict length InstanceVarExtra
+%	add add 2 mul dict dup begin
+	dictbegin
+	    InstanceVarDict {def} forall
+	    ObjectTemplate {def} forall
+	dictend
+%	%end
+	dup /ParentDict currentdict put
+	dup /ParentDictArray ParentDictArray [currentdict] append put
+    } def
+    /doit { % proc ins  =>  - (compile & execute the proc)
+        ParentDict /ParentDict get methodcompile exec
+    } def
+
+    % OBSOLETE: set/get not thought out yet; here's a try:
+    /set { % {/key value ...}  =>  -  stores the values in the object
+        mark exch cvx exec
+        counttomark 2 div {def} repeat pop % store??
+    } def
+classend def
+
+% Doesn't work right yet:
+%    /enumeratesendstack { % .. proc => .. (proc: .. obj => .. null/value)
+%    10 dict begin
+%	/EnumSStackProc exch cvx def
+%	/EnumSStackDictStack currentprocess /DictionaryStack get def
+%	/EnumSStackResult null def
+%	EnumSStackDictStack length 2 sub -1 0 {
+%	    /EnumSStackDict EnumSStackDictStack 3 -1 roll get def
+%	    EnumSStackDict /PoppedSendContext! known {
+%		EnumSStackDict /PoppedSendContext! get EnumSStackProc
+%		/EnumSStackResult exch def
+%	        EnumSStackResult null ne {exit} if
+%	    } if
+%	} for
+%	EnumSStackResult
+%    end
+%    } def
+%    /poppedinstance { % classname => null/instance
+%	{   null exch dup /ParentDictArray get { % name null ins class
+%		/ClassName get			 % name null ins name'
+%		3 index eq {exch exit} if
+%	    } forall
+%	    pop
+%	} enumeratesendstack
+%	exch pop
+%    } def
+
+%===================== Tests & Demos =====================
+/po { % obj => - (print object)
+    /tab {(        )print} def
+    {   exch =
+	dup type [
+	    /dicttype {
+		tab dup length exch maxlength (dictionary[%:%]\n) printf
+		%dup {pop (% ) printf} forall
+	    }
+	    /arraytype {
+	        dup xcheck {
+	            tab ==
+	        } {
+	            dup length 0 eq {
+	                tab ==
+	            }{
+	                {tab =} forall
+	            } ifelse
+	        } ifelse
+	    }
+	    /Default {tab =}
+	] case
+    } forall
+} def
+
+%/smalltalkpage62a { % page 62-65 of smalltalk blue book; w/ use of self/super
+%20 dict begin
+%    /One Object [] classbegin
+%	/test {1} def
+%	/result1 {/test self send} def
+%    classend def
+%
+%    /Two One [] classbegin
+%	/test {2} def
+%    classend def
+%    
+%    /ex1 /new One send def
+%    /ex2 /new Two send def
+%    
+%    /test ex1 send =
+%    /result1 ex1 send =
+%    /test ex2 send =
+%    /result1 ex2 send =
+%
+%    /Three Two [] classbegin
+%	/result2 {/result1 self send} def
+%	/result3 {/test super send} def
+%    classend def
+%    /Four Three [] classbegin
+%	/test {4} def
+%    classend def
+%    
+%    /ex3 /new Three send def
+%    /ex4 /new Four send def
+%    
+%    /test ex3 send =
+%    /result1 ex4 send =
+%    /result2 ex3 send =
+%    /result2 ex4 send =
+%    /result3 ex3 send =
+%    /result3 ex4 send =
+%end
+%} def
+%
+%/classtest { % Just play:
+%    /Foo Object
+%    % (initialized) instance variables
+%    dictbegin
+%	/value 0 def
+%	/time null def
+%    dictend
+%    classbegin
+%    % class variables
+%	/Value [0 1] def
+%	/Time currenttime def
+%    % class methods
+%	/new {
+%	    /new super send begin
+%		/resettime self send
+%		currentdict
+%	    end
+%	} def
+%	/printvars {
+%	    (..we got: Value=%, value=%, Time=%, time=%.\n)
+%		[Value value Time time] printf
+%	} def
+%	/changevalue { % value => - (changes the value of "value")
+%	    /value exch def
+%	} def
+%	/resettime { % - => - (sets time to the current time)
+%	    /time currenttime def
+%	} def
+%    classend def
+%    /foo /new Foo send def
+%    /printvars foo send
+%    
+%    (Value) /changevalue foo send
+%    /printvars foo send
+%    
+%    {Value changevalue} foo send
+%    /printvars foo send
+%    
+%    {/Time self send /changevalue self send} /doit foo send
+%    /printvars foo send
+%    
+%    /resettime foo send
+%    /printvars foo send
+%    
+%    [/Value null] /set Foo send
+%    /printvars foo send
+%    
+%    {/Value Time} /set Foo send
+%    /printvars foo send
+%} def

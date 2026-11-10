@@ -1,0 +1,800 @@
+%!PS-HyperNeWS drawing-
+%%Creator:hopkins
+%%Title:HyperNeWS drawing.
+%%BoundingBox:20.52 9.08 591.24 783.16
+%%TemplateBox:20.52 9.08 591.24 783.16
+%%EndComments
+save /psnewssav exch def
+
+% "@(#)drawlib.ps 3.1 3/19/90 Arthur van Hoff (Turing Institute)";
+
+% -- drawlib.ps -- Header file for PostScript drawings.
+/SC {dup type /arraytype eq {aload pop setrgbcolor} {setgray} ifelse} def
+/MX {1 0 0 1} def
+/CT {curveto} def
+/CP {closepath} def
+/LT {lineto} def
+/PT {moveto} def
+/PC {{lineto} stopped {moveto} if} def
+/LN {0 0 PT LT} def
+/LC {0 0 PC LT} def
+/FL {SC fill} def
+/ST {SC setlinewidth stroke} def
+/FS {gsave FL grestore ST} def
+/CM {matrix currentmatrix exch concat} def
+/SM {setmatrix} def
+/BO {gsave newpath concat} def
+/EO {grestore} def
+/SG {gsave SC eofill grestore ST} def
+/FG {SC eofill} def
+
+/AR {	%  c s a x y --
+	newpath matrix currentmatrix 5 1 roll
+	newpath translate rotate
+	0 0 moveto 0 0 3 -1 roll -20 20 arc 0 0 lineto
+	setmatrix FL
+} def
+/DA {	% x y --
+	matrix currentmatrix 3 1 roll
+	scale 0 1 1 -90 0 arc
+	setmatrix
+} def
+/DR {	% w h --
+	0 0 moveto
+	exch dup 0 lineto
+	1 index lineto
+	0 exch lineto
+	closepath
+} def
+/DO {	% w h --
+	matrix currentmatrix 3 1 roll
+	scale 1 0.5 moveto 0.5 0.5 translate 0 0 0.5 0 360 arc closepath
+	setmatrix
+} def
+/RR {	% w h c --
+	10 dict begin 
+	2 index abs 2 index abs 
+	dup 2 index lt {exch pop} {pop} ifelse 2 div
+	dup 2 index lt {exch pop} {pop} ifelse
+	/c exch def /h exch def /w exch def
+	c 0 moveto
+	mark
+	w 0 w h c arcto
+	w h 0 h c arcto
+	0 h 0 0 c arcto
+	0 0 w 0 c arcto
+	cleartomark closepath
+	end
+} def
+/DP {	% d1 d2 w h --
+	matrix currentmatrix 5 1 roll scale
+	0.5 0.5 moveto
+	0.5 0.5 0.5 5 -2 roll arc
+	0.5 0.5 lineto
+	setmatrix
+} def
+/SF {	% text col fontsize font -- text width
+	findfont exch scalefont setfont SC
+	1 1 index {stringwidth pop abs 2 copy lt {exch} if pop} forall
+} def
+/TS {	% width w h --
+	exch 2 index div exch scale
+} def
+/TL {	% text w h lh --
+	5 dict begin /h exch def 0 exch moveto pop
+	{gsave show grestore 0 h rmoveto} forall
+	end
+} def
+/TR {	% text w h bh --
+	5 dict begin /h exch def moveto 
+	{ gsave dup stringwidth pop neg 0 rmoveto show 
+	  grestore 0 h rmoveto} forall
+	end
+} def
+/TC {	% text w h bh --
+	5 dict begin /h exch def 
+	exch 2 div exch moveto 
+	{ gsave dup stringwidth pop 2 div neg 0 rmoveto show 
+	  grestore 0 h rmoveto} forall
+	end
+} def
+/IR {	% w h
+	DR gsave 1 setgray fill grestore 0 setgray stroke
+} def
+/IC {	% str w h --
+	scale LoadImage imagecanvas
+} def
+/IM {	% ... --
+	/pstr exch string def
+	0 exch translate scale
+	{} settransfer
+	0 0 3 -1 roll 0 0 6 array astore
+	{currentfile pstr readhexstring pop} image
+} def
+/EPSdict 10 dict begin
+/initmatrix {
+	#Matrisk# setmatrix 
+} def
+/initgraphics {
+	systemdict /initgraphics get exec 
+	#Matrisk# setmatrix 
+} def
+/showpage {} def
+currentdict end def
+/BEPS {
+	save 5 1 roll
+	EPSdict begin
+	gsave scale translate
+	matrix currentmatrix /#Matrisk# exch def
+	systemdict /initgraphics get exec
+	#Matrisk# setmatrix
+	500 dict begin
+} def
+/EEPS {
+	end grestore end
+	restore
+} def
+gsave initmatrix 20.520 9.080 translate
+0.820 0.820 scale
+[1 0 0 1 72 480 ] BO
+[1 0 0 1 520 352 ] BO
+96 -136 DR
+2 0 1 FS
+EO
+[1 0 0 1 528 322.400 ] BO
+[(/ItemEnter)] 0 13.9999 /Times-Bold SF 66.0928 1 TS 5.59998 -15.9999 TL
+EO
+[1 0 0 1 528 226.400 ] BO
+[(/ItemChosen)] 0 13.9999 /Times-Bold SF 76.2149 1 TS 5.59998 -15.9999 TL
+EO
+[1 0 0 1 528 258.400 ] BO
+[(/ItemExit)] 0 13.9999 /Times-Bold SF 56.7693 1 TS 5.59998 -15.9999 TL
+EO
+[1 0 0 1 512 344 ] BO
+225 135 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 512 248 ] BO
+225 135 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 512 280 ] BO
+225 135 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 352 352 ] BO
+96 -136 DR
+2 0 1 FS
+EO
+[1 0 0 1 360 322.400 ] BO
+[(/TrackStart)] 0 13.9999 /Times-Bold SF 70.769 1 TS 5.59998 -15.9999 TL
+EO
+[1 0 0 1 360 290.400 ] BO
+[(/TrackMotion)] 0 13.9999 /Times-Bold SF 83.9991 1 TS 5.59998 -15.9999 TL
+EO
+[1 0 0 1 360 226.400 ] BO
+[(/TrackStop)] 0 13.9999 /Times-Bold SF 67.6754 1 TS 5.59998 -15.9999 TL
+EO
+[1 0 0 1 360 258.400 ] BO
+[(/TrackCancel)] 0 13.9999 /Times-Bold SF 81.6608 1 TS 5.59998 -15.9999 TL
+EO
+[1 0 0 1 344 344 ] BO
+225 135 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 344 312 ] BO
+225 135 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 344 248 ] BO
+225 135 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 344 280 ] BO
+225 135 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 184 352 ] BO
+96 -136 DR
+2 0 1 FS
+EO
+[1 0 0 1 192 290.400 ] BO
+[(/TrackMotion)] 0 13.9999 /Times-Bold SF 83.9991 1 TS 5.59998 -15.9999 TL
+EO
+[1 0 0 1 192 226.400 ] BO
+[(/TrackStop)] 0 13.9999 /Times-Bold SF 67.6754 1 TS 5.59998 -15.9999 TL
+EO
+[1 0 0 1 192 258.400 ] BO
+[(/TrackCancel)] 0 13.9999 /Times-Bold SF 81.6608 1 TS 5.59998 -15.9999 TL
+EO
+[1 0 0 1 176 344 ] BO
+225 135 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 176 312 ] BO
+225 135 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 176 248 ] BO
+225 135 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 176 280 ] BO
+225 135 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 328 336 ] BO
+-48 0 LN
+2 0 ST
+EO
+[1 0 0 1 496 336 ] BO
+-48 0 LN
+2 0 ST
+EO
+[1 0 0 1 336 240 ] BO
+-56 0 LN
+2 0 ST
+EO
+[1 0 0 1 328 272 ] BO
+-48 0 LN
+2 0 ST
+EO
+[1 0 0 1 496 272 ] BO
+-48 0 LN
+2 0 ST
+EO
+[1 0 0 1 504 240 ] BO
+-56 0 LN
+2 0 ST
+EO
+[1 0 0 1 192 322.400 ] BO
+[(/TrackStart)] 0 13.9999 /Times-Bold SF 70.769 1 TS 5.59998 -15.9999 TL
+EO
+[1 0 0 1 336 304 ] BO
+-56 0 LN
+2 0 ST
+EO
+[1 0 0 1 336 272 ] BO
+-56 32 LN
+2 0 ST
+EO
+[1 0 0 1 504 272 ] BO
+-56 32 LN
+2 0 ST
+EO
+[1 0 0 1 336 344 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 504 344 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 336 312 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 336 280 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 504 280 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 328 344 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 496 344 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 336 248 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 328 280 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 496 280 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 504 248 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 336 336 ] BO
+-56 -32 LN
+2 0 ST
+EO
+[1 0 0 1 504 336 ] BO
+-56 -32 LN
+2 0 ST
+EO
+[1 0 0 1 176 392 ] BO
+112 -40 8 RR
+4 0 1 FS
+EO
+[1 0 0 1 0 328 ] BO
+112 -80 8 RR
+4 0 1 FS
+EO
+[1 0 0 1 344 392 ] BO
+112 -40 8 RR
+4 0 1 FS
+EO
+[1 0 0 1 512 392 ] BO
+112 -40 8 RR
+4 0 1 FS
+EO
+[1 0 0 1 216 357.600 ] BO
+[(Bag)] 0 17.9999 /Helvetica-Bold SF 34.0016 1 TS 6.39998 -19.9999 TC
+EO
+[1 0 0 1 24 263.600 ] BO
+[(Track)(Service)] 0 18 /Helvetica-Bold SF 64.0437 1 TS 28.3999 -20 TC
+EO
+[1 0 0 1 368 357.600 ] BO
+[(Region)] 0 17.9999 /Helvetica-Bold SF 61.0013 1 TS 6.39998 -19.9999 TC
+EO
+[1 0 0 1 536 357.600 ] BO
+[(Group)] 0 17.9999 /Helvetica-Bold SF 53.9995 1 TS 6.39998 -19.9999 TC
+EO
+[1 0 0 1 168 240 ] BO
+-56 48 LN
+2 0 ST
+EO
+[1 0 0 1 168 304 ] BO
+-56 -16 LN
+2 0 ST
+EO
+[1 0 0 1 168 272 ] BO
+-56 16 LN
+2 0 ST
+EO
+[1 0 0 1 168 312 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 168 344 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 168 248 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 168 280 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 168 336 ] BO
+-56 -48 LN
+2 0 ST
+EO
+[1 0 0 1 360 360 ] BO
+-32 -144 DO
+1 0 ST
+EO
+[1 0 0 1 528 360 ] BO
+-32 -144 DO
+1 0 ST
+EO
+[1 0 0 1 192 360 ] BO
+-32 -144 DO
+1 0 ST
+EO
+[1 0 0 1 344 216 ] BO
+0 -24 LN
+1 0 ST
+EO
+[1 0 0 1 512 216 ] BO
+0 -24 LN
+1 0 ST
+EO
+[1 0 0 1 176 216 ] BO
+0 -24 LN
+1 0 ST
+EO
+[1 0 0 1 168 121.600 ] BO
+[(Canvas)(Tracking)(Protocol)] 0 18 /Times-Italic SF 64.9973 1 TS 50.3999 -20 TL
+EO
+[1 0 0 1 336 121.600 ] BO
+[(Region)(Tracking)(Protocol)] 0 18 /Times-Italic SF 64.9973 1 TS 50.3999 -20 TL
+EO
+[1 0 0 1 496 121.600 ] BO
+[(Item)(Tracking)(Protocol)] 0 18 /Times-Italic SF 64.9973 1 TS 50.3999 -20 TL
+EO
+[1 0 0 1 272 104 ] BO
+256 -104 DR
+1 0 0.75 FS
+EO
+[1 0 0 1 288 88 ] BO
+216 -72 DR
+1 0 0.5 FS
+EO
+[1 0 0 1 304 72 ] BO
+40 -40 DR
+1 0 0.25 FS
+EO
+[1 0 0 1 352 72 ] BO
+40 -40 DR
+1 0 0.25 FS
+EO
+[1 0 0 1 400 72 ] BO
+40 -40 DR
+1 0 0.25 FS
+EO
+[1 0 0 1 448 72 ] BO
+40 -40 DR
+1 0 0.25 FS
+EO
+[1 0 0 1 232 176 ] BO
+56 -72 LN
+1 0 ST
+EO
+[1 0 0 1 328 176 ] BO
+-24 -88 LN
+1 0 ST
+EO
+[1 0 0 1 488 176 ] BO
+-160 -104 LN
+1 0 ST
+EO
+[1 0 0 1 488 176 ] BO
+-112 -104 LN
+1 0 ST
+EO
+[1 0 0 1 488 176 ] BO
+-64 -104 LN
+1 0 ST
+EO
+[1 0 0 1 488 176 ] BO
+-16 -104 LN
+1 0 ST
+EO
+EO
+[1 0 0 1 72 0 ] BO
+[1 0 0 1 520 352 ] BO
+96 -136 DR
+2 0 1 FS
+EO
+[1 0 0 1 528 322.400 ] BO
+[(/ItemStart)] 0 13.9999 /Times-Bold SF 62.201 1 TS 5.59998 -15.9999 TL
+EO
+[1 0 0 1 528 226.400 ] BO
+[(/ItemStop)] 0 13.9999 /Times-Bold SF 59.1074 1 TS 5.59998 -15.9999 TL
+EO
+[1 0 0 1 528 258.400 ] BO
+[(/ItemCancel)] 0 13.9999 /Times-Bold SF 73.0928 1 TS 5.59998 -15.9999 TL
+EO
+[1 0 0 1 528 290.400 ] BO
+[(/ItemMotion)] 0 13.9999 /Times-Bold SF 75.4312 1 TS 5.59998 -15.9999 TL
+EO
+[1 0 0 1 512 344 ] BO
+225 135 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 512 312 ] BO
+225 135 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 512 248 ] BO
+225 135 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 512 280 ] BO
+225 135 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 352 352 ] BO
+96 -136 DR
+2 0 1 FS
+EO
+[1 0 0 1 360 322.400 ] BO
+[(/TrackStart)] 0 13.9999 /Times-Bold SF 70.769 1 TS 5.59998 -15.9999 TL
+EO
+[1 0 0 1 360 290.400 ] BO
+[(/TrackMotion)] 0 13.9999 /Times-Bold SF 83.9991 1 TS 5.59998 -15.9999 TL
+EO
+[1 0 0 1 360 226.400 ] BO
+[(/TrackStop)] 0 13.9999 /Times-Bold SF 67.6754 1 TS 5.59998 -15.9999 TL
+EO
+[1 0 0 1 360 258.400 ] BO
+[(/TrackCancel)] 0 13.9999 /Times-Bold SF 81.6608 1 TS 5.59998 -15.9999 TL
+EO
+[1 0 0 1 344 344 ] BO
+225 135 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 344 312 ] BO
+225 135 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 344 248 ] BO
+225 135 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 344 280 ] BO
+225 135 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 184 352 ] BO
+96 -136 DR
+2 0 1 FS
+EO
+[1 0 0 1 192 290.400 ] BO
+[(/TrackMotion)] 0 13.9999 /Times-Bold SF 83.9991 1 TS 5.59998 -15.9999 TL
+EO
+[1 0 0 1 192 226.400 ] BO
+[(/TrackStop)] 0 13.9999 /Times-Bold SF 67.6754 1 TS 5.59998 -15.9999 TL
+EO
+[1 0 0 1 192 258.400 ] BO
+[(/TrackCancel)] 0 13.9999 /Times-Bold SF 81.6608 1 TS 5.59998 -15.9999 TL
+EO
+[1 0 0 1 176 344 ] BO
+225 135 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 176 312 ] BO
+225 135 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 176 248 ] BO
+225 135 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 176 280 ] BO
+225 135 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 328 336 ] BO
+-48 0 LN
+2 0 ST
+EO
+[1 0 0 1 496 336 ] BO
+-48 0 LN
+2 0 ST
+EO
+[1 0 0 1 336 240 ] BO
+-56 0 LN
+2 0 ST
+EO
+[1 0 0 1 328 272 ] BO
+-48 0 LN
+2 0 ST
+EO
+[1 0 0 1 496 272 ] BO
+-48 0 LN
+2 0 ST
+EO
+[1 0 0 1 504 240 ] BO
+-56 0 LN
+2 0 ST
+EO
+[1 0 0 1 192 322.400 ] BO
+[(/TrackStart)] 0 13.9999 /Times-Bold SF 70.769 1 TS 5.59998 -15.9999 TL
+EO
+[1 0 0 1 336 304 ] BO
+-56 0 LN
+2 0 ST
+EO
+[1 0 0 1 504 304 ] BO
+-56 0 LN
+2 0 ST
+EO
+[1 0 0 1 336 272 ] BO
+-56 32 LN
+2 0 ST
+EO
+[1 0 0 1 504 272 ] BO
+-56 32 LN
+2 0 ST
+EO
+[1 0 0 1 336 344 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 504 344 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 336 312 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 504 312 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 336 280 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 504 280 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 328 344 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 496 344 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 336 248 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 328 280 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 496 280 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 504 248 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 336 336 ] BO
+-56 -32 LN
+2 0 ST
+EO
+[1 0 0 1 504 336 ] BO
+-56 -32 LN
+2 0 ST
+EO
+[1 0 0 1 176 392 ] BO
+112 -40 8 RR
+4 0 1 FS
+EO
+[1 0 0 1 0 328 ] BO
+112 -80 8 RR
+4 0 1 FS
+EO
+[1 0 0 1 344 392 ] BO
+112 -40 8 RR
+4 0 1 FS
+EO
+[1 0 0 1 512 392 ] BO
+112 -40 8 RR
+4 0 1 FS
+EO
+[1 0 0 1 216 357.600 ] BO
+[(Bag)] 0 17.9999 /Helvetica-Bold SF 34.0016 1 TS 6.39998 -19.9999 TC
+EO
+[1 0 0 1 24 263.600 ] BO
+[(Track)(Service)] 0 18 /Helvetica-Bold SF 64.0437 1 TS 28.3999 -20 TC
+EO
+[1 0 0 1 368 357.600 ] BO
+[(Region)] 0 17.9999 /Helvetica-Bold SF 61.0013 1 TS 6.39998 -19.9999 TC
+EO
+[1 0 0 1 536 357.600 ] BO
+[(Group)] 0 17.9999 /Helvetica-Bold SF 53.9995 1 TS 6.39998 -19.9999 TC
+EO
+[1 0 0 1 168 240 ] BO
+-56 48 LN
+2 0 ST
+EO
+[1 0 0 1 168 304 ] BO
+-56 -16 LN
+2 0 ST
+EO
+[1 0 0 1 168 272 ] BO
+-56 16 LN
+2 0 ST
+EO
+[1 0 0 1 168 312 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 168 344 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 168 248 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 168 280 ] BO
+135 225 16 -16 DP
+1 0 1 FS
+EO
+[1 0 0 1 168 336 ] BO
+-56 -48 LN
+2 0 ST
+EO
+[1 0 0 1 360 360 ] BO
+-32 -144 DO
+1 0 ST
+EO
+[1 0 0 1 528 360 ] BO
+-32 -144 DO
+1 0 ST
+EO
+[1 0 0 1 192 360 ] BO
+-32 -144 DO
+1 0 ST
+EO
+[1 0 0 1 344 216 ] BO
+0 -24 LN
+1 0 ST
+EO
+[1 0 0 1 512 216 ] BO
+0 -24 LN
+1 0 ST
+EO
+[1 0 0 1 176 216 ] BO
+0 -24 LN
+1 0 ST
+EO
+[1 0 0 1 168 121.600 ] BO
+[(Canvas)(Tracking)(Protocol)] 0 18 /Times-Italic SF 64.9973 1 TS 50.3999 -20 TL
+EO
+[1 0 0 1 336 121.600 ] BO
+[(Region)(Tracking)(Protocol)] 0 18 /Times-Italic SF 64.9973 1 TS 50.3999 -20 TL
+EO
+[1 0 0 1 496 121.600 ] BO
+[(Item)(Tracking)(Protocol)] 0 18 /Times-Italic SF 64.9973 1 TS 50.3999 -20 TL
+EO
+[1 0 0 1 272 104 ] BO
+256 -104 DR
+1 0 0.75 FS
+EO
+[1 0 0 1 288 88 ] BO
+216 -72 DR
+1 0 0.5 FS
+EO
+[1 0 0 1 304 72 ] BO
+40 -40 DR
+1 0 0.25 FS
+EO
+[1 0 0 1 352 72 ] BO
+40 -40 DR
+1 0 0.25 FS
+EO
+[1 0 0 1 400 72 ] BO
+40 -40 DR
+1 0 0.25 FS
+EO
+[1 0 0 1 448 72 ] BO
+40 -40 DR
+1 0 0.25 FS
+EO
+[1 0 0 1 232 176 ] BO
+56 -72 LN
+1 0 ST
+EO
+[1 0 0 1 328 176 ] BO
+-24 -88 LN
+1 0 ST
+EO
+[1 0 0 1 488 176 ] BO
+-160 -104 LN
+1 0 ST
+EO
+[1 0 0 1 488 176 ] BO
+-112 -104 LN
+1 0 ST
+EO
+[1 0 0 1 488 176 ] BO
+-64 -104 LN
+1 0 ST
+EO
+[1 0 0 1 488 176 ] BO
+-16 -104 LN
+1 0 ST
+EO
+EO
+[1 0 0 1 0 881.600 ] BO
+[(The Present Tracking Scheme:)] 0 47.9998 /Times-BoldItalic SF 614.632 1 TS 12.4 -49.9998 TL
+EO
+[1 0 0 1 0 401.600 ] BO
+[(The Proposed Tracking Scheme:)] 0 47.9998 /Times-BoldItalic SF 649.289 1 TS 12.4 -49.9998 TL
+EO
+showpage grestore psnewssav restore

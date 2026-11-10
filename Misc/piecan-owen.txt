@@ -1,0 +1,661 @@
+From owen@Sun.COM Sat Feb 17 01:25:41 1990
+Date: Wed, 29 Nov 89 11:17:48 PST
+From: owen@Sun.COM (Owen Densmore)
+To: don@cs.UMD.EDU
+Subject: Re:  tNt pie canvas, using ClassThing
+
+Dave Gedye sends this re: the interger server work going on:
+----------------
+>From gedye@video Wed Nov 29 00:03:30 1989
+From: gedye@video (Dave Gedye)
+To: owen@bigmac
+Subject: Re:  Pie Menus meet TNT
+Cc: nn2@dublin
+
+Am I the first one to hit the integer-server-induced bugs in this code?
+Anyway, 2 cvi's fixed everything. Here's code that runs barf-free on 1.1
+
+Dave
+---------------
+%!
+% Pie menu implementation, on top of class Canvas.
+% Copyright (C) 1989 by Don Hopkins
+% Nov 27 1989
+
+systemdict begin
+
+% ========================================================================
+
+/ClassThing [] []
+classbegin
+
+    % A thing is the specification of the data of the graphic
+    % (ie. the part of the graphic that the application programmer wants 
+    % to specify). Things are objects of the form:
+    %
+    %	  atom
+    % OR
+    %	  [atom modifier|array modifier|array ...]
+    %
+    % An atom is any of the following:
+    %	  string
+    %     executable array (takes both /paint and /size as its first argument)
+    %	  instance of a graphic
+    %	  bits (extracted from a canvas)
+    %
+    % A modifier is any of the following:
+    %	  font
+    %	  color
+    %	  a pair of integers or reals
+    %	  name (a method to call in the graphic class. Used to set state
+    %		for the graphic, for example quads).
+    %
+
+    % Special procedure to execute for a simple string "thing". This
+    % is used to override /ShowThing if the current "thing" is a
+    % simple string. The promotion takes place in the /validate routine.
+    %
+    /&StringTypeExecution { % thing => -
+        XOffSet YOffSet rmoveto show
+    } def
+
+    % Dictionary to hold painting procedures for each type of thing.
+    %
+    /&ShowThingDict dictbegin
+        /fonttype {setfont dup truetype exec} def
+        /colortype {setcolor dup truetype exec} def
+        /integertype {rmoveto dup truetype exec} def
+        /realtype {rmoveto dup truetype exec} def
+        /stringtype { 
+%	  currentfont fontdescent exch % descent str
+%	  0 2 index neg rmoveto % descent str
+	  show % descent
+%pop %	  0 exch rmoveto %
+	  dup truetype exec
+        } def
+%        /nametype {self send dup truetype exec} def
+	/nametype {
+	    gsave
+		iconfont setfont icondict exch get cvis dup show
+		stringbbox 4 2 roll pop pop pop
+	    grestore
+	    0 rmoveto
+	    dup truetype exec
+	} def
+        % Note: to be implemented
+        /canvastype { pop dup truetype exec } def
+        /arraytype {
+            dup xcheck {
+	        /paint exch exec
+	        dup truetype exec
+	    } {
+		aload pop dup truetype exec
+	    } ifelse
+        } def
+	/packedarraytype /arraytype load def
+        /dicttype {/paint exch send dup truetype exec} def
+	/marktype { pop } def
+	/nulltype { pop dup truetype exec} def
+    dictend def
+    
+    % Dictionary to hold a validation procedure for each type of thing.
+    %
+    /&ValidateThingDict dictbegin
+        /fonttype {pop dup truetype exec} def
+        /colortype {pop dup truetype exec} def
+        /integertype {pop pop dup truetype exec} def
+        /realtype {pop pop dup truetype exec} def
+        /stringtype {
+            % Cache values to offset the string by so that
+            % the lower left of the bbox is at "currentpoint".
+%            /XOffSet exch stringbbox pop pop pop neg promote
+%            /YOffSet currentfont fontdescent promote
+% Can't use promote because we want these to end up in dict above instance
+            currentdict exch end
+	      /XOffSet exch stringbbox pop pop pop neg def
+	      /YOffSet currentfont fontdescent def
+            begin
+% The above will overwrite the last string offset, if there are multiple
+% strings in the thing, but it probably won't matter too much...
+	    dup truetype exec
+        } def
+        /nametype {pop dup truetype exec} def
+        /canvastype { pop dup truetype exec } def
+        /arraytype {
+            dup xcheck { 
+		pop dup truetype exec
+	    } {
+		aload pop dup truetype exec
+	    } ifelse
+        } def
+	/packedarraytype /arraytype load def
+        /dicttype { pop dup truetype exec} def
+	/marktype { pop } def
+	/nulltype { pop dup truetype exec} def
+    dictend def
+    
+    % Dictionary to hold a procedure that returns the size of the thing
+    % for each type of thing.
+    %
+    /&ThingSizeDict dictbegin
+	/x 0 def
+	/y 0 def
+	/mx 0 def
+	/my 0 def
+
+        /fonttype {setfont dup truetype exec} def
+        /colortype {setcolor dup truetype exec} def
+%        /integertype {pop pop dup truetype exec} def
+	/integertype {
+	    y exch add /y exch store
+	    y my gt { /my y store } if
+
+	    x exch add /x exch store
+	    x mx gt { /mx x store } if
+
+	    dup truetype exec
+	} def
+        /realtype //integertype def
+%        /stringtype {dup stringbbox pop 3 -2 roll pop pop
+%                     exch stringwidth pop max
+%                     currentfont fontheight } def
+	/stringtype {
+	    stringwidth pop
+	    x exch add
+	    /x exch store
+	    x mx gt { /mx x store } if
+
+	    currentfont fontheight
+	    y exch add
+	    dup my gt { /my exch store } { pop } ifelse
+	    dup truetype exec
+	} def
+
+%        /nametype {self send dup truetype exec} def
+	/nametype {
+	    gsave
+		iconfont setfont icondict exch get cvis
+		stringbbox				% x y w h
+
+		y exch add				% x y w y+h
+		3 -1 roll				% x w y+h y
+		neg dup 				% x w y+h -y -y
+		3 1 roll add				% x w -y y+h+(-y)
+		1 add
+		dup my gt { /my exch store } { pop } ifelse
+		y exch add /y exch store
+		x exch add				% ... x x+w
+		exch neg add				% ... x+w+(-x)
+		/x exch store
+		x mx gt { /mx x store } if
+	    grestore
+
+	    dup truetype exec
+	} def
+        % Note: to be implemented
+        /canvastype { pop dup truetype exec } def
+%	/arraytype {
+%	    dup xcheck {/size exch exec} {aload pop dup truetype exec} ifelse
+%	} def
+        /arraytype {
+	    dup xcheck { % x y /size => x y mx my
+		x y /size 4 -1 roll exec
+		/my exch store
+		/mx exch store
+		/y exch store
+		/x exch store
+
+		dup truetype exec
+	    } {
+		aload pop dup truetype exec
+	    } ifelse
+        } def
+	/packedarraytype /arraytype load def
+%        /dicttype {/size exch send} def
+	/dicttype {
+	    % x y /size => x y mx my
+	    x y /size 4 -1 roll send
+	    /my exch def
+	    /mx exch def
+	    /y exch def
+	    /x exch def
+
+	    dup truetype exec
+	} def
+	/marktype { pop } def
+	/nulltype { pop dup truetype exec} def
+    dictend def
+
+    % Execute the thing associated with the graphic to return
+    % its width and height. It is designed to be used by subclassers that take
+    % advantage of the thing interface.
+    %
+    /ThingSize { % thing => width height
+	gsave
+	    //&ThingSizeDict begin
+		/x 0 def
+		/y 0 def
+		/mx 0 def
+		/my 0 def
+		mark exch dup truetype exec
+		mx my
+	    end
+	grestore
+    } def
+
+    % Render (execute) the thing associated with the graphic
+    % at the currentpoint. It is designed to be used by subclassers that
+    % take advantage of the thing interface. The method should only be
+    % called if the graphic is currently valid. It is generally required
+    % that /ValidateThing be executed (it is executed as part of the
+    % graphic's validation) before /ShowThing will execute correctly.
+    % /ShowThing does not validate itself since it is meant to be called as
+    % part of the painting or fixing procedure for the graphic, which will
+    % generally validate the graphic anyway.
+    %
+    /ShowThing { % thing => -
+        gsave
+	    TextFont setfont
+	    //&ShowThingDict begin
+		mark exch dup truetype exec
+	    end
+	grestore
+    } def
+
+    % Execute the thing associated with the graphic
+    % to perform any validation required by the thing. This method is
+    % called as part of the default validation for graphics, if there is
+    % no thing specified, then this is a no-op. In general, subclassers
+    % should not need to do anything with this method.
+    %
+    /ValidateThing { % thing => -
+	gsave
+	    //&ValidateThingDict begin
+		mark exch dup truetype exec
+	    end
+        grestore
+    } def
+
+classend def
+
+% ========================================================================
+
+/ClassPieCanvas [ClassCanvas ClassTarget ClassThing]
+dictbegin
+  /PieKeys null def
+
+  /PieValue null def
+  /PieDirection null def
+  /PieDistance null def
+
+  /PaintedValue null def
+  /FGColor null def
+  /BGColor null def
+
+  /ThisAngle null def
+  /I null def
+  /NextI null def
+
+  /PieRadius null def
+  /LabelRadius null def
+  /PieSliceWidth null def
+  /PieWidth null def
+  /PieHeight null def
+
+dictend
+classbegin
+
+  /Label null def % ???
+
+  /BorderStroke 3.5 def
+  /Border 3 def
+  /Gap 9 def
+  /NumbRadius 14 def
+  /LabelMinRadius 25 def
+  /LabelRadiusStep 5 def
+  /LabelRadiusExtra 10 def
+  /Clockwise? true def
+  /PieInitialAngle 90 def % up
+  /Pinned? false def
+
+  /PieButton MenuButton def
+
+  /Transparent false def
+
+  /newobject { % - => object
+    framebuffer /newobject super send
+  } def
+
+  /newinit { % keydicts => -
+    /newinit super send
+    setkeys
+  } def
+
+  /setkeys { % keydicts => -
+    /PieKeys exch def
+    invalidate
+  } def
+
+  /getkeys { % - => keydicts
+    PieKeys
+  } def
+
+  /minsize { % - => x y
+    ?validate
+    PieWidth PieHeight
+  } def
+
+  /validate {
+    /validate super send
+    /layout self send
+  } def
+
+  /layout {
+    /PieRadius 0 def
+    PieGSave
+      /PieSliceWidth 360 PieKeys length 1 max div store
+
+      /ThisAngle PieInitialAngle store
+      PieKeys {
+	begin
+	  /Thing load ThingSize
+	  /Height exch def
+	  /Width exch def
+	  /Angle ThisAngle def
+	  /DX Angle cos def
+	  /DY Angle sin def
+	  DX abs .05 lt { %  top or bottom
+	    /XAnchor Width -.5 mul def
+	    /YAnchor Angle 180 gt {Height neg} {0} ifelse def
+	  } { %  left or right
+	    /XAnchor Angle 90 gt Angle 270 lt and {Width neg} {0} ifelse def
+	    /YAnchor Height -.5 mul def
+	  } ifelse
+	  /ThisAngle ThisAngle PieSliceWidth
+	    Clockwise? {sub} {add} ifelse
+	    NormalAngle store
+	end
+      } forall
+
+      /LabelRadius LabelMinRadius def
+      PieKeys length 1 gt {
+	0 1 PieKeys length 1 sub {
+	  /I exch def
+	  /NextI I 1 add PieKeys length mod def
+	  { 
+	    I CalcRect
+	    NextI CalcRect
+	    rectsoverlap not {exit} if
+	    /LabelRadius LabelRadius LabelRadiusStep add def
+	  } loop
+	} for
+      } if
+      /LabelRadius LabelRadius LabelRadiusExtra add def
+
+      /PieRadius LabelRadius dup mul def
+      PieKeys {
+	begin
+	  /x DX LabelRadius cvr mul def % XXX: cvr is for NeWS math bug
+	  /y DY LabelRadius cvr mul def
+
+	  /X x XAnchor add def
+	  /Y y YAnchor add def
+
+	  DX abs .05 lt { %  top or bottom
+	    x abs Width 2 div add dup mul y abs Height add dup mul add
+	  } { %  left or right
+	    x abs Width add dup mul y abs Height 2 div add dup mul add
+	  } ifelse
+	  PieRadius max /PieRadius exch store
+
+          /Thing load dup ValidateThing
+	  truetype /stringtype eq {
+            /ShowThing //&StringTypeExecution def
+	  } {
+	    currentdict /ShowThing undef
+          } ifelse
+
+	end
+      } forall
+      /PieRadius PieRadius sqrt Gap add Border add round store
+
+      /PieWidth
+	PieRadius dup add store
+      /PieHeight
+	PieWidth store
+
+    grestore
+  } def
+
+  /CalcRect { % item_number => x y w h
+    PieKeys exch get begin
+      LabelRadius DX mul XAnchor add Border sub
+      LabelRadius DY mul YAnchor add Border sub
+      Width Border dup add add Height Border dup add add
+    end
+  } def
+
+  /NormalAngle { % angle => angle
+    cvi dup 0 lt {
+      dup 360 sub 360 idiv 360 mul sub
+    } if
+    dup 360 ge {
+      dup 360 idiv 360 mul sub
+    } if
+  } def
+
+  /PaintCanvas {
+    /PaintCanvas super send
+    PaintPie
+  } def
+
+  /PieGSave {
+    gsave
+      /canvas self send setcanvas
+      PieRadius dup translate
+      TextFont setfont
+  } def
+
+  /PaintPie {
+    PieGSave
+      TextColor setcolor
+      PieKeys {
+        begin
+	  X Y moveto
+	  /Thing load ShowThing
+	  gsave
+	    newpath
+	    Angle PieSliceWidth 2 div sub rotate
+	    NumbRadius 0 moveto
+	    LabelRadius Gap sub 0 lineto
+	    StrokeColor setcolor
+	    stroke
+	  grestore
+        end
+      } forall
+    grestore
+  } def
+
+  /PaintPieValue { % - => - (Hilite current item, un-hilite prev one.)
+      false PaintedValue PaintSlice
+      true PieValue PaintSlice
+      /PaintedValue PieValue store
+  } def
+
+% Paint highlighting on a menu slice. If it's null, then do nothing.
+% Draw an arrow, and a box around the key.
+
+  /PaintSlice { % draw key => -
+      dup null ne {	   			% key
+	PieGSave 
+	  10 dict begin % localdict
+	    exch {				% keyNumber draw
+		/TextColor FillColor
+		/FillColor TextColor
+		def def
+	    } if
+	    FillColor setcolor
+
+	    PieKeys exch get begin
+	      % Highlight the key Thing.
+	      -4 2 X Y Width Height insetrrect rrectpath
+	      fill
+	      TextColor setcolor
+	      X Y moveto
+	      /Thing load ShowThing
+	    end % keydict
+	  end % localdict
+	grestore
+      } {pop pop} ifelse				%
+  } def
+
+  /path { % x y w h => -
+    ovalpath
+  } def
+
+  /showat { % x y => -
+            % event => -
+    gsave
+      framebuffer setcanvas
+      dup type /eventtype eq {
+	begin XLocation YLocation end
+      } if
+      /PieValue null def
+      /Pinned? false def
+      /?validate self send
+      /unmap self send
+      0 0 /minsize self send /reshape self send
+      PieRadius sub exch PieRadius sub exch
+      /move self send
+      /activate self send
+      /totop self send
+      /map self send
+    grestore
+  } def
+
+  /MakeInterests {
+    /MakeInterests super send
+    PieButton /PieButtonHandler BuildCanvasSend
+	null /canvas self send soften eventmgrinterest
+    /MouseDragged /DragHandler BuildCanvasSend
+	null /canvas self send soften eventmgrinterest
+  } def
+
+  /PieButtonHandler { % event => -
+    PieGSave
+      dup TrackPie
+      /Action get /DownTransition eq {
+      } {
+	PieValue null eq {
+	  Pinned? {
+	    /popdown self send
+	  } {
+	    /Pinned? true def
+	  } ifelse
+	} {
+	  self 
+	  PieKeys PieValue get
+	  /Action get cvx exec
+	  /popdown self send
+	} ifelse
+      } ifelse
+    grestore
+  } def
+
+  /popdown {
+    /unmap self send
+    /Pinned? false def
+    /deactivate self send
+  } def
+
+  /DragHandler { % event => -
+    PieGSave
+      TrackPie
+    grestore
+  } def
+
+  /TrackPie { % x y => -
+	      % event => -
+    dup type /eventtype eq {
+      begin XLocation YLocation end % x y
+    } if
+    SetPieValue
+    PaintedValue PieValue ne {
+      PaintPieValue
+    } if
+  } def
+
+  /SetPieValue { % x y => -
+    /PieDistance
+      2 index cvr dup mul 2 index cvr dup mul add sqrt round cvi def
+    PieDistance 0 eq { pop pop 0 } { exch atan } ifelse
+    /PieDirection exch round cvi def
+    /PieValue
+      PieDistance NumbRadius le
+      { null }
+      { PieSliceWidth 2 div  PieInitialAngle
+	Clockwise? { add PieDirection sub } { sub PieDirection add } ifelse
+	NormalAngle
+	PieSliceWidth cvi idiv } ifelse
+    def
+  } def
+
+classend def
+
+% ========================================================================
+
+end % systemdict
+
+/menukey { % key action => keydict
+  dictbegin
+    /Action exch def
+    /Thing exch def
+  dictend
+} def
+
+/pie [
+  [
+    (bletch ) /Times-Roman findfont 12 scalefont 
+    (baz ) /Times-Roman findfont 16 scalefont 
+    (bar ) /Times-Roman findfont 20 scalefont
+    (foo ) /Times-Roman findfont 24 scalefont 
+  ]
+  {pop console (foo bar baz bletch\n) writestring console flushfile}
+  menukey
+  (One) {pop console (One!!!\n) writestring console flushfile} menukey
+  (Two) {pop console (Two!!!\n) writestring console flushfile} menukey
+  (Three) {pop console (Three!!!\n) writestring console flushfile} menukey
+  (FOUR!!!!) {pop console (FOUR!!!!\n) writestring console flushfile} menukey
+  [(FOUR!!!!) (?)] 
+  {pop console (FOUR!!!!\n) writestring console flushfile} 
+  menukey
+  /emacs {pop} menukey
+  { /paint eq {
+      gsave
+        currentpoint translate
+        1 3 15 {
+	  newpath
+          15 15 3 -1 roll 0 360 arc 
+	  closepath stroke
+	} for
+      grestore
+    } {
+      30 30
+    } ifelse
+  } {pop} menukey
+] /new ClassPieCanvas send def
+
+/can
+  framebuffer /new ClassBag send
+def
+
+pie /setmenu can send
+
+/frame
+  [can] [] framebuffer
+  /new OpenLookBaseFrame send
+def
+
+/activate frame send
+/reshapefromuser frame send
+/map frame send

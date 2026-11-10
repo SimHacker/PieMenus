@@ -1,0 +1,936 @@
+<html>
+
+  <head>
+    <title>ActiveX Pie Menu Documentation</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  </head>
+
+  <body>
+
+    <h1>
+      ActiveX
+      <a href="http://www.piemenu.com">Pie Menu</a>
+      Documentation
+    </h1>
+
+    <h4>
+      By
+      <a href="http://www.catalog.com/hopkins">Don Hopkins</a>
+      (<a href="mailto:xardox@mindspring.com">xardox@mindspring.com</a>)
+    </h4>
+
+    <hr/>
+
+<table>
+  <tr>
+    <td valign="top" width="100%">
+
+
+    <h2>
+      <a name="GettingPieMenus">Getting Pie Menus</a>
+    </h2>
+
+    <p>
+      Take a look and feel free! You can download the complete
+      source code and compiled binary &quot;piemenu.ocx&quot; control
+      for Windows, from:
+      <a href="http://www.piemenu.com/ActiveXPieMenuSource.zip">http://www.piemenu.com/ActiveXPieMenuSource.zip</a>
+    </p>
+
+    <p>
+      The
+      <a href="http://www.piemenu.com">Pie Menu Web Page</a>,
+      maintained by
+      <a href="mailto:xardox@mindspring.com">Don Hopkins</a>
+      has more information about pie menus.
+    </p>
+
+    <p>
+      The
+      <a href="PieMenuVideo.html">Pie Menu Video</a>
+      is an instructional demo of ActiveX pie menus,
+      and demos of many different pie menus developed over 12 years.
+    </p>
+
+    <h2>
+      <a name="IntegratingPieMenus">Integrating Pie Menus</a>
+    </h2>
+
+    <h3>
+      <a name="OleControlContainers">Ole Control Containers</a>
+    </h3>
+
+    <p>
+      TODO.
+    </p>
+
+    <h3>
+      <a name="ActiveXWebPages">ActiveX Web Pages</a>
+    </h3>
+
+    <p>
+      TODO.
+    </p>
+
+    <h3>
+      <a name="VisualBasic">Visual Basic</a>
+    </h3>
+
+    <p>
+      TODO.
+    </p>
+
+    <h3>
+      <a name="VisualCProjects">Visual C++ Projects</a>
+    </h3>
+
+    <p>
+      TODO.
+    </p>
+
+    <h2>
+      <a name="ConfiguringPieMenus">Configuring Pie Menus</a>
+    </h2>
+
+    <h3>
+      <a name="PropertyPages">Property Pages</a>
+    </h3>
+
+    <p>
+      TODO.
+    </p>
+
+    <h3>
+      <a name="MenuOutlines">Menu Outlines</a>
+    </h3>
+
+    <p>
+      TODO.
+    </p>
+
+    <h2>
+      <a name="ConfiguringPieMenus">Programming Pie Menus</a>
+    </h2>
+
+    <h3>
+      <a name="PieMenuProperties">Pie Menu Properties</a>
+    </h3>
+
+    <ul>
+      <li>
+	<h4>
+	  <a name="Items">
+	    string Items (get/set, default &quot;North;East;South;West&quot;)
+	  </a>
+	</h4>
+	<p>
+	  The &quot;Items&quot; property contains a string that
+	  defines the menu items.
+	  The syntax for
+	  <a href="#MenuOutlines">Menu Outlines</a>
+	  is described above.
+	  The outline format supports syntactic sugar like
+	  using &quot;;&quot; to separate lines. These are expanded
+	  when you set the &quot;Items&quot; property, so when you
+	  read it back again, the &quot;;&quot;s will have been
+	  converted to new lines and indentation. Each line is
+	  separated by a &quot;carriage return, line feed&quot;
+	  pair, and bare newlines or carriage returns are converted
+	  to cr/lf pairs.
+	</p>
+      </li>
+      <li>
+        <h4>
+	  <a name="ItemCount">
+	    long ItemCount (get)
+	  </a>
+	</h4>
+	<p>
+	  The read-only &quot;ItemCount&quot; property tells the
+	  number of items in the menu, including submenu labels and
+	  submenu items. It is the count of the number of lines in
+	  the &quot;Items&quot; property. The index argument to the
+	  &quot;Item&quot; indexed property methods should be less
+	  than this number.
+	</p>
+      </li>
+      <li>
+        <h4>
+	  <a name="Direction">
+	    long Direction (get)
+	  </a>
+	</h4>
+	<p>
+	  The read-only &quot;Direction&quot; property tells the
+	  direction from the menu center to the cursor. The
+	  direction is measured in degrees, from 0 to 359, counter
+	  clockwise from three o'clock. It updates dynamically
+	  during tracking, and retains the final cursor direction
+	  once an item is selected and the menu pops down.
+	</p>
+      </li>
+      <li>
+        <h4>
+	  <a name="Distance">
+	    long Distance (get)
+	  </a>
+	</h4>
+	<p>
+	  The read-only &quot;Distance&quot; property tells the
+	  distance from the menu center to the cursor, measured in
+	  pixels. It updates dynamically during tracking, and
+	  retains the final cursor distance once an item is
+	  selected and the menu pops down.
+	</p>
+      </li>
+      <li>
+        <h4>
+	  <a name="Index">
+	    long Index (get)
+	  </a>
+	</h4>
+	<p>
+	  The read-only &quot;Index&quot; property tells the
+	  index of the currently selected item, ranging from zero,
+	  less than &quot;ItemCount&quot;. If nothing is selected,
+	  its value is -1.
+	</p>
+      </li>
+      <li>
+        <h4>
+	  <a name="Action">
+	    string Action (get)
+	  </a>
+	</h4>
+	<p>
+	  The read-only &quot;Action&quot; property contains the
+	  action of the currently selected item, which is an
+	  arbitrary string that can be associated with each item.
+	  If an item doesn't have an associated action, the action
+	  defaults to the item label &quot;CurrentItem&quot;. Items
+	  can have actions that are different from the label, for
+	  the convenience of the menu handler, which might be more
+	  interested in a magic number or a special string id, than
+	  the human readable item label.
+	</p>
+      </li>
+      <li>
+        <h4>
+	  <a name="CurrentItem">
+	    string CurrentItem (get)
+	  </a>
+	</h4>
+	<p>
+	  The read-only &quot;CurrentItem&quot; property
+	  contains the label of the currently selected item.
+	  Usually it's better to key the menu handler off of the
+	  &quot;Action&quot;, which can be different from the
+	  label. For example, the label could be the name of a
+	  month, and the action could be the number of the month,
+	  which is easier for the handler to process.
+	</p>
+      </li>
+      <li>
+        <h4>
+	  <a name="ForeColor">
+	    color ForeColor (get/set, default black)
+	  </a>
+	</h4>
+	<p>
+	  The &quot;ForeColor&quot; property controls the
+	  foreground color of the control. This applies to the
+	  target window on the screen, not the popup pie menus.
+	</p>
+      </li>
+      <li>
+        <h4>
+	  <a name="BackColor">
+	    color BackColor (get/set, default white)
+	  </a>
+	</h4>
+	<p>
+	  The &quot;BackColor&quot; property controls the
+	  background color of the control. This applies to the
+	  target window on the screen, not the popup pie menus.
+	</p>
+      </li>
+      <li>
+        <h4>
+	  <a name="PieForegroundColor">
+	    color PieForegroundColor (get/set, default black)
+	  </a>
+	</h4>
+	<p>
+	  The &quot;PieForegroundColor&quot; property controls
+	  the foreground color of the control. This applies to the
+	  target window on the screen, not the popup pie menus.
+	</p>
+      </li>
+      <li>
+        <h4>
+	  <a name="PieBackgroundColor">
+	    color PieBackgroundColor (get/set, default green)
+	  </a>
+	</h4>
+	<p>
+	  The &quot;PieBackgroundColor&quot; property controls
+	  the background color of the control. This applies to the
+	  target window on the screen, not the popup pie menus.
+	</p>
+      </li>
+      <li>
+        <h4>
+	  <a name="LightColor">
+	    color LightColor (get/set, default light green)
+	  </a>
+	</h4>
+	<p>
+	  The &quot;LightColor&quot; property controls the light
+	  shadow color of the pie menu's beveled edges. It only
+	  applies if the &quot;Bevel&quot; property is turned on.
+	</p>
+      </li>
+      <li>
+        <h4>
+	  <a name="DarkColor">
+	    color DarkColor (get/set, default dark green)
+	  </a>
+	</h4>
+	<p>
+	  The &quot;DarkColor&quot; property controls the dark
+	  shadow color of the pop-up pie menu's beveled edges. It
+	  only applies if the &quot;Bevel&quot; property is turned
+	  on.
+	</p>
+      </li>
+      <li>
+        <h4>
+	  <a name="Font">
+	    font Font (get/set, default from system)
+	  </a>
+	</h4>
+	<p>
+	  The &quot;Font&quot; property controls the font of the
+	  pie menu labels.
+	</p>
+      </li>
+      <li>
+        <h4>
+	  <a name="TargetPicture">
+	    picture TargetPicture (get/set, default null)
+	  </a>
+	</h4>
+	<p>
+	  The &quot;TargetPicture&quot; property controls the
+	  background image of the pie menu target window, the
+	  control window that's displayed on the screen, that you
+	  can click on to pop up the pie menu. The target picture
+	  is scaled to the size of the pie menu control's window.
+	  If the TargetPicture is null, the BackColor is used
+	  instead.
+	</p>
+      </li>
+      <li>
+        <h4>
+	  <a name="BackgroundPicture">
+	    picture BackgroundPicture (get/set, default null)
+	  </a>
+	</h4>
+	<p>
+	  The &quot;BackgroundPicture&quot; propery controls the
+	  background image of the pop-up pie menus. This image is
+	  scaled to fit each popup window. If you select a
+	  ShapePicture, the background picture is scaled to the
+	  same size, so it functions as a mask. If the
+	  BackgroundPicture is null, the BackColor is used instead.
+
+	</p>
+      </li>
+      <li>
+        <h4>
+	  <a name="ShapePicture">
+	    picture ShapePicture (get/set, default null)
+	  </a>
+	</h4>
+	<p>
+	  The &quot;ShapePicture&quot; property controls the
+	  shape of the pop-up pie menus, in conjunction with the
+	  &quot;ShapeCenterX&quot;, &quot;ShapeCenterY&quot;,
+	  &quot;ShapeTransparentX&quot;, and
+	  &quot;ShapeTransparentY&quot; properties, when the
+	  &quot;ShapeWindow&quot; property is set to 6 (for
+	  &quot;Picture&quot;). These properties control the origin
+	  and transparent color of the shape. The menu is centered
+	  on the position given by &quot;ShapeCenterX&quot; and
+	  &quot;ShapeCenterY&quot;, and the shape of the window is
+	  defined by the transparent pixel color in ShapePicture at
+	  &quot;ShapeTransparentX&quot; and
+	  &quot;ShapeTransparentY&quot;.
+	</p>
+      </li>
+      <li>
+        <h4>
+	  <a name="ShapeWindow">
+	    long ShapeWindow (get/set, default 2)
+	  </a>
+	</h4>
+	<p>
+	  The &quot;ShapeWindow&quot; property controls the
+	  shape of the popup pie menu windows. It can take on
+	  several values, including:
+	</p>
+	<ul>
+	  <li>
+	    <b>0: Rectangular</b>
+	    <br>
+	    Boring rectangular popup menu windows. No dynamic
+	    shaping.
+	  </li>
+	  <li>
+	    <b>1: Minimal</b>
+	    <br>
+	    Minimal area windows, just the menu center and
+	    labels. Dynamic shaping shows menu center and
+	    selected label.
+	  </li>
+	  <li>
+	    <b>2: Round</b>
+	    <br>
+	    Big round window that encompass all the labels.
+	    Dynamic shaping shows selected pie slice and
+	    label.
+	  </li>
+	  <li>
+	    <b>3: Thought</b>
+	    <br>
+	    Thought balloons, with bubbles leading to labels.
+	    Dynamic shaping shows bubbles leading from menu
+	    center to selected label.
+	  </li>
+	  <li>
+	    <b>4: Speech</b>
+	    <br>
+	    Speech balloons, with pointers leading to labels.
+	    Dynamic shaping shows pointer leading from menu
+	    center to selected label.
+	  </li>
+	  <li>
+	    <b>5: Spokes</b>
+	    <br>
+	    Spokes radiating out from the menu center to the
+	    labels. Dynamic shaping shows spoke leading from
+	    menu center to selected label.
+	  </li>
+	  <li>
+	    <b>6: Picture</b>
+	    <br>
+	    Shape defined by a picture mask. You must also
+	    define the &quot;ShapePicture&quot;,
+	    &quot;ShapeCenterX&quot;,
+	    &quot;ShapeCenterY&quot;,
+	    &quot;ShapeTransparentX&quot;, and
+	    &quot;ShapeTransparentY&quot; properties. Dynamic
+	    shaping shows masked shape and selected label.
+	  </li>
+	  <li>
+	    <b>7: Punched</b>
+	    <br>
+	    Rectangular window with a round hole punched out
+	    of the middle of it.
+	  </li>
+	</ul>
+      </li>
+	<li>
+	  <h4>
+	    <a name="MaxSlices">
+	      long MaxSlices (get/set, default 8)
+	    </a>
+	  </h4>
+	  <p>
+	    This property can take on the values 0, 1, 2, 4, and
+	    8, defaulting to 8. If it's 0, the number of slices is
+	    not limited or increased. If it's non-zero, the number of
+	    slices is limited to that number or fewer. Then extra
+	    inactive slices may be added to round up the number of
+	    items. If there are 3 items, an extra is added to make 4
+	    slices, and if there are 5, 6, or 7 items, extras are
+	    added to make 8 slices. Items are re-arranged so that
+	    they are added in left to right, top to bottom reading
+	    order.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="InactiveRadius">
+	      long InactiveRadius (get/set, default 8)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;InactiveRadius&quot; property controls the
+	    size of the hole in the center of the pie menu, which
+	    doesn't select any items.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="MinRadius">
+	      long MinRadius (get/set, default 24)</a>
+	  </h4>
+	  <p>
+	    The &quot;MinRadius&quot; property control the minimum
+	    radius around which the labels are layed out.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="Clockwise">
+	      long Clockwise (get/set, default 1)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;Clockwise&quot; property controls the
+	    rotational direction in which the labels are layed out.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="InitialAngle">
+	      long InitialAngle (get/set, default 90)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;InitialAngle&quot; property controls the
+	    layout angle of the first menu item. The first slice of
+	    the menu is centered on that direction, and the others
+	    are evenly spaced around the circle in the direction
+	    controlled by the &quot;Clockwise&quot; property. The
+	    initial angle is measured in degrees, counter clockwise
+	    from three o'clock.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="BorderWidth">
+	      long BorderWidth (get/set, default 8)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;BorderWidth&quot; property control the extra
+	    border around the edge of the popup menu window. Its
+	    effect is most obvious with rectangular popup windows,
+	    since the other window shapes are clipped around the
+	    labels.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="ItemBorderWidth">
+	      long ItemBorderWidth (get/set, default 1)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;ItemBorderWidth&quot; property controls the
+	    extra border around the edge of each item label.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="ItemGap">
+	      long ItemGap (get/set, default 1)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;ItemGap&quot; property controls the size of
+	    the gap around each item that keeps them from
+	    overlapping.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="ExtraRadius">
+	      long ExtraRadius (get/set, default 0)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;ExtraRadius&quot; property controls the
+	    extra radius that is added in after the menu is layed out
+	    so no items overlap.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="FixedRadius">
+	      long FixedRadius (get/set, default 0)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;FixedRadius&quot; property controls the
+	    radius of the menu directly by overriding the layout
+	    routine, if it's non-zero.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="ShrinkWrap">
+	      long ShrinkWrap (get/set, default 0)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;ShrinkWrap&quot; property effects the layout
+	    behavior when non-zero, by moving the menu items in
+	    tighter towards the menu center when possible. It may
+	    result in smaller but less symetrical layouts.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="SliceInset">
+	      long SliceInset (get/set, default 4)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;SliceInset&quot; property controls the
+	    radius by which the slice lines are inset.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="Bevel">
+	      long Bevel (get/set, default 1)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;Bevel&quot; property controls whether the
+	    edges of the popup pie menu windows are beveled. If it's
+	    non-zero, then the edges are beveled with the
+	    &quot;LightColor&quot; and the &quot;DarkColor&quot;.
+	    Bevels can be applied to any shape of window, even
+	    arbitrary shapes defined by the &quot;ShapePicture&quot;.
+	    If it's zero, then the edges are stroked with the
+	    &quot;ForeColor&quot;.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="DoubleBuffer">
+	      long DoubleBuffer (get/set, default 1)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;DoubleBuffer&quot; property control the
+	    painting behavior of the pop-up pie menus. If it's
+	    non-zero, the painting is double buffered, so it doesn't
+	    flicker. This makes the dynamic window reshaping during
+	    tracking look much nicer.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="PopupDelay">
+	      long PopupDelay (get/set, default 250)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;PopupDelay&quot; property controls how long
+	    the cursor has to be still before a menu pops up on the
+	    screen. This allows you to smoothly &quot;mouse
+	    ahead&quot; through pie menus, to invisibly select items
+	    without disrupting the screen. The delay is measured in
+	    microseconds (1/1000 of a second).
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="ScrollingMovesCursor">
+	      long ScrollingMovesCursor (get/set, default 0)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;ScrollingMovesCursor&quot; property controls
+	    whether or not the cursor is moved back to the original
+	    menu center, when you scroll between item groups.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="DynamicShaping">
+	      long DynamicShaping (get/set, default 1)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;DynamicShaping&quot; property controls the
+	    shape of the window during tracking, when an item is
+	    selected. If it's non-zero, and the
+	    &quot;ShapeWindow&quot; property is not 0
+	    (&quot;Rectangular&quot;), then the pie menu popup window
+	    is dynamically reshaped whenever an item is selected and
+	    the button is down, to show just that item. When no items
+	    are selected or the button is not down, the window shape
+	    encompasses all of the items.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="ShapeCenterX">
+	      long ShapeCenterX (get/set, default -1)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;ShapeCenterX&quot; property defines the
+	    horizontal center of the menu shape, when the
+	    &quot;ShapePicture&quot; property in non-null and the
+	    &quot;ShapeWindow&quot; property is 6 (for
+	    &quot;Picture&quot;). If it's -1 (the default), the
+	    horizontal center of the ShapePicture is used.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="ShapeCenterY">
+	      long ShapeCenterY (get/set, default -1)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;ShapeCenterY&quot; property defines the
+	    vertical center of the menu shape, when the
+	    &quot;ShapePicture&quot; property in non-null and the
+	    &quot;ShapeWindow&quot; property is 6 (for
+	    &quot;Picture&quot;). If it's -1 (the default), the
+	    vertical center of the ShapePicture is used.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="ShapeTransparentX">
+	      long ShapeTransparentX (get/set, default 0)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;ShapeTransparentX&quot; property helps
+	    define the shape of the popup pie menu window, when the
+	    &quot;ShapePicture&quot; property in non-null and the
+	    &quot;ShapeWindow&quot; property is 6 (for
+	    &quot;Picture&quot;). Together with
+	    &quot;ShapeTransparentY&quot;, it specifies the location
+	    of a transparent pixel in the &quot;ShapePicture&quot;
+	    image, so it can be used as a mask.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="ShapeTransparentY">
+	      long ShapeTransparentY (get/set, default 0)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;ShapeTransparentY&quot; property helps
+	    define the shape of the popup pie menu window, when the
+	    &quot;ShapePicture&quot; property in non-null and the
+	    &quot;ShapeWindow&quot; property is 6 (for
+	    &quot;Picture&quot;). Together with
+	    &quot;ShapeTransparentX&quot;, it specifies the location
+	    of a transparent pixel in the &quot;ShapePicture&quot;
+	    image, so it can be used as a mask.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="UserData">
+	      IDispatch* UserData (get/set, default null)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;UserData&quot; property is a place for
+	    programmers to stash an IDispatch pointer, for their own
+	    purposes. It's just a runtime pointer, not saved with the
+	    menu.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="CPieMenuCtrl">
+	      long CPieMenuCtrl (get)
+	    </a>
+	  </h4>
+	  <p>
+	    The read-only &quot;CPieMenuCtrl&quot; property
+	    returns a raw pointer to the CPieMenuCtrl object, as a
+	    long integer. This is so the property pages can get
+	    intimate with the pie menus to provide advanced editing
+	    features. It's <b>not</b> for casual use, and shouldn't
+	    be used by code outside of the piemenu.ocx library.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="Revision">
+	      long Revision (get)
+	    </a>
+	  </h4>
+	  <p>
+	    The read-only &quot;Revision&quot; property increments
+	    each time the pie menu changes, so the property pages
+	    viewing the pie menu can know when to update their
+	    representations. It's not for casual use.
+	  </p>
+	</li>
+    </ul>
+
+    <h3>
+      <a name="PieMenuMethods">Pie Menu Methods</a>
+    </h3>
+
+    <ul>
+	<li>
+	  <h4>
+	    <a name="PopUp">
+	      void PopUp(long x, long y)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;PopUp&quot; method pops the menu up
+	    underneath the cursor, ignoring the x and y arguments.
+	    Pie menus should always pop up underneath the cursor, so
+	    the x and y parameters do not matter, but they're
+	    included for compatibility with other popup menu
+	    components. It also works around problems where the
+	    coordinate system origin is ambiguous.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="Clear">
+	      void Clear()
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;Clear&quot; method deletes all the items in
+	    the menu, and is the same as setting the
+	    &quot;Items&quot; property to the null string.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="GetItem">
+	      string Item(long index)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;Item&quot; method retrieves the string of an
+	    indexed item. The items are numbered from zero, and
+	    include the submenu labels and indented submenus in depth
+	    first order, which is just the order of the lines in the
+	    &quot;Items&quot; outline.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="SetItem">
+	      void Item(long index, string newValue)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;Item&quot; method sets the string of an
+	    indexed item. In the case of indented submenu items, you
+	    must provide the appropriate indentation, since the given
+	    line of the &quot;Items&quot; outline is literally
+	    replaced and the outline is re-interpreted. If you want
+	    to change more than one item, it is more efficient to
+	    recreate the entire menu string and set the
+	    &quot;Items&quot; property all at once.
+	  </p>
+	  <p>
+	    These two &quot;Item&quot; methods implement the
+	    indexed &quot;Item&quot; property, so you can get and set
+	    &quot;PieMenu.Item(0)&quot; as if it were an indexed
+	    string array property.
+	  </p>
+	</li>
+    </ul>
+
+    <h3>
+      <a name="PieMenuEvents">Pie Menu Events</a>
+    </h3>
+
+    <ul>
+	<li>
+	  <h4>
+	    <a name="PreviewEvent">
+	      void Preview(string item, string action, long direction, long distance)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;Preview&quot; event is fired whenever the
+	    mouse moves, while the pie menu is popped up. It can be
+	    used to dynamically track the direction and distance of
+	    motion, as well as the selected item.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="ChangeEvent">
+	      void Change(string item, string action, long direction, long distance)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;Change&quot; event is fired whenever the
+	    selected item changes. It can be used to dynamically
+	    track the selected item before the final selection has
+	    been made.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="ActionEvent">
+	      void Action(string item, string action, long direction, long distance)
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;Action&quot; event is fired when the final
+	    selection is made. It can be used to perform the effects
+	    of the menu selection. The &quot;item&quot; argument is
+	    the label of the selected item. The &quot;action&quot;
+	    argument is the action associated with the item, which
+	    defaults to the item label. The &quot;direction&quot;
+	    argument is measured in degrees, counter clockwise from
+	    three o'clock. The &quot;distance&quot; argument is
+	    measured in pixels from the menu center. They can be used
+	    as arguments to the menu selection.
+	  </p>
+	</li>
+	<li>
+	  <h4>
+	    <a name="CancelEvent">
+	      void Cancel()
+	    </a>
+	  </h4>
+	  <p>
+	    The &quot;Cancel&quot; event is fired when a popped up
+	    menu is canceled without making a selection. It can be
+	    used to tell when the menu is no longer popped up, in
+	    cases when no selection was performed.
+	  </p>
+	</li>
+    </ul>
+
+    </td>
+    <td valign="top">
+
+<script type="text/javascript">
+<!--
+google_ad_client = 'pub-1513008428311836';
+google_ad_width = 120;
+google_ad_height = 600;
+google_ad_format = '120x600_as';
+// -->
+</script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+    </td>
+  </tr>
+</table>
+
+  </body>
+</html>

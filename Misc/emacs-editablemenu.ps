@@ -1,0 +1,27 @@
+EmacsDict begin
+
+/MenuEditing? true def
+
+/EditablePieMenu PieMenu []
+classbegin
+  /PaintMenuValue {
+    /PaintMenuValue super send
+    MenuEditing?  MenuValue null ne  and {
+	currentkey type /stringtype eq {
+            [ 27 ([mk) currentkey 10 ] menustring
+	} if
+    } if
+  } def
+
+  /showat {
+    /showat super send
+    MenuEditing? {
+       [ 27 ([ms) ID 100 string cvs 10 ] menustring
+    } if
+  } def
+classend def
+
+/EmacsDefaultPopupMenu EditablePieMenu def
+
+end % EmacsDict 
+

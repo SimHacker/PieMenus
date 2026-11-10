@@ -1,0 +1,99 @@
+* Credits
+** Browse a set of people pie menus:
+  Don Hopkins
+  Jack Callahan
+  Mark Weiser
+  Mike Gallaher
+  Mitch Bradley
+  Ben Shneiderman
+  Rick Furuta
+* Introduction
+  Hi, I'm Don Hopkins, and I'm going to show you the results of some
+  work we've doing here at the University of Maryland.
+* Implementations to show:
+** NeWS PostScript implementation
+  Have a window that has nested walking menu, both NeWS and SunView
+  style. Use flags demo. Possibly the latest mac.ps. Ask Owen. Have
+  same window with Pie menus. Show how they are parallel. Show linear
+  with lots of vertical space, and the same linear with only a little
+  vertical space.  Show the difference in ease of use. Show equivalent
+  pie menus.  Discuss real estate usage. Show pie menus and linear
+  menus with just a few, several, many, very many, etc...  
+
+*** Show self editing pie menu. Adjust menu size, hole size, label style, etc.
+  This is a self editing meaningless icon pie menu.
+  By choosing the eyes, you can make it turn around.
+  When you make a choice, the distance you are from the menu center
+  can be used as an argument.
+  Choosing dragon changes the menu radius. 
+  The handcuffs change the size of the hole. 
+  The mushroom cloud changes the dilapidation.
+
+  Show menu buttons. Demonstrate the choose filter. Show nested 8-item
+  submenus. File name globbing.
+** SunView SDI implementation
+  Show SDI running under SunView, with pull-down menu icons as cities,
+  right before they're all about to be nuked. In the background is a 
+  shell window with an ftp session going to mimsy: 
+  grep mimsy /etc/hosts, ftp mimsy.umd.edu, anonymous, foo, binary, hash, 
+  get sdi.shar.Z
+  While the nukes are closing in, describe the SunView implementation,
+  done by Mark Weiser. (Time so "Game Over" animation coincides with
+  his name.) Pop up menu, point out how the cursor points in the
+  direction if the selected slice.
+** X-Windows uwm implementation
+  Show nested hosts menus, popping up programs on different machines.
+  Show window managment menus, such as move, iconify, top, bottom,
+  pushing left right up and down, resize. Show nested fastboot "Are
+  you sure" menus.  
+  Show mouse ahead display interruption, and mouse warping near screen edge.
+** Pie Menu -vs- Linear Menu experiment
+  While showing a test in progress, briefly describe the structure of
+  the experiment, and mention test results. 15% faster, xx% fewer
+  errors, up and down fastest directions. Mention Fitt's law. 
+  Close up of Xerox screen showing Target location (x) vs. seektime
+  (y) in seconds, and Number of menus seen (x) vs. item seek time (y)
+  in seconds. 
+* Things to mention
+** Fitt's Law
+* Interaction techniques to demonstrate:
+** Pull down pie menu?
+** Inactive region in middle
+** Same distances to pie menus choices
+** Different distances to linear menu choices
+** Accuracy increasing with distance
+** Mouse warping near edge of screen
+** Mouse-ahead display interruption
+** dmu, dumdu, and dudu
+** Menu browsing with the "oops" button
+*** Moving back to the middle
+*** Going back to the middle of the previous menu
+** Moving quickly through nested menus * KEY POINT *
+*** Browse through a path once, then repeat it again, faster and faster
+*** Use muscle memory
+*** Do it without looking
+*** Do it fast, demonstrating display interruption
+** Using distance
+*** Distance as an argument to the selection
+*** Distance used for "pull-out" sub-menus
+  font/size
+** Mouse acceleration hampering linear menus and helping pie menus
+** Label layout
+* Example menus to show:
+** different sizes
+*** 2-item
+  on/off
+*** 4-item
+*** 8-item
+*** 25-item
+** Clock
+** Angles
+** Weekdays
+** Opposites
+** Screen real estate usage of linear -vs- pie
+*** Few items
+*** Many items
+
+* Music
+** Zoolik
+*** I Am a Robot 3:45

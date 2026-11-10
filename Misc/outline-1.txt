@@ -1,0 +1,263 @@
+* introduction
+
+** definition
+
+Pies are circular menus, 
+the selection from which is based on the direction between two points,
+indicated by 
+mouse clicking, 
+pen marking, 
+screen touching, 
+hand waving,
+or whatever. 
+
+A pie menu is centered on the first point, 
+at the location of the cursor when the mouse button pressed down, 
+the beginning of the pen stroke, 
+or whatever location is appropriate for the input device. 
+In the center of the pie, where the cursor starts out, 
+is an inactive region that selects nothing. 
+The wedge shaped slices of the pie, 
+adjacent to the cursor but in different directions,
+correspond to the menu selections.
+
+The selection is based on the direction 
+from the menu center to the second click, 
+not the path of the cursor between clicks. 
+So you can move around and click in any slice to select it, 
+or click in the center to cancel.
+
+Pies are fast, 
+because pointing in the direction of a slice 
+requires very little cursor motion, 
+and can be done without even looking. 
+
+They're reliable,
+because of the large area and triangular shape of the slices,
+whose active area extends to the edge of the screen.
+
+** learning pie menus
+
+For the novice, pie menus are easy 
+because they're self revealing,  
+popping up a window displaying the available selections 
+and their associated directions. 
+
+For the expert, they're efficient
+because they're gestural,
+utilizing muscle memory,
+allowing you to "click ahead" and
+selecting from a menu without looking.
+
+To select from a pie menu,
+you click to pop it up, 
+look at the labels, 
+move in the desired direction, 
+then click to select.
+
+They are very efficient, 
+because you soon learn to make selections 
+without waiting for the menu to display, by "clicking ahead".
+
+By clicking ahead, you can select without looking at the menu.
+When you click ahead in a smooth motion, 
+using the same physical gesture as normal menu selection,
+the menu does not display on the screen,
+and you can select from familiar menus very swiftly. 
+
+* explain why they are so defined
+
+Pie menus may be implemented in many ways, 
+but one essential design goal is
+to facilitate smooth reliable gestural interaction.
+In particular, this describes pie menus for the mouse.
+Pie menus can be made to work with other input devices,
+like pens and touch screens,
+by adapting their display and tracking behavior 
+to the constraints and features of the particular input device. 
+
+When a mouse based pie menu pops up, it is ideally centered at the
+location of the click that invoked it: where the mouse button was
+pressed, the screen was touched, or whatever. The cursor might have
+moved in the time it took to respond to the click, so simply centering
+the menu on the current cursor position would interfere with click
+ahead.  The center of the pie is inactive, and clicking again in the
+center dismisses the menu without making a selection.
+
+The slices of the pie are all adjacent to the cursor, each in a
+different direction. This arrangement minimizes the motion required to
+make a selection. As you move the cursor further into the wider area of
+a slice, your directional control becomes more precise.  So the active
+areas of the slices extend out to the edges of the screen, and you can
+move the cursor as far as you want in any direction to select a slice.
+The ability to increase the angular accuracy by moving the cursor as far
+as you need is another property of pie menus that makes reliable click
+ahead possible.
+
+* disadvantages and solutions
+
+One disadvantage of pie menus is that when they pop up, they take a
+lot of screen space due to the circular layout.  Pie menus with long
+labels can be very large, while those with short labels or small icons
+tend to be more compact and take up less screen space.
+
+The layout algorithm should minimize the menu size, prevent the labels
+from overlapping, and clearly associate each label with its respective
+direction. It is not necessary to confine each label to the interior of
+its slice -- that could result in enormous menus. Rotated text is also
+undesirable, since it's jagged, hard to read, and still results in
+large menus. I have implemented a successful layout policy that
+justifies the label edges against the center of the slice, at an inner
+radius big enough that no two adjacent labels overlap. To delimit the
+active areas of the menu, short lines are drawn between the slices,
+like cuts in the crust, inside the circle of labels.
+
+Dynamically changing pie menus don't work well with click ahead,
+because the items keep moving around.  Pie menus are better for
+selecting from a set of items that does not change, and best when the
+items can be arranged to exploit the circular layout.
+
+Pie menus with an odd number of items are
+less symetric and harder to use. 
+The fewer and evener the number of items in a pie menu, 
+the easier it is to use.  
+Certain numbers of items are well suited to various metaphors.  
+(table xxx)
+
+One solution to the problem of pie menus with too many items is to
+dissolve large menus into smaller logically related submenus. Nested
+pies work quite well as a gestural interface, because it's possible to
+click ahead through them without visual feedback. If you think of it as
+navagating through rooms in a building or city streets, you just
+remember the directions, and chunk out the selection gestures one after
+the other.
+
+Another way around the problem is the scrolling spiral pie menu, that
+encompasses many items, but only displays a fixed number of them at
+once. By winding the cursor around the menu center, you can scroll
+through all the items, like walking up or down a spiral staircase or
+parking garage. 
+
+When you pop up a pie menu near the edge of the screen, the menu
+window may have to be moved by a certain offset in order to fit
+completely on the screen, otherwise you couldn't select all the items.
+But it would be quite unexpected were the menu to slip out from under
+the click, leaving the cursor pointing at the wrong slice. So whenever
+the menu is displayed on the screen, and it must be moved in order to
+fit, it is important to "warp" the cursor by the same offset, relative
+to its position at the time the menu is displayed. If a selection is
+made, but the menu is not popped up on the screen due to click ahead
+display premption, the cursor should not be warped.  Pen and touch
+screen based pie menus can't warp your pen or finger, so pie menus
+along the screen edge could pop up as semicircular fans.
+
+While the menu display is prempted due to cursor motion, 
+it's helpful to give some feedback, 
+such as displaying the selected label near the cursor, 
+or previewing the effect of the selection.
+
+* explain their speed and accuracy
+
+Pie menus are faster and have a lower error rate than linear "pull down"
+menu.  According to Fitt's law, the "seek time" required to point the
+cursor at a target depends on the distance to the target and the target
+area.  Since the wedge shaped slices of a pie menu are all quite large
+and very close to the cursor (their active area extends to the edge of
+the screen), Fitt's law predicts good times for pie menus.  But the
+rectangular target areas of a linear menu are very small in comparison,
+and they're each a different distance (but the same direction) from the
+cursor.
+
+The results of Jack Callahan's controlled experiment, comparing the
+seek time and error rates of eight-item pie and linear menus, supports
+Fitt's law. Three types of eight-item menu task groupings were used:
+Pie tasks (North, NE, East, etc...), linear tasks (First, Second,
+Third, etc...), and unclassified tasks (Center, Bold, Italic, etc...).
+Subjects with little or no mouse experience were presented menus in
+both linear and pie formats, and told to make a certain selection from
+each. They were able to make selections significantly faster, with
+fewer errors, for all three task groupings, using pie menus.
+
+[figures, discussion]
+
+Buxton's experiment comparing different sized pie menus and input devices
+  8 and 12 very good. rehersal. trackball bad. mouse good. pen great.
+
+* two dimensions: direction and distance
+
+Pies provide two dimensions of input:
+direction and distance. 
+The direction may dial around continuous range like a knob,
+or select between slices of a pie like a menu;
+the distance may pull out through a continuous range like a slider, 
+or select between rings or bites of a slice like a secondary menu. 
+
+  continuous or discrete
+  two dimensional examples: font style/size, color hue/saturation
+
+* metaphor, kinesthetics, and gesture
+
+Idealy, pie menu designers should arrange the labels and submenus in
+directions that reflect spatial associations and relationships between
+them, making it easy to remember which direction does what.  Opposite
+or complementary items can be places 180 degrees apart, and orthogonal
+pairs 90 degrees apart. ...
+
+A natural pie menu metaphor is geographical navagation:
+driving around the intersections and streets of a city,
+walking around the halls and rooms of a building, 
+or climbing around the branches and leaves of a tree. 
+
+Linear menus are like parallel parking and ladder climbing.
+
+  designing kinesthetically pleasing pie menus
+  example: window manager
+
+* implementations and availability
+  in X10 for the uwm window manager
+  in SunView for the SDI game
+  in NeWS for the Lite Toolkit
+  in OpenWindows for The NeWS Toolkit
+  safer than linear menus, probably not patented
+  league for programming freedom
+  take a look and feel free
+
+My first attempt at implementing pie menus was on a Sun 3/160 running
+the X10 window system, adding them to the "uwm" window manager (June
+86), since there was no standard menu package at the time.  The user
+could define nested menus in a ".uwmrc" file, and bind them to mouse
+buttons (possibly modified by shift keys).  The default menu layout
+was specified by an initial angle and a radius, which you could
+override in any menu whose labels overlapped.  The popup window was
+shaped as a rectangle large enough the encompass all the labels, with
+a title at the top.
+
+Then I linked this piemenuified window manager code into Mitch
+Bradley's Sun Forth System, to make a Forth extensible window manager.
+I used this interactivly programmable system to experiment with pie
+menu tracking and window management techniques, and to administer and
+collect data for Jack Callahan's experiment comparing pie menus with
+linear menus.
+
+While snowed in at home, Mark Weiser implemented Pie Menus for the
+SunView window system (January 87), and they are featured in his "SDI"
+game, the source code to which is available for free.
+
+NeWS Lite Toolkit (May 87)
+
+The NeWS Toolkit
+
+Not only are pie menus quicker and easier than linear pull down menu,
+they are probably even safer to use, because pull down menus are
+patented by Apple Computer.
+
+Earlier implementations of pull down menus at Xerox PARC did not
+prevent Apple from patenting them, but Apple's patent and legal
+department don't seem to prevent other people from using the idea,
+either.
+
+It's possible (though not very likely) that the abstract pie menu
+concept was patented before 1969 (the earliest reference I could find
+to it), and I could be in deep trouble for giving away my own code,
+because of some obscure directional pastery vending machine control
+patent.

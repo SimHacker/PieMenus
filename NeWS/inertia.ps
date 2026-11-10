@@ -1,0 +1,150 @@
+/Inertia Object
+dictbegin
+  /X 0 def
+  /Y 0 def
+  /LastX 0 def
+  /LastY 0 def
+  /XV 0 def
+  /YV 0 def
+  /XMin 0 def
+  /YMin 0 def
+  /XMax 0 def
+  /YMax 0 def
+  /Friction .9 def
+  /Damper .5 def
+  /InertiaEvent null def
+  /InertiaProcess null def
+  /LastTime null def
+  /ThisTime null def
+  /TimeInterval null def
+  /InertiaTime .5 60 div def
+dictend
+classbegin
+
+  /new { % - => obj
+    /new super send begin
+      gsave 
+        framebuffer setcanvas
+        currentcursorlocation /Y exch def /X exch def
+        /LastX X def  /LastY Y def
+	clippath pathbbox
+	/YMax exch def /XMax exch def /YMin exch def /XMin exch def
+      grestore
+      currentdict
+    end
+  } def
+
+  /update-location {
+      /XLocation
+        XLocation XV add
+        dup XMin lt {
+	  XMin sub neg XMin add
+	  /XV XV neg store
+        } {
+          dup XMax ge {
+	    XMax sub neg XMax add
+	    /XV XV neg store
+          } if
+        } ifelse  
+      def
+
+      /YLocation
+        YLocation YV add
+        dup YMin lt {
+	  YMin sub neg YMin add
+	  /YV YV neg store
+        } {
+          dup YMax ge {
+	    YMax sub neg YMax add
+	    /YV YV neg store
+          } if
+        } ifelse  
+      def
+  } def
+
+
+  /do-drag { % event => -
+    dup begin
+      /XV XV friction mul XLocation LastX sub Damper mul add store
+      /YV YV friction mul YLocation LastY sub Damper mul add store
+      update-location
+    end
+    redistributeevent
+  } def
+
+  /do-inertia { % event => -
+    dup createevent copy /InertiaEvent exch def
+    InertiaEvent /TimeStamp currenttime InertiaTime add put
+    InertiaEvent sendevent
+    dup begin
+      /Name /MouseDragged def
+      /XLocation LastX def
+      /YLocation LastY def
+    end
+    do-drag
+  } def
+
+  /do-enable {
+    /Action get /DownTransition eq {
+      start-inertia
+    } {
+      stop-inertia
+    } ifelse
+  } def
+
+  /start-inertia {
+    (Start inertia\n) [] dbgprintf
+    InertiaEvent null ne {
+      InertiaEvent recallevent
+    } if
+    /InertiaEvent createevent def
+    InertiaEvent begin
+      /Name /Inertia def
+      /TimeStamp currenttime InertiaTime add def
+      currentdict sendevent
+    end
+  } def
+
+  /stop-inertia {
+    (Stop inertia\n) [] dbgprintf
+    InertiaEvent recallevent
+    /InertiaEvent null def
+  } def
+
+  /do-zap {
+    (Yow!\n) [] dbgprintf
+    currentprocess killprocessgroup
+  } def
+
+  /tracker {
+      createevent dup begin
+        /Name /MouseDragged def
+	/Priority 20 def
+	/Exclusivity true def
+      end expressinterest
+      createevent dup begin
+        /Name /Zap def
+      end dup expressinterest
+      null addkbdinterests {expressinterest} forall
+      framebuffer addfunctionnamesinterest expressinterest
+      createevent dup begin
+        /Name /Inertia def
+      end expressinterest
+      framebuffer setcanvas
+      { clear awaitevent
+        dup /Name get {
+%	  /MouseDragged { do-drag }
+	  /Zap { do-zap }
+	  /Inertia { do-inertia }
+	  /FunctionF3 { do-enable }
+	} case
+      } loop
+  } def
+
+  /track {
+    /TrackProcess {tracker} fork def
+  } def
+classend def
+
+/it /new Inertia send def
+/track it send

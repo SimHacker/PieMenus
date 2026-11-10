@@ -1,0 +1,200 @@
+/k-d-tree [null "Root of K-D tree"] def
+
+/k-d-key { % tree => key
+  tree 0 get
+} def
+
+/k-d-item { % key level => item
+  dimension mod get
+} def
+
+/k-d-data { % tree => data
+  tree 1 get
+} def
+
+/k-d-left { % tree => left
+  tree 2 get
+} def
+
+/k-d-right { % tree => right
+  tree 3 get
+} def
+
+/item-lessp { % item1 item2 => bool
+  1 index /-infinity eq {
+    exch pop /-infinity eq not
+  } {
+    1 index /infinity eq {
+      exch pop /infinity eq not
+    } {
+      lt
+    } ifelse
+  } ifelse
+} def
+
+/Store { % tree key data => -
+  10 dict begin
+    /data exch def  /key exch def 
+    /treec exch def /treei 0 def
+    /dimension key length def
+
+    0 k-d-store
+  end
+} def
+
+/k-d-store { % level
+  treec treei get dup null eq { % level tree
+    pop [key data null null] put
+    pop
+  } { % level tree
+    /treec exch def
+    key 1 index k-d-item % level key-item
+    treec k-d-key 1 index k-d-item % level tree-item tree-item
+    item-lessp { % 
+      /treei 2 def % left
+      1 add k-d-store
+    } {
+      /treei 3 def % right
+      1 add k-d-store
+    } ifelse
+  } ifelse
+} def
+
+/key-equal? { % pattern => bool
+  0 1 key length 1 sub { /i exch def
+    key i get dup '* eq { % pattern null
+      pop pop true exit
+    } { % pattern x
+      1 index i get eq { % pattern
+	pop true exit
+      } if
+    } ifelse
+  } for
+} def
+
+/p-m-search { % tree key => container index
+  0 p-m-search-1
+} def
+
+
+/p-m-search-1 { % level treec treei
+  2 copy get 
+    ((null tree)
+      null)
+    ((eq (k-d-item key level dimension) '*)
+      (append
+        (p-m-search-1 (k-d-left tree) key (add1 level) dimension)
+	(cond
+	  ((key-equal (k-d-key tree) key)
+	    (list (list (k-d-key tree) (k-d-data tree))))
+	  (t
+	    null))
+	(p-m-search-1 (k-d-right tree) key (add1 level) dimension)))
+    (t
+      (cond
+	((item-lessp
+	   (k-d-item key level dimension)
+	   (k-d-item (k-d-key tree) level dimension))
+	  (p-m-search-1 (k-d-left tree) key (add1 level) dimension))
+	(t
+	  (append
+	    (cond
+	      ((key-equal (k-d-key tree) key)
+		(list (list (k-d-key tree) (k-d-data tree))))
+	      (t
+		null))
+	    (p-m-search-1 (k-d-right tree) key (add1 level) dimension)))))))
+
+(defun k-d-region-search (tree min max)
+  (cond
+    ((not (and
+	    (dimensions-match tree min)
+	    (dimensions-match tree max)))
+      (error "Key and K-D tree different dimensions.")
+      null)
+    (t
+      (catch 'k-d-region-search
+	(let ((dimension (length min)))
+	  (k-d-region-search-1 tree 0
+	    (make-list dimension '-infinity)
+	    (make-list dimension 'infinity)))))))
+
+(defun split-region (key limit)
+  (split-region-1 key limit (mod level dimension)))
+
+(defun split-region-1 (key point item)
+  (cond
+    ((zerop item)
+      (cons
+	(car key)
+	(cdr point)))
+    (t
+      (cons
+	(car point)
+	(split-region-1 (cdr key) (cdr point) (sub1 item))))))
+
+(defun part-of-region (region-min region-max min max)
+  (cond
+    ((null region-min)
+      t)
+    (t 
+      (and
+	(item-lessp (car min) (car region-max))
+	(item-lessp (car region-min) (car max))
+	(part-of-region
+	  (cdr region-min) (cdr region-max) (cdr min) (cdr max))))))
+
+(defun in-region (key min max)
+  (part-of-region key key min max))
+
+(defun all-of-region (region-min region-max min max)
+  (cond
+    ((null region-min)
+      t)
+    (t
+      (and
+	(not (item-lessp (car region-min) (car min)))
+	(not (item-lessp (car max) (car region-max)))
+	(all-of-region
+	  (cdr region-min) (cdr region-max) (cdr min) (cdr max))))))
+
+(defun k-d-region-search-1 (tree level box-min box-max)
+  (cond
+    ((null tree)
+      null)
+    (t
+      (let*
+	(
+	  (left-max (split-region (k-d-key tree) box-max))
+	  (right-min (split-region (k-d-key tree) box-min))
+	  (matches
+	    (append
+	      (cond
+		((part-of-region box-min left-max min max)
+		  (k-d-region-search-1
+		    (k-d-left tree) (add1 level) box-min left-max))
+		(t
+		  null))
+	      (cond
+		((in-region (k-d-key tree) min max)
+		  (list (list (k-d-key tree) (k-d-data tree))))
+		(t
+		  null))
+	      (cond
+		((part-of-region right-min box-max min max)
+		  (k-d-region-search-1
+		    (k-d-right tree) (add1 level) right-min box-max))
+		(t
+		  null)))))
+	(cond
+;	  ((all-of-region box-min box-max min max)
+;	    (throw 'k-d-region-search matches))
+	  (t
+	    matches))))))
+
+(load "kd-data")
+
+(defun make-tree ()
+  (setq k-d-tree null)
+  (mapcar '(lambda (x) (Store (car x) (car (cdr x)))) k-d-data)
+  t)

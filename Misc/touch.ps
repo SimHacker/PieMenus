@@ -1,0 +1,1091 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Direct Text Manipulation Demo
+% Don Hopkins
+% Idea stolen from Glenn Reid's "Touch Type"
+
+systemdict begin
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ClassTypePanel
+
+/ClassTypePanel [ClassControl ClassPanel] []
+classbegin
+  /Menuable? true def
+  /Keyable? true def
+  /Selectable? true def
+  /Receptible? true def
+%  /Trackable? true def
+
+  /Menu /Grid framebuffer /new ClassMenu send def
+  [ [(Layout) /NotifyLayout]
+    [(Paint) /NotifyPaint]
+  ] /setitemlist Menu send
+
+  /destroy {
+    null /settarget Menu send
+    /Menu null def
+    /destroy super send
+  } def
+
+  /MakeTypeClient { % str => -
+    /clientcount self send exch		% n (c)
+    self /new ClassType send		% n obj
+    exch 1 index			% obj n obj
+    nullarray /addclient self send	% obj
+    /layout self send
+    /paint exch send			%
+  } def
+
+  /StandardKey { % event => -
+    /Name get cvis			% (c)
+    /MakeTypeClient self send		%
+  } def
+
+  /AsciiReception { % event string => -
+    /MakeTypeClient self send		%
+    pop
+  } def
+
+  /SelectableType /Graphic def
+
+  /SelectAt { % event selection => -
+    (Panel SelectAt\n)[]dbgprintf
+    pop pop
+  } def
+
+  /AdjustTo { % event selection => -
+    (Panel AdjustTo\n)[]dbgprintf
+    pop pop
+  } def
+
+  /DragAt { % event selection => -
+    (Panel DragAt\n)[]dbgprintf
+    pop pop
+  } def
+
+  /DragTo { % event selection => -
+    (Panel DragTo\n)[]dbgprintf
+    pop pop
+  } def
+
+  /NewSelection { % event rank => selection
+    (Type NewSelection %\n)[2 index]dbgprintf
+    dup getselection dup null eq {			% event rank null
+      false						% event rank null false
+    } {							% event rank sel
+      dup /Holder get self eq				% event rank sel bool
+    } ifelse
+    {							% event rank sel
+      exch pop exch pop					% sel
+    } {							% event rank sel
+      pop exch pop
+      self /new TypeSelection send			% sel
+    } ifelse
+  } def
+
+  /InSelection? { % event selection => bool
+    pop pop false
+  } def
+
+%  [/SelectAt /AdjustTo /DragAt /DragTo /NewSelection
+%   /clearselectable /AttachInsertionPoint /InSelection?]
+%  { /trace self send } forall
+
+  /NotifyLayout {
+    pop pop
+    /layout self send /paint self send
+  } def
+
+  /NotifyPaint {
+    pop pop
+    /paint self send
+  } def
+
+  /NewInit { % Parent => -
+    /Calculated /NewInit super send
+    [
+      /leftoffset {
+	PREVIOUS null eq {
+	  /NorthWest PARENT POSITION
+	  10 CURRENT HEIGHT 10 add neg xyadd
+	} {
+          /rightoffset PREVIOUS POSITION
+%	  1 index CURRENT WIDTH add 10 add
+%	  InMinsize? {
+%	    10000
+%	  } {
+%	    PARENT WIDTH
+%	  } ifelse
+%	  gt {
+%	    CURRENT HEIGHT 1.5 mul sub
+%	    exch pop 10 exch
+%	  } if
+	} ifelse
+      }
+    ] /setlayoutparameters self send
+  } def
+
+  /addclient { % name instance layout => -
+    3 copy pop exch /SetClientName self send
+    /addclient super send
+  } def
+
+  /removeclient { % name => client true  |  false
+    /removeclient super send {
+      dup /TNTClientName undef true
+    } { false } ifelse
+  } def
+
+  /SetClientName { % client name => -
+    /TNTClientName exch put
+  } def
+
+  /ClientName { % client => name
+    /TNTClientName get
+  } def
+
+  /SEND {
+    ResolveReference send
+  } def
+
+%  /LayoutByPlacement growabledict LayoutByPlacement 1 index copy def
+  LayoutByPlacement begin
+    /Calculated {
+      10 dict begin
+      List {
+	/PREVIOUS CURRENT def
+	/CURRENT 1 index def
+	/LayoutData self send
+
+	aload length 0 eq {
+	  /layoutparameters self send aload pop
+	} if
+
+	exec					% compass-point x y
+	CURRENT 4 -1 roll 			% x y cur compass-point
+	/FooBar self send			% x y x' y'
+	xysub					% x y
+	CURRENT Move				%
+	pause
+      } forall
+      end
+    } def
+  end % LayoutByPlacement
+
+%  /MinsizeByPlacement growabledict MinsizeByPlacement 1 index copy def
+  MinsizeByPlacement begin
+    /Calculated {
+	/InMinsize? true promote
+
+	10 dict begin
+	List
+
+	/RootCorners 1 index length dict def
+	/Locations 1 index length dict def
+	    {
+	    /PREVIOUS CURRENT def
+	    /CURRENT 1 index def
+	    /LayoutData self send
+
+	    aload length 0 eq {
+		/layoutparameters self send aload pop
+	    } if
+
+	    % Execute the client's positioning code, and remember
+	    % which corner of the bag this client gets attached to.
+	    % The default corner is /SouthWest because of NeWS's coordinates.
+	    %
+	    /CurrentCorner null def
+	    exec
+
+	    CurrentCorner null eq {
+		/CurrentCorner /SouthWest def
+	    } if
+
+	    RootCorners CURRENT CurrentCorner put
+
+	    % Calculate where the client's origin should go and
+	    % store this in Locations.
+	    %
+	    CURRENT 4 -1 roll /FooBar self send xysub
+	    2 copy Locations CURRENT [ 5 -2 roll]  put
+	    2 copy CURRENT Size xyadd
+
+	    % Before adding the client's bounding box into the cumulative
+	    % bbox we consider the centering problem. Clients added to
+	    % the /East or /West side have a copy of their box, reflected
+	    % about the x-axis added to the bounding box. /North and /South
+	    % clients have a copy reflected about the y-axis, and /Center
+	    % clients have a copy reflected about both axes. Trust me,
+	    % it works.
+	    %
+	    CurrentCorner {
+		/East /West {
+		    4 copy neg 3 1 roll exch neg
+		    BBoxUnion
+		} /North /South {
+		    4 copy exch neg 4 1 roll 3 -1 roll neg exch
+		    BBoxUnion
+		} /Center {
+		    4 copy neg exch neg exch 4 2 roll neg exch neg exch
+		    BBoxUnion
+		}
+	    } case
+	    BBoxUnion
+	} forall
+
+	BBox aload pop 3 -1 roll sub 3 1 roll exch sub exch
+	end
+	/InMinsize? unpromote
+
+    } def
+  end % MinsizeByPlacement
+
+  % /POSITION is a convenience function which returns the xy
+  % coordinates of the compass-point corner of the specified
+  % list-element.
+  /POSITION { % compass-point list-element => x y
+     ResolveReference
+     InMinsize? {
+	 CurrentCorner null eq {
+	     %
+	     % During /minsize the first call to /POSITION while
+	     % executing a client's positioning code is used to
+	     % decide which other client this client is attached to,
+	     % and indirectly, which corner of the bag it is
+	     % attached to.
+	     %
+	     dup self eq {
+		 1 index
+	     }{
+		 RootCorners 1 index get
+	     } ifelse
+	     /CurrentCorner exch def
+	 } if
+
+	 dup self eq {
+	     %
+	     % During /minsize always return 0 0 for a position
+	     % on the bag itself.
+	     %
+	     pop pop 0 0
+	 }{
+	     RootCorners 1 index get /CurrentCorner exch def
+	     dup 3 -1 roll /FooBar self send
+	     3 -1 roll Locations exch get aload pop xyadd
+	 } ifelse
+     }{
+	 dup 3 -1 roll /FooBar self send
+	 3 -1 roll Location xyadd
+     } ifelse
+ } /installmethod ClassLayout send
+
+  /FooBar { % inst compass-point|method => x y
+    CornerPositions dup 2 index known {	% inst compass lbp
+      exch get exec				% x y
+    } {						% inst compass lbp
+      pop exch send				% x y
+    } ifelse
+  } /installmethod ClassLayout send
+
+  /PreviewSetPointSize { % value slider => -
+    1 index cvi (Point size: %) sprintf		% value slider str
+    /setvalue /pointlabel /client 4 index /Parent get send pop send
+    pop pop
+  } def
+
+  /NotifySetPointSize { % value slider => -
+    /PreviewSetPointSize self send
+  } def
+
+  /Mode /Move def
+
+  /NotifySetMode { % value settings => -
+    1 index 0 get			% value settings index
+    /item 2 index send			% value settings str
+    cvn /Mode exch def			% value settings
+    pop pop
+  } def
+
+  /NotifyTypeSelectAt { % event selection inst => -
+    [ exch /ClientName self send ] exch /setclientnames exch send
+    pop
+  } def
+
+  /NotifyTypeAdjustTo { % event selection inst => -
+    /ClientName self send exch /addclientname exch send
+    pop pop pop
+  } def
+
+  /NotifyTypeDragAt { % event selection inst => -
+    pop pop pop
+  } def
+
+  /NotifyTypeDragTo { % event selection inst => -
+    pop pop pop
+  } def
+
+classend def
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ClassType
+
+/ClassType [ClassControl ClassCanvas]
+dictbegin
+  /Text nullstring def
+  /TypeFace /Times-Bold def
+  /PointSize 64 def
+  /LeftBearingX 0 def
+  /LeftBearingY 0 def
+  /RightBearingX 0 def
+  /RightBearingY 0 def
+  /BBoxX 0 def
+  /BBoxY 0 def
+  /BBoxWidth 0 def
+  /BBoxHeight 0 def
+  /CharX 0 def
+  /CharY 0 def
+  /CharWidth 0 def
+  /CharHeight 0 def
+dictend
+classbegin
+  /DragFrame? false def
+  /MaxText 80 def
+
+  /Trackable? true def
+  /Menuable? true def
+%  /Selectable? true def
+  /Receptible? true def
+  /Keyable? true def
+
+  /LeftTranslationX 0 def
+  /LeftTranslationY 0 def
+  /RightTranslationX 0 def
+  /RightTranslationY 0 def
+  /LeftRotation 0 def
+  /RightRotation 0 def
+  /AspectRatio 1 def
+  /RotationPinX 0 def
+  /RotationPinY 0 def
+
+  /NewInit { % (string) => -
+    /NewInit super send
+    /Text exch def
+  } def
+
+  /text { % - => string
+    Text
+  } def
+
+  /settext { % string => -
+    /Text exch def
+    /invalidate self send
+  } def
+
+  /typeface { % - => name
+    TypeFace
+  } def
+
+  /settypeface { % name => -
+    /TypeFace exch def
+    /invalidate self send
+  } def
+
+  /pointsize { % - => number
+    PointSize
+  } def
+
+  /setpointsize { % number => -
+    /PointSize exch def
+    /invalidate self send
+  } def
+
+  /leftrotation { % - => degree
+    LeftRotation
+  } def
+
+  /setleftrotation { % degree => -
+    /LeftRotation exch def
+    /invalidate self send
+  } def
+
+  /rightrotation { % - => degree
+    RightRotation
+  } def
+
+  /setrightrotation { % degree => -
+    /RightRotation exch def
+    /invalidate self send
+  } def
+
+  /lefttranslation { % - => x y
+    LeftTranslationX LeftTranslationY
+  } def
+
+  /setlefttranslation { % x y => -
+    /LeftTranslationY exch promote /LeftTranslationX exch promote
+    /invalidate self send
+  } def
+
+  /righttranslation { % - => x y
+    RightTranslationX RightTranslationY
+  } def
+
+  /setrighttranslation { % x y => -
+    /RightTranslationY exch promote /RightTranslationX exch promote
+    /invalidate self send
+  } def
+
+  /leftoffset { % - => dx dy
+    /?validate self send
+    LeftTranslationX LeftBearingX add LeftTranslationY LeftBearingY add
+  } def
+
+  /rightoffset { % - => dx dy
+    /?validate self send
+    RightBearingX RightTranslationX add RightBearingY RightTranslationY add
+  } def
+
+  /validate {
+    gsave
+      /Font TypeFace findfont PointSize scalefont def
+      Parent setcanvas
+      Font setfont
+      LeftRotation rotate
+      0 0 moveto
+      Text true charpath
+      pathbbox points2rect
+      /CharHeight exch def /CharWidth exch def
+      /CharY exch def /CharX exch def
+      LeftRotation neg rotate
+      pathbbox points2rect
+      /BBoxHeight exch def /BBoxWidth exch def
+      /BBoxY exch def /BBoxX exch def
+      BBoxY neg /LeftBearingY exch def
+      BBoxX neg /LeftBearingX exch def
+      currentpoint
+      LeftBearingY add /RightBearingY exch def
+      LeftBearingX add /RightBearingX exch def
+    grestore
+    /validate super send
+  } def
+
+  /Paint { % - => -
+    gsave
+      self setcanvas
+      FG fillcanvas
+    grestore
+  } def
+
+  /path { % x y w h => -
+    BBoxWidth 0 eq BBoxHeight 0 eq or {
+      pop pop 1 1 rectpath
+    } {
+      matrix currentmatrix 5 1 roll
+	4 2 roll translate
+	BBoxHeight div exch BBoxWidth div exch
+	scale
+	LeftBearingX LeftBearingY translate
+	LeftRotation rotate
+	0 0 moveto
+	Font setfont
+	Text true charpath
+      setmatrix
+} ifelse
+  } def
+
+  /minsize { % - => w h
+    /?validate self send
+    6 6
+  } def
+
+  /preferredsize {
+    /?validate self send
+    BBoxWidth BBoxHeight
+  } def
+
+  /changeshape { % x y w h => -
+    Transparent 5 1 roll
+    /Transparent false def
+    /reshape self send
+    /Transparent exch def
+  } def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% BEGIN CRUFT
+
+  /TrackStart { % event => /Default true
+    dup /Name get PointButton eq {
+      true /setdamageable self send
+      /TrackMotion {MoveMotion} promote
+      /TrackStop {
+        MoveStop false /setdamageable self send
+      } promote
+      MoveStart /Default true
+    } {
+      dup /KeyState get
+      length 0 gt {
+        true /setdamageable self send
+	/TrackMotion {RotateMotion /paint self send} promote
+	/TrackStop {RotateStop false /setdamageable self send} promote
+	RotateStart /Default true
+      } {
+%	true /setdamageable self send
+	/TrackMotion {
+	  BBoxMotion /paint self send
+	} promote
+	/TrackStop {
+	  BBoxStop
+%	  false /setdamageable self send
+	} promote
+	BBoxStart /Default true
+      } ifelse
+    } ifelse
+  } def
+
+  /BBoxStart { % event => -
+    gsave
+      Parent createoverlay setcanvas
+      begin XLocation YLocation end		% x y
+      2 copy /farthestcorner self send		% x y x1 y1
+      2 copy 6 2 roll				% x1 y1 x y x1 y1
+      /farthestcorner self send xysub		% x1 y1 x0 y0
+      TrackDictInit
+	/Y1 exch def /X1 exch def
+	/location self send /Y2 exch def /X2 exch def
+      end
+    grestore
+  } def
+  /BBoxMotion { % event => -
+    gsave
+      TrackDictBegin		% x y
+	X1 Y1 points2rect	% x y w h
+      TrackDictEnd
+      /changeshape self send
+    grestore
+  } def
+  /BBoxStop { % event => -
+    gsave
+    TrackDictBegin
+      X1 Y1 % points2rect
+    TrackDictEnd
+    4 2 roll /AnchorBox self send /changeshape self send
+    grestore
+    TrackDict cleanoutdict
+  } def
+
+  /RotateStart { % event => -
+    gsave
+      Parent createoverlay setcanvas
+      /location self send
+      LeftBearingX LeftBearingY
+      xyadd
+      TrackDictInit end
+    grestore
+  } def
+
+  /RotateMotion { % event => -
+    gsave
+      TrackDictBegin X0 Y0 TrackDictEnd
+      2 copy 1 sub moveto
+      4 2 roll
+      2 copy rlineto
+      stroke
+      { exch atan } stopped { pop pop 0 } if
+      /setleftrotation self send
+      LeftBearingX LeftBearingY xysub
+      Parent setcanvas
+      /preferredsize self send
+      /changeshape self send
+      /paint self send
+    grestore
+  } def
+
+  /RotateStop { % event => -
+    dup RotateMotion
+    gsave
+      TrackDictBegin TrackDictEnd
+      pop pop erasepage
+      TrackDict cleanoutdict
+    grestore
+  } def
+
+% END CRUFT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  /Menu /Grid framebuffer /new ClassMenu send def
+  [ [(Cut) /NotifyCut]
+    [(Copy) /NotifyCopy]
+    [(Paste) /NotifyPaste]
+  ] /setitemlist Menu send
+
+  /destroy {
+    null /settarget Menu send
+    /Menu null def
+    /destroy super send
+  } def
+
+  /NotifyCut { pop pop } def
+  /NotifyCopy { pop pop } def
+  /NotifyPaste { pop pop } def
+
+  /AsciiReception { % event string => -
+    exch pop
+    /settext self send
+    dup length MaxText gt {
+      0 MaxText getinterval
+    } if
+    /resetsize self send
+  } def
+
+  /resetsize {
+    gsave
+      Parent setcanvas
+      /location self send % 1 sub exch 1 sub exch
+      /preferredsize self send
+      /changeshape self send
+      /paint self send
+    grestore
+  } def
+
+  /SelectableType /Canvas def
+
+  /SelectAt { % event selection => -
+    (Type SelectAt\n)[]dbgprintf
+    self /NotifyTypeSelectAt Parent send
+  } def
+
+  /AdjustTo { % event selection => -
+    (Type AdjustTo\n)[]dbgprintf
+    self /NotifyTypeAdjustTo Parent send
+  } def
+  
+  /DragStartX 0 def
+  /DragStartY 0 def
+  /DragDX 0 def
+  /DragDY 0 def
+
+  /DragAt { % event selection => -
+    (Type DragAt\n)[]dbgprintf
+    self /NotifyTypeDragAt Parent send
+  } def
+
+  /OldDragAt { % event selection => -
+    gsave
+      Parent setcanvas
+      /location self send
+      LeftBearingX LeftBearingY xyadd
+      /DragStartY exch store /DragStartX exch store
+      exch begin
+        /DragDX XLocation DragStartX sub
+	/DragDY YLocation DragStartY sub
+      end
+      store store
+      true /setdamageable self send
+      pop
+    grestore
+  } def
+
+  /DragTo { % event selection => -
+    (Type DragTo\n)[]dbgprintf
+    self /NotifyTypeDragTo Parent send
+  } def
+
+  /OldDragTo { % event selection => -
+    (Type DragTo\n)[]dbgprintf
+    gsave
+      Parent setcanvas
+      /Preview? exch send
+      exch begin
+	XLocation DragDX sub YLocation DragDY sub
+      end
+      2 copy /location self send xysub
+      2 copy /lefttranslation self send 4 2 roll xysub
+      /setlefttranslation self send
+      /righttranslation self send 4 2 roll xysub
+      /setrighttranslation self send
+      /move self send
+      not { false setdamageable } if
+      /paint self send
+    grestore
+  } def
+  
+  /InSelection? { % event selection => bool
+    /clientnames exch send
+    self /ClientName Parent send
+    arraycontains?
+    exch pop
+  } def
+  
+  /NewSelection { % event rank => selection
+    (Type NewSelection %\n)[2 index]dbgprintf
+    dup getselection dup null eq {			% event rank null
+      false						% event rank null false
+    } {							% event rank sel
+      dup /Holder get self eq				% event rank sel bool
+    } ifelse
+    {							% event rank sel
+      exch pop exch pop					% sel
+      self /ClientName parent send /addclientname 3 index send
+    } {							% event rank sel
+      pop exch pop
+      self /new TypeSelection send			% sel
+    } ifelse
+  } def
+
+%  [/SelectAt /AdjustTo /DragAt /DragTo /NewSelection
+%   /clearselectable /AttachInsertionPoint /InSelection?]
+%  { /trace self send } forall
+
+  /StandardKey { % event => -
+    /Name get cvis
+    Text exch append /Text exch def
+    /resetsize self send
+  } def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  /demo {
+    userdict begin
+      /panel framebuffer /new ClassTypePanel send def
+
+      /A (A) framebuffer /new ClassType send def
+      /A A nullarray
+      /addclient panel send
+
+      /B (B) framebuffer /new ClassType send def
+      /B B nullarray /addclient panel send
+
+      /C (C) framebuffer /new ClassType send def
+      /C C nullarray /addclient panel send
+
+      /Z1 (G) framebuffer /new ClassType send def
+      /ZapfDingbats /settypeface Z1 send
+      /Z1 Z1 nullarray /addclient panel send
+
+      /Foo (Foo) framebuffer /new ClassType send def
+      /Foo Foo nullarray /addclient panel send
+
+      /Z2 ($) framebuffer /new ClassType send def
+      /ZapfDingbats /settypeface Z2 send
+      /Z2 Z2 nullarray /addclient panel send
+
+      /Bar (Bar) framebuffer /new ClassType send def
+      /Bar Bar nullarray /addclient panel send
+
+      /Z3 (,) framebuffer /new ClassType send def
+      /ZapfDingbats /settypeface Z3 send
+      /Z3 Z3 nullarray /addclient panel send
+
+      /win panel framebuffer /new ClassBaseWindow send def
+      /controls /Calculated framebuffer /new ClassPanel send def
+      [/West {/East PREVIOUS POSITION 8 0 xyadd}]
+	  /setlayoutparameters controls send
+
+      /buttons /Calculated framebuffer /new ClassMenuButtons send def
+      %
+      [ /West { /East PREVIOUS POSITION 8 0 xyadd} ]
+	  /setlayoutparameters buttons send
+      %
+      [	[ (File)
+	  /Grid framebuffer /new ClassMenu send
+	  [ [ (Save Current File) { (Hello!) == } ]
+	    (Store as New File)
+	    (Load File)
+	    (Insert File)
+	    (Set Directory)
+	    (Empty Document)
+	  ] /setitemlist 2 index send
+	  0 /setdefault 2 index send
+	] [/West {/West PARENT POSITION}]
+	%
+	[ (View)
+	  /Grid framebuffer /new ClassMenu send
+	  [ (Select line at number)
+	    (Position)
+	    (Caret to top)
+	    (Move Caret to Top)
+	    (Move Caret to Bottom)
+	    [ (Line wrap)
+	      /Grid framebuffer /new ClassMenu send
+	      [ (Character) (Word) (Truncate) ]
+		/setitemlist 2 index send
+	      0 /setdefault 2 index send
+	    ]
+	  ] /setitemlist 2 index send
+	] nullarray
+	%
+	[ (Edit)
+	  /Grid framebuffer /new ClassMenu send
+	  [ [ (Undo)
+	      /Grid framebuffer /new ClassMenu send
+	      [
+		(Last change)
+		(All changes)
+		(Redo)
+	      ] /setitemlist 2 index send
+	      true /setpinnable 2 index send
+	    ]
+	    (Copy)
+	    (Cut)
+	    (Paste)
+	  ] /setitemlist 2 index send
+	  0 /setdefault 2 index send
+	] nullarray
+      ] /setitemlist buttons send
+      %
+      /buttons buttons [/West {/West PARENT POSITION}]
+      /addclient controls send
+
+      /mode /Calculated framebuffer /new ClassSettings send def
+      %
+      [   (Move)		[/SouthWest {0 0}]
+          (Stretch)		nullarray
+          (Rotate)		nullarray
+	  (Size)		nullarray
+	  (Aspect)		nullarray
+      ] /setitemlist mode send
+      %
+      [/SouthWest {/SouthEast PREVIOUS POSITION}]
+	  /setlayoutparameters mode send
+      [0] /setvalue mode send
+      panel /settarget mode send
+      /NotifySetMode /setnotifier mode send
+      /mode mode nullarray /addclient controls send
+
+      /pointlabel (Point size: ___  ) framebuffer /new ClassLabel send def
+      /pointlabel pointlabel nullarray /addclient controls send
+
+      /minlabel (0) framebuffer /new ClassLabel send def
+      /minlabel minlabel nullarray /addclient controls send
+
+      /slider framebuffer /new ClassHSlider send def
+      true /setendboxes slider send
+      10 /settickmarks slider send
+      panel /settarget slider send
+      /NotifySetPointSize /setnotifier slider send
+      /PreviewSetPointSize /setpreviewer slider send
+      /slider slider [/minoffset {/East PREVIOUS POSITION}]
+      /addclient controls send
+      0 0 /preferredsize slider send /reshape slider send
+
+      /maxlabel (100) framebuffer /new ClassLabel send def
+      /maxlabel maxlabel [/West {/maxoffset PREVIOUS POSITION}]
+      /addclient controls send
+
+      /North controls /addclient win send
+      /gaps win send				% n e s w
+      4 -1 roll pop 2 4 1 roll		% 2 e s w
+      /setgaps win send
+
+      /place win send
+      ClassName (% Demo) sprintf /setlabel win send
+      /Footer? false /setattribute win send
+      /map win send
+      /new ClassEventMgr send /activate win send
+      win
+    end
+  } def
+
+classend def
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Class TypeSelection
+
+/TypeSelection ClassSelection 
+dictbegin
+  /SelectionClientNames nullarray def
+dictend
+classbegin
+
+  /clientnames { % - => [name ...]
+    SelectionClientNames
+  } def
+
+  /setclientnames { % [name ...]  => -
+    /SelectionClientNames exch def
+  } def
+
+  /addclientname { % name => -
+    /clientnames self send
+    2 copy exch arraycontains? { pop pop } {
+      exch [ exch ] append /setclientnames self send
+    } ifelse
+  } def
+
+  /removeclientname { % name => -
+    /clientnames self send
+    2 copy exch arraycontains? {
+      [ 3 1 roll {
+          2 copy eq { pop } { exch } ifelse
+        } forall
+	pop
+      ]
+    } { pop pop } ifelse
+    /setclientnames self send
+  } def
+
+  /deselect { % - => -
+%    Rank /deselect Holder send
+  } def
+
+  /CanRenderAs [
+    /ContentsAscii /ContentsStrings
+    /ContentsFonts /ContentsTypeFaces /ContentsPointSizes
+    /ContentsRotations /ContentsAspects
+  ] def
+
+  /singlerequest { % oldvalue key => newvalue
+    {
+      /ContentsAscii {
+        pop
+	() SelectionClientNames {
+	  /client Holder send {
+	    /text exch send append (\n) append
+	  } if
+	} forall
+      }
+      /SelectionObjSize {
+        pop SelectionClientNames length
+      }
+      /ContentsStrings {
+        pop
+	[ SelectionClientNames {
+	    /client Holder send {
+	      /text exch send
+	    } if
+	  } forall
+	]
+      }
+      /ContentsFonts {
+        pop
+	[ SelectionClientNames {
+	    /client Holder send {
+	      {/typeface self send findfont /pointsize self send scalefont}
+	      exch send
+	    } if
+	  } forall
+	] 
+      }
+      /ContentsTypeFaces {
+        pop
+	[ SelectionClientNames {
+	    /client Holder send {
+	      /typeface exch send
+	    } if
+	  } forall
+	] 
+      }
+      /ContentsPointSizes {
+        pop
+	[ SelectionClientNames {
+	    /client Holder send {
+	      /pointsize exch send
+	    } if
+	  } forall
+	] 
+      }
+      /ContentsRotations {
+        pop
+	[ SelectionClientNames {
+	    /client Holder send {
+	      /rotation exch send
+	    } if
+	  } forall
+	] 
+      }
+      /ContentsBBoxes {
+        pop
+	gsave
+	  Holder setcanvas
+	  [ SelectionClientNames {
+	      /client Holder send {
+		[exch /bbox exch send]
+	      } if
+	    } forall
+	  ] 
+        grestore
+      }
+      /ContentsAspects {
+        pop
+	[ SelectionClientNames {
+	    /client Holder send {
+	      /aspect exch send
+	    } if
+	  } forall
+	] 
+      }
+      /SetContentsFonts { % font => null
+        fontspec pop				% typeface pointsize
+	SelectionClientNames {			% tf ps clientname
+	  /client Holder send {			% tf ps client
+	    {2 copy /setpointsize self send /settypeface self send}
+	    exch send				% tf ps
+	  } if
+	} forall				% tf ps
+	pop pop					%
+	null
+      }
+      /SetContentsTypeFaces { % typeface => null
+	SelectionClientNames {			% typeface clientname
+	  /client Holder send {			% typeface client
+	    {dup /settypeface self send}
+	    exch send				% typeface
+	  } if
+	} forall				% typeface
+	pop					%
+	null
+      }
+      /SetContentsPointSizes {
+	SelectionClientNames {			% pointsize clientname
+	  /client Holder send {			% pointsize client
+	    {dup /setpointsize self send}
+	    exch send				% pointsize
+	  } if
+	} forall				% pointsize
+	pop
+	null
+      }
+      /SetContentsRotations { % rotation => null
+	SelectionClientNames {			% rotation clientname
+	  /client Holder send {			% rotation client
+	    {dup /setrotation self send}
+	    exch send				% rotation
+	  } if
+	} forall				% rotation
+	pop					%
+	null
+      }
+      /SetContentsAspects { % aspect => null
+	SelectionClientNames {			% aspect clientname
+	  /client Holder send {			% aspect client
+	    {dup /setaspect self send}
+	    exch send				% aspect
+	  } if
+	} forall				% aspect
+	pop					%
+	null
+      }
+      /DeleteSelection /DeleteContents {
+        pop
+        SelectionClientNames {
+	  /removeclient Holder send {
+	    pop
+	  } if
+	} forall
+	/SelectionClientNames nullarray def
+      }
+      /Default {
+        pop /UnknownRequest
+      } def
+    } case
+  } def
+
+classend def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+end % systemdict

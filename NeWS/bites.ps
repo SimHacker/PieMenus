@@ -1,0 +1,199 @@
+%
+% Reagan Bites
+% By Don Hopkins
+% Warp function by Rehmi Post and Don Hopkins
+% Mouth action due to brain damage induced by Hanan Samet's diahrea medicine.
+%
+% Copyright (C) 1988 by Don Hopkins. All rights reserved.
+% This program is provided for unrestricted use, provided that this 
+% copyright message is preserved. There is no warranty, and no author 
+% or distributer accepts responsibility for any damage caused by this 
+% program. 
+%
+
+/size 256 def
+/bufsize 512 def
+%/images 30 def
+/images 60 def
+
+/magic nullproc def
+
+systemdict /bigron undef
+/canvasfile 
+%  (zcat images/im8/Pinups/cowgirl.im8) 
+%  (zcat images/im8/Pinups/wetshirt.im8)
+%  (zcat images/im8/Pinups/apr.im8.Z)
+%  (cat images/im8/sgt_pepper.im8)
+  (cat demos/ron.can)
+def
+
+systemdict /bigron known not {
+%  systemdict /bigron canvasfile
+  systemdict /bigron canvasfile
+pipe pop
+  readcanvas put
+} if
+/ron
+  bufsize dup 8
+  [bufsize 0 0 bufsize neg 0 bufsize]
+  null
+  buildimage
+def
+ron setcanvas
+bigron imagecanvas
+
+/warpdict 50 dict def
+warpdict begin
+  /fudge 1.5 def
+end
+
+/warp { % hparts vparts source ==> ---
+  warpdict begin
+    /fromCan exch def
+    gsave
+     framebuffer setcanvas
+      fromCan false getbbox
+      /fromHeight exch def /fromWidth exch def
+    grestore
+    pop pop
+    /fromHeights exch normalize def
+    /fromWidths exch normalize def
+    /n fromHeights length def
+    /m fromWidths length def
+    /toWidth 1 n div def
+    /toHeight 1 m div def
+    /thruY 0 def
+    /toY 0 def
+    (%/% ) [image_number 1 add images] printf flush
+    0  1  m 1 sub { /j exch def
+	/thruX 0 def
+	/toX 0 def
+        0  1  n 1 sub { /i exch def
+	    showsquare
+ 	    /thruX thruX thruWidth add def
+	    /toX toX toWidth add def
+        } for
+	/thruY thruY thruHeight add def
+	/toY toY toHeight add def
+    } for
+  end
+} def
+
+% Divide the numbers in an array by their sum, so the array sums to 1.
+/normalize  % array ==> normalized_array
+{   0  1 index  { add } forall
+    /total exch def
+    [ exch { total div } forall ]
+} def
+
+/l {
+  gsave
+    framebuffer setcanvas
+    0 500 translate
+    0 0 300 300 rectpath random random random setrgbcolor fill
+    thruCan imagecanvas
+  grestore
+} def
+
+/showsquare % --- ==> ---
+{   /thruWidth fromWidths i get fromWidth mul round def
+    /thruHeight fromHeights j get fromHeight mul round def
+
+    % Make a copy of the source square
+    gsave
+      /thruCan
+	thruWidth thruHeight 8
+	[thruWidth 0 0 thruHeight 0 0]
+	null
+	buildimage
+      def
+      gsave
+	thruCan setcanvas
+	erasepage
+	1 thruWidth div 1 thruHeight div scale
+% adding toXY (0..1) as fudge factor
+	thruX neg toX add round  thruY neg toY add round  translate
+	fromWidth fromHeight scale
+	fromCan imagecanvas
+      grestore
+      % Translate and scale so that the thru square is mapped onto
+      % the destination square
+      size dup scale
+      toX toY translate
+      toWidth toHeight scale
+      magic
+      0 0 1 1 rectpath clip
+      thruCan imagecanvas
+    grestore
+    pause
+} def
+
+/periodic-warp { % angle => -
+  /arg exch def
+  [ 9 arg sin 8 mul add
+    14 arg 10 add cos 13 mul add
+    4 arg 30 add cos 3 mul add
+    3 arg 120 add sin 2.4 mul add ]
+  [ 10 arg cos 9 mul add
+    7 arg 9 add dup add sin 6 mul add
+    14 arg sin 9 mul add
+    6 arg 50 add sin 5 mul add ]
+  ron
+  warp
+} def
+
+/zot { % i => -
+    gsave
+      /image_number exch def
+      image_number images 1 sub div 360 mul
+      periodic-warp
+    grestore
+} def
+
+/cycle {
+  0 1 images 1 sub {
+    zot
+  } for
+} def
+
+/klunk {
+  0 zot
+  (\nKLUNK KERCHUNK\n) print
+} def
+
+gsave
+  framebuffer setcanvas
+erasepage
+
+/wow {
+  (Warp-O-Matic: ) print
+  /magic {
+  } def
+  cycle klunk
+
+  (Begin Recession: \n) print
+  /magic {
+    /fudgescale arg cos 1 add 2 div .9 mul .105 add def
+    .5 .5 translate
+    fudgescale dup scale
+    -.5 -.5 translate
+  } def
+  cycle klunk
+
+  (To be announced\n) print
+  /magic {
+    /fudgerotate 
+      arg
+    def
+    /fudgescale arg cos 1 add 2 div .9 mul .105 add def
+    .5 .5 translate
+    fudgescale dup scale
+    fudgerotate rotate
+    -.5 -.5 translate
+  } def
+  cycle klunk
+} def
+
+wow
+
+grestore

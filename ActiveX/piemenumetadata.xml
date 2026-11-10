@@ -1,0 +1,535 @@
+<?xml version='1.0'?>
+
+<metadata>
+
+  <class name="PieMenu">
+
+    <prop
+      name="View"
+      description="Pie Menu View."
+      att="piemenuview"
+      var="piemenuview"
+      type="widget"
+      widget="PieMenuView"/>
+
+    <prop
+      name="ID"
+      description="Pie Menu Unique ID."
+      att="id"
+      var="id"
+      type="string"
+      default=""/>
+
+    <prop
+      name="Name"
+      description="Pie Menu Name, shown if the HTML Content is empty."
+      att="name"
+      var="name"
+      type="string"
+      default=""/>
+
+    <prop
+      name="HTML Content"
+      description="HTML Element Content in Center of Pie Menu. If empty, the pie menu Name is shown instead."
+      element="html"
+      var="html"
+      type="element"
+      default=""/>
+
+    <prop
+      name="Clockwise"
+      description="Clockwise Layout Direction (false for CCW)."
+      att="clockwise"
+      var="clockwise"
+      type="bool"
+      default="1"/>
+
+    <prop
+      name="Initial Angle"
+      description="Initial Angle for Pie Item Layout. 0 is right, 90 is up, 180 is left, 270 is down."
+      att="initialangle"
+      var="initialAngle"
+      type="float"
+      default="90"/>
+
+    <prop
+      name="Fixed Radius"
+      description="Fixed Radius for Pie Item Layout (0 to Disable). Overrides calculated radius."
+      att="fixedradius"
+      var="fixedRadius"
+      type="float"
+      default="0"/>
+
+    <prop
+      name="Minimum Radius"
+      description="Minimum Radius for Pie Item Layout. Overridden by non-zero Fixed Radius."
+      att="minradius"
+      var="minRadius"
+      type="float"
+      default="20"/>
+
+    <prop
+      name="Extra Radius"
+      description="Extra Radius for Pie Item Layout. Overridden by non-zero Fixed Radius."
+      att="extraradius"
+      var="extraRadius"
+      type="float"
+      default="20"/>
+
+    <prop
+      name="Inactive Radius"
+      description="Inactive Radius of Pie Menu Center, where no item is selected."
+      att="inactiveradius"
+      var="inactiveRadius"
+      type="float"
+      default="8"/>
+
+    <prop
+      name="Radius Notch"
+      description="Radius Notch for Pie Item Layout. Overridden by non-zero Fixed Radius."
+      att="radiusnotch"
+      var="radiusNotch"
+      type="float"
+      default="2"/>
+
+    <prop
+      name="Border"
+      description="Border around Menu for Pie Item Layout."
+      att="border"
+      var="border"
+      type="float"
+      default="2"/>
+
+    <prop
+      name="Max Pie Items"
+      description="Maximum Number of Pie Items. Extra items are treated as Linear."
+      att="maxpieitems"
+      var="maxPieItems"
+      type="int"
+      default="8"/>
+
+    <prop
+      name="Paged Pie Items"
+      description="Number of Pie Items Paged. Previous items are treated as Linear."
+      att="pagedpieitems"
+      var="pagedPieItems"
+      type="int"
+      default="0"/>
+
+    <prop
+      name="Linear"
+      description="Pie Menu Linear Flag. Default for all items."
+      att="linear"
+      var="linear"
+      type="bool"
+      default="0"/>
+
+    <prop
+      name="Linear Direction"
+      description="Direction of Linear Item Layout. Default for all items."
+      att="lineardirection"
+      var="linearDirection"
+      type="enum"
+      enum="up,down,left,right,center"
+      default="down"/>
+
+    <prop
+      name="Linear Order Reversed"
+      description="Reversed Linear Order Layout Flag. Default for all items."
+      att="linearorderreversed"
+      var="linearOrderReversed"
+      type="bool"
+      default="0"/>
+
+    <prop
+      name="Transparent Items"
+      description="Make Unselected Items Transparent During Tracking."
+      att="transparentitems"
+      var="transparentItems"
+      type="bool"
+      default="1"/>
+
+    <prop
+      name="Item Border"
+      description="Border Around Items for Pie Item Layout. Default for all items."
+      att="itemborder"
+      var="itemBorder"
+      type="float"
+      default="2"/>
+
+    <prop
+      name="Item Margin"
+      description="Margin Inside Items for Pie Item Layout. Default for all items."
+      att="itemmargin"
+      var="itemMargin"
+      type="float"
+      default="2"/>
+
+    <prop
+      name="Item Width"
+      description="Fixed Item Width for Pie Item Layout (0 for Measured). Default for all items."
+      att="itemwidth"
+      var="itemWidth"
+      type="float"
+      default="0"/>
+
+    <prop
+      name="Item Height"
+      description="Fixed Item Height for Pie Item Layout (0 for Measured). Default for all items."
+      att="itemheight"
+      var="itemHeight"
+      type="float"
+      default="0"/>
+
+    <prop
+      name="Item Normal Background Color"
+      description="Item Normal Background Color. Default for all items."
+      att="itemnormalbackground"
+      var="itemNormalBackground"
+      type="color"
+      default="buttonface"/>
+
+    <prop
+      name="Item Selected Background Color"
+      description="Item Selected Background Color. Default for all items."
+      att="itemselectedbackground"
+      var="itemSelectedBackground"
+      type="color"
+      default="buttonhighlight"/>
+
+    <prop
+      name="Center Background Color"
+      description="Pie Menu Center Background Color."
+      att="centerbackground"
+      var="centerBackground"
+      type="color"
+      default="buttonface"/>
+
+    <prop
+      name="Center Margin"
+      description="Pie Menu Center Margin."
+      att="centermargin"
+      var="centerMargin"
+      type="float"
+      default="16"/>
+
+    <prop
+      name="Center Border Width"
+      description="Pie Menu Center Border Width."
+      att="centerborderwidth"
+      var="centerBorderWidth"
+      type="float"
+      default="2"/>
+
+    <prop
+      name="Center Visible"
+      description="Pie Menu Center Visibility Flag."
+      att="centervisible"
+      var="centerVisible"
+      type="bool"
+      default="1"/>
+
+    <prop
+      name="URL"
+      description="URL for Pie Menu Selection. Default for all items."
+      att="url"
+      var="url"
+      type="string"
+      default=""/>
+
+    <prop
+      name="Action"
+      description="Action for Pie Menu Item Selection. Default for all items."
+      att="action"
+      var="action"
+      type="string"
+      default=""/>
+
+    <prop
+      name="On Select"
+      description="Handler for Pie Menu Item Selection (Called After Selection). Default for all items."
+      att="onselect"
+      var="onselect"
+      type="string"
+      default=""/>
+
+    <prop
+      name="On Change"
+      description="Handler for Pie Menu Item Change (Called Before Selection). Default for all items."
+      att="onchange"
+      var="onchange"
+      type="string"
+      default=""/>
+
+    <prop
+      name="On Preview"
+      description="Handler for Pie Menu Item Preview (Called After Mouse Movement). Default for all items."
+      att="onpreview"
+      var="onpreview"
+      type="string"
+      default=""/>
+
+  </class>
+
+  <class name="PieItem">
+
+    <prop
+      name="View"
+      description="Pie Item View."
+      att="pieitemview"
+      var="pieitemview"
+      type="widget"
+      widget="PieMenuView"/>
+
+    <prop
+      name="ID"
+      description="Pie Menu Item Unique ID."
+      att="id"
+      var="id"
+      type="string"
+      default=""/>
+
+    <prop
+      name="Name"
+      description="Pie Menu Item Name, shown if the HTML Content is empty."
+      att="name"
+      var="name"
+      type="string"
+      default=""/>
+
+    <prop
+      name="HTML Content"
+      description="HTML Element Content in Pie Menu Item. If empty, the item Name is shown instead."
+      element="html"
+      var="html"
+      type="element"
+      default=""/>
+
+    <prop
+      name="Linear"
+      description="Pie Menu Item Linear Flag."
+      att="linear"
+      var="linear"
+      type="bool"
+      default="0"/>
+
+    <prop
+      name="Fixed Radius"
+      description="Fixed Radius for Pie Item Layout (0 to Disable)."
+      att="fixedradius"
+      var="fixedRadius"
+      type="float"
+      default="0"/>
+
+    <prop
+      name="Item Width"
+      description="Fixed Item Width for Pie Item Layout (0 for Measured)."
+      att="itemwidth"
+      var="itemWidth"
+      type="float"
+      default="0"/>
+
+    <prop
+      name="Item Height"
+      description="Fixed Item Height for Pie Item Layout (0 for Measured)."
+      att="itemheight"
+      var="itemHeight"
+      type="float"
+      default="0"/>
+
+    <prop
+      name="Item Normal Background Color"
+      description="Item Normal Background Color."
+      att="itemnormalbackground"
+      var="itemNormalBackground"
+      type="color"
+      default="buttonface"/>
+
+    <prop
+      name="Item Selected Background Color"
+      description="Item Selected Background Color."
+      att="itemselectedbackground"
+      var="itemSelectedBackground"
+      type="color"
+      default=""/>
+
+    <prop
+      name="Linear Direction"
+      description="Direction of Linear Item Layout."
+      att="lineardirection"
+      var="linearDirection"
+      type="enum"
+      enum="up,down,left,right,center"
+      default="down"/>
+
+    <prop
+      name="Linear Order Reversed"
+      description="Reversed Linear Order Layout Flag."
+      att="linearorderreversed"
+      var="linearOrderReversed"
+      type="bool"
+      default="0"/>
+
+    <prop
+      name="URL"
+      description="URL for Pie Menu Item Selection."
+      att="url"
+      var="url"
+      type="string"
+      default=""/>
+
+    <prop
+      name="Action"
+      description="Action for Pie Menu Item Selection."
+      att="action"
+      var="action"
+      type="string"
+      default=""/>
+
+    <prop
+      name="On Select"
+      description="Handler for Pie Menu Item Selection (Called After Selection)."
+      att="onselect"
+      var="onselect"
+      type="string"
+      default=""/>
+
+    <prop
+      name="On Change"
+      description="Handler for Pie Menu Item Change (Called Before Selection)."
+      att="onchange"
+      var="onchange"
+      type="string"
+      default=""/>
+
+    <prop
+      name="On Preview"
+      description="Handler for Pie Menu Item Preview (Called After Mouse Movement)."
+      att="onpreview"
+      var="onpreview"
+      type="string"
+      default=""/>
+
+  </class>
+
+  <DIV
+    id="PieMenuPropsDiv"
+    STYLE="display:none;border:3 outset;width:100%">
+    <TABLE STYLE="width:100%">
+      <TR>
+	<TD>
+	  <DIV id="PieMenuPinnedProps">
+	    [Pie Menu Pinned Props]
+	  </DIV>
+	  <INPUT id="PieMenuPropPinButton"
+	    STYLE="float:right"
+	    TYPE="BUTTON"
+	    VALUE="Pin"
+	    ONCLICK="_EDITOR_ID_.PinPieMenuProp(_EDITOR_ID_.curpiemenuprop);"/>
+	  <DIV>
+	    <B>Pie Menu Property:</B>
+	    <SPAN
+	      id="PieMenuPropSelectorDiv">
+	      [Pie Menu Prop Selector]
+	    </SPAN>
+	  </DIV>
+	  <DIV>
+	    <B>Description:</B>
+	    <SPAN
+	      id="PieMenuPropDescription">
+	      [Pie Menu Prop Description]
+	    </SPAN>
+	  </DIV>
+	</TD>
+      </TR>
+      <TR>
+	<TD>
+	  <DIV id="PieMenuPropEditor">
+	    [Pie Menu Prop Editor]
+	  </DIV>
+	</TD>
+      </TR>
+    </TABLE>
+  </DIV>
+
+  <DIV
+    id="PieItemPropsDiv"
+    STYLE="display:none;border:3 outset;width:100%">
+    <TABLE STYLE="width:100%">
+      <TR id="PieItemPropsRow1">
+	<TD>
+	  <DIV id="PieItemPinnedProps">
+	    [Pie Item Pinned Props]
+	  </DIV>
+	  <INPUT id="PieItemPropPinButton"
+	    STYLE="float:right"
+	    TYPE="BUTTON"
+	    VALUE="Pin"
+	    ONCLICK="_EDITOR_ID_.PinPieMenuProp(_EDITOR_ID_.curpiemenuprop);"/>
+	  <DIV>
+	    <B>Pie Item Property:</B>
+	    <SPAN
+	      id="PieItemPropSelectorDiv">
+	      [Pie Item Prop Selector]
+	    </SPAN>
+	  </DIV>
+	  <DIV>
+	    <B>Description:</B>
+	    <SPAN
+	      id="PieItemPropDescription">
+	      [Pie Item Prop Description]
+	    </SPAN>
+	  </DIV>
+	</TD>
+      </TR>
+      <TR id="PieItemPropsRow2">
+	<TD>
+	  <DIV id="PieItemPropEditor">
+	    [Pie Menu Prop Editor]
+	  </DIV>
+	</TD>
+      </TR>
+      <TR id="PieItemPropsRow3">
+	<TD>
+	</TD>
+      </TR>
+      <TR id="PieItemPropsRow4">
+	<TD>
+	  <DIV id="PieEditorCommands">
+	    <INPUT
+	      ID="AddPieItemButton"
+	      TYPE="BUTTON"
+	      VALUE="Add Item"
+	      ONCLICK="_EDITOR_ID_.AddPieItem();"
+	    /><INPUT
+	      ID="InsertPieItemButton"
+	      TYPE="BUTTON"
+	      VALUE="Add Item Before"
+	      ONCLICK="_EDITOR_ID_.InsertPieItem();"
+	    /><INPUT
+	      ID="AppendPieItemButton"
+	      TYPE="BUTTON"
+	      VALUE="Add Item After"
+	      ONCLICK="_EDITOR_ID_.AppendPieItem();"
+	    /><INPUT
+	      ID="DeletePieItemButton"
+	      TYPE="BUTTON"
+	      VALUE="Delete Item"
+	      ONCLICK="_EDITOR_ID_.DeletePieItem();"
+	    /><INPUT
+	      ID="AddSubMenuButton"
+	      TYPE="BUTTON"
+	      VALUE="Add Sub Menu"
+	      ONCLICK="_EDITOR_ID_.AddSubMenu();"
+	    /><INPUT
+	      ID="DeleteSubMenuButton"
+	      TYPE="BUTTON"
+	      VALUE="Delete Sub Menu"
+	      ONCLICK="_EDITOR_ID_.DeleteSubMenu();"/>
+	  </DIV>
+	</TD>
+      </TR>
+    </TABLE>
+  </DIV>
+
+</metadata>

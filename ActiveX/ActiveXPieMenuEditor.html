@@ -1,0 +1,325 @@
+<html>
+
+  <head>
+    <title>Pie Menu Editor</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  </head>
+
+  <body>
+
+    <center>
+
+      <h1>
+	Self Editing 
+	<a href="http://www.piemenu.com">Pie Menu</a>
+      </h1>
+
+      <form name="Editor">
+
+	<input
+	  type="text"
+	  size="70"
+	  name="Message"
+	  value="Click below to pop up a self editing pie menu!">
+
+	<br>
+
+	<object
+	  id="PieEditor"
+	  classid="clsid:87351BC3-983F-11CF-9A4B-54A4FFC00000"
+	  codebase="http://www.piemenu.com/PieMenu.ocx"
+	  border="0"
+	  width="700"
+	  height="400">
+	  <param
+	    name="ShapeWindow"
+	    value="5">
+	  <param
+	    name="Items"
+	    value="Flags
+ Bevel Edges@n
+  False@s=BevelFalse
+  True=BevelTrue
+ Shrink Wrap
+  False@s=ShrinkWrapFalse
+  True=ShrinkWrapTrue
+ Dynamic Shaping
+  False@s=DynamicShapingFalse
+  True=DynamicShapingTrue
+ Double Buffer
+  False@s=DoubleBufferFalse
+  True=DoubleBufferTrue
+Distance
+ Time@n
+  Popup Delay@n
+ Border
+  Window@e
+  Item
+  Gap
+ Reset
+ Radius
+  Minimum@n
+  Extra
+  Inactive
+  Fixed
+Shape
+ Round@n
+ Speech
+ Thought
+ Rectangle
+ Minimal
+ Spokes
+Direction
+ Initial Menu
+  0@0@ccw=InitialMenuItem
+  45=InitialMenuItem
+  90=InitialMenuItem
+  135=InitialMenuItem
+  180=InitialMenuItem
+  225=InitialMenuItem
+  270=InitialMenuItem
+  335=InitialMenuItem
+ CW
+ Initial Dial
+  Angle@n=InitialAngle
+ CCW
+">
+  </object>
+
+  <script language="VBScript"><!--
+
+sub PieEditor_Click()
+end sub
+
+Sub PieEditor_Change(Item, Action, Direction, Distance)
+end sub
+
+Sub PieEditor_Preview(Item, Action, Direction, Distance)
+	dim dist
+	dist = distance - Editor.PieEditor.InactiveRadius - 10
+	if (dist < 0) then
+	  dist = 0
+	end if
+
+	select case Action
+
+	  case "Flags":
+		editor.message.value = "Flag Settings? ..."
+	  case "Bevel Edges":
+		editor.message.value = "Bevel Edges? ..."
+	  case "BevelFalse":
+	    editor.message.value = "Bevel Edges: False."
+	  case "BevelTrue":
+	    editor.message.value = "Bevel Edges: True."
+	  case "Shrink Wrap":
+		editor.message.value = "Shrink Wrap Labels? ..."
+	  case "ShrinkWrapFalse":
+		editor.message.value = "Shrink Wrap Labels: False."
+	  case "ShrinkWrapTrue":
+		editor.message.value = "Shrink Wrap Labels: True."
+	  case "Dynamic Shaping":
+		editor.message.value = "Change Shape While Tracking? ..."
+	  case "DynamicShapingFalse":
+		editor.message.value = "Change Shape Dynamcally While Tracking: False."
+	  case "DynamicShapingTrue":
+		editor.message.value = "Change Shape Dynamically While Tracking: True."
+	  case "Double Buffer":
+		editor.message.value = "Double Buffer Drawing? ..."
+	  case "DoubleBufferFalse":
+		editor.message.value = "Double Buffer Drawing: False."
+	  case "DoubleBufferTrue":
+		editor.message.value = "Double Buffer Drawing: True."
+
+	  case "Distance":
+		editor.message.value = "Distance Settings? ..."
+	  case "Time":
+		editor.message.value = "Time Settings? ..."
+	  case "Popup Delay":
+	    editor.message.value = "Popup Delay: " + CStr(dist * 10) + " ms."
+	  case "Border":
+		editor.message.value = "Border Settings? ..."
+	  case "Window":
+	    editor.message.value = "Window Border: " + CStr(CInt(dist / 4)) + "."
+	  case "Item":
+	    editor.message.value = "Item Border " + CStr(CInt(dist / 4)) + "."
+	  case "Gap":
+	    editor.message.value = "Item Gap " + CStr(CInt(dist / 4)) + "."
+	  case "Reset":
+	    editor.message.value = "Reset Pie Menu."
+	  case "Radius":
+	    editor.message.value = "Radius Settings? ..."
+	  case "Minimum":
+	    editor.message.value = "Minimum Radius: " + CStr(dist) + "."
+	  case "Inactive":
+	    editor.message.value = "Inactive Radius: " + CStr(dist) + "."
+	  case "Extra":
+	    editor.message.value = "Extra Radius: " + CStr(dist) + "."
+	  case "Fixed":
+	    editor.message.value = "Fixed Radius: " + CStr(dist) + "."
+
+	  case "Shape":
+		editor.message.value = "Shape Settings? ..."
+	  case "Rectangle":
+		editor.message.value = "Shape: Rectangle."
+	  case "Minimal":
+		editor.message.value = "Shape: Minimal."
+	  case "Thought":
+		editor.message.value = "Shape: Thought."
+	  case "Speech":
+		editor.message.value = "Shape: Speech."
+	  case "Round":
+		editor.message.value = "Shape: Round."
+	  case "Spokes":
+		editor.message.value = "Shape: Spokes."
+
+	  case "Direction":
+		editor.message.value = "Direction Settings? ..."
+	  case "Initial Menu":
+		editor.message.value = "Initial Direction Menu? ..."
+	  case "InitialMenuItem":
+   	    editor.message.value = "Initial Direction: " + Item + "."
+	  case "CW":
+	    editor.message.value = "Layout Direction: Clockwise."
+	  case "Initial Dial":
+		editor.message.value = "Initial Direction Dial? ..."
+	  case "InitialAngle":
+   	    editor.message.value = "Initial Direction: " + CStr(Direction) + "."
+	  case "CCW":
+	    editor.message.value = "Layout Direction: Counter-Clockwise."
+
+	  case "":
+	    editor.message.value = "Click below to pop up a self editing pie menu!"
+
+	  case else:
+	    editor.message.value = Action
+
+	end select
+end sub
+
+Sub PieEditor_Action(Item, Action, Direction, Distance)
+
+	call PieEditor_Preview(Item, Action, Direction, Distance)
+
+	dim dist
+	dist = distance - Editor.PieEditor.InactiveRadius - 10
+	if (dist < 0) then
+	  dist = 0
+	end if
+
+	select case Action
+
+	  case "Flags":
+		rem
+	  case "Bevel Edges":
+		rem
+	  case "BevelFalse":
+	    Editor.PieEditor.Bevel = false
+	  case "BevelTrue":
+	    Editor.PieEditor.Bevel = true
+	  case "Shrink Wrap":
+		rem
+	  case "ShrinkWrapFalse":
+		Editor.PieEditor.ShrinkWrap = false
+	  case "ShrinkWrapTrue":
+		Editor.PieEditor.ShrinkWrap = true
+	  case "Dynamic Shaping":
+		rem
+	  case "DynamicShapingFalse":
+		Editor.PieEditor.DynamicShaping = false
+	  case "DynamicShapingTrue":
+		Editor.PieEditor.DynamicShaping = true
+	  case "Double Buffer":
+		rem
+	  case "DoubleBufferFalse":
+		Editor.PieEditor.DoubleBuffer = false
+	  case "DoubleBufferTrue":
+		Editor.PieEditor.DoubleBuffer = true
+
+	  case "Distance":
+		rem
+	  case "Time":
+		rem
+	  case "Popup Delay":
+		Editor.PieEditor.PopupDelay = dist * 10
+	  case "Border":
+		rem
+	  case "Window":
+		Editor.PieEditor.BorderWidth = CInt(dist / 4)
+	  case "Item":
+		Editor.PieEditor.ItemBorderWidth = CInt(dist / 4)
+	  case "Gap":
+		Editor.PieEditor.ItemGap = CInt(dist / 4)
+	  case "Reset":
+	    call ResetPieMenu()
+	  case "Radius":
+		rem
+	  case "Minimum":
+		Editor.PieEditor.MinRadius = dist
+	  case "Inactive":
+		Editor.PieEditor.InactiveRadius = dist
+	  case "Extra":
+		Editor.PieEditor.ExtraRadius = dist
+	  case "Fixed":
+		Editor.PieEditor.FixedRadius = dist
+
+	  case "Shape":
+		rem
+	  case "Rectangle":
+		Editor.PieEditor.ShapeWindow = 0
+	  case "Minimal":
+		Editor.PieEditor.ShapeWindow = 1
+	  case "Thought":
+		Editor.PieEditor.ShapeWindow = 3
+	  case "Speech":
+		Editor.PieEditor.ShapeWindow = 4
+	  case "Round":
+		Editor.PieEditor.ShapeWindow = 2
+	  case "Spokes":
+		Editor.PieEditor.ShapeWindow = 5
+
+	  case "Direction":
+		rem
+	  case "Initial Menu":
+		rem
+	  case "InitialMenuItem":
+		Editor.PieEditor.InitialAngle = CInt(Item)
+	  case "CW":
+		Editor.PieEditor.Clockwise = true
+	  case "Initial Dial":
+		rem
+	  case "InitialAngle":
+		Editor.PieEditor.InitialAngle = Direction
+	  case "CCW":
+		Editor.PieEditor.Clockwise = false
+
+	end select
+
+end sub
+
+sub ResetPieMenu()
+	Editor.PieEditor.PopupDelay = 250
+	Editor.PieEditor.BorderWidth = 8
+	Editor.PieEditor.ItemBorderWidth = 1
+	Editor.PieEditor.ItemGap = 1
+	Editor.PieEditor.MinRadius = 24
+	Editor.PieEditor.InactiveRadius = 8
+	Editor.PieEditor.ExtraRadius = 0
+	Editor.PieEditor.FixedRadius = 0
+end sub
+
+--></script>
+
+	<p>
+	  To see how this
+	  <a href="ActiveXPieMenus.html">ActiveX Pie Menu</a>
+	  is scripted, select &quot;View Source&quot;
+	  from your web browser's menu.
+	</p>
+
+
+      </form>
+
+    </center>
+
+  </body>
+</html>

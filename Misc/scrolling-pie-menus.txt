@@ -1,0 +1,159 @@
+From: Hopkins, Don [mailto:Hopkins, Don] 
+Sent: Monday, March 09, 1998 8:55 PM
+To: selker@almaden.ibm.com; weiser@parc.xerox.com
+Cc: Hopkins, Don
+Subject: Scrolling pie menus
+
+I've been trying to solve the problem of pie menus with lots of items. 
+
+Long ago I tried "spinning" scrolling, where you crank the mouse
+around to reveal more items in a spiral manner, and it pretty much
+sucked.
+
+Alias's patent inspired me to come up with something even better. 
+
+First of all, one thing I wanted to support is reading order layout,
+instead of round-the-clock.  So you can specify the items in left to
+right, top to bottom reading order, so the compass rose would be
+"n;nw;ne;w;e;sw;se;s" instead of "n;ne;e;se;s;sw;w;nw".
+
+Another thing I wanted to support was increasing the number of slices
+so it was even, by adding inactive slices.
+
+And another thing was to be able to limit the number of slices in the
+pie menu, while at the same accomodating any number of items.
+
+So I synthesized these requirements into a nice system, that lets you
+specify a maximum number of items of 8, 4, or 2. If you limit the
+number of items to 8, and there are 5, 6, 7, or 8 items, you get 8
+slices; if there are 3 or 4 items, you get 4 slices, if there are 2
+items, you get 2 slices, and 1 item gets 1 slice.  So it gives you a
+power of two number of slices, and fills out any extras with inactive
+items.
+
+The layout algorithm fills the menu out in stable reading order, so as
+you add items, they end up in predictable directions, disturbing the
+directions of previous items as little as possible.
+
+The first item goes at the north, and always stays there, so it's very
+easy to find.  The second item goes to the south in a two item menu.
+When you add a third item, you get 4 slices, with the first to the
+north, second moved over to the west, and third added to the east.
+Naturally, the fourth item goes to the south.  When you add a fifth
+item, you get 8 slices, with the first still to the north, second
+moved up to the northwest where it stays, third moved up to the
+northeast where it stays, fourth to the west where it stays, and fifth
+to the east where it stays.  Naturally, the sixth item goes to the
+southwest, the seventh to the southeast, and the eighth to the south!
+
+Now you may ask, what happens when you add a ninth?  Well, it goes
+down below the eighth, so you can select it by pointing to its label,
+but it does not correspond to a slice.
+
+Actually it does correspond to the one slice of a one item pie menu,
+that you can scroll to with the "page down" key, or by clicking on a
+round graphic underneath it. The menu scrolls so the previous 8 item
+menu turns into a shrink wrapped group of 8 labels above the top of
+the single item pie!
+
+It makes more sense as you add more items.  With ten items, you could
+scroll between an 8 item pie with a 2 item linear menu below it, and a
+2 item pie with a 8 item clustered linear menu above it.  A 12 item
+menu would have an 8 item group and a 4 item group, that you could
+scroll between.  So with 12 items, you get this 8 item pie menu with a
+cluster of 4 linear items below:
+
+                One
+        Two             Three
+Four              *             Five
+        Six             Seven
+                Eight
+                Nine
+                Ten Eleven 
+                Twelve
+
+which can be scrolled to this 4 item pie menu with a cluster of 8
+linear items above:
+
+                      One
+                  Two Three
+                Four    Five
+                  Six Seven
+                      Eight
+                      Nine
+                Ten   * Eleven
+                      Twelve
+        
+
+Each group can take turns being the pie part of the menu, which is
+very easy to select.  The other groups of 8 or fewer are layed out as
+active labels above and below the pie, so you can still select them by
+pointing at the label, and you can scroll the pie to the group by
+clicking in the middle of the shrink wrapped cluster of labels, or
+hitting page up and down.  The menu remembers the last place you
+scrolled to, so it pops up there next time.
+
+Clustering the menu items into groups of 8 works very nicely, since
+the menu appears like a segmented "zipper" or twisted strand of DNA
+(although the items don't "twist" now, but are layed out in stable
+reading order).
+
+It chunks the items into clumps of 8 so you can remember where they
+are easily, instead of staring at a featureless linear tower of items.
+Click in the middle of a clump and it fluffs out to be the center of
+the pie menu!  It looks really cool!
+
+There are lots of neat window shapes to choose from, that accommodate
+this dynamic layout, like thought balloons, speech bubbles, spokes,
+round circular windows, rectangles, and even a rectangle with a round
+punched out center!
+
+I'm almost ready to cut a release of the new ActiveX pie menu code!
+Are you interested in test driving it?
+
+On another front, in a completely different code base, our game is
+coming along well.  You can play with these little 3d people, who live
+in a house and interact with objects, appliances, furniture, and each
+other.
+
+You can get the currently selected person to do something by clicking
+on an object, and up pops, you guessed it, a pie menu, of things that
+person can do with the object.
+
+At first we were having problems telling which character was going to
+perform the action, so we came up with a nice solution!
+
+So what's at the center of the pie menu, but the person's head,
+looking around like Alice at the center of the Brady Bunch grid! When
+you move the cursor to point at an item, their head turns to stare at
+the item.
+
+The next step is to put feedback of the person's opinion about the
+menu item, by making them shake their head or nod if they like it or
+not, and prompting if you haven't selected anything after a certain
+amount of time, by making them look at the menu item they find most
+satisfying at the time!
+
+The menu items are text, and the menu background is a dynamically
+de-saturated and darkened shadow with feathered edges, so you can
+still see the 3d animation going on behind the menu, but it's bleached
+of color and darkened so the person's head shows up distinctly, like
+it's inside a bubble of thought. The edges of the effect are gently
+feathered so as not to make you think of the menu as an overlapping
+window, but more like a cloud of smoke or something, so it emphisizes
+the person and the items instead of the menu window "artifact".
+
+What's really cool is that when you're staring at the menu, then it
+pops down, the round region where the menu used to be appears to
+briefly flash brighter than the surrounding image, but that's only
+because your eyes get used to the darkness, and perceive the sudden
+change as a flash of brightness in that area! Maybe it should fade out
+gently, but the unintended flashing effect is pretty neat!
+
+Oh god am I glad to be doing graphics in 16 bits true color instead of
+fucking around with 8 bit color palettes, with floating point instead
+of fixed point!!!!!!!! Computers just are so fast today there's really
+no excuse not to do lots of cool stuff with them.
+
+        -Don
+

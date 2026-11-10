@@ -1,0 +1,44 @@
+fb_color setcanvas
+clippath pathbbox /height exch def /width exch def
+
+/rrange { % n => -n..n
+  random mul
+  random .5 lt { neg } if
+} def
+
+/shake 8 def
+
+fb_enable setcanvas
+5 setrasteropcode
+width height scale
+fb_overlay imagecanvas
+
+fb_color setcanvas
+1 fillcanvas
+
+/steps 24 def
+
+/hue random def
+
+0 1 steps { /i exch def
+  /x steps i sub steps div 2 div .5 add def
+  /hue hue random .1 mul add dup 1 gt { 1 sub } if def
+  gsave
+    i i translate
+    width height scale
+    hue 1 x sethsbcolor
+    false fb_enable imagemaskcanvas
+    pause
+  grestore
+} for
+
+i 1 add dup translate
+width height scale
+random 1 1 sethsbcolor
+false fb_enable imagemaskcanvas
+
+fb_enable setcanvas
+3 {
+  0 .1 1 { fillcanvas pause } for
+  1 -.1 0 { fillcanvas pause } for
+} repeat

@@ -1,0 +1,49 @@
+To: xanadu!marcs@uunet.UU.NET
+In-reply-to: Marc Stiegler's message of Tue, 21 Mar 89 12:17:35 PST <8903212017.AA26767@xanadu.com>
+Subject: Xanadu Tech Forum
+--text follows this line--
+   Date: Tue, 21 Mar 89 12:17:35 PST
+   From: xanadu!marcs@uunet.UU.NET (Marc Stiegler)
+
+
+   Don,
+
+   When you went buzzing through your presentation on pie menus and such,
+   a number of people here were quite impressed. I'd like to invite you
+   to come and be the speaker for a Xanadu Tech Forum, something about
+   user interfaces, if you feel you'd have some interesting things to say.
+
+   Does this sound interesting to you?
+
+   Thanks.
+
+   Marc Stiegler
+   Director of Product Development
+
+I'm thrilled to hear that you'd like me to speak at a Xanadu Tech
+Forum! There are quite a few things I'd like to talk about...  
+
+What aspects of pie menus would the audience be most interested in?  I
+could describe what they are, how they work, what they're good for,
+their advantages over linear menus (the results of our experimental
+comparison), and how they've been used in various applications.  I can
+also talk about how to design easy to use pie menus (of interest to
+people implementing application using pie menus), and how to roll your
+own pie menus (of interest to people implementating or extending UI
+toolkits).
+
+I am presently writing up the work I've been doing on a visual
+PostScript programming environment for NeWS... Graphical data
+structure visualization and editing, programming and debugging by
+direct manipulation, etc... This should make an interesting talk.
+Inspired by smalltalk and the lisp machine, but my real goal is full
+blown CyberSpace (to the extent that the technology and the user's
+perception of reality can support it)!
+
+HyperTIES
+
+Emacs
+
+NeWS
+
+

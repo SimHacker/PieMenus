@@ -1,0 +1,186 @@
+* Diana Murray
+
+Here are the details of the release.  This information is SUN PROPRIETARY
+and may not be disclosed without a signed non-disclosure form.  The official
+annoucement is Nov 12th.
+
+I.
+
+OPENWINDOWS PORTABLE SOURCE V2.0 (OWPS V2.0)  WILL INCLUDE THE
+FOLLOWING:
+
+X11/NeWS Server
+OLIT (Open Look Intrinsics Toolkit)
+XView
+57 F3 Fonts and Typescaler (Folio fonts)
+5 select deskset components:
+Command Tool, Text Edit, Shell Tool, Perf Meter, Clock
+(NO OTHER DESKSET TOOLS WILL BE INCLUDED!!!!!!!!!!!!!!!!!!)
+
+II.
+
+PRICING:
+
+Commercial and Non-commercial-
+
+a) There will be a $995 charge for media (doc/tape/etc.) 
+b) There will be no charge for source.  
+c) For internal use there are no binary royalties.
+d) Gov't/University may also distribute the source and binaries widely for
+   non-revenue activities to other source licensees.  
+e) The only time a royalty will be incurred is when a binary of OLIT
+   or X11/NeWS is sold.  (i.e. Compatible vendors).
+
+III.
+
+LICENSING GUIDELINES:
+
+A source license will required for any organization interested in
+evaluating or modifying the source.  One of the following guidelines
+must be met in order to qualify for licensing: (There will be NO
+EXCEPTIONS to these guidelines at this time).
+
+a) Running on the SPARC Architechture   **** (Sun4, Compatible)
+                  or
+b) Company/University/Gov't Agency is an SVR4 Licensee  **** (Not SVR3.2)
+                  or
+c) Non-Unix Platform  **** (DOS/Mac, etc)
+                  or
+d) Previous NeWS Licensee as of Oct, 1987
+
+IV.
+
+AVAILABILITY
+
+OWPS v2.0 will be available on January 1, 1991.  Though the product 
+will be price listed, we are recommending that the sales force go through
+one of the distributors (to be announced).  OpenWindows is not a supported
+product, the distributors will be offering support.
+
+Diana Murray
+Windows Technology Marketing Manager
+
+** Reasons why OW can't be given away for free:
+*** olit
+    then don't include it!
+*** x11/news server
+    What parts?
+    Said there were parts of Adobe PostScript in there!
+    No graphics accelerators included with source.
+    Monochrome memory mapped framebuffer.
+*** fonts
+    Why not? License separatly!
+*** typescaler
+    Why not?
+
+** Send information about copyright to Michelle Huff
+
+** Why the restrictions?
+If I was a guy off the street who wanted to port OWPS 2.0 to a NeXT,
+I could not get it from Sun at any price.
+I would have to buy it from AT&T for $5000.
+Would I have to have a SVR4 license to get it from AT&T?
+Why do you want exclude the people you do?
+
+From korp@atlantis.ees.anl.gov Tue Nov 27 03:40:05 1990
+From: korp@atlantis.ees.anl.gov (Peter Korp)
+Newsgroups: comp.windows.x.announce
+Subject: Real OpenWindows Source Announcement
+Date: 15 Nov 90 17:57:25 GMT
+Distribution: comp.windows.x.announce,comp.windows.news,alt.sys.sun,comp.windows.x
+Organization: Advanced Computer Application Center, Argonne National Laboratory
+Nntp-Posting-Host: atlantis.ees.anl.gov
+
+
+Sorry if this a repost, had some mailer trouble!
+
+
+SunFLASH Vol 23 #12					       November 1990 
+----------------------------------------------------------------------------
+
+           Package Includes Window System and Toolkits
+
+MOUNTAIN VIEW, Calif. -- November 13, 1990 -- Sun Microsystems
+announced today that the source code for its OpenWindows(TM)
+application development environment will now be available free of
+charge (cost of media only -- $995).  This means that hardware and
+software developers will now have a cost-effective way to incorporate
+OpenWindows -- including the easy-to-use OPEN LOOK(R) graphical user
+interface -- into applications developed or ported to many platforms
+>from different vendors.
+
+The package includes code for the X11/NeWs(TM) Window System, OPEN LOOK
+toolkits, and OpenFonts(TM) with its TypeScaler(TM) technology.  Before
+today, only OpenWindows binaries were available from Sun.
+
+"Offering free source code for the industry's most advanced,
+comprehensive window environment demonstrates our ongoing commitment to
+open systems," said Ed Zander, vice president of marketing at Sun.
+
+                     Advanced Imaging Model
+
+The X11/NeWS Window System that is part of the source package combines
+a fully compliant X implementation with Sun's NeWS(R) technology, which
+offers the most advanced PostScript(R) imaging model available today.
+NeWS lets developers work with interactive, on-screen PostScript
+graphics -- particularly useful for commercial applications such as
+desktop publishing and multimedia.
+
+Also part of the source code package is OpenFonts -- Sun's
+nonproprietary font technology, which includes 57 scalable fonts.
+
+             OPEN LOOK Toolkits Provide Portability
+
+The keys to OpenWindows' portability are two OPEN LOOK toolkits,
+XView(TM) and the OPEN LOOK Intrinsics Toolkit (OLIT). XView is Sun's
+X-based toolkit that gives developers an easy way to design new
+applications with the OPEN LOOK graphical user interface, as well as to
+migrate the 2,800 existing kernel-based SunView(TM) applications to the
+networked window environment of OPEN LOOK and X.
+
+The OLIT toolkit -- based on AT&T's OPEN LOOK toolkit (XT+) --
+implements the OPEN LOOK look and feel and supports MIT Intrinsics.
+The XView toolkit is also offered free on the X11 R4 tape available
+>from MIT. OpenWindows is a standard part of the industry's leading
+UNIX(R) operating system, UNIX System V Release 4 from AT&T.
+
+Since OPEN LOOK toolkits will be available for a range of platforms,
+developers can standardize on a single graphical interface.  Toolkits
+>from Sun and other vendors are available now or will be offered within
+three months for UNIX workstations from Digital Equipment Corp.,
+Hewlett-Packard and IBM, for VAX/VMS systems from Digital.
+
+                          Availability
+
+OpenWindows source code will be available January 1, 1991 on magnetic
+tape for $995 (which includes the cost of media and documentation)
+through Sun distributors.  The source license is included at no cost.
+There are no royalties for distributing applications developed with
+OpenWindows.  Hardware vendors will pay nominal royalties for systems
+they resell that run the OpenWindows environment.
+
+Sun Microsystems, Inc., headquartered in Mountain View, Calif., is a
+leading worldwide supplier of network-based distributed computing
+systems, including professional workstations, servers and UNIX
+operating system and productivity software.
+
+###
+
+OpenWindows, XView, X11/NeWS, OpenFonts and TypeScaler are trademarks
+and NeWS is a registered trademark of Sun Microsystems, Inc. OPEN LOOK
+and UNIX are registered trademarks of UNIX System Laboratories, Inc.
+PostScript is a registered trademark of Adobe Systems, Inc. All other
+products or services mentioned in this document are identified by the
+trademarks or service marks of their respective companies or
+organizations.
+
+
+FOR MORE INFORMATION:
+Cathleen Beall Garfield  (415) 336-6536 
+Diana Murray OpenWindows Licensing Manager (415) 336-1567
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+Peter
+

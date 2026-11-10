@@ -1,0 +1,826 @@
+%!
+% NeWS compatibility header for the Apple LaserWriter
+% Don Hopkins
+%
+% Caution: This code is UGLY. It should be printed out and shot.
+%	   Don't blame me. I just need good illustrations in a hurry.
+
+% debugging
+
+errordict begin
+  /typecheck {
+    (\nTYPECHECK\n) 
+    pstack
+    quit
+  } def
+  /undefined {
+    (\nUNDEFINED\n) 
+    pstack
+    quit
+  } def
+end
+
+/print { //print flush } def
+
+% init.ps
+
+/?def { % key val => -
+  systemdict 2 index known {pop pop} {def} ifelse
+} def
+
+% hack to make types out of dictionaries
+/oldtype /type load def
+
+/type { % obj => type
+  dup oldtype dup /dicttype eq {
+    pop dup /NeWS_Type known { % dict with NeWS_Type defined?
+      /NeWS_Type get % Make it look like some other type
+    } {
+      pop /dicttype % normal dict
+    } ifelse
+  } {
+    exch pop % not a dict
+  } ifelse
+} def
+
+/makenewstype { % type => dict
+  25 dict begin
+    /NeWS_Type exch def
+    currentdict
+  end
+} def
+
+% ==
+/&new==dict
+  /== load 0 get 50 dict copy def
+&new==dict begin
+  /processtype {pop (-process- ) tprint} def
+  /monitortype {pop (-monitor- ) tprint} def
+  /colortype {pop (-color- ) tprint} def
+  /canvastype {pop (-canvas- ) tprint} def
+  /eventtype {pop (-event- ) tprint} def
+  /pathtype {pop (-path- ) tprint} def
+  /==dict currentdict def
+  /typeprint { dup oldtype exec } def % the above is fucked so I put this in
+end
+
+/== { % obj => -
+  //&new==dict begin
+    /cp 0 def
+    typeprint
+    NL print
+  end
+} def
+
+% note: you get hosed if you try "systemdict begin" (can't def into it!)
+
+% fonts
+
+/icondict 10 dict def % XXX needs icon names!
+
+% XXX Must do /FontBBox load because in the LaserWriter, Times-Roman's
+% bbox is an executable array!!!
+/fontdescent { begin /FontBBox load 1 get FontMatrix 3 get mul neg end } ?def
+
+/fontheight { begin /FontBBox load aload pop exch pop exch sub exch pop
+    FontMatrix 3 get mul end } ?def
+
+/stringbbox {  % s => x y w h
+  gsave 0 0 moveto false charpath pathbbox grestore
+} def
+
+% paths
+
+% we will just print warning messages when we execute questionable primitives.
+
+/currentpath { % - => path
+  (CURRENTPATH\n) print 
+  /shapetype makenewstype
+} def
+
+/damagepath { % - => -
+  (DAMAGEPATH\n) print
+  clipcanvaspath
+} def
+
+/setpath {
+  (SETPATH\n) print
+  pop
+} def
+
+% processes
+
+/NeWS_currentprocess /processtype makenewstype def
+NeWS_currentprocess begin
+  /Interests [] def
+  /ExecutionStack [] def
+  /DictionaryStack [] def
+  /Execee null def
+  /OperandStack null def
+  /State /runnable def
+  /ErrorCode /none def
+end
+
+/fork { % func => process
+  (FORK\n) print
+  exec % scheduler? What scheduler?
+  % maybe put stack into dict for waitprocess?
+  /processtype makenewstype
+} def
+
+/waitprocess { % process => -
+  (WAITPROCESS\n) print
+  pop 
+  % need top of stack of deceased process
+  null
+} def
+
+/killprocess { % process => -
+  (KILLPROCESS\n) print
+  pop
+} def
+
+/currentprocess { % - => proc
+  countdictstack array dictstack
+  NeWS_currentprocess begin
+    /DictionaryStack exch def
+    currentdict
+  end
+} def
+
+/pause {} def
+
+% monitors
+/monitorlocked { % monitor => bool
+  pop false
+} def
+
+/createmonitor { % - => monitor
+  /monitortype makenewstype
+} def
+
+/monitor { % monitor proc => -
+  exch pop exec
+} def
+
+/InteractionLock createmonitor def
+
+% colors
+
+/Color false def
+
+/rgbcolor { % r g b => color
+  /colortype makenewstype begin
+     /Blue exch def /Green exch def /Red exch def
+    currentdict
+  end
+} def
+
+/hsbcolor { % h s b => color
+  /colortype makenewstype begin
+     /Brightness exch def /Saturation exch def /Hue exch def
+    currentdict
+  end
+} def
+
+/setcolor { % color => -
+  dup /Brightness known {
+    /Brightness get
+  } {
+    begin Red Blue Green add add 3 div end
+  } ifelse
+  setgray
+} def
+
+/setrasteropcode { % code => -
+  (SETRASTEROPCODE\n) print
+  pop
+} def
+
+% canvases
+
+/&newcanvas-canvas /canvastype makenewstype def
+&newcanvas-canvas begin
+  /TopCanvas null def
+  /BottomCanvas null def
+  /CanvasAbove null def
+  /CanvasBelow null def
+  /TopChild null def
+  /Parent null def
+  /Transparent false def
+  /Mapped false def
+  /Retained true def
+  /SaveBehind false def
+  /Color false def
+  /EventsConsumed /AllEvents def
+  /CanvasX 30 def
+  /CanvasY 30 def
+  /CanvasShape {newpath} def
+  /CanvasEvenOdd false def
+end
+
+/newcanvas { % parent => canvas
+  (NEWCANVAS\n) print
+  &newcanvas-canvas 20 dict copy begin
+    /Mapped false def
+    /Parent exch def
+    currentdict
+  end  
+} def
+
+/framebuffer null newcanvas def
+
+/NeWS_CurrentCanvas framebuffer def
+
+% What about initmatrix? Maybe it should use the canvas matrix?
+
+/setcanvas { % canvas => -
+  (SETCANVAS\n) print
+  dup /NeWS_CurrentCanvas exch store
+  begin
+    initmatrix initclip
+    CanvasX CanvasY translate % why doesn't this quite work?
+    CanvasShape CanvasEvenOdd {eoclip} {clip} ifelse
+  end
+} def
+
+/compile-path { % path => fn
+  [
+    /newpath cvx
+    { /moveto cvx }
+    { /lineto cvx }
+    { /curveto cvx }
+    { /closepath cvx }
+    pathforall
+  ] cvx
+} def
+
+/reshapecanvas { % canvas => -
+  (RESHAPECANVAS\n) print
+  begin
+    /CanvasShape compile-path def
+    /CanvasEvenOdd false def
+    CanvasShape clip
+  end
+} def
+
+/eoreshapecanvas { % canvas => -
+  (EORESHAPECANVAS\n) print
+  begin
+    /CanvasShape compile-path def
+    /CanvasEvenOdd true def
+    CanvasShape eoclip
+  end
+} def
+
+/savebehindcanvas { % canvas => -
+  begin
+    /SaveBehind true def
+  end
+} def
+
+/movecanvas { % x y => -
+  (MOVECANVAS\n) print
+  NeWS_CurrentCanvas begin
+    /CanvasY exch def /CanvasX exch def
+  end
+} def
+
+/canvastotop { % canvas => -
+  pop
+} def
+
+/mapcanvas { % canvas => -
+  /Mapped true put
+} def
+
+/unmapcanvas { % canvas => -
+  /Mapped false put
+} def
+
+/getcanvaslocation { % canvas => -
+  (GETCANVASLOCATION\n) print
+  begin
+    CanvasX CanvasY
+  end
+} def
+
+/clipcanvaspath {
+  NeWS_CurrentCanvas begin
+    CanvasShape clip
+  end
+} def
+
+/eoclipcanvaspath {
+  NeWS_CurrentCanvas begin
+    CanvasShape eoclip
+  end
+} def
+
+/clipcanvas {
+  (CLIPCANVAS\n) print
+  gsave
+    gsave
+      /Courier findfont 18 scalefont setfont
+      (<=*THIS* is the bloody canvas clip path!) show
+    grestore
+    4 setlinewidth 1 setlinecap [8 8 16 8] 0 setdash
+    .5 setgray stroke
+  grestore
+  NeWS_CurrentCanvas begin
+    /CanvasShape compile-path def
+    /CanvasEvenOdd false def
+  end
+} def
+
+/eoclipcanvas {
+  (EOCLIPCANVAS\n) print
+  NeWS_CurrentCanvas begin
+    /CanvasShape compile-path def
+    /CanvasEvenOdd true def
+  end
+} def
+
+/setshade { %  grey or color  =>  -  (sets current color or grey)
+    dup type /colortype eq {setcolor} {setgray} ifelse
+} def
+
+/fillcanvas { %  grey  =>  -  (Fills current canvas w/ gray)
+    setshade clippath fill
+} def
+
+/setprintermatch { % n => -
+  pop
+} def
+
+/setlinequality { % n => -
+  pop
+} def
+
+% events
+
+% this should use &awaitevent-event
+/createevent { % - => event
+  /eventtype makenewstype
+} def
+
+/expressinterest { % interest => -
+  currentprocess begin
+    /Interests [ 3 -1 roll Interests aload pop ] def
+  end
+} def
+
+/blockinputqueue { % time => -
+  pop
+} def
+
+/unblockinputqueue {} def
+
+/&awaitevent-event createevent def
+&awaitevent-event begin
+  /Name null def
+  /Action null def
+  /XLocation null def
+  /YLocation null def
+  /Canvas framebuffer def
+  /Interest currentdict def
+  /Timestamp 0 def
+  /ClientData null def
+  /KeyState [] def
+  /Process NeWS_currentprocess def
+  /Priority 0 def
+  /Exclusivity false def
+  /IsQueued null def
+  /Serial 0 def
+  /IsInterest false def
+end
+
+/&awaitevent-string 256 string def
+
+/awaitevent { % - => event
+  //&awaitevent-event 20 dict copy begin
+    {
+      (awaitevent\n) print
+      currentfile //&awaitevent-string readline not {
+        (so long\n) print
+        quit
+      } if
+      (Read: ) print dup print (\n) print
+      cvx exec
+      /Interest null def
+      NeWS_currentprocess /Interests get
+      {
+        dup /Name Name eventmatches? {
+	  dup /Action Action eventmatches? {
+	    /Interest exch def
+	    exit
+	  } {
+	    pop
+	  } ifelse
+	} {
+          pop
+	} ifelse
+      } forall
+      Interest null eq {
+        (Boooring!\n) print
+      } {
+        exit
+      } ifelse
+    } loop
+    currentdict
+  end
+  (thanks\n) print
+} def
+
+/eventmatches? { % interest /key val => bool
+  3 -1 roll 2 index get % /key val pat
+  dup type {
+    % null matches all
+    /nulltype {
+      pop pop true exch pop
+    }
+    % Array matches any of its elements
+    /arraytype { % /key val array
+      false exch { % /key val false pat
+        2 index eq { pop true exit} if
+      } forall % /key val bool
+      exch pop exch pop % /key bool
+    }
+    % dict matches any of its keys ...
+    /dicttype { % /key val dict
+      false exch { % /key val false pat result
+        exch 3 index eq { % /key val false result
+	  % executable values are executed
+	  % (and hopefully don't change the stack!)
+	  dup xcheck {
+	    exch pop exch pop exch pop % result
+	    exec %
+	    null null true exit % /key val bool
+	  } { % literal values replace the key matched in the event!
+	    exch pop exch pop % /key result
+	    def %
+	    null null true exit % /key val bool
+	  } ifelse
+	} {
+	  pop
+	} ifelse
+      } forall % /key val bool
+      exch pop exch pop % bool
+    }
+    % others match if equal
+    /Default {
+      eq exch pop
+    }
+  } case % bool
+} def
+
+/sendevent { % event => -
+  (SENDEVENT\n) print
+  pop
+} def
+
+/recallevent { % event => -
+  (RECALLEVENT\n) print
+  pop
+} def
+
+% Events read from the text input streak look like:
+% "MenuButton UpTransition 100 200 E"
+
+/E { % Name Action X Y
+  {/YLocation /XLocation /Action /Name} {exch def} forall
+} def
+
+/EventMgrInit {} def		% was: code to structure & strip stack.
+/EventMgrFore {} def		% was: /EventMgrFore {gsave} def
+/EventMgrAft {} def		% was: /EventMgrAft {grestore} def
+
+/EventMgrDict {count 1 sub index} def
+/CurrentEvent {EventMgrDict /CurrentEvent get} def
+
+/forkeventmgr { % interests => process
+    (FORKEVENTMGR\n) print
+    null blockinputqueue
+    {	20 dict count 1 roll	
+        EventMgrInit
+	mark exch {
+	    dup xcheck {exec} {expressinterest} ifelse
+	} forall cleartomark
+	unblockinputqueue
+        count EventMgrDict /InitCount 3 -1 roll put
+	{   awaitevent EventMgrDict /CurrentEvent 2 index put
+	    EventMgrFore
+	    dup /Interest get /ClientData get /CallBack get
+(Here we go:::::::::: ) print dup ==
+	    exec
+	    EventMgrAft
+	    count EventMgrDict /InitCount get sub {pop} repeat
+	} loop
+    } fork
+    pause			% Pause to let forked process run
+    exch pop			% pop the interests & return the process.
+} def
+
+/eventmgrinterest { % eventname eventproc action canvas => interest
+    createevent dup begin 5 1 roll		% event name p act can
+	/Canvas exch def
+	/Action exch def
+	/ClientData 10 dict dup /CallBack 5 -1 roll cvx put def
+	/Name exch def
+    end
+} def
+
+% mouse & cursor
+
+/setcanvascursor { % font shape mask
+  pop pop pop
+} def
+
+/setstandardcursor { % primary mask canvas => -
+  pop pop pop
+} def
+
+/NeWS_CurX 200 def
+/NeWS_CurY 300 def
+
+/currentcursorlocation { % - => x y
+  (CURRENTCURSORLOCATION\n) print
+  NeWS_CurX NeWS_CurY
+} def
+
+% Utilities for class.ps
+
+/send {what the fuck?} def % hack for object.ps
+
+/undef { % dict key => -
+  null put % sigh
+} def
+
+/dictbegin { % - => -
+  100 dict begin % frigging VMERROR!
+} def
+
+/dictend { % - => dict
+  currentdict end
+} def
+
+/nullarray [] def
+/nullproc {{}} def
+/nullstring () def
+
+/max {2 copy lt {exch} if pop} def
+/min {2 copy gt {exch} if pop} def
+
+/case {			%  v { k {} k k {} .... /Default {} }  CASE  -
+    false exch {				% v bool k|{}
+	exch {					% v k|{}
+	    dup xcheck {exit} {pop true} ifelse	% v bool|{}
+	} {
+	    2 copy eq exch /Default eq or	% v bool
+%	    2 copy eq exch			% v bool k
+%	    dup /Default eq exch true eq or or	% v bool
+	} ifelse
+    } forall					% v bool|{}
+    dup xcheck {exch pop exec} {pop pop} ifelse
+} ?def
+
+/append {	% obj1 obj2  =>  obj3 (concatinates arrays, strings, and dicts)
+		% Dicts: second dict over-rides common keys
+    1 index length 1 index length add	% obj1 obj2 totalsize
+    1 index type dup /dicttype eq {
+        pop dict begin
+            exch {def}forall {def}forall
+            currentdict
+        end
+    } {
+        /arraytype eq {array} {string} ifelse	% a1 a2 A
+	dup 4 -1 roll 1 index copy length	% a2 A A l1
+	4 -1 roll putinterval
+    } ifelse
+} ?def
+
+/arrayop { %  A B proc   =>  C  (ci = ai bi proc)
+10 dict begin
+    /proc exch def /B exch def /A exch def	% store params
+    /C A length array def			% make result array
+    0 1 A length 1 sub {			% for: 0 1 (sizeA - 1)
+        A 1 index get B 2 index get proc	% i ai bi => i ci
+        C 3 1 roll put				% store ci in C
+    } for
+    C						% return C
+end
+} def
+
+/arrayinsert { % array index value  =>  - test: [/a /b /x /y] 2 0 arrayinsert
+10 dict begin
+    /val exch def /i exch 2 index length min def /a exch def
+    /a1 a 0 i getinterval def
+    /a2 a i a length i sub getinterval def
+    
+    [a1 aload pop /val load a2 aload pop]
+end
+} def
+
+/arraydelete { % array index  =>  - test: [/a /b /x /y] 2 arraydelete
+10 dict begin
+    /i exch 2 index length 1 sub min def /a exch def
+    /a1 a 0 i getinterval def
+    /a2 a i 1 add a length 1 index sub getinterval def
+    
+    [a1 aload pop a2 aload pop]
+end
+} def
+ 
+/random { % - => n
+  rand 32767 and 32768 div
+} def
+
+/currenttime { % - => time
+  usertime
+} def
+
+/DefaultMenu null def
+
+/setdefaultmenu {
+  /DefaultMenu exch store
+} def
+
+% show centered & right flush:
+/rshow { dup stringwidth exch neg exch rmoveto show } def
+/cshow { dup stringwidth exch 2 div neg exch rmoveto show } def
+
+/points2rect { %	x y x' y'  =>  x y w h
+    3 index 2 index min		% x y x' y' X
+    3 index 2 index min		% x y x' y' X Y
+    5 index 4 index sub abs	% x y x' y' X Y W
+    5 index 4 index sub abs	% x y x' y' X Y W H
+    8 -4 roll pop pop pop pop	% X Y W H
+} def
+
+/rect2points { %	x y w h    ->    x y x' y'
+    2 index add			% x y w (h+y)
+    exch 3 index add exch	% x y (w+x) (h+y)
+} def
+
+/rectsoverlap { % r1 r2 => bool (r1 & r2 = x y w h quadruples)
+    rect2points 4 array astore
+    5 1 roll rect2points 4 array astore exch
+    {2 index 1 le {max} {min} ifelse} arrayop
+    aload pop		% x y X Y (i.e. x0max y0max x1min y1min)
+    exch 4 1 roll	% X x y Y
+    lt 3 1 roll gt and	% x0max<x1min & y0max<y1min
+} def
+
+/modifyproc {	% /proc {head} {tail}  =>  {head proc tail}
+		% Note: any of proc, head, tail may be keywords.
+10 dict begin
+    /defbody {dup type /nametype eq {load} if def} def
+    /tail exch defbody
+    /head exch defbody
+    /proc exch defbody
+    [ /head load aload pop /proc load aload pop /tail load aload pop ] cvx
+end
+} def
+
+/cvis {1 string dup 0 4 -1 roll put} def % int (char)  =>  str (one char)
+
+/strokecanvas { %  grey  =>  -  (Strokes current rectangular canvas w/ gray)
+    clippath setshade strokebbox
+%    setshade clippath pathbbox
+%    .5 .5 moveto 1 sub exch 1 sub exch rect
+%    stroke pop pop
+} def
+
+/strokebbox { %  -  =>  -  (Strokes current rectangular path)
+    pathbbox points2rect
+    4 2 roll
+    .5 add exch .5 add exch moveto 1 sub exch 1 sub exch rect
+    stroke
+} def
+
+/rect {dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto closepath } ?def
+
+% The two insetting procs:
+/insetrect { % delta x y w h  =>  x' y' w' h' (return new rect inset by delta)
+    4 array astore exch			% [x y w h] delta
+    [exch dup dup 2 mul neg dup]	% [x y w h] [d d -2d -2d]
+    {add} arrayop aload pop
+} def
+/insetrrect { % delta r x y w h => r' x' y' w' h' (roundrect version of above.)
+    6 -2 roll 1 index sub 0 max exch 6 2 roll insetrect
+} def
+
+% The six path/frame procs:
+/rectpath { %	x y w h  =>  -  (make a rect path)
+    4 2 roll moveto rect
+} def
+/rectframe { % thickness x y w h => - (make a rect frame)
+    4 copy rectpath
+    insetrect rectpath
+} def
+/ovalpath { % x y w h  =>  -  (make a oval path)
+    matrix currentmatrix 5 1 roll
+    4 2 roll translate scale .5 .5 translate 0 0 .5 0 360 arc closepath
+    setmatrix
+} def
+/ovalframe { % thickness x y w h => - (make a oval frame)
+    4 copy ovalpath
+    insetrect ovalpath
+} def
+/rrectpath { %	r x y w h  =>  -  (make a round rect path)
+    matrix currentmatrix 6 1 roll	% m r x y w h
+    4 2 roll translate			% m r w h
+    10 dict begin
+	/h exch def /w exch def /r exch def
+	mark
+	    r 0 moveto
+	    w 0 w h r arcto w h 0 h r arcto
+	    0 h 0 0 r arcto 0 0 w 0 r arcto closepath
+	cleartomark
+    end
+    setmatrix
+} def
+/rrectframe { % thickness r x y w h => - (make round rect frame)
+    5 copy rrectpath
+    insetrrect rrectpath
+} def
+
+/sprintf { % args fmtstr -or- fmttstr [args] => str
+    dup type /arraytype eq { % convert second form to first form
+	3 exch {			% fmtstr i+3 ai
+	    1 index 1 roll		% ai .. a1 fmtstr i+3 
+	    1 add
+	} forall
+	pop
+    } if				% aN .. ai fmtstr
+    () 250 string 3 -1 roll (%) {	% aN .. ai resultstr tempstr fmtstr (%)
+	search {			% aN .. ai result temp post (%) pre
+	    6 -1 roll			% aN .. result temp post (%) pre ai
+	    dup type /stringtype ne	% is ai a string?  If so, convert.
+	    	{4 index cvs} if	% aN .. result temp post (%) pre (ai)
+	    append			% aN .. result temp post (%) pre'
+	    5 -1 roll exch append	% aN .. temp post (%) result'
+	    4 1 roll			% aN .. result' temp post (%)
+	} {				% result temp fmt
+	    exch pop append exit
+	} ifelse
+    } loop
+} def
+%
+% Printing versions of sprintf.  Note: fprintf also flushes the file.
+%
+/printf {sprintf print} def % print sprintf on std out
+/fprintf { % file fmtstr argarray  .or. file args fmtstr  => -
+    sprintf 1 index exch writestring flushfile
+} def
+
+% Defaults & Constants:
+% Done here so xxx.ps can use them; also see below for defaults
+/UserProfile 100 dict def
+
+/DefaultFamily		/Times-Roman def
+/DefaultPointSize	14 def
+/DefaultFont		DefaultFamily findfont DefaultPointSize scalefont def
+
+/textcolor		0 0 0 rgbcolor def
+/backgroundcolor	1 1 1 rgbcolor def
+/bordercolor		textcolor def
+
+/LeftMouseButton	dup def
+/MiddleMouseButton	dup def
+/RightMouseButton	dup def
+/MouseDragged		dup def
+/DownTransition		dup def
+/UpTransition		dup def
+
+/PointButton		LeftMouseButton def
+/AdjustButton		MiddleMouseButton def
+/MenuButton		RightMouseButton def
+
+clippath pathbbox points2rect rectpath
+framebuffer reshapecanvas
+
+/showmouse { % x y
+  gsave
+    translate
+    1 setlinecap
+    0 setlinejoin
+    50 setmiterlimit
+    newpath
+    10 -10 moveto
+    0 0 lineto
+    1 -6 moveto
+    0 0 lineto
+    6 -1 lineto
+    gsave
+      1 setgray
+      3 setlinewidth
+      stroke
+    grestore
+    0 setgray
+    2 setlinewidth
+    stroke
+    % squeak!
+  grestore
+} def
+

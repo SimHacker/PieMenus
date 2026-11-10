@@ -1,0 +1,21 @@
+#!/bin/csh -f
+set file=$1
+echo "dictbegin"
+set info = (`ls -lg $file`)
+set type = (`file $file`)
+echo "/Mode ($info[1]) def"
+echo "/Links $info[2] def"
+echo "/Owner ($info[3]) def"
+echo "/Group ($info[4]) def"
+echo "/Size $info[5] def"
+echo "/Time ($info[6] $info[7] $info[8]) def"
+echo "/Name ($info[9]) def"
+echo "/File ($type[2-]) def"
+echo "dictend"
+echo "20 dict begin"
+echo "/ContentsPostScript exch def"
+echo "/ContentsAscii ($file) def"
+echo "/SelectionResponder null def"
+echo "/Canvas framebuffer def"
+echo "/SelectionHolder currentprocess def"
+echo "currentdict end /PrimarySelection setselection"

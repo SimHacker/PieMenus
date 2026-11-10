@@ -1,0 +1,476 @@
+	\bold{Syntactic Extensions to PdB to Support TNT Classing Mechanisms}
+
+\bold{Summary.}
+
+This specification assumes that PdB will follow C++ syntax, where possible, to support TNT classing.  The basis for this is that it is unwise to invent yet another classing syntax when we can borrow from C++.  However there are drawbacks:
+
+	1) The use of C++ syntax may lead programmers into assuming that all of C++ is supported.
+	2) TNT classes are actually constructed during execution, C++ classes are purely syntactic.
+
+I believe we can answer the first drawback by clearly describing what can be done with PdB, the second drawback is more crucial.  We will address each of the issues below.
+
+Nonetheless, despite the drawbacks, PdB should be considered as a 'foot in the door', rather than an alternative to writing advanced TNT applications. Some programmers will always be happier dealing directly with PostScript.
+
+
+\bold{TNT Packages.}
+
+\red{Issue:} Packages (the encapsulation of related pieces of the toolkit) have no C++ analogy.  Is it necessary to provide a PdB mechanism or should this be accomplished through a PostScript fall-through?
+
+A related problem is that some functions will be in a flat name space. For example, 'cshow' will be bound differently when the PostScript Level II package is installed.
+
+\green{Proposal:} Let's not worry about packages for now.  If the "main" routine is in the PdB program, then it could automagically install the appropriate packages.
+
+
+\bold{Naming and Coding Conventions:}
+
+PdB should stop supporting the characters ? in variables.  To allow for PostScript characters in PdB variables, the name should be enclosed in vertical bars (a notation borrowed from Common Lisp), thus:
+
+		bool |Freezable?| = true;
+
+Note that users may #define a macro to avoid typing the vertical bars, \italic{e.g.,}
+
+		#define freezableq |Freezable?|
+
+Additionally, PdB should conform to the TNT Postscript naming conventions as much as possible, such conventions are described in an appendix to this document.
+
+\bold{Class Definition:}
+
+The C++ syntax can ably generate a TNT class:
+
+	\blue{class} ClassCanvas : ClassDrawable {
+		...
+	\};
+
+would generate something like:
+
+	/ClassCanvas ClassDrawable nulldict
+	classbegin
+		...
+	classend def
+
+There is a parallel between 'class' and 'struct' in both C++ and PdB.  In C++, structs are thought of as a generalization of classes, thus struct operators may be used in classes.  The same is true for PdB since structs map into dictionaries and 'dict' operators may be used in classes. 
+
+\red{Issue:} We could ask PdB to add the "Class" prefix to the class names, thus:
+
+	class Canvas : Drawable {
+		...
+	\};
+
+would compile into:
+
+	/ClassCanvas ClassDrawable nulldict
+	classbegin
+		...
+	classend def
+
+\green{Proposal:} Yes, the Class in the name is redundant (the rest of the document uses this proposal).
+
+\red{Issue:} We do have a fundamental problem here.  In C++, unless the variable is prefixed with the 'static' keyword, it becomes an instance variable.  The C++ notion of defaulting to instance variables is contrary to the TNT notion of defaulting to class variables.
+
+\green{Proposal #1:} To explicitly create instance variables with PdB, we could use an '\blue{instance}' (or maybe 'auto') keyword.  Thus,
+
+	class Canvas : Drawable {
+		\blue{instance} bool |Freezable?| = true;
+		int BorderStroke = 2;
+	\};
+
+would generate:
+
+	/ClassCanvas ClassDrawable
+	dictbegin
+		/Freezable true def
+	dictend
+	classbegin
+		/BorderStroke 2 def
+	classend def
+
+\green{Proposal #2:} To explicitly create class variables, we use a '\blue{classvar}' keyword, thus maintaining C++ semantics.  The above example becomes:
+
+	class Canvas : Drawable {
+		bool |Freezable?| = true;
+		\blue{classvar} int BorderStroke = 2;
+	\};
+
+(the rest of the document uses this proposal).
+
+\green{Proposal #3:} Do not add any new keywords.  The semantics will be as follows, variables will default to class variables but assignment to them promotes them to instance variables.  The problem here is that modification of class variables wouldn't be allowed by PdB (note that Proposal #3 above doesn't have this problem due to the 'classvar' keyword).
+
+\bold{Multiple Inheritance:}
+
+This maps easily to C++:
+
+	class ItemGroup : Region , Layout {
+		...
+	\};
+
+generating,
+
+	/ClassItemGroup [ ClassRegion ClassLayout ] nulldict
+	classbegin
+		...
+	classend def
+
+\red{Issue:} Normally in C++ a user would use the keyword 'public' which has no meaning in Object-Oriented PostScript.
+
+\green{Proposal #1:} Have the PdB compiler treat 'public', 'friend', and 'private' as "noisewords," ignoring them.
+
+\green{Proposal #2:} Do nothing.  Users will never feed C++ code to PdB.  The above syntax is intuitively obvious to the C++ programmer anyway.
+
+
+\bold{Class Methods:}
+
+Methods will be coded within the class definition:
+
+	class Canvas : Drawable {
+		void HandleDefaults(name key, any value) {
+			...
+		\};
+		...
+	\};
+
+generating,
+
+	/ClassCanvas ClassDrawable nulldict
+	classbegin
+		/HandleDefaults { % key value => -
+			...
+		\} def
+		...
+	classend def
+
+
+\bold{Class Declaration:}
+
+Classes must be declared in header files for other people to use them.  The keyword '\blue{extern}' will be used for that.  Note that a class declaration becomes the "public" interface for that class. Class declarations cannot have initalized variables or methods.  Thus:
+
+	\blue{extern} class Canvas : Drawable {
+		bool |Freezable?|;
+		void HandleDefaults (name key any value);
+		...
+	\};
+
+
+\bold{Promotion:}
+
+TNT syntax provides a mechanism for promoting and unpromoting class to instance variables.  It is a space-saving measure for a default which is rarely overridden.  For example, /NewInit creates instance variables which may change the next time an invalid value unpromotes.
+
+\red{Issue:} How would PdB support unpromote?
+
+\green{Proposal:} Do nothing in the first implementation.
+
+
+\bold{PostScript Executable Arrays and Dynamic Methods:}
+
+In PostScript it is possible to build an executable array and give it to the interpreter. C, unlike other languages like Lisp, does not have this capability.  A related feature used by TNT is that of installing a class or instance method at run time, via /installmethod.
+
+\red{Issue:}  How can this be supported by PdB?
+
+\green{Proposal:} Do nothing in the first implementation.
+
+
+\bold{Polymorphism:}
+
+PdB handles this by providing two alternative function definitions:
+
+	int fn(int a);
+	float fn(float a, int b);
+
+to allow for the extreme flexibility of PostScript.
+
+In the case where PostScript functions or operators return more than one value they can be combined into one return with a PostScript macro (as in the 'where' example) or placed into a struct.
+
+PdB can handles multiple returns directly by specifying a function which returns a struct.
+
+
+\bold{The Constructs "self send" and "super send":}
+
+The proposed PdB syntax:
+	
+	self.move(10, 10)		=>	10 10 move
+and
+	super.reshape(0,0,10,10)	=>	0 0 10 10 //reshape exec
+
+works well for most cases.   However, due to multiple inheritance, 'super' is not known till runtime.  PdB should generate a call to 'supersend' just like the method compiler does.
+
+
+\bold{Persistency and Scoping:}
+
+These concepts are essentially new to PdB.
+
+PdB supports persistency with the persist() pseudo-function (used outside function code body).  It would be cleaner if this could be done inside the class:
+
+	class foo : bar {
+		\blue{persistent} char *str = "home";
+		\blue{scoped} menu windowmenu;
+		/* */
+	\};
+
+(Similiarly, the '\blue{scoped}' keyword would replace '@')
+
+
+\bold{PdB and cps:}
+
+The current situation that an application programmer sees is that he or she has to create at least three program files: client side C, client side PostScript, and server side Postscript.  Although one could argue that a judicious use of 'CLIENT SIDE' keywords sprinkled throughout the code would allow all three files to be combined in one, we've decided this to be a bad idea (after all, the client code may not be C).
+
+This leaves us with cps and server code.  Both of which can be written in PdB.
+
+\red{Issue:} How should PdB support cps definitions?
+
+\green{Proposal #1:} Create a new file, with extension 'Cps', for example, containing all the interface functions.  The client code must execute an initialization function to download the interface-function definitions.
+
+\green{Proposal #2:} Add a new keyword, '\blue{cdef}', which specifies an interface function.  The output of PdB is then two files, one with the PostScript (server) code and another one with the cps definitions.
+
+
+\bold{Standard C and PdB:}
+
+One of the, admittedly minor, issues that needs to be resolved is the use of C itself.  Most C programmers will assume that may for the 'stdio.h' functions will be available in PdB.  Similarly we'll have to document the utility libraries available within the server (\italic{e.g.,} printf, etc).
+
+\red{Issue:}  How would a user create a "library" that PdB would search?
+
+\green{Proposal:} Do nothing in the first implementation.
+
+\red{Issue:} Will functions that deal directly with stdin and stdout, eg, getchar, putchar, need to be supported?
+
+\green{Proposal:} Do nothing in the first implementation.
+
+\red{Issue:} PdB doesn't support const.  It creates a variable (at least in the version I used), perhaps it could use '//'.  In any event this should be documented.  (Unfortunately, NeWS's 'readonly' is used for structure types.)
+
+\green{Proposal:} PdB should support const better, unless it's too much work.
+
+\red{Issue:} PdB doesn't support the definition of multidimensional arrays directly. Accessing and assigning elements in multidimensional arrays is tedious with PostScript.  In any event, this should be documented.
+
+\green{Proposal:} Do nothing in the first implementation.
+
+							\bold{Appendix I}
+
+This document is a collection of PostScript coding style guidelines and conventions as well as selected bits of programming lore.  It is a living document and will be updated periodically.  Some of the conventions are not universally agreed upon and they are indicated here as "proposals."
+
+These conventions are intended to be guidelines, not absolute rules. Follow them whenever possible to give your code an appearance consistent with the rest of our code.  Use your best judgement about when to deviate from the conventions.
+
+
+\underline{Code Organization}
+
+Classes are split into areas separated by these comments:
+
+    % Class Variables:
+    % Defaults:
+    % Canvas Initialization:
+    % Methods:
+    % Utilities:
+
+This is helpful for a browser, for example.  Note that defaults and canvas initialization are types of class variables and that utilities are methods.  Canvas initialization is used only for classes descended from ClassCanvas.
+
+- Method definitions are organized functionally.  Several related methods are often grouped together.
+
+- Separate methods by a single blank line.  Separate groups of methods by two blank lines.
+
+- Methods that set and get a value are located together, with the set method first.
+
+- Utilities are functions that are used only within the class.  They may be called directly, whereas methods are always invoked with send.
+
+- The object is to make the code as readable as possible.  Avoid the temptation to cram too much code on each line.  Organize your code as a sequence of simple steps, one per line.
+
+
+\underline{Naming
+}
+- For variable names, use nouns:
+
+	/Canvas
+	/DefaultValue
+
+- For methods that simply return a value with no apparent side effect, use nouns:
+
+	/value
+	/graphic
+
+- For methods that cause a side effect or some other action, use a verb or verb-object phrase as the name:
+
+	/reshape
+	/setvalue
+
+- Variables and methods that produce boolean values have names ending in a question mark.  If the name is a noun, the question mark means it can be read as "Am I (the object) <noun>?" or "Is there <noun>?", e.g. "Am I enabled?" or "Am I mapped?".  If the name is a verb the question mark means something like "Should I <verb>?", e.g. "Should I CallNotify?".
+
+	/valid? { % - => boolean
+
+- There are often pairs of methods to set and retrieve some attribute of an object.  The name of the attribute should be used alone for the retrieve method and with the prefix "set" for the set method:
+
+	/value { % - => any
+	/setvalue { % any => -
+
+- Class names begin with the prefix "Class" and are stored in an obviously-named file:
+
+	Class name: Class<Foo>
+	File name:  foo.ps;    where foo <= 9 characters
+
+- Method and variable names:
+
+* Lower case; e.g. /reshapefromuser
+
+Client interface methods: Methods that are called from outside the class both from subclassers and from unrelated classes (clients).
+
+* Mixed case, e.g. /PaintClient
+
+Subclasser methods: Methods that are intended to be called or overridden by subclassers but not called by clients.
+
+Utility functions and all variables also use mixed case.
+
+- Don't use underscores.
+
+- Danger:  Don't reuse the names of system operators!
+
+
+\underline{Comments}
+
+- Block Comments
+
+A block comment is used at the start of each class, procedure or method to describe it in general terms.  It should describe WHAT is happening, not HOW.  This means that if the code changes but the interface to it does not, the block comments should not have to change.
+
+Issue: We should define the block comment format better defined so we can
+have more consistency in our code. 
+
+- Class Comments
+
+Issue: We need to propose an existing class to use as a model for class-level documentation.
+
+- Method Comments
+
+[Proposal]:
+	\} def	% previous method definition
+
+	% comment line 1
+	% comment line 2
+	%
+	/MethodName { % args
+	    MethodBody
+	\} def
+
+The proposal is to put a blank line before the documentation and connecting the documentation to the method with a line containing only a %.  If we make a browser that can go grab the source code for a method, this may make it easier to get the comment as well.
+
+Arguments are documented using the conventions described in section 6.1 of the PostScript red book.  In addition:
+
+If the number of arguments varies, the possibilities are listed on separate lines:
+
+	/where { % key => dict true
+	         %     => false
+
+Use a single space to separate the { from the %.
+
+Angle brackets (< and >) are used to enclose multi-word argument descriptions or arguments whose exact type or number is not known:
+
+	/ExecuteItem { % <button instance> index => -
+	/newinit { % <client args> => -
+	
+
+- In-line comments
+
+Comments at the end of lines should usually show the state of the stack only.
+
+	/reshape { % x y w h => -
+and
+	3 -1 roll	% x w h y
+
+Comments that are not operand stack comments generally are put on their own line unless *very* brief.
+
+
+\underline{Indenting}
+
+- Each indent level is 4 spaces.  The TAB character indents 8 spaces. Indenting an even number of levels may be done with just TAB characters.  Indenting an odd number of levels may be done with TAB characters plus 4 space characters.  It is not necessary to use TAB characters; indenting may be done entirely with space characters.
+
+- In general, an opening brace appears at the end of a line (possibly followed by a comment), unless the enclosed code and the closing brace also fit on the same line.  The closing brace appears at the start of a line indented the same number of levels as the line containing the opening brace.
+
+- Code between braces is indented one level.  Other constructs that contain indented bodies of code are: 
+
+	begin / end
+	classbegin / classend
+	dictbegin / dictend
+	gsave / grestore
+
+- Comment lines should be indented to the same level as the code they describe.
+
+- Here are some templates for common constructs:
+
+	/FunctionName { % input args => output args ; comment
+	    FunctionBody
+	\} def
+
+	Condition {
+	    Body
+	\} if
+
+	Condition {
+	    Body1
+	\} {
+	    Body2
+	\} ifelse
+
+	Setup {
+	    Body
+	\} for		% same with forall, repeat & loop
+
+	Setup {
+	    /key1 {
+		Body1
+	    \}
+	    /key2 {
+		Body2
+	    \}
+	\} case
+
+	begin
+	    Code
+	end
+
+	Condition {ShortBody1\} {ShortBody2\} ifelse
+
+	Setup {ShortBody\} for
+
+
+\underline{Using the Class System
+}
+- All communication with an object should be through the object's methods.
+
+- Avoid sending code fragments to an object:
+
+	arg1 arg2 /method object send		% do this
+	{arg1 arg2 method\} object send		% don't do this
+
+- Do not access an object's instance variables directly.  If the value is available, the object's class should provide an accessor method. If the value is changeable, the class should provide a set method.
+
+	/value object send ==		% do this
+	5 /setvalue object send
+
+	{Value ==  			% don't do this
+	/Value 5 def\} object send
+
+- Be explicit when sending a message to self.
+
+	/method self send		% do this
+	method				% instead of this
+
+- Distinguish between class methods and instance methods, i.e. messages intended to be sent to classes vs. messages intended to be sent to instances of classes.  The /new method is always a class method and other methods are usually instance methods.
+
+- Be careful when using self send from within a begin/end pair.  If the method does any defs they will wind up in the dictionary instead of in the object.
+
+- Be careful not to redefine names of methods sent to self from within a begin/end pair.  Since the method compiler replaces "/method self send" with "method", code such as the following will fail:
+
+	begin
+	    /reshape (yes) def
+	    0 0 100 100 /reshape self send
+	end
+
+- Use store instead of def when changing the values of instance variables within a method.  This helps prevent problems if the method is invoked with self send from within a begin/end pair.  Use promote if the intention is to promote a class variable to an instance variable but be aware that there will be problems if the method is invoked with
+self send between a begin/end pair.
+
+- If a class has no instance vars, use nulldict on the same line as the class name:
+
+	/ClassSomething SuperClass nulldict
+	classbegin
+	classend
+
+
+\underline{SCCS usage:}
+
+We use this sccs header on our PostScript files:
+%
+%	\\@(#)coding_conventions 23.1 90/03/22
+%

@@ -1,0 +1,21 @@
+Clicking some sequence, say, double-right, lays down a help diagram showing
+what each direction of the mouse does.  Moving outside the diagram exits
+this mode and removes the diagram.  While in that mode, single clicks on
+the mouse keys cycle through the menu when the cursor is in the neutral
+area.  Clicking while cursor is in one of the item's sectors selects that
+item.  
+
+menu is laid out so that all choices are initially equidistant from the
+cursor, so only direction is needed to choose one.  The diagram stays as
+long as the button is held, while the cursor moves within it.  The
+selection is indicated by the  sector
+in which the cursor lies when the mouse button is released.
+
+The output of the selection is the direction, perhaps
+
+applications
+------------
+
+mouse menu for inputting numbers from circular scale (say, degrees).
+
+time: press left to set hour hand, middle to set minute hand.

@@ -1,0 +1,141 @@
+MOMENTA PUSHES ENVELOPE, WRESTLES MUD
+
+by Ray Valdes
+(c) Copyright 1991 by Ray Valdes. All Rights Reserved.
+
+During the product launch event on Monday October 7th,
+Momenta's Kamran Elahian mentioned a number of times how
+his company was "pushing the envelope" of software
+and hardware technology in creating the machine.
+
+The carefully orchestrated event certainly pushed the envelope
+of public relations technology.  But also seems that Momenta was
+pushing the limits of truthfulness in some of its claims made
+during that launch. 
+
+The grand finale to the 2-1/2 hour event occurred when Elahian
+announced that "we are shipping", as the curtain arose on a stacked
+mountain of Momenta packages, presumably containing customer-ready
+computers.
+
+Yet, on the following day at the OOPSLA '91 conference in Phoenix,
+many of Momenta's technical staff, all of whom had been at the
+product launch, had a different story to tell. One person said that
+the Momenta software was in alpha stage now, would be go to beta
+testing in a month or so, and be ready within a month or two after
+that.  Another person said that they will ship by the first of the
+year.  A third person said they would ship in about a month.  No one
+said they were shipping now.  Back in Mountain View headquarters,
+one of Momenta's technical evangelists said they would ship
+by December 1st.
+
+Certainly the software on the Momenta systems being demonstrated
+at OOPSLA was of alpha quality.  The system was oftentimes slow
+and unresponsive.  Selecting an graphical object on the screen,
+such as a circle or piece of text (on a page that had less than
+a handful of objects created) by tapping on it took as much as a
+second, rather than the instantaneous response that users of
+Macintosh and Windows expect in such a situation.  Often the tap
+(equivalent to a mouse click) would be ignored and would have to
+be repeated.  Hooking up a keyboard to the system, and typing
+one sentence in the word processing program, it took
+approximately *five* seconds for the system to display the
+sentence after it had been typed (I am a very fast typist,
+however).  
+
+During one technical seminar at the conference, a Momenta
+staffer stated that the software needed at least a factor of two
+improvement in speed before it would be usable by customers. 
+
+While the system did not crash during repeated demos at OOPSLA
+(a tribute to the robustness of the underlying Digitalk
+implementation of Smalltalk), occasionally it would trap system
+errors and display them in a dialog box on the screen.  Also,
+the staff demonstrating the system cautioned me against trying
+certain operations for fear the system would malfunction. 
+
+There were two technical presentations scheduled to describe
+the development environment, which requires a desktop based system.
+However, Momenta staff were unable to demonstrate the system
+because of problems with the desktop machine.  A second machine
+was flown out for the presentation scheduled on the following
+day, and Momenta staffers were up late into the night to
+make it work.  But the second system would also not run
+the Momenta development environment, due to problems with
+the Smalltalk "image" file.
+
+In one sense, these technical problems are of no great consequence,
+because these are the standard glitches that arise with complex
+software that is in the alpha stage of development. The system
+overall looks to be relatively complete, full-featured and
+well-designed. The time frames given by Momenta's programmers, while
+optimistic, are within the bounds of plausibility.
+
+What *is* important is the wide gap between the reality of the
+current system and the appearance being promoted at Momenta's
+product launch event.  A demonstration of the Momenta system was
+given during that portion of the event conducted by John Rizzo,
+Momenta's VP of Marketing.  A young woman holding a Momenta
+computer put the system through its paces while Rizzo provided
+the narrative voice-over.  The demonstration proceeded at
+breakneck speed from one operation to another, providing a
+user's view of the major aspects of the system, with little or
+no pause between segments. 
+
+Two video displays provided the audience with a view of the
+demonstration.  A standard-size TV monitor showed an overhead
+view of the woman holding the computer and moving the pen across
+the surface.  In this view, the non-backlit LCD display was
+dimly visible to the audience.  A second view was provided by a
+wall-size projection screen which, presumably, showed the actual
+contents of the screen display on the woman's computer. 
+
+There were two disconcerting aspects about this demonstration.
+First, the projection screen appeared to show the application
+program's opening screen even while the presenter's computer was
+still booting up (this may have been a static image projected on
+the screen to fill up the time while the computer was being started).
+
+Second, during the demo, it appeared that events shown on the large
+projection screen did not quite synchronize with those shown on
+actual LCD display (although this was difficult to determine,
+given the small size and faint image of the first TV monitor). 
+Rizzo did not actually state that the sequence shown on the
+wall-size screen was what was being displayed on the presenter's
+computer.  It was left up to the audience to make that
+assumption, and presumably most everyone did so. In fact this
+may have been the case. 
+
+But in attempting to reconcile the speedy, flawless demo shown during
+the product launch with the halting, sluggish performance shown at
+OOPSLA two days later, one is has to consider the possibility that
+the image shown on the projection screen during the product launch
+was in fact a prepared videotape been played back to a trusting
+audience.  This kind of behavior fits in with Elahian's bald
+statement to the audience about shipping product today when in fact
+this may not happen until early next year.  It also fits in with the
+company culture, as exemplified by statements such as the quote from
+Momenta CFO Albert "Rocky" Pimentel (Business Week, 10/14/91): "I'm
+one of the best street fighters and mud wrestlers out there."
+
+According to CEO Kamran Elihian, the major motivating
+slogan for the company during its startup phase is: "One Thousand
+Days to Immortality", and that they now have 280 days left to
+reach that goal.  If Momenta persists in its questionable
+PR practices, they will succeed in gaining not immortality,
+but notoriety.
+
+======================================================END========
+
+
+
+
+
+
+                                                         
+                                                        
+
+
+
+
+

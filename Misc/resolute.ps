@@ -1,0 +1,67 @@
+/message (NeWS) def
+
+/font
+  /ZapfChancery-MediumItalic findfont
+  64 scalefont
+def
+
+/measure-message {
+    message false getbbox
+    /h exch def /w exch def pop pop
+} def
+
+/Yow {
+  random i .5 mul .5 add mul
+} def
+
+/FooBar {
+  gsave random .5 mul setgray fill grestore
+  Yow Yow Yow setrgbcolor
+  stroke
+} def
+
+gsave
+
+  erasepage
+
+  font setfont
+  measure-message
+  /MessageX 0 def
+  /MessageY font fontdescent neg def
+  /MessageW w def /MessageH h def
+
+  framebuffer setcanvas
+  50 50 translate
+
+  .04 .003 1 { /i exch def
+    10 { pause } repeat
+    i = flush
+    10 { pause } repeat
+    gsave
+      font i scalefont setfont
+      measure-message
+      /buf w ceiling cvi h ceiling cvi 1 [1 0 0 1 0 0] null buildimage def
+      buf setcanvas
+      erasepage
+      0 currentfont fontdescent moveto
+      0 0 moveto
+      message show
+    grestore
+    gsave
+      1 i div 1 i div scale
+      4 4 scale
+      false buf imagepath
+      mark
+      { /moveto load }
+      { /lineto load }
+      { /curveto load }
+      { /closepath load counttomark array astore cvx
+	gsave newpath exec FooBar grestore }
+      pathforall
+      cleartomark
+      newpath
+    grestore
+    2 3 translate
+  } for
+
+grestore

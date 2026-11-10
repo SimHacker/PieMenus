@@ -1,0 +1,328 @@
+%!
+% Prototype hypertext display formatter
+% Don Hopkins
+%
+
+systemdict begin
+
+/FormatWindow DefaultWindow
+dictbegin
+  /Words [] def
+  /CurX 0 def
+  /CurY 0 def
+  /FontSize 18 def
+  /FontName /Times-Roman def
+  /Font FontName findfont FontSize scalefont def
+  /FontHeight null def
+  /FontDescent null def
+  /ButtonFontName /Times-Bold def
+  /ButtonFont ButtonFontName findfont FontSize scalefont def
+  /Buttons [] def
+  /LineSpace 8 def
+  /LineHeight null def
+  /IconImage /fontedit def
+  /TopMargin 8 def
+  /BottomMargin 8 def
+  /LeftMargin 20 def
+  /RightMargin 20 def
+  /String null def
+  /StringWidth null def
+  /WordSpace 6 def
+  /TextColor 0 0 0 rgbcolor def
+  /FillColor 1 1 1 rgbcolor def
+  /ButtonProc null def
+  /Button null def
+  /DisplayList {} def
+dictend
+classbegin
+  /new { % Words parent => obj
+    /new super send begin
+      /Words exch def
+      /PaintClient {display} def
+    currentdict end
+  } def
+% Compile elements of the high level display list Words by leaving the
+% low level code to do the display on the stack, to be later ]'ed into
+% the executable array (function) DisplayList. 
+
+  /format {
+    gsave
+      ClientCanvas setcanvas
+      /Font FontName findfont FontSize scalefont def
+      /ButtonFont ButtonFontName findfont FontSize scalefont def
+      Font setfont
+
+      /FontHeight Font fontheight def
+      /FontDescent Font fontdescent def
+      /LineHeight FontHeight LineSpace add def
+      clippath pathbbox % llx lly urx ury
+      TopMargin sub /Top exch def
+      RightMargin sub /Right exch def
+      BottomMargin add /Bottom exch def
+      LeftMargin add /Left exch def
+      /CurX Left def
+      /CurY Top LineHeight sub def
+      CurX CurY moveto
+
+      ButtonProc null ne {
+        ButtonProc killprocess
+      } if
+
+      /ButtonDict 200 dict def
+
+
+      % Compile Words into a fast low level DisplayList
+      /DisplayList [
+        Font /setfont load
+        FillColor /setcolor load /clippath load /fill load
+        TextColor /setcolor load
+        {
+          Words {
+            dup type exec
+          } forall
+        } stopped pop
+      ] cvx def
+
+      ButtonDict length 0 gt {forkbuttonproc} if
+    grestore
+  } def
+
+% Handlers for the types of the elements of Words
+
+% Strings get shown
+  /stringtype { % string => -
+    /String exch def
+    String stringwidth pop /StringWidth exch def
+    CurX StringWidth add Right gt {
+      pause
+      CR
+    } if
+    CurX CurY /moveto load String /show load
+    /CurX CurX StringWidth WordSpace add add def
+  } def
+
+% Arrays have magic cookies. Execute each cookie in turn.
+  /arraytype {
+    CurY Bottom lt {pop exit} if
+    {exec} forall
+  } def
+
+% Cookies appearing in arrays
+
+  /BUTTON { % (label) ID => -
+    /Button 10 dict def
+    Button begin
+      /ID exch def
+      /Label exch def
+    end
+    ButtonFont setfont
+    ButtonFont /setfont load
+    Button /Label get
+    {stringtype} stopped {
+      Font setfont
+      pop pop % popping: ButtonFont setfont
+      stop
+    } if
+    Button begin
+        /Can ClientCanvas newcanvas def
+	ButtonDict Can currentdict put
+        /Interests [
+	  PointButton /DownProc DownTransition Can eventmgrinterest
+	  /EnterEvent /EnterProc null Can eventmgrinterest
+	  /ExitEvent /ExitProc null Can eventmgrinterest
+	] def
+        4
+        CurX StringWidth sub WordSpace sub 2 sub CurY FontDescent sub 1 add
+        StringWidth 3 add FontHeight 2 add 
+        rrectpath
+	Can reshapecanvas
+	Can /Transparent true put
+	Can /Mapped true put
+    end
+    Font setfont
+    Font /setfont load
+  } def
+
+  /TARGET { % shape (label) ID => -
+    /Button 10 dict def
+    Button begin gsave
+        /ID exch def
+	/Label exch def
+        /Shape exch def
+        /Can ClientCanvas newcanvas def
+	ButtonDict Can currentdict put
+        /Interests [
+	  PointButton /DownProc DownTransition Can eventmgrinterest
+	  /EnterEvent /EnterProc null Can eventmgrinterest
+	  /ExitEvent /ExitProc null Can eventmgrinterest
+	] def
+	PicX PicY translate
+	/Shape load cvx exec
+	Can reshapecanvas
+	Can /Transparent true put
+	Can /Mapped true put
+    grestore end
+  } def
+
+  /CR {
+      /CurX Left def
+      /CurY CurY LineHeight sub def
+      CurY Bottom lt {stop} if
+  } def
+
+  /CANVAS { % canvas => canvas ...
+    /Canvas exch def
+    CR
+    gsave
+      Canvas setcanvas
+      clippath pathbbox points2rect % x y w h
+      /PicH exch def /PicW exch def pop pop %
+      /gsave load 
+      /PicX Left Right add PicW sub 2 div def
+      /PicY CurY PicH sub def
+      PicX PicY /translate load
+      PicW PicH /scale load
+      Canvas
+       /imagecanvas load
+       /grestore load
+    grestore
+    /CurX Left store
+    /CurY CurY PicH sub store
+  } def
+
+  /SCANVAS { % canvas scale => canvas ...
+    /Scale exch def
+    /Canvas exch def
+    CR
+    gsave
+      Canvas setcanvas
+      clippath pathbbox points2rect % x y w h
+      Scale mul round /PicH exch def
+      Scale mul round /PicW exch def pop pop %
+      framebuffer setcanvas
+      /Scanvas framebuffer newcanvas def
+      newpath
+      0 0 PicW PicH rectpath
+      Scanvas reshapecanvas
+      Scanvas setcanvas
+      PicW PicH scale
+      Canvas imagecanvas
+    grestore
+    /gsave load
+    /PicX Left Right add PicW sub 2 div def
+    /PicY CurY PicH sub def
+    PicX PicY /translate load
+    PicW PicH /scale load
+    Scanvas
+    /imagecanvas load
+    /grestore load
+    /CurX Left store
+    /CurY CurY PicH sub store
+  } def
+
+  /CENTER { % string => string ...
+    /String exch def
+    String stringwidth pop /StringWidth exch def
+    /CurX Left Right add StringWidth sub 2 div def
+    CurX CurY /moveto load String /show load
+    /CurX CurX StringWidth WordSpace add add def
+  } def
+
+  /CURSAVE { % - => x y
+    /SaveX CurX def  /SaveY CurY def % make this a stack
+  } def
+
+  /CURRESTORE { % x y => -
+    /CurX SaveX def  /CurY SaveY def
+  } def
+
+  /MARGINSAVE {
+    /SaveLeft Left def  /SaveRight Right def
+  } def
+
+  /MARGINRESTORE {
+    /Left SaveLeft def  /Right SaveRight def
+  } def
+
+  /MARGINS { % left right => -
+    /Right exch def  /Left exch def
+  } def
+
+% Setfontnamesize is the callback that the font menu invokes.
+% Figures out which button font to use.
+  /setfontnamesize {
+    /FontSize exch def
+    dup /FontName exch def
+    {
+      /Helvetica /Helvetica-BoldOblique 
+        {/Helvetica-Bold}
+      /Helvetica-Oblique /Helvetica-Bold
+        {/Helvetica-BoldOblique}
+      /Times-Roman /Times-BoldItalic
+        {/Times-Bold}
+      /Times-Bold /Times-Italic
+        {/Times-BoldItalic}
+      /Courier /Courier-BoldOblique
+        {/Courier-Bold}
+      /Courier-Bold /Courier-Oblique
+        {/Courier-BoldOblique}
+      /Default
+        {FontName}
+    } case
+    /ButtonFontName exch def
+    format display
+  } def
+
+  /reshape {
+    /reshape super send
+    format
+  } def
+
+  /display {
+    gsave
+%systemdict /dl /DisplayList load put
+      ClientCanvas setcanvas
+      DisplayList
+    grestore
+  } def
+
+  /forkbuttonproc {
+    /ButtonProc
+      [ ButtonDict {
+          exch pop
+          /Interests get aload pop
+	  /Die /DieProc null null eventmgrinterest
+        } forall
+      ] forkeventmgr def
+  } def      
+
+  /DownProc {
+    CurrentEvent begin gsave
+      ButtonDict Canvas dup setcanvas get begin
+        (Bugged ID % "%" @ % %\n) [ID Label XLocation YLocation] dbgprintf
+      grestore
+      XLocation YLocation  [Label]
+    end end
+    popmsg
+  } def
+
+  /EnterProc {
+    gsave
+      0 setgray
+      5 setrasteropcode
+      CurrentEvent /Canvas get setcanvas
+      clipcanvaspath fill
+    grestore
+  } def
+
+  /ExitProc {
+    EnterProc
+  } def
+
+  /DieProc {
+    currentprocess killprocessgroup
+  } def
+
+classend def
+
+end % systemdict

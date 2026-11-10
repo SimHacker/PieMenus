@@ -1,0 +1,229 @@
+Slider Design Document
+------------------------------------------------------------------------
+
+* THE PROBLEM:
+
+The tNt 1.0 slider implementation was a subclass of ClassDialControl,
+which was a subclass of ClassControl. It needed to be reimplemented,
+directly as a subclass of ClassCanvas (with ClassTarget mixed in), and
+had to be taught to play games with the services architecture, and
+brought in line with the controls architecture.  All that hot air from
+the collapse of the ParentDictArray had to go somewhere, so the slider
+was graphically "puffed up" with a fake 3-D look. It is hoped that the
+result of this transfer of energy will result in a net decrease in
+size and increase in speed. To cope with the increase in complexity of
+drawing special effects, a form of inlining or macro expansion similar
+to "backquote" in lisp was used, to promote fast drawing procedures
+into slider instances. 
+
+Stuff that needed to be changed:
+  - subclass ClassCanvas instead of "control/dial" intrinsics
+  - use services architecture
+  - bring in line with controls architecture
+  - fake 3-d look
+  - smaller and faster
+
+* THE MODEL:
+
+Knob
+  The part of the slider that you can drag around to set its value.
+Range
+  The numbers between the minimum and maximum values.
+End Boxes
+  The rectangles at each end of the slider that you can click on to
+  set the knob to the minimum or maximum value.
+Normalization
+  The granularity of possible slider values.
+Delta
+  The ammount by which the slider value can be incremented or decremented.
+Tick Marks
+  Regularly spaced lines below the slider.
+  (Not necessarily tied to the delta or normalization)
+Min/Max labels
+  Labels to the left and right (or below the leftmost and rightmost
+  tick marks) showing the values of the slider at its extremes.
+
+A slider is a linear control with a numerical value bounded by minimum
+and maximum values. The user may set the slider to an absolute value
+by dragging the knob to the desired location, or to its minimum or
+maximum values by clicking on the end boxes, or change the slider
+value by a relative delta by clicking to the left or the right of the
+knob.  The default delta is 1.  The granularity of slider values is
+specified by a procedure called the "normalizer", which takes an
+unconstrained value on the stack and leaves a constrained value on the
+stack. A typical normalizer might be "{round cvi}", to constrain the
+value to the closest integer.  By default the normalizer does not
+change the value.  Values are also constrained to be between the
+minimum and maximum values, after being normalized.  You can have tick
+marks drawn at regular intervals below a slider, by specifying the
+distance in slider value units between consecutive tick marks. If you
+don't want tick marks, you can specify a distance of 0, which is the
+default. If there are tick marks, the min/max labels (if any) are
+drawn centered below the first and last tick marks, otherwise, they
+are drawn at each end of the slider, outside the end boxes (if any).
+By default, there are no tick marks.
+
+* THE INTERFACE:
+
+** API:
+
+  /value { % - => value
+  /setvalue { % val => -
+	The number returned by /value is always normalized and in range.
+	Any number can be given to /setvalue and it will be normalized
+	and forced in range. The slider is updated to reflect the new value.
+
+  /range { % - => min max
+  /setrange { % min max => -
+  /checkrange { value => new-value
+	Defines the minimum and maximum value of the slider.
+	The slider is updated to reflect the new range.
+	I don't think /checkrange needs to be exposed.
+
+  /normalizer { % - => proc
+  /setnormalizer { % proc => -
+  /normalize { % value => value'
+        The normalizer function controls the slider granularity.
+	The granularity of slider values is specified by a procedure
+	called the "normalizer", which takes the unconstrained value on
+	the stack and leaves a constrained value on the stack. A typical
+	normalizer would be "{round cvi}", to constrain the value to
+	integers. By default the normalizer does not change the value.  
+	I don't think /normalize needs to be exposed.
+
+  /delta { % - => step
+  /setdelta { % step => -
+	Controls the slider step delta. This is the step by which
+	the slider value changes when the user clicks to the left or the
+	right of the knob. The default delta is 1.
+
+  /tickmarks { % - => distance
+  /settickmarks { % distance => - You can specifiy that you want tick
+	marks to be drawn below the slider by giving the distance in
+	slider value units between consecutive tick marks, or 0 for no
+	tick marks. If there are tick marks, the min/max labels (if
+	any) are drawn below the first and last tick marks, otherwise,
+	they are drawn at each end of the slider, outside the end
+	boxes (if any).
+
+  /setendboxes { % bool => -
+  /endboxes? { % - => bool
+	Turns on or off the endboxes. Repaints the slider.
+
+  /setendlabels { % bool => -
+  /endlabels? { % - => bool Turns on or off the min/max end labels.
+	Repaints the slider.  If there are tick marks, the min/max
+	labels (if any) are drawn below the first and last tick marks,
+	otherwise, they are drawn at each end of the slider, outside
+	the end boxes (if any).
+
+  /EndLabels { % - => (min) (max)
+	Subclasser method that can be overridden to generate the
+	end labels. Should there be accessor functions to set this?
+	What should it be called so as not to confuse it with 
+	/setendlabels, which takes a boolean? Or should it be exposed
+	at this level?
+
+  /setvaluefield { % label|textfield|null => -
+  /valuefield { % - => label|textfield|null
+  	Connects (or disconnects) the slider to the value field, which can
+	be a label or a text field that knows how to respond to the a string
+	/setvalue message. When using a text typein field, it should be 
+	pointed back to the slider, with its target the slider and its
+	notifier /settypeinvalue.
+
+  /settypeinvalue { % string textfield => -
+	This is the notifier sent from the slider's typein field.
+	It converts the string to a number, sets the value, converts it
+	back into a string, and sets the value of the typin field to reflect
+	the new constrained slider value. Can you think of a better name
+	for this?
+
+  /reshape { % x y w h => -
+	Sets the location and size of the slider. Also promotes fast
+	drawing procedures to the instance with inlined constants.
+
+  /minsize { % - => w h
+	Returns the minumum size of the slider.
+	Tries to make the slider big enough to have one pixel per unit
+	slider value. (It has no way of telling what your normalizer
+	constrains the values to, so this is just a convenient guess.)
+
+  /settypeinvalue { % string textfield => -
+	This is the notifier sent from the slider's typein field.
+	It converts the string to a number, sets the value, converts it
+	back into a string, and sets the value of the typin field to reflect
+	the new constrained slider value.
+
+  /demo { % - => slider
+	Slider demo. Lots of fun.
+
+** Level of Open Look compliance:
+  To be done.
+
+* THE IMPACT:
+
+  To be done, about external differences, not internal.
+
+* THE PROTOTYPE:
+
+The prototype is in "~hopkins/tnt/slider/slide.ps". psh it in and go
+"/demo ClassHSlider send". 
+
+(in no particular order)
+
+TODO 1: Implement redundant notification supression.
+	/checknotify /notifiedvalue /CallNotify?
+	Is this necessary?
+	I don't think it's desirable with text fields.
+	Client's notification proc can do supression.
+TODO 2: Implement tick marks.
+TODO 3: Implement min/max labels.
+TODO 4: Remove dependancy of Min<Max.
+TODO 5: Implement /setvisualstate /visualstate /VisualState.
+        Replaces /enable /disable /enabled?.
+	/active /inactive /busy
+TODO 6: Factor out stuff in common with gages.
+
+* THE PERFORMANCE:
+
+** PostScript backquote:
+  Brief discussion of backquote to be done.
+
+** Space/Time comparisons:
+  To be done.
+    Size.
+    Speed.
+    Execute normal paint method in class.
+    Execute macro template in class.
+    Execute expanded macro in instance.
+    Time typical paint proc expanions.
+    Consider inlining and promoting only at start of tracking.
+
+  I have done a lot of space/time optimization. They're pretty darn fast.
+
+* DESIGN CHOICES:
+
+** auto repeating and cursor warping
+  Only do a setcursorlocation if the cursor is in the dragging rectangle,
+  and must be pushed by the autorepeating slider.
+  Only change the x-coordinate of the cursor, instead of moving its y
+  location to the center of the slider.  
+  Stop autorepeating when it gets to the end of the slider.
+
+** space/time tradeoffs
+  The backquote technique speeds up drawing but takes up space. But
+  the macro templates (defined as methods that are inlined and
+  promoted) can still be executed even if they haven't been promoted.
+  There is a small hit for executing "," which is defined as "/,
+  {exec} def" (since it can't be defined as "/, /exec load def"
+  because of autobind).  And of course the templates are slower than
+  the their inlined promoted expansions, because they're calculating
+  the values each time instead of just pushing constants. Right now,
+  the promotion happens upon /reshape, when the size is known and the
+  layout can be calculated. Another space saving trade-off might be to
+  only expand and promote the macros at the start of tracking, during
+  which parts of the control must be frequently repainted, and
+  unpromote it upon completion of tracking.
+
+========================================================================

@@ -1,0 +1,782 @@
+systemdict begin
+
+/ClassTabWindow [ClassPieCanvas ClassWindow]
+dictbegin
+    /TabEdge /West def
+    /TabPosition 1 def
+dictend
+classbegin
+
+    /tabedge { % - => /West|/East|/North|/South
+	TabEdge
+    } def
+
+    /settabedge { % /West|/East|/North|/South => -
+	/TabEdge exch store
+	/invalidate self send
+    } def
+
+    /changetabedge { % edge => -
+	gsave
+	    Parent setcanvas
+	    /bbox self send /unfittab self send
+	    5 -1 roll /settabedge self send
+	    /fittab self send
+	    /reshape self send
+	grestore
+    } def
+
+    /tabposition { % - => 0..1
+	TabPosition
+    } def
+
+    /settabposition { % 0..1 => -
+	/TabPosition exch store
+	/invalidate self send
+    } def
+
+    /changetabposition { % 0..1 => -
+	gsave
+	    Parent setcanvas
+	    /bbox self send
+	    5 -1 roll /settabposition self send
+	    /reshape self send
+	grestore
+    } def
+
+    /NInset { % - => n
+        /NInset super send
+	TabEdge /North eq { TabSize exch pop add } if
+%	/NInset 1 index promote
+    } def
+
+    /SInset { % - => n
+        /SInset super send
+	TabEdge /South eq { TabSize exch pop add } if
+%	/SInset 1 index promote
+    } def
+
+    /EInset { % - => n
+        /EInset super send
+	TabEdge /East eq { TabSize pop add } if
+%	/EInset 1 index promote
+    } def
+
+    /WInset { % - => n
+        /WInset super send
+	TabEdge /West eq { TabSize pop add } if
+%	/WInset 1 index promote
+    } def
+
+    /TabSize { % - => w h
+	/IconSize self send
+	2 copy 2 packedarray cvx
+        1 SetLocalDicts
+	/TabSize exch promote
+    } def
+
+    /IconSize { % - => w h
+        currentfont TextFont setfont
+        /IconImage load DisplayItemSize
+        dup 0 eq {pop pop DefaultIconSize} if
+        3 -1 roll setfont
+    } def
+
+    /DefaultIconSize { 64 20 } def
+
+    /EdgeTabXYDict 4 dict def
+    EdgeTabXYDict begin
+	/North { % width height
+	    TabSize xysub
+	    exch TabPosition mul round exch % x y
+	} def
+	/South { % width height
+	    pop TabSize pop sub TabPosition mul round % x
+	    0 % x 0
+	} def
+	/East { % width height
+	    TabSize xysub TabPosition mul round % x y
+	} def
+	/West { % width height
+	    exch pop 0 exch % 0 height
+	    TabSize exch pop sub TabPosition mul round % 0 y
+	} def
+    end % EdgeTabXYDict
+
+    /CalcTabXY { % width height => x y
+	//EdgeTabXYDict TabEdge get exec
+    } def
+
+    /TabXY { % - => x y
+        gsave
+	    1 SetLocalDicts
+	    /size self send
+	    /CalcTabXY self send
+	    2 copy 2 packedarray cvx
+	    /TabXY exch promote
+	grestore
+    } def
+
+    /IconXY { % - => x y
+        /location self send
+	/TabXY self send xyadd
+    } def
+
+    /EdgePathDict 4 dict def
+    EdgePathDict begin
+	/West {
+	   tw 0 moveto
+	   0 h th sub TabPosition mul round rlineto
+	   tw neg 0 rlineto
+	   0 th rlineto
+	   tw 0 rlineto
+	   tw h lineto
+	   w h lineto
+	   w 0 lineto
+	   closepath
+	} def
+	/East {
+	   h th sub TabPosition mul round
+	   0 0 moveto
+	   0 h rlineto
+	   w tw sub 0 rlineto
+	   0 1 index th add h sub
+	   rlineto
+	   tw 0 rlineto
+	   0 th neg rlineto
+	   tw neg 0 rlineto
+	   0 exch neg rlineto
+	   closepath
+	} def
+	/North {
+	   0 0 moveto
+	   0 h th sub rlineto
+	   w tw sub TabPosition mul round 0 rlineto
+	   0 th rlineto
+	   tw 0 rlineto
+	   0 th neg rlineto
+	   w h th sub lineto
+	   w 0 lineto
+	   closepath
+	} def
+	/South {
+	   0 th moveto
+	   0 h th sub rlineto
+	   w 0 rlineto
+	   0 h th sub neg rlineto
+	   w tw sub TabPosition mul round tw add
+	   th lineto
+	   0 th neg rlineto
+	   tw neg 0 rlineto
+	   0 th rlineto
+	   closepath
+	} def
+    end % EdgePathDict
+
+    /path { % x y w h => -
+	10 dict begin
+	    /mat matrix currentmatrix def
+	    /minsize self send xymax
+	    /h exch def /w exch def
+	    TabSize /th exch def /tw exch def
+	    translate
+	    //EdgePathDict TabEdge get exec
+	    mat setmatrix
+	end % tempdict
+    } def
+
+    /EdgeUnfitDict 4 dict def
+    EdgeUnfitDict begin
+	/West {
+	  4 -1 roll TabSize pop add 4 1 roll
+	  exch TabSize pop sub exch
+	} def
+	/East {
+	  exch TabSize pop sub exch
+	} def
+	/North {
+	  TabSize exch pop sub
+	} def
+	/South {
+	  3 -1 roll TabSize exch pop add 3 1 roll
+	  TabSize exch pop sub
+	} def
+    end % EdgeUnfitDict
+
+    % given tabbed frame bbox, returns bbox of frame w/out tab
+    /unfittab { % x y w h => x' y' w' h'
+        //EdgeUnfitDict TabEdge get exec
+    } def
+
+    /EdgeFitDict 4 dict def
+    EdgeFitDict begin
+	/West {
+	    4 -1 roll TabSize pop sub 4 1 roll
+	    exch TabSize pop add exch
+	} def
+	/East {
+	    exch TabSize pop add exch
+	} def
+	/North {
+	    TabSize exch pop add
+	} def
+	/South {
+	    3 -1 roll TabSize exch pop sub 3 1 roll
+	    TabSize exch pop add
+	} def
+    end
+
+    % given untabbed frame bbox, returns bbox of frame with tab
+    /fittab { % x' y' w' h' => x y w h
+        //EdgeFitDict TabEdge get exec
+    } def
+
+    /invalidate { % - => -
+        /NInset unpromote
+        /SInset unpromote
+        /EInset unpromote
+        /WInset unpromote
+	/TabSize unpromote
+	/TabXY unpromote
+	/invalidate super send
+    } def
+
+    /InReshapeArea? { % event => bool
+        matrix currentmatrix
+	/bbox self send /unfittab self send
+	4 2 roll translate
+	
+	4 -1 roll begin XLocation YLocation end		% w h X Y
+	4 2 roll
+	ReshapeSize dup xysub	% X Y w h; (w-reshape) (h-reshape)
+
+	4 copy ReshapeSize dup pointinrect?			% X Y w h bool
+	4 index 4 index 0 0 ReshapeSize dup pointinrect? or
+	4 index 4 index 0 4 index ReshapeSize dup pointinrect? or
+	4 index 4 index 4 index 0 ReshapeSize dup pointinrect? or
+
+	5 1 roll pop pop pop pop
+	exch setmatrix
+    } def
+
+    /PaintReshape { % - => -
+	GraphicFont setfont
+	matrix currentmatrix
+	/bbox self send /unfittab self send
+	4 2 roll translate
+	exch ReshapeSize sub exch % w-reshape h
+	0 1 index
+	3D? {
+	    BG0 setcolor 2 copy moveto (\130) show
+	    BG setcolor  2 copy moveto (\132) show
+	    BG3 setcolor moveto (\131) show
+	    2 copy
+	    BG0 setcolor 2 copy moveto (\133) show
+	    BG setcolor  2 copy moveto (\135) show
+	    BG3 setcolor moveto (\134) show
+	    1 index ReshapeSize
+	    BG0 setcolor 2 copy moveto (\136) show
+	    BG setcolor  2 copy moveto (\140) show
+	    BG3 setcolor moveto (\137) show
+	    0 ReshapeSize
+	    BG0 setcolor 2 copy moveto (\141) show
+	    BG setcolor  2 copy moveto (\143) show
+	    BG3 setcolor moveto (\142) show
+	} {
+	    2DFG setcolor
+	    moveto (\242) show
+	    2 copy moveto (\243) show
+	    1 index ReshapeSize
+	    moveto (\244) show
+	    0 ReshapeSize
+	    moveto (\245) show
+        } ifelse
+	pop pop
+	setmatrix
+    } def
+
+    /ToggleOpened {
+        /ToggleOpened super send
+	/IconXY unpromote
+    } def
+
+% XXX
+    /PaintLabelBackground { % - => -
+	WInset SInset
+	/size self send
+	EInset NInset xysub 3 index 3 index xysub	% x y w h
+	3 -1 roll add exch HeaderHeight HeaderGap add 1 add
+	BackgroundColor setcolor
+	rectpath fill
+    } def
+
+    /minsize { % - => w h
+        /minsize super send
+	/IconSize self send xymax
+    } def
+
+    /PaintFocus { % - => -
+        WInset SInset
+	/size self send						% w h
+	EInset NInset xysub 3 index 3 index xysub		% x y w h
+	3 -1 roll add exch HeaderHeight
+	-1 2 xyadd
+
+	ClickToType? {
+	    4 2 roll 1 add 4 2 roll
+	    3D? {true Paint3DBox} {2DFG setcolor rectpath fill} ifelse
+	} { % x y w h
+	    3 index ReshapeSize BorderEdge sub add
+	    3 index 2 index add 1 add
+	    3 index ReshapeSize BorderEdge sub dup add sub
+	    3D? {Paint3DLine} {2 rectpath 2DFG setcolor fill} ifelse
+    
+    	    pop
+	    3D? {Paint3DLine} {2 rectpath fill} ifelse
+	} ifelse
+    } def
+
+    /Paint {
+        Opened? {
+	    /PaintBackground self send
+	    gsave
+		TabXY translate
+		newpath 0 0 TabSize rectpath clip newpath
+		/PaintIcon self send
+	    grestore
+	    /PaintBorder self send
+	    Reshape? {/PaintReshape self send} if
+	    Label?   {false /PaintHeader self send} if
+	    Footer?  {false /PaintFooter self send} if
+	} {
+	    /PaintIcon self send
+	} ifelse
+    } def
+
+    /PaintLabel { % erase? => -
+	/Label load 
+
+	WInset NInset /size self send				% ? di x y w h
+	EInset NInset xysub 3 index 3 index xysub		% ? di x y w h
+	3 -1 roll add HeaderGap add exch HeaderHeight
+
+	VisualState /Busy eq {
+	    ForegroundColor setcolor
+	    Gray12Stipple 5 copy pop //rectpath StipplePath
+	} if
+
+	Close? Pin? or {
+	    Close? {CloseSize ClosePad add} {PinSize PinPad add} ifelse
+	    5 2 roll 3 index sub
+	    5 2 roll exch add
+	    4 1 roll
+	} if
+	gsave % for clip
+	    TextFont setfont					% ? di x y w h
+	    4 copy rectpath clip				% ? di x y w h
+	    6 -1 roll {
+	        ClickToType? Focus? and {
+		    3D? {BG2} {2DFG} ifelse
+	        } {BackgroundColor} ifelse
+	        setcolor clippath fill
+	    } if						% di x y w h
+	    4 2 roll						% di w h x y
+	    HeaderPad add moveto				% di w h
+	    pop 1 index DisplayItemSize pop			% di w swidth
+	    2 copy lt {pop pop} {
+		sub 2.2 div 0 rmoveto % note: 2++ to round toward left
+	    } ifelse						% di
+	    3D? not ClickToType? Focus? and and
+	        {BackgroundColor} {ForegroundColor} ifelse
+	    setcolor DisplayItemPaint
+	grestore
+    } def
+
+    /PaintPin { % pinned? => -
+	% REMIND: simplify!
+	GraphicFont setfont
+	{103} {100} ifelse
+
+	WInset PinX BorderEdge sub add
+	/size self send exch pop NInset sub
+	HeaderHeight add HeaderPad add
+
+	2 copy PinSize HeaderHeight HeaderPad 2 mul sub neg	% i x y x y w h
+	rectpath
+	3D? {
+	    BG setcolor fill	% i x y
+	    BG0 setcolor 2 copy moveto 2 index cvis show
+	    BG2 setcolor 2 copy moveto 2 index 2 add cvis show
+	    BG3 setcolor moveto 1 add cvis show
+	} {
+	    2DBG setcolor fill	% i x y
+	    2DFG setcolor moveto
+	    100 eq { (\23) } { (\24) } ifelse show
+	} ifelse
+    } def
+
+    /InCloseArea? { % event => bool
+	begin XLocation YLocation end			% X Y
+
+	/size self send exch pop NInset sub
+	HeaderGap add					% X Y y
+
+	Close? {
+	    CloseX exch CloseSize			% X Y x y w
+	} {
+	    PinX exch PinSize				% X Y x y w
+	} ifelse
+	HeaderHeight
+	pointinrect?					% bool
+    } def
+
+    /CloseX { % - => closex
+        WInset /CloseX super send BorderEdge sub add
+    } def
+
+    /PinX { % - => closey
+        WInset /PinX super send BorderEdge sub add
+    } def
+
+    /HeaderDeltaY { % - => headerdeltay
+%        NInset /HeaderDeltaY super send HeaderHeight sub add
+        NInset HeaderGap sub
+    } def
+
+    /PaintClose { % down? => -
+	GraphicFont setfont
+
+	CloseX
+	/size self send exch pop NInset sub
+	HeaderHeight add HeaderGap add
+	3D? {
+	    3 copy moveto {BG3} {BG0} ifelse setcolor (\63) show
+	    3 copy moveto {BG0} {BG3} ifelse setcolor (\64) show
+	    3 copy moveto {BG2} {BG} ifelse setcolor (\65) show
+
+	    4 -4 xyadd
+
+	    2 copy moveto BG3 setcolor (\55) show
+	    2 copy moveto BG0 setcolor (\56) show
+	    2 copy moveto BG2 setcolor (\57) show
+	    pop pop pop
+	} {
+	    2DBG setcolor 1 index 1 add 1 index moveto (\164) show
+	    2DFG setcolor moveto { (\27) } { (\26) } ifelse show
+        } ifelse
+    } def
+
+    /PaintFooter { % erase? => -
+    % REMIND: needs work: clipping
+    % Performance: check for null footers? (2 copy null eq exch null eq and)
+	/LeftFooter load /RightFooter load			% ? l r
+	WInset FooterGap add					% ? l r x
+	/size self send pop					% ? l r x w
+	1 index sub EInset FooterGap add sub			% ? l r x w
+	exch							% ? l r w x
+	SInset FooterPad sub FooterHeight sub			% ? l r w x y
+	6 -1 roll {
+	    2 copy 4 index FooterHeight
+	    BackgroundColor setcolor rectpath
+	    fill
+	} if
+
+	FooterFont setfont
+	ForegroundColor setcolor
+	2 copy moveto 5 -1 roll DisplayItemPaint	% r w x y
+	3 1 roll					% r y w x 
+	add 2 index DisplayItemSize pop sub exch	% r x y
+	moveto DisplayItemPaint
+    } def
+
+    /InTabArea? { % event => bool
+	begin XLocation YLocation end			% X Y
+	TabXY TabSize
+	pointinrect?					% bool
+    } def
+
+    /TrackStart {
+        dup /Name get AdjustButton ne { /TrackStart super send } {
+	    gsave
+	        self setcanvas
+		dup InTabArea? not { /TrackStart super send } {
+		    /WindowTracking? true store
+		    TrackDict begin
+			/Start /TabStart load def
+			/Motion /TabMotion load def
+			/Stop /TabStop load def
+		    end
+		    [exch TrackDict /Start get self] /sendmanager EventMgr send
+		    /Default true
+		} ifelse
+	    grestore
+        } ifelse
+    } def
+
+    /TabStart { % event => -
+	true /inhibitfocus ClassFocus send
+	/TrackHasMoved? false store
+	gsave
+	    Parent createoverlay setcanvas
+	    begin XLocation YLocation end		% x y
+	    /location self send xysub
+	    TrackDictInit
+		Parent setcanvas
+		/bbox self send /unfittab self send rect2points
+		/north exch def /east exch def
+		/south exch def /west exch def
+		/Motion /TabMotion load def
+		/Stop /TabStop load def
+	    end
+	grestore
+    } def
+
+    /TabMotion { % event => -
+      gsave
+        self setcanvas
+        TrackHasMoved? not {
+	    /TrackHasMoved?
+		1 index begin XLocation YLocation end TrackStartXY
+		xysub abs MoveThresh ge exch abs MoveThresh ge or store
+	} if
+        TrackDictBegin
+	  pop pop
+	  /x XLocation def /y YLocation def
+	  TabEdge {
+	    /West {
+	      x west gt {
+		y north gt {
+		  /North settabedge
+		} {
+		  y south lt {
+		    /South settabedge
+		  } {
+		    x east gt {
+		      /East settabedge
+		    } if
+		  } ifelse
+		} ifelse
+	      } if
+	    }
+	    /East {
+	      x east lt {
+		y north gt {
+		  /North settabedge
+		} {
+		  y south lt {
+		    /South settabedge
+		  } {
+		    x west lt {
+		      /West settabedge
+		    } if
+		  } ifelse
+		} ifelse
+	      } if
+	    }
+	    /North {
+	      y north lt {
+		x west lt {
+		  /West settabedge
+		} {
+		  x east gt {
+		    /East settabedge
+		  } {
+		    y south lt {
+		      /South settabedge
+		    } if
+		  } ifelse
+		} ifelse
+	      } if
+	    }
+	    /South {
+	      y south gt {
+		x west lt {
+		  /West settabedge
+		} {
+		  x east gt {
+		    /East settabedge
+		  } {
+		    y north gt {
+		      /North settabedge
+		    } if
+		  } ifelse
+		} ifelse
+	      } if
+	    }
+	  } case
+
+	  % XXX: clean this up
+	  TabEdge {
+	    /West /East {
+	      y south sub
+	      TabSize exch pop .5 mul sub
+	      north south sub TabSize exch pop sub 1 max div
+	      0 max 1 min
+	    }
+	    /North /South {
+	      x west sub
+	      TabSize pop .5 mul sub
+	      east west sub TabSize pop sub 1 max div
+	      0 max 1 min
+	    }
+	  } case
+	  settabposition
+
+	  erasepage
+	  west south east 2 index sub north 2 index sub % x y w h
+	  fittab
+	  /path self send stroke
+	TrackDictEnd
+      grestore
+    } def
+
+    /TabStop { % event => -
+        dup TabMotion
+	gsave
+	  TrackDictBegin
+	    Parent setcanvas
+	    west south east 2 index sub north 2 index sub % x y w h
+	    ?validate % XXX
+	    fittab
+	    minsize % x y w h mw mh
+	    3 -1 roll max % x y w mw H
+	    3 1 roll max % x y H W
+	    exch % x y W H
+	    /reshape self send
+	  TrackDictEnd
+	grestore
+        false /inhibitfocus ClassFocus send
+    } def
+
+    /MorePie {
+        framebuffer /new ClassPieMenu send
+	[ [(Quit!) {exch pop /QuitFromUser    /sendtarget 2 index send}]
+	  [(Props...)	{exch pop /PropsFromUser   /sendtarget 2 index send}]
+	] /setitemlist 2 index send
+	/MorePie 1 index store
+    } def
+
+    /SizePie {
+        framebuffer /new ClassPieMenu send
+	[ (N?) (NE?) (E?) (SE?) (S?) (SW?) (W?) (NW?)
+	] /setitemlist 2 index send
+	/SizePie 1 index store
+    } def
+
+    /EdgePie {
+        framebuffer /new ClassPieMenu send
+	[ (North) (East) (South) (West)
+	] /setitemlist 2 index send
+	{exch pop /TabEdgeFromUser  /sendtarget 2 index send}
+	/setnotifier 2 index send
+	/EdgePie 1 index store
+    } def
+
+    /TabPie {
+        framebuffer /new ClassPieMenu send
+	[ [(Drag!)	{exch pop /DragTabFromUser  /sendtarget 2 index send}]
+	  [((Edge))	EdgePie]
+	] /setitemlist 2 index send
+	dup /PieInitialAngle 180 put
+	/TabPie 1 index store
+    } def
+
+    /Pie {
+        framebuffer /new ClassPieMenu send
+	[ [(Top!)	{exch pop /FrontFromUser    /sendtarget 2 index send}]
+	  [(Zoom!)	{exch pop /ZoomFromUser    /sendtarget 2 index send}]
+	  [((Size))	SizePie]
+	  [((More))	MorePie]
+	  [(Bottom!)	{exch pop /BackFromUser    /sendtarget 2 index send}]
+	  [(Paint!)	{exch pop /RefreshFromUser /sendtarget 2 index send}]
+	  [((Tab))	TabPie]
+	  [(Open!)	{exch pop /CloseFromUser   /sendtarget 2 index send}]
+	] /setitemlist 2 index send
+	/Pie 1 index store
+    } def
+
+    /PieStart { % piename event => piename event <pie true> | false
+        /PieStart super send dup {
+	    Close? {
+	        gsave
+		    self setcanvas
+		    2 index InCloseArea? {
+		      pop pop false
+		    } if
+		grestore
+	    } if
+	} if
+    } def
+
+    /FrontFromUser { % ctl => -
+	pop /totop self send
+    } def
+
+    /DragTabFromUser { % ctl => -
+	pop
+beep	% XXX
+    } def
+
+    /TabEdgeFromUser { % ctl => -
+        /value 1 index send 0 get /item 3 -1 roll send 0 get cvn
+	/changetabedge self send
+    } def
+
+    /PlaceDelta {0 -20} def
+
+    /UpdateTab {
+	gsave
+	    self setcanvas
+	    TabXY translate
+	    newpath 0 0 TabSize rectpath clip newpath
+	    /PaintIcon self send
+	    /PaintBorder self send
+	grestore
+    } def
+
+    /demo { % - => instance instance
+	    10 dict begin
+	        framebuffer setcanvas
+
+		/win null framebuffer /new self send def
+		/Footer? true /setattribute win send
+		(foo) (bar) /setfooter win send
+		(Tab Demo) /setlabel win send
+		0 0 200 100 /reshape win send
+		/place win send
+	    	/new ClassEventMgr send /activate win send
+		/map win send
+
+		win dup
+	    end
+    } def
+
+classend def
+
+/TabBaseWindow [ClassTabWindow ClassBaseWindow] []
+classbegin
+    /setlabel {
+	/IconLabel promoted? not {
+	    dup /seticonlabel self send
+	} if
+        /setlabel super send
+    } def
+
+    /seticonlabel {
+        /seticonlabel super send
+	currentfont IconFont setfont
+% XXX
+	    
+%	    Icon
+	setfont
+	Opened? {
+	    /UpdateTab self send
+	} if
+    } def
+classend def
+
+/TabPopupWindow [ClassTabWindow ClassPopupWindow] []
+classbegin
+classend def
+
+end % systemdict

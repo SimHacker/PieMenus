@@ -1,0 +1,43 @@
+#
+# MDW Printcap, as used on yetch
+#
+# PostScript printer driven by TranScript software
+lp|yetch|lw|ps|psyetch|postscript|PostScript:\
+	:lp=/dev/ttyb:rp=lw:sd=/usr/spool/lw:sh:if=/usr/local/lib/lw/psif:\
+	:of=/usr/local/lib/lw/psof:lf=/usr/spool/lw/log:\
+	:br#9600:rw:fc#0000374:fs#0000003:xc#0:xs#0040040:mx#0:\
+        :gf=/usr/local/lib/lw/psgf:\
+        :tf=/usr/local/lib/lw/pstf:\
+        :nf=/usr/local/lib/lw/psnf:\
+        :vf=/usr/local/lib/lw/psvf:\
+	:af=/usr/spool/lw/lw-use:
+hattalp|hattalw|hattaps|lphatta|pshatta|postscripthatta|PostScriptHatta:\
+	:lp=:rm=hatta.cs.umd.edu:\
+	:rp=lw:\
+	:sd=/usr/spool/hattalw:\
+	:lf=/usr/spool/hattalw/log:
+#
+# HP laserjet on serial line using a homebrew filter.
+#laserjet:\
+#	:br#9600:lp=/dev/ttyb:of=/usr/mark/bin/lprint:sh:
+# HP laserjet on serial line using a homebrew filter, landscape
+#land|landscape|landlaserjet:\
+#	:br#9600:lp=/dev/ttyb:of=/usr/mark/bin/landprint:sh:
+# DecWriter over a tty line.
+#lp|ap|arpa|ucbarpa|LA-180 DecWriter III:\
+#	:br#1200:fs#06320:tr=\f:of=/usr/lib/lpf:lf=/usr/adm/lpd-errs:
+# typical remote printer entry
+#ucbvax|vax|vx|ucbvax line printer:\
+#	:lp=:rm=ucbvax:sd=/usr/spool/vaxlpd:lf=/usr/adm/lpd-errs:
+#varian|va|Benson Varian:\
+#	:lp=/dev/va0:sd=/usr/spool/vad:mx#2000:pl#58:px#2112:py#1700:tr=\f:\
+#	:of=/usr/lib/vpf:if=/usr/lib/vpf:tf=/usr/lib/rvcat:cf=/usr/lib/vdmp:\
+#	:gf=/usr/lib/vplotf:df=/usr/local/dvif:\
+#	:vf=/usr/lib/vpltdmp:lf=/usr/adm/lpd-errs:
+#versatec|vp|Versatec plotter:\
+#	:lp=/dev/vp0:sd=/usr/spool/vpd:sb:sf:mx#0:pw#106:pl#86:px#7040:py#2400:\
+#	:of=/usr/lib/vpfW:if=/usr/lib/vpsf:tf=/usr/lib/vcat:cf=/usr/lib/vdmp:\
+#	:gf=/usr/lib/vplotf:vf=/usr/lib/vpltdmp:lf=/usr/adm/lpd-errs:\
+#	:tr=\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\
+#\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\
+#\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n:

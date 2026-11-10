@@ -1,0 +1,31 @@
+<HTML>
+
+  <HEAD>
+    <TITLE>Pie Menu Editor</TITLE>
+  </HEAD>
+
+  <BODY>
+
+
+    <CENTER>
+
+      <H1>Pie Menu Editor</H1>
+      <H2>By Don Hopkins</H2>
+
+    </CENTER>
+
+    <HR/>
+
+    <XML id="PieMenuSpec" src="testpiemenus.xml"/>
+
+    <DIV ID="MyPieMenuEditor"
+	 STYLE="behavior:url(piemenueditor.htc)"
+	 PIEMENU="PieMenuSpec"
+	 ONAFTERMAKEPIE="LoadPieMenuEditor()">
+    </DIV>
+
+    <DIV ID="Barf"/>
+
+  </BODY>
+
+</HTML>

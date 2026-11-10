@@ -1,0 +1,65 @@
+<HTML>
+
+  <HEAD>
+    <TITLE>Punkemon Pie Menus</TITLE>
+  </HEAD>
+
+  <BODY>
+
+    <DIV STYLE="width=100%;height=100%;behavior:url(piemenu.htc)"
+      onchange="ChangePunkemon(event)">
+
+      <CENTER>
+	<H1>Punkemon Pie Menus!</H1>
+	<IMG SRC="Punkemon/island.jpg"/>
+      </CENTER>
+
+      <XML src="punkemonpiemenus.xml"/>
+
+    </DIV>
+
+    <SCRIPT>
+
+
+function ChangePunkemon(event)
+{
+  var pie =
+    event.result;
+
+  if (pie.id == "root") {
+    return;
+  } // if
+
+  var curItem = 
+    pie.curItem;
+
+  var str = "";
+
+  if (curItem == -1) {
+    str = "&nbsp;";
+  } else {
+    var item =
+      pie.items[curItem];
+    var itemWidth = 130;
+    var itemHeight = 130;
+    var itemName =
+      item.name;
+    var itemImage =
+      item.div.children(0).children(0).src;
+    pie.middleDiv.children(0).innerHTML =
+      "<B>" + itemName + "</B><BR/>" + 
+      "<IMG SRC='" +
+      itemImage +
+      "' WIDTH='" + itemWidth + "' HEIGHT='" +
+      itemHeight +
+      "'/>";
+  } // if
+}
+
+
+    </SCRIPT>
+
+  </BODY>
+
+</HTML>
+

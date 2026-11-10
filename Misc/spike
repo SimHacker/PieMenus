@@ -1,0 +1,153 @@
+I want to write up the visual programming stuff I've been doing, in
+such a way that suggests how it ties in with the NeWS programming
+environment. 
+
+What I am aiming for is a window shell type of environment.
+
+Programming by demonstration.
+
+Programming, Debugging, Prototyping, Testing environment.
+
+Visualy monitoring the state of a PostScript process. Making its state
+modifiable via direct manipulation.
+
+Create PostScript procedures by acting them out.
+
+Give them names, build libraries and control panels out of them.
+
+Integrate it with the Emacs menu compiler. 
+
+Simple menu description language is compiled into PostScript code that
+describes the menu to NeWS.  User builds menus invoking functions defined
+interactivally. 
+
+Editable menus that update their menu language descriptions automatically.
+
+Extend this to control panels. 
+
+DWID: Do What I Did. Always in high level event journal mode. You can
+grab a groups of events, filter them, with patterns, etc, and turn
+these series of events into PostScript functions composed of the the
+code that the events are bound to, with literal arguments that could
+be the coordinates of the events, strings, or other types of user
+input. The user should be able to specify that a given argument is not
+to be journaled as a literal, but should be gathered at macro run
+time. A shift key for this? Starts a dialog prompting you to enter an
+expression to calculate the argument at run time. You can give it the
+name of a variable, or a prompt string and a call to an appropriate
+prompting function. (call on pre-defined functions and variables to
+make mouse tracking and specialized feedback easy to do), which is
+compiled into the macro to compute the argument when it's later
+called. 
+
+Starting an dialog prompting for a function means to "mark" this place
+in the event journal as the beginning of a function, and recursivly
+call the interpreter. The interpret interprets until the user pops out
+of it with "OUT", at which time it returns to the caller, and the
+a functional transcript of the dialog is returned. 
+
+Basically the way it works is that you "do stuff", and that stream of
+stuff is always recorded. You can scoop up chunks of that stuff onto
+the operand stack, and build conditionals and loops and macros out of
+it. There are special buttons for conveniently building them too. So
+there should be two streams of code: everything that you do, in short
+term memory, and the stuff of that you want to keep in long term
+memory. You can mark points in the stream 
+of consciousness, and push a level into the interpreter, and gather
+more stuff, then press "OUT" to pop the interpreter, returning to the
+caller, who can filter and transmogrify and execute the stuff
+accumulated, and put it into long term memory. When you push into the
+interpreter, you can push it in immediate or defered mode. 
+
+When it pushes me into the interpreter, instead of actually doing
+something, I can select something I've already done, by dragging over
+that series of events, and stuff them into my action buffer, and it
+will be as if I had done it. (they would be executed if the
+interpreter was immediate.) I can add to that, or rub out parts of it.
+(How does rubbing out work? Checkpoints program state at start of
+series, and plays back what we're adding? Eeeeugh. I would tend to do
+stuff as chunks of code in defered mode, where I could rub out easily,
+and execute it when I was done, deciding to keep or redo each chunk. 
+
+As well as stacks, I want to be able to drag out pointers to bind
+variables in the "cyberspace deck" dictionary. Better yet, any pair of
+tabs should snap together. The one unerneath is the key and the one on
+top is the value. Making and breaking bindings. (every object on the
+screen not snapped to something is bound to null in DeckDict.)
+Duplicate objects just don't snap. Snapability test includes test for
+already being bound. Only one view of an object can be bound at once.
+
+circle:
+gets the x,y location of the event.
+Prompt for radius, with rubber-band feedback.
+
+arc:
+do circle
+Prompt for start angle, with rubber-band feedback.
+Prompt for end angle, with rubber-band feedback.
+
+lineto:
+If no currentpoint, then moveto event x,y
+else lineto event x,y
+
+closepath:
+No arguments. Mouse position ignored.
+
+repeat:
+Takes a non-negative integer argument on top of stack. If it's not a
+number, it tells you to push a repeat count and select repeat again. 
+If immediate mode & repeat count < 1, go into defered mode
+Pushes you into a { } (call interpreter recursivly)
+(the user does some stuff, and presses "OUT")
+If repeat count > 1, then repeat count-1 times
+
+ifelse:
+Takes a boolean argument "cond" off top of stack.
+(if top of stack is not boolean, it complains.)
+; by now, the code to put "cond" on the top of the stack is remembered.
+prompt "ifelse true condition"
+if cond = true & !defered
+  expr1 = push interpreter immediate
+else
+  expr1 = push interpreter defered
+prompt "ifelse false condition"
+if cond = false & !defered
+  expr2 = push interpreter immediate
+else
+  expr2 = push interpreter defered
+feedback "finished ifelse"
+remember {expr1 expr2 ifelse}
+
+Buttons and menus generate named events, i.e. special function key
+codes, that can be journaled. These are bound to functions in the NeWS
+server. When in macros definition mode (ALWAYS!), it translates
+(throught a key binding dictionary) the virtual function key 
+presses into calls to the PostScript functions they're bound to.  
+Define new functions by selecting chunks of your history, grouping
+them into a procedure, defing them as new functions, using them as
+arguments to if's, loops, etc. 
+
+Have (X,Y) pairs of variables displayed on the screen as dots. The dot
+could represent a pair of variables, or better yet, the top two
+numbers on the stack. Anything you do to the dot, gets done to the top
+of stack, and recorded. Change their value by dragging them around.
+Absolute change, Relative change, X and Y constraints, scale, rotate,
+various linear transformations, conversion to and from polar, min,
+max, etc...
+
+How to intersperse string literals into the journal:
+We want to record a transaction that involves a text type-in
+field, or a transaction that prompts for input. Journal the whole
+string as one event, not the key strokes. Hit "enter" to generate the
+event whose name is the field keytop (Default: the ItemLabel), and
+whose action is the text field value.
+
+Point at a place on the window with the mouse, and click to get a menu
+of things that take X Y arguments: moveto, lineto, curveto..., ...
+The code generated pushes the X Y position where the menu was invoked
+(in the CTM), and executes and remembers the command. Commands that
+need more arguments, like curveto, can prompt for them with rubber
+banding, different cursor, and message in prompt field. 
+Point button redoes last menu selection. 
+Instant draw program!
+

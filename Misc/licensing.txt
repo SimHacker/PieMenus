@@ -1,0 +1,5 @@
+How about arranging the licensing of Pie Menus such that anyone may
+use them for free, if they do not claim that their software has its
+own, unique, distinctive "look and feel", and only those who would
+keep others from duplicating their user interfaces would be required
+to pay a licensing fee to use Pie Menus?

@@ -1,0 +1,105 @@
+<HTML>
+
+  <HEAD>
+    <TITLE>Pie Menu Behavior Test</TITLE>
+  </HEAD>
+
+  <BODY>
+
+    <DIV
+      style="width:100%;height:100%;behavior:url(piemenu.htc)"
+      id="PieTarget"
+      onmakespec="Barf.innerHTML = 'MakeSpec; <BR/> ';"
+      onstart="Barf.innerHTML = 'Start; ';"
+      onstop="Barf.innerHTML += 'Stop; <BR/> ';"
+      onpopup="Barf.innerHTML += 'PopUp; ';"
+      onpopdown="Barf.innerHTML += 'PopDown; ';"
+      onpreview="HandlePreview(event);"
+      onchange="Barf.innerHTML += 'Change(last=' + event.result.lastItem + ', cur=' + event.result.curItem + '); ';"
+      onselect="HandleSelect(event);"
+      oncancel="Barf.innerHTML += 'Cancel; ';"
+      onsubmenu="Barf.innerHTML += 'SubMenu; ';"
+      onsupermenu="Barf.innerHTML += 'SuperMenu; ';"
+    >
+
+      <CENTER>
+	<H1>Pie Menu Behavior Test</H1>
+
+        <BR/>
+        <H2>Click here to pop up a pie menu.</H2>
+        <BR/>
+
+      </CENTER>
+
+      <HR/>
+
+      <H3>Events:</H3>
+
+      <DIV
+	ID="Barf">
+	Initialized.
+      </DIV>
+
+      <XML src="testpiemenus.xml"/>
+    </DIV>
+
+    <SCRIPT>
+
+function HandlePreview(event)
+{
+  var pie =
+    event.result;
+  
+  if (pie.id == "DirectionDistance") {
+
+    var centerDiv =
+      pie.centerDiv;
+    if (pie.curItem == -1) {
+      centerDiv.children(0).innerHTML = "Direction: None<BR/>Distance: None";
+    } else {
+      var twoPi =
+        Math.PI * 2.0;
+      var initialAngle =
+        ((pie.initialAngle * twoPi) / 360.0);
+      var dir =
+        (initialAngle -
+	 pie.direction) / twoPi;
+      var dist =
+        Math.floor(pie.distance - pie.inactiveRadius);
+
+      while (dir < 0.0) {
+        dir += 1.0;
+      } // while
+      while (dir >= 1.0) {
+        dir -= 1.0;
+      } // while
+
+      dir =
+        Math.floor(360 * dir);
+
+      centerDiv.children(0).innerHTML =
+        "Direction: " + dir + "<BR/>Distance: " + dist;
+    } // if
+
+  } // if
+}
+
+function HandleSelect(event)
+{
+  var pie =
+    event.result;
+  
+  Barf.innerHTML += 'Select(' + pie.curItem + '); ';
+
+  if (pie.items[pie.curItem].name == "Edit") {
+    PieTarget.Edit();
+  } // if
+}
+
+
+    </SCRIPT>
+
+  </BODY>
+
+</HTML>
+

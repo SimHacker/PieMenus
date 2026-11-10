@@ -1,0 +1,196 @@
+% Don's .NeWS customization file
+
+PieMenu /RetainCanvas? false put
+
+/UserName /don def
+UserProfile /UserName (don) put
+
+RemoteHostRegistry begin {
+    bensun.cs.umd.edu tumtum.cs.umd.edu amanda.cs.umd.edu rath.cs.umd.edu
+    ballast.cs.umd.edu flubber.cs.umd.edu haigha.cs.umd.edu
+    witsend.cs.umd.edu
+    brillig.umd.edu gyre.umd.edu mimsy.umd.edu 
+    news1 news2 news3 news4 news5 news6 news7 news8 news9
+  } {true def} forall
+end
+
+/printexeclevel { % process/xstack level => -
+10 dict begin
+    /level exch def
+    /xstack exch dup type /processtype eq {/ExecutionStack get} if def
+    /p xstack level 2 mul get cvlit def
+    /str 100 string def
+    
+    p type {
+      /filetype {
+	(Level %\n    %\n) [level p] printf
+      }
+      /stringtype {
+	(Level %\n    %\n) 
+	[ level
+	  p dup length 70 lt
+	  { litstring }
+	  { length (string{%}) sprintf } ifelse
+        ] printf
+	
+      }
+      /Default {
+        /ix xstack level 2 mul 1 add get def
+        /i ix def
+	(Level %\n) [level] printf
+	(  { ) print /x 4 def
+	p { /i i 1 sub def
+	    dup type {
+	      /stringtype { litstring }
+	      /nametype { dup xcheck not {(/%) sprintf} { str cvs } ifelse }
+	      /Default { str cvs }
+	    } case					% ai
+	    dup length
+	    i 0 eq {2 add (* )}{1 add ( )} ifelse	% ai str count
+            exch /dx exch def		% ai str
+	    /x x dx add dup 75 ge {(\n    ) print pop 4 dx add} if def
+	    exch print print
+	    pause
+	} forall
+	(} (*%,%)\n) [ix 1 sub p length] printf
+      }
+    } case
+    4 {pause} repeat
+end
+} def
+
+/dbgcopystack { % - => - (copies our op stack to the entered process)
+DbgBreaksExist {
+    DbgDict /DbgEnteredProcess get null ne {
+%        [count copy pop]				% args
+	count array astore aload			% args
+        {begin clear ClientData aload pop end}		% args proc
+	dbgcall						% -
+    } {
+        ("dbgcopystack" can only be called from an entered process.\n) print
+    } ifelse
+} if
+} def
+
+/po { % obj => - (print object)
+  10 dict begin
+    /tab {(        )print} def
+    {   exch =
+	dup type [
+	    /dicttype {
+		tab dup length exch maxlength (dictionary[%:%]\n) printf
+		%dup {pop (% ) printf} forall
+	    }
+	    /arraytype {
+	        dup xcheck {
+	            tab ==
+	        } {
+	            dup length 0 eq {
+	                tab ==
+	            }{
+	                {tab =} forall
+	            } ifelse
+	        } ifelse
+	    }
+	    /Default {tab =}
+	] case
+    } forall
+  end
+} def
+
+% Load junk
+%(NeWS/pacman.ps) LoadFile pop
+(NeWS/snap.ps) LoadFile pop
+(NeWS/keypad.ps) LoadFile pop
+(NeWS/undercur.ps) LoadFile pop
+(NeWS/netsecurity.ps) LoadFile pop
+%(NeWS/installbcursor.ps) LoadFile pop
+%(NeWS/object-browser.ps) LoadFile pop
+
+% Function keys
+/FunctionF1 {
+  /KeyState get 
+  false exch {/Shift eq or} forall {
+    (printscreen) forkunix
+  } if
+} bindkey
+/FunctionF2 {
+  /KeyState get 
+  false exch {/Shift eq or} forall {
+    (printscreen -2) forkunix
+  } if
+} bindkey
+
+/journaldemomenu [
+  (Setup) { (demo.setup) playdemo }
+  (Long) { (demo.long) playdemo }
+  (Medium) { (demo.medium) playdemo }
+  (Short) { (demo.short) playdemo }
+] /new DefaultMenu send def
+
+0 (Work setup) { (work.setup) playdemo }
+/insertitem journalmenu send
+3 (Forever) { Journal /PlayForever true put }
+/insertitem journalmenu send
+4 (Demos...) journaldemomenu 
+/insertitem journalmenu send
+5 (Once) { Journal /PlayForever false put }
+/insertitem journalmenu send
+
+2 (Size) { gsave framebuffer setcanvas 
+	       currentcursorlocation
+	       [(Size:) vmstatus exch pop exch pop 10 string cvs (KBytes)]
+	       popmsg pop }
+/insertitem applicationsmenu send
+
+6 (NeMACS) { (nemacs) forkunix }
+/insertitem applicationsmenu send
+
+/sunview1menu where { pop
+  sunview1menu /searchaction rootmenu send {
+    dup /deleteitem rootmenu send
+  } if
+  2 (SunStools =>) sunview1menu /insertitem applicationsmenu send
+  6 (--) {} /insertitem applicationsmenu send
+} if
+
+/stuffmenu [
+  (New!) {
+    10 dict begin
+      /ContentsAscii null def
+      currentdict /PrimarySelection selectionrequest
+      ContentsAscii null ne {
+        999
+	ContentsAscii dup length 24 gt { % index key
+	  0 24 getinterval (>) append % index key>
+        } if
+	[ ContentsAscii ] {
+	  createevent begin
+	    /Name /InsertValue def
+	    /Action exch def
+	    currentinputfocus dup null ne {
+	      aload pop % can proc
+	      /Process exch def
+	      /Canvas exch def
+	      currentdict sendevent
+	    } if
+	  end % event
+	} append cvx % index key> proc
+	/insertitem stuffmenu send
+      } if
+    end % selection-dict
+  }
+] /new DefaultMenu send def
+4 (Stuff =>) stuffmenu /insertitem rootmenu send
+
+% Abbreviations
+/top {/TopChild get} def
+/below {/CanvasBelow get} def
+
+systemdict /abort-o-matic known {
+  abort-o-matic type /processtype eq {
+    abort-o-matic killprocess
+  } if
+} if
+
+(hello) playdemo

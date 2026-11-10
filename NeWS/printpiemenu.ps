@@ -1,0 +1,911 @@
+(printpiemenu.ps ==============\n) print
+%!
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  @(#)piemenu.ps
+%
+%  Pie menu class implementation.
+%  Copyright (C) 1987.
+%  By Don Hopkins.
+%  All rights reserved.
+%
+%    Simple Simon popped a Pie Men-
+%	u upon the screen;
+%    With directional selection,
+%	all is peachy keen!
+%
+%  Pie Menus are provided for UNRESTRICTED use provided that this
+%  copyright message is preserved on all copies and derivative works.
+%  This is provided without any warranty. No author or distributor
+%  accepts any responsibility whatsoever to any person or any entity
+%  with respect to any loss or damage caused or alleged to be caused
+%  directly or indirectly by this program. This includes, but is not
+%  limited to, any interruption of service, loss of business, loss of
+%  information, loss of anticipated profits, core dumps, abuses of the
+%  virtual memory system, or any consequential or incidental damages
+%  resulting from the use of this program.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% May 28 1987	Don Hopkins
+%   First cut, based on LitePullRightMenu.
+%
+% May 30 1987	Don Hopkins
+%   Uses "Thing"s from liteitem.ps for key labels. A thing can be a
+%     string, or a keyword. The string is shown in MenuFont. The
+%     keyword can be either the name of an icon in icondict, or bound
+%     on the dict stack to an executable function. The function takes
+%     a boolean as input; if true, it draws itsself; if false, it
+%     returns its width and height.
+%   Better label positioning scheme: top or bottom justify labels at
+%     at the very bottom or top of the menu, and left or right justify
+%     labels on the right or left sides of the menu. The points
+%     relative to which the labels are justified are positioned at
+%     evenly spaced angles in a circle around the menu center. The
+%     instance variable PieInitialAngle is the angle of the first
+%     point. LabelRadius is the distance from the menu center to each
+%     point, calculated as:
+%       LabelMinRadius + LabelRadiusPerKey * <the number of menu keys>
+%   If the menu can't be centered on the location of the button
+%     event that invoked it, then warp the cursor to the menu center
+%     plus how much it has moved since the button down event, so that
+%     pop up menus near the screen edge and static menus work
+%     correctly. But ARRRGH FOO: setcursorlocation is broken!!! It
+%     moves the cursor, but next time you move the mouse, the cursor
+%     pops back to where it used to be! The Sun X server used to have
+%     the same problem with XWarpMouse. Makes you wonder. Well,
+%     anyway, I commented it out, because it's more confusing with
+%     setcursorlocation broken than it is not warping at all.
+%
+% July 13 1987	Don Hopkins
+%   Fixed up handling of retained canvases. Changed SliceLines to
+%     SliceWedges, and made it draw wedges inside of LabelRadius.
+%     Put in MoveMenu, which moves the menu, making sure that it's
+%     completely on the screen, and the mouse is in the menu center.
+%     (The latter part should be uncommented when setcursorlocation
+%     is fixed.) Changed slice highlighting.
+%   Implemented an oops function. Pressing the adjust button moves
+%     the top menu so the cursor's back in its center. (Well,
+%     setcursorlocation is still broken ...) If the mouse is already
+%     in the menu center, then the menu is popped down and the
+%     one below it is moved so its center is at the cursor.
+%
+% July 24 1987  Don Hopkins
+%   Changed to work with NeWS 1.1 litemenu.ps ... 
+%
+% August 20, 1987  Don Hopkins
+%   Uncommented out and fixed the mouse warping code. Added display 
+%   interruption, so that if the events that would make the menu 
+%   selection are already in the event queue, then the menu is not
+%   displayed. I'm not sure if the way I'm doing it is the best way,
+%   but it seems to work. I'm still not sure that the way mouse warping
+%   near the screen edge and display interruption are interacting is 
+%   really correct. It should not warp the mouse if the events are 
+%   already in the queue, so maybe warping should be defered, as well.
+%   There was also a problem with /Damaged events generated when the 
+%   canvas is reshaped, being put into the queue before the /MapMenu
+%   event is. This was causing the menu to be painted before the
+%   defered mapping took place, which is not the way I think it should
+%   work. So I kludged around it. There's got to be a safer way to
+%   make it work right. 
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Things to do:
+%
+% Teach it to use items as menu keys. Create PieItems like buttons,
+%   cycles, sliders and pull-out menus based on the distance,
+%   etc...
+%
+% When painting, draw the slice that the cursor is in (if any) first.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%systemdict /Item known not {
+%  (NeWS/liteitem.ps) run
+%} if
+
+%systemdict /LiteMenu known not {
+%  (NeWS/litemenu.ps) run
+%} if
+
+%systemdict begin
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Utilities
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Coerce an angle to be >=0 and <360.
+% Note: mod returns integers, so's no good.
+/NormalAngle { % angle => angle
+  dup 0 lt {
+    dup 360 sub 360 idiv 360 mul sub
+  } if
+  dup 360 ge {
+    dup 360 idiv 360 mul sub
+  } if
+} def
+
+% From demomenu.ps
+
+% Fake method to send to a menu that returns a copy of the menu in the
+% new menu style. Recursivly changes all sub-menus. One thing to look
+% out for is that it does not change variables bound to the sub-menus
+% that were changed, so setting /rootmenu to the result of sending
+% /flipstyle to rootmenu will give you a new root menu, with a new
+% terminal sub-menu, but /terminalmenu will still be bound to the old
+% one, so sending messages to terminalmenu will not change the
+% terminal menu you get under the new rootmenu. But sending /flipstyle
+% to terminalwindow would not update the terminal menu under rootmenu.
+% So get your changes in before you flip styles!
+
+/flipstyle { % - => newmenu
+    0 1 MenuActions length 1 sub {
+	MenuActions 1 index get		% i ithAction
+	dup type /nametype eq {
+	    dup xcheck {
+		exec
+	    } if
+	} if
+	dup type /dicttype eq {
+	    /flipstyle exch send	% i menu'
+	    MenuActions 3 1 roll put	% -
+	} {pop pop} ifelse
+    } for
+    MenuKeys MenuActions /new DefaultMenu send
+} def
+
+% Override flipdefaultmenustyle, a function invoked from the user
+% interface menu.
+
+/flipdefaultmenustyle { % - => - (Flips default menu style)
+  /DefaultMenu
+    DefaultMenu SunViewMenu eq {PieMenu} {SunViewMenu} ifelse
+  store
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% PieMenu class
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/PieMenu LiteMenu
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Instance variables
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+dictbegin
+% The slice currently painted.
+    /PaintedValue	null def
+% Inner radius around which labels are positioned. Based  LabelMinRadius,
+% LabelRadiusPerKey, and the length of MenuKeys.
+    /LabelRadius	null def
+% Minimum radius for label positioning.
+    /LabelMinRadius	32 def
+% Radius to step by when sizing menu
+    /LabelRadiusStep	5 def
+% Extra radius to add when sizing menu
+    /LabelRadiusExtra	5 def
+% Increase LabelRadius by this much per key.
+    /LabelRadiusPerKey	3 def
+% Direction in which the keys are laid out around the circle.
+    /Clockwise		true def
+% Pie menu outer radius. Based on LabelRadius and the bounding boxes of
+% the Key Things.
+    /PieRadius		null def
+% The angle at which the first key is placed.
+    /PieInitialAngle	90 def
+% The number of degrees a slice takes up. Based on length of MenuKeys. 
+    /PieSliceWidth	null def
+% The current direction in degrees of the cursor from the menu center.
+    /PieDirection	null def
+% The current distance of the cursor from the menu center.
+    /PieDistance	null def
+% Angle used in loops.
+    /ThisAngle		null def
+% Amount to move the menu so that it fits entirely on the screen.
+    /DeltaX		null def
+    /DeltaY		null def
+% Flag to remember if we've gotten a menu button down event before.
+    /GotDown		false def
+% Don't ask.
+    /SplatFactor	0 def
+% Interruptable display event
+    /MapMenuEvent       null def
+    /MapMenuProcess     null def
+% Flag to make painting happen after mapping
+    /RedoDamage		null def
+dictend
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Class variables
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+classbegin
+% Highlight: true strokes, false fills.
+    /StrokeSelection	true def
+% Width of border just inside PieRadius perimiter.
+    /Border		3 def
+% Gap between outermost label edge and border.
+    /Gap		9 def
+% Radius of numb hole in menu center that makes no menu selection.
+    /NumbRadius		14 def
+% Fudge factors for menu positioning.
+    /MouseXDelta	0 def
+    /MouseYDelta	-3 def
+% Draw lines delimiting slices.
+    /SliceWedges	true def
+% Draw arrows in the directions of slices.
+    /SliceArrows	false def
+% Drill a hole through the menu center, as big as NumbRadius.
+    /NumbHole		true def
+% Save the bits so pop-up is fast.
+    /RetainCanvas?	true def
+% Nice menu font...
+    /MenuFont		/Helvetica-Bold findfont 12 scalefont def
+% Draw arrow pointing to current selection?
+    /HiLiteWithArrow?	true def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Class methods
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Calculate and set the menu
+% LabelRadius, PieRadius, MenuWidth, and MenuHeight. Shape the canvas
+% and set the cursor.
+
+    /layout {
+      gsave MenuFont setfont initmatrix
+
+	/PieSliceWidth 360 MenuKeys length 1 max div store
+
+	/ThisAngle PieInitialAngle store
+	MenuItems {
+	  begin
+	    w null eq
+	      {/Key load ThingSize /h exch def /w exch def} if
+	    /ang ThisAngle def
+	    /dx ang cos def
+	    /dy ang sin def
+	    ang cos abs .05 lt { %  top or bottom
+	      /xoffset w -2 div def
+	      /yoffset ang 180 gt {h neg} {0} ifelse def
+	    } { %  left or right
+	      /xoffset ang 90 gt ang 270 lt and {w neg} {0} ifelse def
+	      /yoffset h -2 div def
+	    } ifelse
+	    /ThisAngle ThisAngle PieSliceWidth
+	      Clockwise {sub} {add} ifelse
+	      NormalAngle store
+	  end
+	} forall
+
+	/LabelRadius LabelMinRadius def
+	MenuItems length 1 gt {
+	  0 1 MenuItems length 1 sub {
+	    /i exch def
+	    /nexti i 1 add MenuItems length mod def
+	    { pause
+	      i calcrect
+	      nexti calcrect
+	      rectsoverlap not {exit} if
+	      /LabelRadius LabelRadius LabelRadiusStep add def
+	    } loop
+	  } for
+	} if
+	/LabelRadius LabelRadius LabelRadiusExtra add def
+
+	/PieRadius LabelRadius dup mul def
+        MenuItems {
+	  begin
+	    /x dx LabelRadius cvr mul def % XXX: cvr is for NeWS math bug
+	    /y dy LabelRadius cvr mul def
+
+	    /X x xoffset add def
+	    /Y y yoffset add def
+
+	    dx abs .05 lt { %  top or bottom
+	      x abs w 2 div add dup mul y abs h add dup mul add
+	    } { %  left or right
+	      x abs w add dup mul y abs h 2 div add dup mul add
+	    } ifelse
+	    PieRadius max /PieRadius exch store
+	  end
+	} forall
+	/PieRadius PieRadius sqrt Gap add Border add store
+
+        /MenuWidth
+	  PieRadius dup add store
+        /MenuHeight
+	  PieRadius dup add store
+
+      grestore
+    } def
+
+    /calcrect { % item_number => x y w h
+      MenuItems exch get begin
+        LabelRadius dx mul xoffset add
+	LabelRadius dy mul yoffset add
+	w h
+      end
+    } def
+
+    /reshape {
+      MenuGSave
+	framebuffer setcanvas
+	newpath
+	PieRadius dup dup 0 360 arc
+	closepath
+	NumbHole {
+	  PieRadius dup NumbRadius 1 sub 360 0 arcn closepath } if
+	SplatFactor { 6 { PieRadius dup add random mul } repeat
+	              curveto } repeat
+	MenuCanvas eoreshapecanvas
+	/beye /beye_m MenuCanvas setstandardcursor
+	% So retained canvases don't have their old image upon popup:
+	RetainCanvas? {
+	    MenuCanvas setcanvas
+            MenuFillColor fillcanvas
+	} if
+      grestore
+    } def
+
+% Make sure nothing's highlighted if there's a retained canvas.  Fork
+% an event manager, make a canvas, and layout the menu as needed.  If
+% ShowAtMouse? is true, move the menu so it's centered on the mouse,
+% and calculate any movement (DeltaX, DeltaY) needed to force it
+% to be completely on the screen. Move the menu to the right place on
+% screen, and set the canvas up. Move the cursor by the same amount
+% that the menu had to be moved (DeltaX, DeltaY). (This is
+% commented out because setcursorlocation is broken.) Reset the menu
+% value, and fork a menu event manager.
+
+    /showat { % event => -
+
+%createevent begin
+%  /Name /SpyMenu def
+%  /ClientData self def
+%  currentdict end sendevent
+
+	PaintedValue null ne MenuCanvas null ne and MenuWidth null ne and {
+	    MenuGSave
+	        PaintedValue PaintSlice
+	    grestore
+	} if
+	/PaintedValue null store
+
+	MenuEventMgr null ne {MenuEventMgr waitprocess pop} if
+
+	MenuWidth null eq {
+	  /layout self send
+	  MenuCanvas null ne {/reshape self send} if
+	} if
+
+	MenuCanvas null eq {
+	  /MenuCanvas ParentCanvas newcanvas def
+	  MenuCanvas /Retained RetainCanvas? put
+	  /reshape self send
+	} if
+
+	gsave
+	framebuffer setcanvas 
+	dup type /eventtype eq {
+	    begin XLocation YLocation end
+	} if
+	PieRadius sub MouseYDelta add  /MenuY exch def
+	PieRadius sub MouseXDelta add  /MenuX exch def
+
+	clippath pathbbox /DeltaY exch def /DeltaX exch def pop pop
+	/DeltaY
+	  MenuY MenuHeight add
+	  dup DeltaY ge {
+	    DeltaY exch sub
+	  } {
+	    dup MenuHeight lt { 
+	      MenuHeight exch sub 
+	    } { pop 0 } ifelse
+	  } ifelse
+	def
+%	  exch MenuHeight exch sub 0 max MenuY min  
+%	  MenuY sub store
+	/DeltaX
+	  MenuX MenuWidth add
+	  dup DeltaX ge {
+	    DeltaX exch sub
+	  } {
+	    dup MenuWidth lt {
+	      MenuWidth exch sub
+	    } { pop 0 } ifelse
+	  } ifelse
+	def
+
+	/MenuX MenuX DeltaX add store
+	/MenuY MenuY DeltaY add store
+
+	MenuCanvas savebehindcanvas
+        MenuCanvas setcanvas MenuX MenuY movecanvas
+        MenuCanvas canvastotop
+
+	grestore
+
+% Defer the mapping till we know the events that would complete the 
+% selection are not already in the input queue.
+        .1 blockinputqueue % forkeventmgr does an unblockinputqueue
+
+        MapMenuEvent null ne {
+          MapMenuEvent recallevent
+        } if
+
+	/MapMenuEvent
+          createevent begin
+            /Name /MapMenu def
+	    /TimeStamp currenttime def
+            /Canvas MenuCanvas def
+            currentdict
+          end def
+
+% Stuck this in EventMgrInit, so it happens as late as possible. 
+% (but it broke things)
+        MapMenuEvent sendevent
+
+	/RedoDamage false def
+	/MenuValue null def
+	/GotDown false def
+	/activate self send
+    } def
+
+%    /EventMgrInit {
+%	MapMenuEvent /TimeStamp currenttime put
+%	MapMenuEvent sendevent
+%    } def
+
+%    /EventMgrFore {
+%      gsave
+%      (Menu got /Name % /Action %\n) 
+%      [ 3 index /Interest get dup /Name get exch /Action get ]
+%      dbgprintf
+%    } def
+
+%    /EventMgrAft {
+%      (Menu event handled.\n) [] dbgprintf
+%      grestore
+%    } def
+
+    /paint {
+      MenuGSave
+        PaintMenuFrame
+	PaintMenuItems
+      grestore
+    } def
+
+% Paint the menu. Draw a Border width border inside PieRadius, and a
+% circle of radius NumbRadius at the menu center, in the
+% MenuBorderColor. Draw the keys at points on a circle around the
+% center of the menu. PieInitialAngle is the angle of the first point.
+% The points are PieSliceWidth degrees apart, at a distance of
+% LabelRadius.  The keys may be Things (from liteitem.ps), which
+% ThingSize and ShowThing take. If the angle of a point is 90 or 270,
+% then the center of the bottom or top edge of the Thing is positioned
+% at the point. If the angle is to the left (>90 and <270) or right
+% (<90 or >270), then the center of the right or left edge of the
+% Thing is positioned at the point.  If SliceWedges is true, wedges 
+% are drawn to delimit each slice.  If SliceArrows is true, arrows
+% are drawn pointing in the direction of each slice.
+
+    /PaintMenuFrame {
+      MenuGSave
+
+        MenuFillColor fillcanvas
+
+	PieRadius dup translate
+	
+	newpath 0 0 PieRadius Border sub 0 360 arc closepath
+	0 0 PieRadius 0 360 arc closepath
+	MenuBorderColor setcolor eofill
+
+        SliceWedges {
+	  newpath 0 0 LabelRadius Gap sub 0 360 arc closepath
+          MenuBorderColor setcolor eofill
+	} if
+
+	newpath 0 0 NumbRadius 0 360 arc closepath
+	SliceWedges {MenuFillColor} {MenuBorderColor} ifelse
+	fill
+      grestore
+    } def
+
+    /PaintMenuItems {
+      MenuGSave
+	false setprintermatch
+        PieRadius dup translate
+	
+
+        MenuItems {					% item
+	begin
+	  /Key load X Y ShowThing
+
+% There seems to be a NeWS line clipping bug with lines with one 
+% endpoint the right of the hole in the center of the menu ... 
+
+	2 setlinequality % Solves SOME of the line glitches ...
+        1 setlinewidth
+
+	  SliceWedges {
+	    gsave
+	      newpath
+	      ang PieSliceWidth 2 div sub rotate
+	      NumbRadius 0 moveto
+	      LabelRadius Gap sub 0 lineto
+              MenuFillColor setcolor
+%	      1 setlinequality % Solves SOME of the line glitches ...
+	      stroke
+ 	    grestore
+	  } if
+
+	  SliceArrows {
+	    gsave
+	      newpath
+	      ang rotate
+	      NumbRadius 0 moveto
+	      LabelRadius .5 mul 0 lineto
+	      currentpoint
+	      LabelRadius .4 mul LabelRadius .04 mul lineto
+	      moveto
+	      LabelRadius .4 mul LabelRadius -.04 mul lineto
+              SliceWedges {MenuFillColor} {MenuBorderColor} ifelse
+	      setcolor
+	      stroke
+ 	    grestore
+	  } if
+        end
+        } forall
+      grestore
+    } def
+
+% Handle drag events. If there's not a child menu up, then track the
+% mouse movement, updating the menu value according the the event
+% location; if it has changed, then update the highlighting.
+
+    /DragProc {
+	ChildMenu null eq {
+          MenuGSave
+	    PieRadius dup translate
+	    CurrentEvent begin
+	      XLocation DeltaX add
+	      YLocation DeltaY add
+	    end
+	    SetMenuValue
+
+	    MenuValue PaintedValue ne {
+	        PaintMenuValue
+            } if
+          grestore
+	} if
+    } def
+
+% Handle enter canvas events. Just call DragProc to keep the menu
+% value updated. 
+
+    /EnterProc {
+	DragProc
+    } def
+
+% Handle exit canvas events. Same as above. Here we keep tracking even
+% when you're off the menu edge (due to expressing interest in events
+% on the framebuffer overlay canvas). But if it really turns you on,
+% going off the edge could mean no selection (like when you're within
+% the numb radius - look at SetMenuValue), or select the slice, or pop
+% up a submenu, or drag the menu around, or give more info about the
+% slice, or whatever.
+
+    /ExitProc {
+        DragProc
+    } def
+
+    /OopsProc {
+      MenuGSave
+        DragProc
+        framebuffer setcanvas
+        MenuX PieRadius add MouseXDelta sub
+        MenuY PieRadius add MouseYDelta sub
+        setcursorlocation
+      grestore
+    } def
+
+    /AcksProc {
+      MenuGSave
+        DragProc
+        MenuValue null eq {
+	    popdown
+	} if
+      grestore
+    } def
+
+% Map the menu on the screen. This is invoked when we get a
+% /MapMenu event, so that we can interrupt the display of the
+% menu if the events that would complete the selection are already
+% in the input queue. 
+
+    /MapMenu {
+ {
+   { pause countinputqueue
+     0 eq { exit } if } loop
+      gsave
+      DeltaX 0 ne DeltaY 0 ne or {
+        framebuffer setcanvas
+        currentcursorlocation
+        exch DeltaX add
+        exch DeltaY add
+        setcursorlocation
+	/DeltaX 0 def  /DeltaY 0 def
+      } if
+
+      MenuCanvas mapcanvas
+      /MapMenuEvent null def
+      RedoDamage {
+	/RedoDamage false def
+	DamageProc
+      } if
+      grestore
+      /MapMenuProcess null def
+ } fork /MapMenuProcess exch def
+    } def
+
+    /popdown {
+
+        MapMenuEvent null ne {
+          MapMenuEvent recallevent
+	  /MapMenuEvent null def
+	  /RedoDamage false def
+        } if
+
+	MapMenuProcess null ne {
+	  MapMenuProcess killprocess
+	  /MapMenuProcess null def
+	} if
+
+	MenuCanvas null ne {MenuCanvas unmapcanvas} if  % spin needs this??
+
+	RetainCanvas? not {
+	    /MenuCanvas null store
+	    /MenuInterests null store
+%	    /MenuWidth null store
+	} if % framebuffer setcanvas?
+	    
+	ChildMenu null ne {
+	  /popdown ChildMenu send
+	} if
+
+	ParentMenu null ne {
+	  ParentMenu /ChildMenu null put
+	  /ParentMenu null store
+	} if
+
+	MenuEventMgr null ne {
+	    MenuEventMgr /MenuEventMgr null store killprocess
+	} if
+
+    } def
+
+% Calculate and set the menu value from the cursor x y location.
+% Updates /PieDistance and /PieDirection instance variables.
+
+    /SetMenuValue { % x y => - (Sets /MenuValue)
+        /PieDistance
+	  2 index cvr dup mul 2 index cvr dup mul add sqrt def
+	exch atan /PieDirection exch def
+	/MenuValue
+	  PieDistance NumbRadius le
+% It could be that when the cursor is out past the menu radius,
+% nothing is selected. But I don't do it that way, because it wins
+% to be able to get arbitrarily more precision by moving out further.
+%	  PieDistance PieRadius gt or
+	  { null }
+	  { PieSliceWidth 2 div  PieInitialAngle
+	    Clockwise { add PieDirection sub } { sub PieDirection add } ifelse
+	    NormalAngle
+	    PieSliceWidth idiv } ifelse
+	def
+    } def
+
+% Update the highlighted slice to show the current menu value.
+
+    /PaintMenuValue { % - => - (Hilite current item, un-hilite prev one.)
+	PaintedValue	 PaintSlice
+	MenuValue        PaintSlice
+	/PaintedValue	 MenuValue store
+    } def
+
+% Paint highlighting on a menu slice. If it's null, then do nothing.
+% Draw an arrow, and a box around the key.
+
+    /PaintSlice { % key => -
+        dup null ne {	   			% key
+	  MenuGSave
+	    MenuCanvas setcanvas
+	    PieRadius dup translate
+
+% Draw an arrow pointing out in the direction of the slice.
+	    MenuItems exch get begin
+
+%   	    overlayerase
+	    MenuBorderColor setcolor
+ 	    5 setrasteropcode
+
+	    HiLiteWithArrow? {
+	      gsave
+	        ang rotate
+	        newpath
+	        NumbRadius 0 moveto
+	        LabelRadius Gap sub			% r
+	        dup .6 mul dup PieSliceWidth 3 div sin mul lineto
+	        dup .9 mul 0 lineto
+	        .6 mul dup PieSliceWidth -3 div sin mul lineto %
+	        closepath
+                StrokeSelection {stroke} {fill} ifelse
+	      grestore
+	    } if
+
+% Highlight the key Thing.
+	    -4 2 X Y w h insetrrect rrectpath
+            StrokeSelection {stroke} {fill} ifelse
+	    end
+	  grestore
+        } {pop} ifelse				%
+    } def
+
+% Handle button up events. If we have children, then let the leaf
+% child menu handle the button up event. Otherwise, we handle it: If
+% it's a menu dictionary, then make it the child menu and show it.
+% Otherwise, execute the associated menu action, and send a /popdown
+% message to the root parent menu.
+
+    /UpProc {
+	  DragProc
+	  spymenu
+	  MenuValue getmenuaction dup type /dicttype eq {
+            /DeltaX 0 def /DeltaY 0 def % selection already made -- don't warp!
+	    /ChildMenu exch store
+	    ChildMenu /ParentMenu self put
+	    CurrentEvent /showat ChildMenu send
+	  } {
+	    pop
+	    % Ignore first mouse up if we're still in center of first menu
+	    ParentMenu null ne  MenuValue null ne  GotDown or or {
+              /DeltaX 0 def /DeltaY 0 def % don't warp!
+	      {
+	      % Find the parent menu
+	      self {
+	        dup /ParentMenu get dup null eq
+	        { pop exit }
+	        { exch pop } ifelse
+	      } loop
+	      % ^?^? (toodles [tm]!)
+	      /popdown exch send
+	      domenu
+	      } fork waitprocess % doesn't return
+	    } if
+	  } ifelse
+    } def
+
+% Handle menu button down events. 
+
+    /DownProc { 
+	/GotDown true store
+        DragProc
+    } def
+
+% Handle damage events. Gotta make sure the highlighted slice is
+% re-highlighted. 
+
+    /FuckedDamageProc {
+      MenuCanvas /Mapped get {
+        DeferedDamageProc
+      } {
+        % This is a kludge! There must be a better way to do it!
+	% I'm doing this because the /Damaged event from the reshapecanvas
+	% gets into the queue before the /MapMenu event, and gets received 
+	% before before the menu is mapped.
+%	CurrentEvent /Name /DeferedDamage put
+%        CurrentEvent /TimeStamp currenttime put
+%        CurrentEvent sendevent
+	/RedoDamage true def
+      } ifelse
+    } def
+
+    /DamageProc {
+      MenuFont setfont initmatrix MenuCanvas setcanvas
+      damagepath clipcanvas
+      /paint self send
+      PaintedValue PaintSlice
+      newpath clipcanvas
+    } def
+
+% Construct menu event interests. Only the first menu in a chain of
+% nested menus listens for mouse up events. It forwards them on to the
+% leaf child menu. I'm not sure if this is the right way to do it,
+% though.  The interests for button and drag events are on the frame
+% buffer overlay canvas, instead of null, or menucanvas. This is
+% because we want to keep tracking when the mouse is out of the
+% canvas. Using fboverlay seems to be more politically correct than
+% using null.
+%
+% Foo on political correctness. Using fboverlay does not seem to work!
+% Living in sin, by using null for now. 
+
+    /makeinterests {
+        /MenuInterests [
+%            ParentMenu null eq {
+                MenuButton /UpProc UpTransition null eventmgrinterest
+		dup /Exclusivity true put
+%	    } if
+            MenuButton /DownProc DownTransition null eventmgrinterest
+	    dup /Exclusivity true put
+	    MouseDragged /DragProc  null null eventmgrinterest
+	    dup /Exclusivity true put
+% 	    /EnterEvent /EnterProc null MenuCanvas eventmgrinterest
+%	    dup /Exclusivity true put
+% 	    /ExitEvent /ExitProc null MenuCanvas eventmgrinterest
+%	    dup /Exclusivity true put
+	    /Damaged /DamageProc null MenuCanvas eventmgrinterest
+	    dup /Exclusivity true put
+	    dup /Priority -1 put
+            AdjustButton /OopsProc DownTransition null eventmgrinterest
+	    dup /Exclusivity true put
+            AdjustButton /AcksProc UpTransition null eventmgrinterest
+	    dup /Exclusivity true put
+% Kludge to refresh messed up retained menu canvases. Ssssh! Don't tell anyone.
+            PointButton {} DownTransition null eventmgrinterest
+            PointButton /DamageProc UpTransition MenuCanvas eventmgrinterest
+	    /MapMenu /MapMenu null MenuCanvas eventmgrinterest
+%	    /DeferedDamage /DeferedDamageProc null MenuCanvas eventmgrinterest
+	] def
+    } def
+
+    /spymenu {
+      systemdict /PieMenuLogging known {
+	PieMenuLogging true eq {
+	  (Pie menu value % direction % distance % key %\n)
+	  [ MenuValue  PieDirection round  PieDistance round
+	    MenuValue dup null ne { MenuKeys exch get } if
+	  ] dbgprintf
+	} if
+      } if
+    } def
+
+  /getmenuaction { % index => action
+    dup null ne {
+	MenuActions 1 index MenuActions length 1 sub min get
+% exec executable keywords (literal ones are pushed...)
+	dup type /nametype eq { exec } if
+    } {nullproc} ifelse
+    exch pop
+  } def
+
+classend def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+(% Death to linear menus!\n) print
+% Death to linear menus!
+/DefaultMenu PieMenu store
+
+% This only sort of works. Read the flipstyle comments.
+systemdict /rootmenu known {
+  rootmenu type /dicttype eq {
+    /rootmenu /flipstyle rootmenu send store
+  } if
+} if
+
+% end % systemdict
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

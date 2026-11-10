@@ -1,0 +1,286 @@
+#!/usr/NeWS/bin/psh
+
+systemdict 
+begin
+    systemdict /NeWSWindow known not
+    { 
+        (/usr/NeWS/clientsrc/client/nterm/NeWSwin.ps) LoadFile 
+    } if
+
+    systemdict /NeWSScrollbar known not
+    { 
+        (/usr/NeWS/clientsrc/client/nterm/NeWSSbar.ps) LoadFile 
+    } if
+
+    systemdict /TextCanvas known not
+    { 
+        (/usr/NeWS/clientsrc/client/nterm/textcan.ps) LoadFile 
+    } if
+end
+
+/MakeWin {
+    {
+        clear % Clear the stack
+        % Get all that stuff off the dictstack
+        255 array dictstack length 2 sub 1 1 3 -1 roll {
+            pop 
+            end
+        } for
+        40 dict
+        begin
+            newprocessgroup
+
+            {
+                /psh-socket socket-file (r) file def
+            } stopped
+            true eq {
+                {
+                    newprocessgroup
+                    framebuffer setcanvas
+                    500 500 [(Could not establish connection)] popmsg pop
+                } fork pause pause pop
+                currentprocess killprocessgroup
+            } if
+
+            /psh-debug psh-debug def
+
+            /dialog-win
+            framebuffer /new NeWSWindow send
+            def
+
+            {
+                /FrameLabel (Dialog Window) def
+                % Give it a label
+                /IconImage /galaxy def
+                % Give it an icon
+                300 0 700 400 reshape % Give it a size
+                addVscroll
+
+                /PaintClient {
+                    /fixdamage dialog-text send
+                } def
+                /ReshapeClient {
+                    /reshape dialog-text send
+                } def
+                /DestroyClient {
+                    psh-debug {
+                        psh-socket (dbgstop\n) writestring 
+						psh-socket flushfile
+                    } if
+                    pause pause
+                    psh-socket closefile
+                    FrameEventMgr null ne {
+                        FrameEventMgr killprocessgroup
+                    } if
+                } def 
+            } dialog-win send
+
+            /dialog-can dialog-win /ClientCanvas get def
+
+            /dialog-text 200 dialog-can /new TextCanvas send def
+
+            /dialog-string () def
+
+
+            {
+                /KeyHitCallback { % key => -
+                    10 dict 
+                    begin
+                        /key exch def
+                        key {
+                            127 8 {
+                                /getcaretpos dialog-text send
+                                exch dup 1 gt {
+                                    1 sub exch
+                                    /movecaret dialog-text send
+                                    /getcaretpos dialog-text send
+                                    1 3 1 roll /deletestring dialog-text send
+                                    /dialog-string dialog-string dup length 1 sub 0 exch
+                                    getinterval store
+                                } if
+                            } % backup
+                            23 { % werase
+                                {
+                                    /getcaretpos dialog-text send
+                                    exch dup 1 gt {
+                                        1 sub exch
+                                        /movecaret dialog-text send
+                                        /getcaretpos dialog-text send
+                                        1 3 1 roll /deletestring dialog-text send
+                                        /dialog-string dialog-string dup length 1 sub 0 exch
+                                        getinterval store
+                                        dialog-string length 0 eq { 
+                                            exit 
+                                        } if
+                                        dialog-string dup length 1 sub 1 getinterval
+                                        ( ) eq {
+                                            exit
+                                        } if
+                                    } { 
+                                        exit 
+                                    } ifelse
+                                } loop
+                            }
+                            21 24 { 
+                                /getcaretpos dialog-text send
+                                dup 1 exch /deleteline dialog-text send
+                                exch pop 1 exch
+                                /movecaret dialog-text send
+                                /dialog-string () store
+                            }
+                            13 { 
+                                [() ()] true /writeatcaret dialog-text send 
+
+                                psh-debug {
+                                    dialog-string (bye) eq {
+                                        psh-socket (dbgstop\n) writestring
+                                    } if
+
+                                    dialog-string (quit) eq {
+                                        psh-socket (dbgstop\n) writestring
+                                    } if
+                                } if
+
+                                psh-socket dialog-string writestring
+                                psh-socket (\n) writestring
+                                psh-socket flushfile
+
+                                /dialog-string () store
+                            }
+                            /Default { 
+                                [(s) dup 0 key put] true /writeatcaret dialog-text send
+                                /dialog-string dialog-string (s) dup 0 key put append store
+                            }
+                        } case
+                    end
+                } def
+                /InsertValueCallback { % string => -
+                    10 dict 
+                    begin
+                        /s exch def
+                        psh-socket dialog-string writestring
+                        /newlines 0 def
+                        s {
+                            10 eq {
+                                /newlines newlines 1 add def
+                            } if
+                        } forall
+                        /a newlines 1 add array def
+                        0 1 newlines 1 sub {
+                            /i exch def
+                            s (\n) search pop
+                            /pre exch def
+                            pop
+                            /s exch def
+                            a i pre put
+                            psh-socket pre (\n) append writestring
+                        } for
+                        a newlines s put
+
+                        psh-socket flushfile
+                        /dialog-string s store
+
+                        a true /writeatcaret dialog-text send
+                } def
+
+                oncaret
+            } dialog-text send
+
+            /VScrollbar-dialog dialog-win /VScrollbar get def
+            {
+                /NotifyUser {
+                    null ItemValue /moveviewport dialog-text send
+                } def
+                /ClientDrag {
+                    DoScroll null ItemValue /moveviewport dialog-text send
+                } def
+            } VScrollbar-dialog send
+
+            /map dialog-win send
+
+
+            psh-socket (executive\n) writestring psh-socket flushfile
+
+            /incoming {
+                {
+                    psh-socket 255 string readline false eq {
+                        /unmap dialog-win send pause pause pause
+                        psh-socket closefile
+                        currentprocess killprocessgroup
+                    } if
+                    [ exch () ] true /writeatcaret dialog-text send
+                } loop
+            } fork def
+            psh-debug {
+                psh-socket (\(NeWS/debug.ps\) run dbgstart\n) writestring
+                psh-socket flushfile
+            } if
+    } fork pause pause pause pop
+} def
+
+/win2
+framebuffer /new DefaultWindow send
+def
+{
+    /FrameLabel (tool window version 0.3) def
+    /IconImage /galaxy def
+    800 100 300 150 reshape
+    /PaintClient {
+        items paintitems
+    } def
+} win2 send
+
+/can2
+win2 /ClientCanvas get
+def
+
+(NEWSSERVER) getenv
+(;) search pop
+(.) search pop pop pop
+/socket-port exch def
+pop
+/socket-host exch def
+
+/psh-debug null def
+
+/socket-file (%socketc) socket-port append socket-host append def
+
+/items 
+dictbegin
+    (connect) {
+        /psh-debug false store
+        /socket-file (%socketc) socket-port append socket-host append store
+        MakeWin
+    }
+    can2 000 000 /new ButtonItem send
+    /itemone exch def
+    % assign it to a name.
+    30 80 /move itemone send % Position it.
+
+    (debug connect) {
+        /psh-debug true store
+        /socket-file (%socketc) socket-port append socket-host append store
+        MakeWin
+    }
+    can2 000 000 /new ButtonItem send
+    /itemfive exch def
+    % assign it to a name.
+    100 80 /move itemfive send % Position it.
+
+    /addressitem (host:) socket-host /Right {
+        /socket-host ItemValue store
+    }
+    can2 220 0 /new TextItem send dup /ItemFrame 1 put
+    20 20 /move 3 index send def
+
+    /portitem (port:) socket-port /Right {
+        /socket-port ItemValue store
+    }
+    can2 220 0 /new TextItem send dup /ItemFrame 1 put
+    20 50 /move 3 index send def
+dictend 
+def
+
+/itemsmng items forkitems def
+
+/map win2 send

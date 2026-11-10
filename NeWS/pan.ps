@@ -1,0 +1,60 @@
+{ panproc killprocess } errored pop
+
+/pancan frameparent newcanvas def
+/ptr /ptr_m pancan setstandardcursor
+/fbimage framebuffer newcanvas def
+fbimage /Transparent true put
+0 0 fbwidth fbheight rectpath fbimage reshapecanvas
+
+frameparent setcanvas
+/panw 256 def
+/panh 256 def
+newpath 0 0 panw panh rectpath pancan reshapecanvas
+pancan canvastotop
+pancan /Mapped true put
+
+/panx 256 def
+/pany 10 def
+
+/forwardevent {
+  gsave
+  CurrentEvent begin
+    Canvas setcanvas
+    /XLocation XLocation panx add def
+    /YLocation YLocation panx add def
+     (Forward % %  % % \n) [Name Action XLocation YLocation] dbgprintf
+    /Canvas null def
+    /Process null def
+  currentdict end sendevent
+  update
+  grestore
+} def
+
+/update {
+  gsave
+    pancan setcanvas
+    panx neg pany neg translate
+    fbwidth fbheight scale
+    fbimage canvastotop
+    fbimage /Mapped true put
+    fbimage imagecanvas
+    fbimage /Mapped false put
+  grestore
+} def
+
+/pan {
+  gsave
+    framebuffer setcanvas
+    CurrentEvent begin
+      /panx XLocation /pany YLocation
+    end
+    def def
+    update
+  grestore
+} def
+
+systemdict /panproc [
+  PointButton /pan DownTransition framebuffer eventmgrinterest
+  null /forwardevent null pancan eventmgrinterest
+] forkeventmgr put
+

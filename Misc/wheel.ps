@@ -1,0 +1,182 @@
+/NeWS 3 0 findpackage beginpackage
+/TNTCore 3 0 findpackage beginpackage
+/TNT 3 0 findpackage dup beginpackage dup beginautoload begin
+
+/ClassColorPieMenu ClassPieMenu
+dictbegin
+    /Hue 1 def
+    /Saturation 1 def
+    /Brightness 1 def
+dictend
+classbegin
+
+    /InactiveRadius 1 def
+    /RadiusMin 60 def
+    /RimRadius .96 def
+    /GrayRadius .78 def
+
+    /ColorWheel (tnt/color/ColorWheel.im24) readcanvas def
+    /GrayWheel (tnt/color/GrayWheel.im24) readcanvas def
+
+    /NewInit {
+      /NewInit super send
+      /Cursor
+        58 77
+        /ZapfDingbats findfont [40 0 0 40 -16 -16] makefont
+	newcursor
+      def
+    } def
+
+    /TwistBrightness { % angle => 0..1
+      135 add dup 360 gt { 360 sub } if
+      dup 180 gt { 360 exch sub } if
+      0 max 180 min
+      180 div
+      1.2 mul .1 sub 0 max 1 min
+    } def
+
+    /PaintFrame { % - => -
+      gsave
+	Radius neg dup translate
+	/size self send scale
+
+	gsave
+	  newpath .5 .5 RimRadius .5 mul 0 360 arc closepath
+	  gsave
+	    0 0 1 1 rectpath
+	    eoclip
+	    .5 .5 translate -45 rotate -.5 -.5 translate
+	    GrayWheel imagecanvas
+	  grestore
+	  .5 .5 GrayRadius .5 mul 0 360 arc closepath
+	  eoclip
+	  .5 .5 translate 135 rotate -.5 -.5 translate
+	  GrayWheel imagecanvas
+	grestore
+	newpath .5 .5 GrayRadius .5 mul 0 360 arc closepath
+	clip
+
+	.5 .5 translate GrayRadius dup scale 1.01 1.01 scale -.5 -.5 translate
+	[Brightness /mul load] cvx settransfer
+	ColorWheel imagecanvas
+      grestore
+    } def
+
+    /PaintItems { % - => -
+    } def
+
+    /PaintSlice { % draw key => -
+      pop pop
+    } def
+
+    /PieStart { % event => -
+      /PieStart super send
+      Cursor grabcursor
+    } def
+
+    /PieStop { % event => -
+      /PieStop super send
+      null grabcursor
+    } def
+
+    /PieCancel { % event => -
+      /PieCancel super send
+      null grabcursor
+    } def
+
+    /OverlayPreview { % - => -
+	Overlay setcanvas erasepage
+	CurrentValue null ne {
+	    ItemList CurrentValue get begin
+		/DisplayItem load
+		XOffset YOffset
+		DX 16 mul DY 16 mul
+		Angle
+	    end
+	    /location self send Radius dup xyadd translate
+	    0 0 moveto
+	    0 0 Radius GrayRadius mul 4 -1 roll
+	    SliceWidth .5 mul sub
+	    dup SliceWidth add
+	    arc closepath
+	    0 0 InactiveRadius 0 360 arc closepath
+	    stroke
+	    currentcursorlocation xyadd
+	    moveto DisplayItemPaint
+	} if
+    } def
+
+    /hsb2rgb { % h s b => r g b
+      gsave ColorWheel setcanvas
+	sethsbcolor currentrgbcolor
+      grestore
+    } def
+
+    /setpiecolor { % color => -
+      gsave ColorWheel setcanvas
+        setcolor currenthsbcolor
+      grestore
+      /Brightness exch def /Saturation exch def /Hue exch def
+    } def
+
+    /piecolor { % - => color
+      Hue Saturation Brightness hsbcolor
+    } def
+
+    /SetCurrentValue { % dx dy => -
+      /SetCurrentValue super send
+      Distance GrayRadius Radius mul le {
+        /Hue Direction 360 div def
+	/Saturation
+	  Distance Radius div GrayRadius mul
+	  1.4 mul .2 sub
+	  0 max 1 min
+	def
+      } {
+        /Hue 0 def
+        /Saturation 0 def
+	Direction TwistBrightness
+	/Brightness exch def
+	/damage self send
+      } ifelse
+      Cursor /CursorColor /piecolor self send put
+      Cursor /MaskColor Brightness .5 lt { 1 } { 0 } ifelse
+      dup dup rgbcolor put
+    } def
+
+    /NotifyItem { % index => -
+        pop Hue Saturation Brightness hsbcolor
+	/Notifier load					% color proc
+	/ExecuteNotifier self send			% -
+    } def
+
+    /PreviewItem { % index => -
+        pop Hue Saturation Brightness hsbcolor
+	/Previewer load					% color proc
+	/ExecuteNotifier self send			% -
+    } def
+
+    /demo {
+	userdict begin
+	    /pie framebuffer /new ClassColorPieMenu send def
+	    0 /setinitialangle pie send
+	    [ (Red)(Green)(Blue)
+	    ] /setitemlist pie send
+	    { { ForegroundColor exch setcolors
+	      } /sendtarget 3 -1 roll send
+	    } /setpreviewer pie send
+	    /can framebuffer /new ClassPieMenuCanvas send def
+	    /preferredsize { 200 200 } /promote can send
+	    pie /setpiemenu can send
+	    /win can framebuffer /new ClassBaseWindow send def
+	    (Color Pie Menu Demo) /setlabel win send
+	    /mgr /new ClassEventMgr send def
+	    mgr /activate win send
+	    /place win send /map win send
+	end % userdict
+    } def
+classend def
+
+currentdict end endautoload
+
+/demo ClassColorPieMenu send

@@ -1,0 +1,130 @@
+%!
+false echo
+/Times-Roman findfont 10 scalefont setfont
+
+/box {				% --- => ---
+  newpath
+  0 0 moveto
+  1 0 lineto
+  1 1 lineto
+  0 1 lineto
+  closepath
+} def
+
+/unbox {			% --- => ---
+  newpath
+  0 0 moveto
+  0 1 lineto
+  1 1 lineto
+  1 0 lineto
+  closepath
+} def
+
+/plane {			% x y width height path unpath gray => dict
+  7 dict
+  begin
+    /gray exch def
+    /unpath def
+    /path def
+    /height exch def
+    /width exch def
+    /y exch def
+    /x exch def
+    currentdict
+  end
+} def
+
+/showit {			% thing => ---
+ 40 string cvs show
+} def
+
+/showplane {			% plane => ---
+  gsave
+  begin
+    x y 15 sub move  0 setgray
+    (X pos ) show  x showit
+    (, Y pos ) show  y showit
+    (, width ) show  width showit
+    (, height ) show  height showit
+    (, path ) show  path showit
+    (, unpath ) show  unpath showit
+    (, gray ) show  gray showit
+    (.) show
+  end
+  grestore
+} def
+
+/planepath {			% plane => ---
+  begin
+    x y translate
+    width height scale
+    path cvx exec
+    gray setgray
+  end    
+} def
+
+/planeunpath {			% plane => ---
+  begin
+    x y translate
+    width height scale
+    unpath cvx exec
+    gray setgray
+  end    
+} def
+
+/drawplane {			% plane => ---
+  gsave
+  planepath gsave fill grestore 0 setgrey stroke
+  grestore
+} def
+
+/castshadow {			% --- => ---
+  0 1 i 1 sub {			% j
+    i 1 index sub		% j dist
+    planes 2 pick get		% j dist clipplane
+    curmatrix setmatrix
+    dup /gray get		% j dist clipplane clipgray
+    .2 sub			% j dist clipplane shadowgray
+    /shadowgray exch def	% j dist clipplane
+    planepath			% j dist
+% clip others here
+    clip
+    dup lightx mul		% j dist xoffset
+    exch lighty mul		% j xoffset yoffset
+    curmatrix setmatrix
+    translate			% j
+    plane planepath
+    shadowgray setgray
+    fill
+    pop				%
+  } for
+  curmatrix setmatrix
+} def
+
+/drawplanes {			% planes => ---
+  5 dict begin
+  /planes exch def
+  /curmatrix matrix currentmatrix def
+  0  1  planes length 1 sub {	% i
+    /i exch def
+    /plane planes i get def
+    i 1 ne { castshadow } if
+    plane drawplane
+  } for
+} def
+
+/planes
+[ 30  30  300 300 /box /unbox .2 plane
+  60  190 150 50  /box /unbox .4 plane
+  100 120 40  130 /box /unbox .4 plane
+  70  150 180 80  /box /unbox .4 plane ] def
+
+gsave
+
+5 setlinewidth
+
+true echo
+% planes drawplanes
+
+% showpage
+% grestore

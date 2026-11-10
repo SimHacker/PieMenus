@@ -1,0 +1,849 @@
+%!
+% Date: Mon, 27 Mar 89 18:30:12 EST
+% To: NeWS-makers@brillig.umd.edu
+% Subject: blankscreen.ps: NeWS screensaver and lock program.
+% From: spectral!sjs@bellcore.com  (Stan Switzer)
+% 
+% "Blankscreen" is a substitute for the SunView "screenblank" and
+% "lockscreen" programs.
+% 
+% Rather than repeat a description here, I refer interested parties to
+% the documentation at the beginning of the program.  Be sure to read
+% up to and including the "Warnings" section.
+% 
+% Now, if only I had a NeWS "mailtool" clone I'd be one happy camper.
+% 
+% Enjoy!
+% 
+% Stan Switzer  sjs@ctt.bellcore.com
+% ------------
+%
+% BlankScreen: Lights out!
+%
+% Copyright (C) 1989 by Stan Switzer. All rights reserved.
+% This program is provided for unrestricted use, provided that this
+% copyright message is preserved. There is no warranty, and no author
+% or distributer accepts responsibility for any damage caused by this
+% program.
+%
+% DESCRIPTION:
+%
+% BlankScreen quietly monitors your keyboard and mouse for activity,
+% invoking a screen-saver when there has been no activity in a user-
+% selectable time period.  If, after another user-selectable time period,
+% there has been no keyboard or mouse activity, BlankScreen quietly enters
+% a "lock" mode which demands your login password before releasing your
+% workstation.
+%
+% At invocation, the variables /BlankTime and /LockTime control the amount
+% of idle time that causes blanking and amount of blanked time that leads
+% to locking.  Changing these values later has no effect (to protect against
+% accidents).  The default times for these values are three minutes
+% and two minutes respectively.  If you find locking objectionable, you
+% can disable it by setting /LockTime to 0.
+%
+% When blankscreen is restarted, it kills any other running (but
+% unlocked) blankscreen processes.  This allows you to change the
+% timer parameters without compromising the security of the
+% locking function.
+%
+% If /BlankFKey is defined, it is the name of a function key to use to
+% blank the screen on demand.  Similarly for /LockFKey.  I use the following:
+%	/BlankFKey /FunctionF6 def  /LockFKey /FunctionF7 def
+%
+% The poem can be changed by assigning a different array of strings
+% to /Poetry before invoking blankscreen.  A value of "null" disables
+% the poetry entirely.
+%
+% The colors used in the blanking display can be changed by assigning values to
+% the appropriate variables before invocation.  Interested parties should
+% look at the first few lines of source.
+%
+% WARNINGS:
+%
+% This program checks passwords by trying to connect to your FTP
+% server (yes, this is a hack).  You would do well to see if you can
+% "ftp localhost" before you begin using this program.
+%
+% Additionally, either (USER) or (LOGNAME) must be in the environment
+% for the locking mode to know who you are.
+%
+% If either of these two assumptions fails to hold, setting "LockTime"
+% to 0 disables automatic locking, thus avoiding the problem.
+%
+% Because this program goes to great lengths to defeat the keyboard focus
+% manager, it depends on things perhaps that might easily change from one
+% release on NeWS to another.  I only know for sure that it works in
+% NeWS 1.1 with a Sun-3 keyboard.
+%
+% Finally, "forkunix" must work (I don't know about non-UNIX NeWS
+% implementations) and there must be a reasonably standard "date"
+% command.
+%
+% NeWS Notes:
+%
+% Apparently, mouse transitions caught by a non-canvas specific and
+% non-exclusive interests do not require redistribution, but key transitions
+% do.  Since this seems much too arbitrary, I use an exclusive
+% interest and redistribute everything.  Probably, I should be registering
+% interests relative to a framebuffer overlay instead of a null canvas.
+%
+% Interests having dictionaries of procs for both their Name and Action
+% do not execute either procedure but instead return both an event and array
+% from awaitevent.  The array contains the two procedures that should have
+% been executed.  Maybe I should have been using "forkeventmgr" anyway to
+% avoid all of this hassle (then again, for security reasons, maybe not).
+%
+% There are certain interesting techniques in here that you may feel free
+% to borrow.  My favorite is the "condition" handler.  A close runner-up
+% is the FTP password hack (thanks Don) and the date query.  Please
+% do not use the keyboard handling as a model for input handling since
+% this code intentionally subverts the very mechanisms you should
+% generally be using.
+%
+% ------------
+% Stan Switzer   sjs@ctt.bellcore.com
+%
+% 3/27/89 - SJS
+%	Release 1.0
+
+% Start a new dictionary here to prevent patching the locking code, prevent
+% unauthorized access to the /Password entry, and to avoid systemdict
+% namespace polution.
+
+100 dict begin { end } pop    % { end } pop is to fool formatters!
+
+/default { % key val -> -   def into current dictionary, val is default
+    1 index where { 2 index get exch pop } if def
+} def
+
+/BlankTime 180 default
+/LockTime 120 default
+
+/Testing? false def
+% /Testing? true def
+
+/conprint { pop pop } def
+/Conprint { sprintf console exch writestring console flushfile } def
+% /conprint /Conprint load def
+
+/SC { % key grayshade pastelhue-or-color -> -   set color
+    dup type /colortype ne { .35 1 hsbcolor } if % pastel hue
+    ColorDisplay? not 3 1 roll ifelse
+    dup type /colortype ne { dup dup rgbcolor } if % gray value
+    default
+} def
+/BlankColor 0 0 0 0 rgbcolor SC
+/HourColor 1 .5 SC
+/MinColor 1 .5  SC
+/ClockColor 1 .5 SC
+/TextColor 1 .5  SC
+/QuoteColor 1 .5 SC
+
+% Generally, I prefer that users wishing to change the displayed verses do
+% so by defining the new verses before "running" this file.  This way, we
+% can avoid unnecesary speciation of this program.
+
+/Poetry [
+    (`The time has come', the Walrus said,)
+    (       `To talk of many things:)
+%   (Of shoes\320and ships\320and sealing wax\320)
+    (Of shoes\0\320and ships\320and sealing wax\320) % "\0"? see below!
+    (       Of cabbages\320and kings\320)
+    (And why the sea is boiling hot\320)
+    (       And whether pigs have wings.')
+    (                 \320 Lewis Carroll)
+] default
+% It is a complete mystery to me why, but sometimes (not always)
+% the dash after "shoes" does not display!  Somehow, the \0 seems to avoid
+% the problem, but I'm stumped why it would.  It appears to be a scanner
+% bug because "Poetry 2 get ==" shows a \0 instead of a \320.  All attempts
+% to isolate the problem in a simpler program fail to manifest the bug.
+% Now here's the wierd thing:  If I comment out the line with the "\0",
+% uncomment the one without it, and reverse them (putting the now
+% commented-out line first), the dash shows!  Then, if I delete the
+% comment, the dash doesn't show!  In fact, virtually any change
+% immediately before the line in question makes the bug go away.
+% Update: prior to posting, I modified the prefatory comments, and now
+% the bug does not appear.  Present theory is that scanner breaks
+% when \nnn crosses a psio buffer boundary.
+
+% We are going to be paranoid and hoist certain non-operator procs to
+% this private dictionary to prevent insertion of trojan horses in the
+% password collection and checking logic.  I know of a few holes here, but
+% I don't see the point of documenting them, if you get my drift.  Still,
+% considering how "append," for instance, is used in here, it is only
+% prudent to protect ourselves.
+
+/CopyProc { % proc -> proc'
+    dup type /arraytype eq { % array?
+	dup xcheck exch 0 exch { % forall -- exec? n item
+	    CopyProc exch 1 add
+	} forall
+	array astore exch { cvx } if
+    } if
+} def
+
+[ /append ] {  % hoist these global procs ...
+    dup load CopyProc def
+} forall
+
+/GetDate { % - -> (str) true -or- false
+    { 25 dict begin % fork (to keep events from being confused)
+	/Interest createevent dup begin
+	    /Name [ /TimeOut /Date ] def
+	end dup expressinterest def
+	/Timer Interest createevent copy dup begin
+	    /Name /TimeOut def
+	    /TimeStamp currenttime .25 add def
+	end dup sendevent def
+	(echo "createevent dup begin)
+	(         /Name /Date def /Action (`date`)) append
+	(      def end sendevent" | psh) append forkunix
+	awaitevent dup /Name get /TimeOut eq {
+	    pop [ false ]
+	} {
+	    Timer recallevent
+	    /Action get [ exch true ]
+	} ifelse
+    end } fork waitprocess aload pop
+} def
+% GetDate stack
+
+/GetHHMMSS { % - -> hh mm ss true -or- false
+    GetDate {
+	3 { ( ) search pop pop pop } repeat
+	( ) search 4 2 roll pop pop pop
+	2 { (:) search pop exch pop cvi exch } repeat cvi
+	true
+    } {
+	false
+    } ifelse
+} def
+% GetHHMMSS
+
+/Midnight {
+    Midnightproc waitprocess pop
+    /Midnightproc null store
+    Midnight
+} def
+/Midnightproc {
+    /Midnight currenttime GetHHMMSS
+    % try again if it didn't work (maybe server wasn't started yet)
+    true { GetHHMMSS } ifelse
+    { % worked?
+	3 -1 roll 60 mul 3 -1 roll add exch 60 div add sub store true
+    } { % not worked?
+	pop pop false
+    } ifelse
+} fork def
+
+/NeWSLogoThing Object dictbegin
+dictend classbegin
+    /Font /Times-Roman findfont 92 scalefont def
+    /String (NeWS) def
+    /Verses Poetry def
+    /NVerses Verses null eq { 0 } { Verses length } ifelse def
+    /Poetry? NVerses 0 gt def
+    /ClockRad Poetry? 46 36 ifelse def
+    /MinHand ClockRad 7 sub def
+    /HourHand ClockRad 20 sub def
+    /Vfont /Times-Roman findfont 14 scalefont def
+    /LogoUp Poetry? 19 0 ifelse def
+    /VerseNo 0 def
+    /Verse { Verses VerseNo dup 0 lt 1 index NVerses ge or {
+	pop /VerseNo 0 store 0 } if get } def
+    /InitVerse { /VerseNo -1 store } def
+    /NextVerse { /VerseNo VerseNo 1 add store } def
+    /PaintHand { % deg r -> -
+	exch gsave rotate
+	-4 -4 moveto 4 -4 lineto 0 exch lineto closepath fill
+	grestore
+    } def
+    /PaintClock { % x y -> -
+	gsave translate
+	ClockColor setcolor
+	gsave 12 { 30 rotate
+	    -2 ClockRad moveto 4 0 rlineto -2 -6 rlineto closepath fill
+	} repeat grestore
+	currenttime Midnight sub cvi dup 3600 mod 60 div
+	HourColor setcolor
+	-30 mul HourHand PaintHand
+	MinColor setcolor
+	60 mod -6 mul MinHand PaintHand
+	grestore
+    } def
+    /GSave { gsave Font setfont TextColor setcolor } def
+    /size { GSave String stringwidth pop ClockRad 2 mul add
+	Font fontascent LogoUp add grestore } def
+    /paint { GSave
+	currentpoint ClockRad add exch ClockRad add exch PaintClock
+	ClockRad 2 mul 0 rmoveto
+	gsave 0 LogoUp rmoveto String show grestore
+	Poetry? { Vfont setfont QuoteColor setcolor Verse show } if
+	grestore
+    } def
+classend def
+
+/TheThing /new NeWSLogoThing send def
+/ThingX null def /ThingY null def
+
+% Thing stuff from the menu package ...
+/ShowThingDict dictbegin
+    LiteMenu /&ShowThingDict get /def load forall
+dictend def
+/ThingSizeDict dictbegin
+    LiteMenu /&ThingSizeDict get /def load forall
+dictend def
+/IconString { icondict exch get cvis } def
+/ThingSize {
+    ThingSizeDict begin gsave dup type exec end grestore
+    .5 add cvi exch .5 add cvi exch
+} def
+/ShowThing {
+    gsave currentpoint translate
+    ShowThingDict begin dup type exec end
+    grestore
+} def
+
+% GetUserid: ->
+%		false   	 -- didn't work
+%		(userid) true	 -- got user id
+/GetUserid {
+    (USER) { getenv } stopped {
+	pop (LOGNAME) { getenv } stopped {
+	    pop false
+	} true ifelse
+    } true ifelse
+} def
+
+% Check password using ftp server (Don Hopkins thought of using FTP).
+%
+% CheckPW: (userid) (password) ->
+%		false   	 -- check didn't work
+%		ok? true	 -- OK? is true iff PW is correct
+%
+% NOTE: we wish to distinguish failure of the checking procedure from
+%	failure of the check itself.
+/CheckPW {
+    { 25 dict begin
+	/Password exch def
+	/User exch def
+	/S (%socketc21) (rw) file def	     % socket
+	/R { S exch readline } def	     % str -> str -- read from socket
+	/W { S exch writestring S flushfile } def % str -> - -- write socket
+	/SR { % (good) (bad) timeoutsec -> good? true -or- false -- srch
+	    /Time exch 60 div def
+	    /Interest createevent dup begin
+		/Name /DoneEvent def
+	    end dup expressinterest def
+	    /Bad exch def
+	    /Good exch def
+	    /Match1 { anchorsearch { pop pop true } { pop false } ifelse } def
+	    /Match {
+		dup type /arraytype eq {
+		    { Match1 { true exit } if } forall
+		} {
+		    Match1
+		} ifelse
+	    } def
+	    /Str 200 string def
+	    /Proc { % fork
+		{ %  loop
+		    Str R not { /Ugly exit } if
+		    dup Good Match { /Good exit } if
+		    dup Bad Match { /Bad exit } if
+		    pop
+		} loop exch pop
+		Interest createevent copy dup /Action 4 -1 roll put sendevent
+	    } fork def
+	    /Timer Interest createevent copy dup begin
+		/Action /TimeOut def
+		/TimeStamp currenttime Time add def
+	    end dup sendevent def
+	    awaitevent /Action get
+	    dup /TimeOut eq {
+		Proc killprocess
+		pop /Ugly
+	    } if
+	    dup /Ugly eq {
+		Timer recallevent
+		pop false
+	    } {
+		/Good eq true
+	    } ifelse
+	    Interest revokeinterest
+	} def
+
+	{ % only once through:
+	    (220 ) (xxx ) 15 SR
+	    not { false exit } if not { false exit } if
+	    (user ) User append (\n) append W
+	    (331 ) [ (530 ) (500 ) ] 15 SR
+	    not { false exit } if not { false exit } if
+	    (pass ) Password append (\n) append W
+	    (230 ) [ (530 ) (500 ) ] 20 SR not { false exit } if
+	    true exit
+	} loop
+	dup 2 1 ifelse array astore
+	(quit\n) W
+	S closefile
+    end } fork exch pop exch pop waitprocess aload pop
+} def
+
+/UserID GetUserid not (Unknown User) if def
+
+Testing? {
+    /win framebuffer /new DefaultWindow send def
+    /reshapefromuser win send
+    /map win send
+    /CanvasToBlank /ClientCanvas win send def
+} {
+    /CanvasToBlank framebuffer def
+} ifelse
+
+/CoverCanvas { % canvas => canvas'
+    gsave dup setcanvas
+    newcanvas
+    dup begin
+	/Transparent false def
+	/Retained false def
+	/Mapped false def
+    end
+    clippath dup reshapecanvas
+    /nouse /nouse_m 2 index setstandardcursor
+    grestore
+} def
+
+/Blanket CanvasToBlank CoverCanvas def
+
+/QueryW 350 def /QueryH 85 def /QueryR 10 def
+/QueryMessage () def
+/QueryFont /Times-Roman findfont 18 scalefont def
+/QueryCanvas gsave Blanket dup setcanvas
+newcanvas dup begin
+    /Transparent false def
+    /Retained false def
+    /Mapped false def
+end
+clippath pathbbox 4 2 roll pop pop
+exch QueryW sub 2 div exch QueryH sub 2 idiv translate
+QueryR 0 0 QueryW QueryH rrectpath dup reshapecanvas
+grestore def
+
+/PWstring 100 string def /PWpos 0 def
+/Password () def
+/AddPW {
+    PWpos PWstring length lt {
+	PWstring PWpos 3 -1 roll put
+	/PWpos PWpos 1 add store
+	/Password PWstring 0 PWpos getinterval store
+    } { pop } ifelse % Thanks Don
+} def
+/DelPW {
+    /PWpos PWpos 1 sub 0 max store
+    /Password PWstring 0 PWpos getinterval store
+} def
+/ClearPW {
+    /PWpos 0 store
+    /Password PWstring 0 PWpos getinterval store
+    0 1 Password length 1 sub { Password exch 0 put } for % zero PW string
+} def
+/State null def
+
+/seconds { 60 div } def
+
+/Member? { % item array -> bool
+    false 3 1 roll { % forall
+	1 index eq { exch pop true exch } if
+    } forall
+    pop
+} def
+
+/Secure? { State { /Lock /Query /Check } Member? } def
+
+% Timer while in state:
+/StateTimes 10 dict dup begin
+    /Sleep 15 BlankTime 2 div min seconds def
+    /Monitor BlankTime seconds def
+    /Blank 3 seconds def
+    /Lock Blank def
+    /Query Blank def
+    /Check Blank def
+end def
+
+/Conditions [
+    dictbegin  % Keyboard and mouse monitoring:
+	/Condition  { State { /Monitor /Blank /Lock } Member? } def
+	/Enter	{ MonitorInterests /expressinterest load forall } def
+	/Leave	{ MonitorInterests /revokeinterest load forall } def
+    dictend
+    dictbegin  % Screen is blanked:
+	/Condition	{ State { /Blank /Lock /Query /Check } Member? } def
+	/Enter	{
+	    /InitVerse TheThing send MoveThing
+	    Blanket canvastotop
+	    Blanket /Mapped true put
+	    /BlankCount 0 store
+	} def
+	/Leave  	{ Blanket /Mapped false put } def
+	/Remain	{ Blanket canvastotop MoveThing } def
+    dictend
+    dictbegin  % Querying:
+	/Condition	{ State /Query eq } def
+	/Enter	{
+	    ClearPW
+	    /QueryMessage  (Enter Password.) store
+	    QueryInterests /expressinterest load forall
+	    /QueryCount 0 store
+	} def
+	/Leave  	{ QueryInterests /revokeinterest load forall } def
+    dictend
+    dictbegin  % Checking:
+	/Condition	{ State /Check eq } def
+	/Enter	{
+	    /QueryMessage  (Checking Password.) store
+	    RepaintQuery
+	    CheckInterest expressinterest
+	} def
+	/Leave  	{ CheckInterest revokeinterest } store
+    dictend
+    dictbegin  % Querying or checking:
+	/Condition	{ State { /Query /Check } Member? } def
+	/Enter	{
+	    QueryCanvas /Mapped true put
+	} def
+	/Leave  	 {
+	    QueryCanvas /Mapped false put
+	    ClearPW
+	} def
+    dictend
+] def
+
+% General-purpose condition handler: monitors changes to boolean conditions
+% and invokes associated handling routines.
+
+/HandleConditions {
+    0 begin
+	Conditions { % forall
+	    begin
+		/Value Condition def % eveluate condition
+		Prev Value {
+		    { True Same Remain Was }	% Is and was
+		    { True Different Enter WasNot } % Is and was not
+		} {
+		    { False Different Leave Was }   % Is not and was
+		    { False Same Desists WasNot }   % Is not and was not
+		} ifelse ifelse
+		/Prev Value def
+	    end
+	} forall
+    end
+} dup 0 dictbegin
+    /Prev false def 	     % initial value of the condition
+    /Condition {false} def   % Condition check proc
+    { /True /False /Enter /Leave /Same
+	/Different /Remain /Desists /Was /WasNot }
+    { nullproc def } forall
+dictend put def
+
+% time to lock:
+/LockSteps LockTime seconds StateTimes /Lock get idiv def
+/BlankCount 0 def
+
+% time to query:
+/QueryTime 30 seconds def
+/QuerySteps QueryTime StateTimes /Query get idiv def
+/QueryCount 0 def
+
+% Change to a new state:
+/newState { % state -> -
+    (>> % -> %\n) [ State 3 index ] conprint
+    /State exch store
+    HandleConditions
+    TimerEvent dup /IsQueued get {
+	dup recallevent
+    } if
+    dup /TimeStamp StateTimes State get pause currenttime add put
+    sendevent
+} def
+
+/MoveThing {
+    gsave Blanket setcanvas
+    clippath pathbbox 4 2 roll pop pop
+    /size TheThing send
+    3 -1 roll exch sub random mul cvi
+    3 1 roll sub random mul cvi exch
+    /ThingY exch store
+    /ThingX exch store
+    /NextVerse TheThing send
+    PaintBlanket
+    grestore
+} def
+
+/PaintBlanket {
+    BlankColor fillcanvas
+    ThingX ThingY moveto /paint TheThing send
+} def
+
+/RepaintBlanket {
+    gsave Blanket setcanvas
+    PaintBlanket
+    grestore
+} def
+
+/RepairBlanket {
+    gsave Blanket setcanvas
+    damagepath clipcanvas
+    PaintBlanket
+    newpath clipcanvas
+    grestore
+} def
+
+/PaintQuery {
+    1 fillcanvas
+    QueryFont setfont
+    0 setshade
+    12 60 moveto (Userid:  ) show UserID show
+    12 40 moveto (Password:  ) show
+    % Password show
+    (#%*&@!%&@#X?#No!*NeWS!*%$#@$@!) % cryptic missive
+    dup length 0 exch PWpos min getinterval show
+    2 0 rmoveto
+    5 -5 rlineto -11 0 rlineto closepath fill
+    30 15 moveto QueryMessage show
+} def
+
+/RepaintQuery {
+    gsave QueryCanvas setcanvas
+    PaintQuery
+    grestore
+} def
+
+/RepairQuery {
+    gsave QueryCanvas setcanvas
+    damagepath clipcanvas
+    PaintQuery
+    newpath clipcanvas
+    grestore
+} def
+
+/ScreenBlank {
+    % What to do when the timer expires:
+    /TimerInterest createevent dup begin
+	/Name 2 dict dup begin
+	    /Timer {
+		State { % case
+		    /Sleep {
+			/Monitor newState
+		    }
+		    /Monitor {
+			/Blank newState
+		    }
+		    /Blank {
+			/BlankCount BlankCount 1 add store
+			BlankCount LockSteps gt LockTime 0 ne and
+			/Lock /Blank ifelse newState
+			(>> Count % %\n) [ BlankCount LockSteps ] conprint
+		    }
+		    /Lock {
+			/Lock newState
+		    }
+		    /Query {
+			/QueryCount dup load 1 add store
+			QueryCount QuerySteps gt /Lock /Query ifelse newState
+			(>> QCount % %\n) [ QueryCount QuerySteps ] conprint
+		    }
+		} case
+	    } def
+	end def
+    end dup expressinterest def
+
+    % External control:
+    /ControlInterest createevent dup begin
+	/Name /BlankScreen def
+	/Action 5 dict dup begin
+	    /Destroy {
+		Secure? not { currentprocess killprocessgroup } if
+	    } def
+	    /BlankOrLock {
+		State { % case
+		    /Sleep { /Blank newState }
+		    /Default { /Lock newState }
+		} case
+	    } def
+	    /Blank {
+		Secure? not { /Blank newState } if
+	    } def
+	    /Lock {
+		/InitVerse TheThing send
+		/Lock newState
+	    } def
+	    /Query {
+		/Query newState
+	    } def
+	end def
+    end dup expressinterest def
+
+    % We clone this event from the interest to get the /Process value:
+    /TimerEvent TimerInterest createevent copy dup begin
+	/Name /Timer def
+    end def
+
+    /MonitorInterests [
+	createevent dup begin
+	    /Priority 20 def
+	    /Exclusivity true def
+	    /Action 1 dict dup begin
+		/DownTransition {
+		    Secure? {
+			/Query newState
+		    } {
+			dup redistributeevent pause
+			/Sleep newState
+		    } ifelse
+		} def
+	    end def
+	end
+	createevent dup begin
+	    /Priority 5 def
+	    /Name 1 dict dup begin
+		/MouseDragged {
+		    Secure? {
+			/Query newState
+		    } {
+			/Sleep newState
+		    } ifelse
+		} def
+	    end def
+	end
+    ] def
+
+    /DamageInterest createevent dup begin
+	/Name 1 dict dup begin
+	    /Damaged { RepairBlanket } def
+	end def
+	/Canvas Blanket def
+    end dup expressinterest def
+
+    % It is important to understand that this is THE HARD WAY to get keyboard
+    % input and it is done this way solely to subvert the focus manager.
+    % Normally, you would want to cooperate with the focus manager and use
+    % addkbdinterests (which is MUCH simpler).
+
+    /QueryInterests [
+	createevent dup begin
+	    /Name 1 dict dup begin
+		/Damaged { RepairQuery } def
+	    end def
+	    /Canvas QueryCanvas def
+	end
+	createevent dup begin
+	    /Priority 20 def
+	    /Name ascii_keymap def
+	    /Action 2 dict dup begin
+		/DownTransition {
+		    /QueryCount 0 store
+		    dup /Name get
+		    dup 32 ge 1 index 127 lt and {
+			dup AddPW RepaintQuery
+		    } if
+		    dup 8 eq 1 index 127 eq or {
+			DelPW RepaintQuery
+		    } if
+		    dup 10 eq 1 index 13 eq or {
+			/Check newState
+			{
+			    UserID Password ClearPW CheckPW not false if
+			    CheckInterest createevent copy begin
+				/Name /PWresult def
+				/Action exch def
+				currentdict
+			    end sendevent
+			} fork pop
+		    } if
+		    pop
+		} def
+	    end def
+	    /Exclusivity true def
+	end
+	createevent dup begin % Handle shifts here
+	    % priority below key processing
+	    /Priority 19 def
+	    /Name 20 dict dup begin
+		keyboard_positions { % forall
+		    dup 0 get type /arraytype ne { [ exch ] } if
+		    % Name [ [key class] [key class] ... ]
+		    { % forall
+			aload pop /shift_key ne { pop } { % Name key
+			    [	/dup cvx UI_private /begin cvx 5 index
+				/do_shift_key cvx /end cvx ] cvx
+			    % Name key { dup D begin Name do_shift_key end }
+			    def % in /Name entry of this this interest
+			} ifelse
+		    } forall
+		    pop
+		} forall
+	    end def
+	    /Exclusivity true def
+	end
+	createevent dup begin % absorb all other KB input
+	    % priority below shift processing
+	    /Priority 18 def
+	    /Exclusivity true def
+	    /Action /DownTransition def
+	end
+    ] def
+
+    /CheckInterest createevent dup begin
+	/Name 1 dict dup begin
+	    /PWresult {
+		dup /Action get	/Sleep /Lock ifelse newState
+	    } def
+	end def
+	/Canvas QueryCanvas def    % avoid fraud!
+    end def
+
+    /Sleep newState
+
+    { % Event processing loop:
+	awaitevent
+	dup type /arraytype eq {
+	    /exec load forall
+	} if
+	(>> Event % % % -> %\n) exch
+	[ exch begin Name Action Canvas end State ] conprint
+    } loop
+} def
+
+% kill our illustrious predecessors
+createevent dup begin
+    /Name /BlankScreen def
+    /Action /Destroy def
+end sendevent
+
+/BlankFKey where { pop
+    BlankFKey {
+	createevent dup begin
+	    /Name /BlankScreen def
+	    /Action /Blank def
+	end sendevent
+    } bindkey
+} if
+
+/LockFKey where { pop
+    LockFKey {
+	createevent dup begin
+	    /Name /BlankScreen def
+	    /Action /Lock def
+	end sendevent
+    } bindkey
+} if
+
+% let the dust settle before we enter the fray!
+pause pause
+
+BlankTime 0 ne { { newprocessgroup ScreenBlank } fork pop } if
+
+{ begin } pop end  % do it this way to fool formatters!
+

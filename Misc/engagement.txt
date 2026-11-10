@@ -1,0 +1,54 @@
+4. Low Cognitive Load Operations
+
+...
+
+Pie Menus:
+
+The HyperTIES browser uses pie menus as accelerators, to make commonly
+used commands quickly and easily available.
+
+A pie menu is type of pop up menu whose selections are laid out in a
+circle around the menu center [Callahan '88].  The menu pops up
+centered on the cursor, so that each selection is adjacent to the
+cursor but in a different direction [Figure ?]. A selection is made by
+moving the cursor in the direction of the desired selection, and
+clicking.  Experienced pie menu users can make selections from
+familiar menus quickly and reliably without even having to look at the
+menu, because the menu selection depends on the direction between the
+two mouse clicks that invoke and select from the menu. The distance of
+cursor motion does not effect the selection, but the further away from
+the center the cursor is, the more precise the control of the
+selection is.
+
+The browser has a control panel at the bottom of the screen, with
+buttons showing the names of available commands, to turn the page,
+return to the previous article, show the index, etc. 
+
+When users are browsing a document by pointing and clicking on
+highlighted text links in the main contents window, they must move the
+cursor down to the bottom of the screen to press buttons in the control
+panel, and back up to continue browsing. 
+
+Pie menus reduce the distraction of moving the cursor by making these
+commands available wherever the cursor currently is.  This reduces
+perceptual and motor load. The menus are arranged with their items in
+easy to remember directions, for example, the "Back" and "Next" page
+turning commands are to the left and right [Figure 1].
+
+This arrangement facilitates gestural input and encourages development
+of muscle memory. Experienced users can make gestural selections from
+these menus so comfortably and rapidly that it is often unnecessary to
+display the menu. This is called "mouse ahead display supression", and
+its point is to reduce the perceptual distraction.
+
+left	right
+   define
+
+    index
+back	next
+   return
+
+Callahan, Jack, Hopkins, Don, Weiser, Mark, & Shneiderman,
+	Ben. (May 1988). A Comparitive Analysis of Pie Menu
+	Performance. Proc. CHI'88 conference, Washington D.C.:
+	available from ACM, NY.

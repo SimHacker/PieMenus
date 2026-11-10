@@ -1,0 +1,249 @@
+%
+% This file is a product of Sun Microsystems, Inc. and is provided for
+% unrestricted use provided that this legend is included on all tape
+% media and as a part of the software program in whole or part.  Users
+% may copy or modify this file without charge, but are not authorized to
+% license or distribute it to anyone else except as part of a product
+% or program developed by the user.
+%
+% THIS FILE IS PROVIDED AS IS WITH NO WARRANTIES OF ANY KIND INCLUDING THE
+% WARRANTIES OF DESIGN, MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+% PURPOSE, OR ARISING FROM A COURSE OF DEALING, USAGE OR TRADE PRACTICE.
+%
+% This file is provided with no support and without any obligation on the
+% part of Sun Microsystems, Inc. to assist in its use, correction,
+% modification or enhancement.
+%
+% SUN MICROSYSTEMS, INC. SHALL HAVE NO LIABILITY WITH RESPECT TO THE
+% INFRINGEMENT OF COPYRIGHTS, TRADE SECRETS OR ANY PATENTS BY THIS FILE
+% OR ANY PART THEREOF.
+%
+% In no event will Sun Microsystems, Inc. be liable for any lost revenue
+% or profits or other special, indirect and consequential damages, even
+% if Sun has been advised of the possibility of such damages.
+%
+% Sun Microsystems, Inc.
+% 2550 Garcia Avenue
+% Mountain View, California  94043
+%
+%
+% @(#)monaeyes 22.2 89/12/20
+%
+% Copyright (c) 1989 by Sun Microsystems, Inc.
+%
+
+/Eyeball [ClassCanvas] dictbegin
+
+    % Instance Variables
+    /X			0 def		% X location of eyeball
+    /Y			0 def		% Y location of eyeball
+    /Xtracked		0 def		% last X location tracked
+    /Ytracked		0 def		% last Y location tracked
+    /Z			0 def		% inverse distance from face
+    /Pupil		null def	% pupil canvas
+    /Radius		0 def
+    /Pupil_Radius	0 def
+dictend
+classbegin
+
+    % Class Variables
+    /Transparent	false def
+
+    % Class Methods
+
+    /newinit { 			% parentcanvas => eyeball
+	/newinit super send
+
+	/canvas self send
+	newcanvas /Pupil exch def
+	Pupil /Transparent false put
+    } def
+
+    /move { % x y => -
+	2 copy
+	    Y sub Ytracked exch sub /Ytracked exch def
+	    X sub Xtracked exch sub /Xtracked exch def
+	/Y exch def
+	/X exch def
+	/Reshape self send
+    } def
+
+    /Reshape { % - => -
+	gsave
+	    /canvas /parent self send send setcanvas
+	    newpath
+	    X Y translate
+	    2 1 scale
+	    0 0 Radius 0 360 arc
+	    Canvas reshapecanvas
+	    Canvas setcanvas
+	    1 2 scale
+	    0 0 Pupil_Radius 0 360 arc
+	    Pupil reshapecanvas
+	    Pupil setcanvas
+	    Xtracked Ytracked /look self send
+	    /paint self send
+	grestore
+    } def
+
+    /reshape { % x y r => -
+	/Radius 1 index def
+	/Pupil_Radius exch 2 div def
+	/Y exch def
+	/X exch def
+	/Reshape self send
+    } def
+
+    /setdepth { % Z => -
+	/Z exch def
+    } def
+
+    /PaintCanvas { % - => -
+	gsave
+	    .93 fillcanvas
+	    Pupil setcanvas
+	    .1 .6 .9 setrgbcolor clippath fill
+	    0 0 Pupil_Radius 2 div 0 360 arc
+	    0 setgray fill
+	grestore
+    } def
+
+    /map { % - => -
+	/map super send
+
+	Pupil /Mapped true put
+    } def
+
+    /look { % relx rely => -
+	2 copy
+	    /Ytracked exch def
+	    /Xtracked exch def
+	Z mul exch
+	Z mul exch
+	2 copy
+	dup mul exch dup mul add sqrt	% relx rely dist
+	0.0000001 max			% avoid divide by 0
+	Radius exch div 1 min		% relx rely sf
+	dup 3 1 roll mul		% sf relx sfy
+	3 1 roll mul exch		% sfx sfy
+	Pupil setcanvas
+	2 div			% keep y coord in the half height orbs.
+	movecanvas
+	/paint self send
+    } def
+
+    /lookevent { % ev => -
+	Canvas setcanvas
+	begin
+	    XLocation YLocation
+	end
+	/look self send
+    } def
+
+    /MakeInterests {
+	/MakeInterests super send
+
+	null null
+	1 dict dup begin
+	    MouseDragged /lookevent self soften buildsend def
+	end /new ClassInterest send
+    } def
+
+    /destroy {
+	/destroy super send
+
+	/Pupil null def
+    } def
+
+classend def	% Eyeball class
+
+
+/MonaCanvas ClassCanvas dictbegin
+    /theimage null def
+    /left null def
+    /right null def
+dictend
+classbegin
+
+    /newinit {
+	/newinit super send
+
+	/theimage (XNEWSHOME) getenv (/demo/images/mona-smile.im8) append
+		readcanvas def
+
+	/left /canvas self send /new Eyeball send def
+	/right /canvas self send /new Eyeball send def
+    } def
+
+    /reshape {
+	/reshape super send
+
+	.2 .86 .04 /reshape left send
+	.65 .88 .04 /reshape right send
+	.05 /setdepth left send
+	.05 /setdepth right send
+	/map left send
+	/map right send
+    } def
+
+    /MakeInterests {
+	/MakeInterests super send
+
+	/MakeInterests left send
+	/MakeInterests right send
+    } def
+
+    /path {
+	4 2 roll
+	translate scale
+	0 0 1 1 /path super send
+    } def
+
+    /PaintCanvas {
+	theimage imagecanvas
+    } def
+
+    /destroy {
+	/destroy super send
+
+	/destroy left send
+	/left null def
+	/destroy right send
+	/right null def
+    } def
+
+    /minsize { % - => w h
+	/minsize super send
+	40 max exch
+	50 max exch
+    } def
+
+    /preferredsize { % - => w h
+	/preferredsize super send
+	200 max exch
+	250 max exch
+    } def
+
+classend def
+
+
+/mona [MonaCanvas] [/Footer false]
+	framebuffer /newdefault ClassBaseFrame send def
+
+{   gsave
+	/client /sendsuperframe /parent self send send
+	{ /theimage load } exch send
+	/size self send scale
+	imagecanvas
+    grestore
+} /seticon mona send
+
+null /seticonlabel mona send
+(Mona Eyes) /setlabel mona send
+
+/place mona send
+/activate mona send
+/map mona send
+
+newprocessgroup
+currentfile closefile

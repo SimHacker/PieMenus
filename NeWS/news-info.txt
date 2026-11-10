@@ -1,0 +1,1312 @@
+------------------------------------------------------------------------
+Date: Sat 12 Dec 1987 17:01:36 EST
+From: David Rosenthal <dshr@Sun.COM>
+Subject: Extensions for "documetnation graphics"
+To: xtensions@athena.mit.edu, xpert@athena.mit.edu
+
+There has been some discussion recently of the need to extend X11
+to support ``documentation graphics''.  I believe that what people
+need is,  in effect,  access to both the X11 and the PostScript
+(TM Adobe Systems) language imaging models.
+
+The implications of the recent deal between Sun and AT&T are
+relevant to this debate.  As part of the deal,  Sun will be
+supplying to AT&T,  and AT&T including in their Unix source
+licensing program,  a merged server supporting both X11 and
+NeWS protocols.  If you are a Unix licensee,  you will be getting
+this code as part of the normal AT&T source distributions,  and
+it will,  therefore,  be a part of "standard Unix".  No license
+with Sun will be required.
+
+Robin Schaufler will discuss the details of the implementation of
+the merged server at the X conference at MIT in January.  Briefly,
+it will support:
+
+-	Vanilla X11 clients
+-	Vanilla NeWS clients
+-	A single window tree accessible to both
+-	A single event distribution mechanism accessible to both
+-	The use of PostScript programs and operators to image onto
+	X11 windows.
+
+The C source code will include:
+
+-	X11 protocol interpreter
+-	PostScript language interpreter,  with NeWS extensions
+-	Window tree and event management core shared by both
+-	A complete implementation of the high-performance
+	imaging library that supports them both,  for memory
+	framebuffers.  (This is an improved version of the
+	imaging library that currently supports the NeWS product)
+
+The intention behind this arrangement is to ensure that those who
+need the PostScript language imaging model will have it available.
+There will be no reason not to support this capability for
+those who are Unix licensees,  since they will be getting it,
+already integrated with X11,  as part of their Unix source
+distribution.  Almost all significant companies in the computer
+industry are Unix licensees.
+
+I hope that this will reassure those who need ``documentation graphics''
+that the X11 servers they talk to are likely to support the capabilities
+they need,  and that there is no need to design new extensions to address
+this area.
+
+	David.
+
+------------------------------------------------------------------------
+Date: Fri, 5 Feb 88 01:52:55 EST
+To: NeWS-makers@brillig.umd.edu
+Subject: X and the future
+From: maximo!mo@uunet.UU.NET (Mike O'Dell)
+
+The astonishing baroqueness of X is the greatest threat
+to the general sucess of UNIX to have come along since
+System V hit the streets.  If you try to give an X
+system to a real human being, not a computer hacker
+masquerading as a normal person, they will croak.
+If X doesn't instantly burn out their eyes and brain,
+causing them to throw their UNIX box out the nearest
+high window, it will drive them straight into the
+arms of the Macintosh II.  With the toolbox under
+AUX, all the windowy programs on the MacII will have a
+clear, understable, and universal user interface.
+With other alternatives, we face the very real prospect
+of each window (program) having a different user
+interface. That, friends, will be the death of UNIX.
+
+	The Ol' Curmudgeon
+	-Mike O'Dell
+
+"Nature neither seeks nor abides opinions."
+
+------------------------------------------------------------------------
+Date: Sat, 6 Feb 88 05:22:33 EST
+To: NeWS-makers@brillig.umd.edu
+Subject: Re: X and the future
+From: bzs@bu-cs.bu.edu  (Barry Shein)
+
+>The astonishing baroqueness of X is the greatest threat
+>to the general sucess of UNIX to have come along since
+>System V hit the streets.  If you try to give an X
+>system to a real human being, not a computer hacker
+>masquerading as a normal person, they will croak.
+>	The Ol' Curmudgeon
+>	-Mike O'Dell
+
+Although Mike is not that old I tend to otherwise agree with him.
+
+The problem I see right now is that the "truisms" run something like
+this:
+
+	1. X is a protocol definition, the code people are looking
+	at right now is a particular implementation of that protocol,
+	the two thoughts should not be confused.
+
+	2. The ToolKits will fix the programmer's interface complexity.
+
+	3. No, well, actually, the Toolkits will not fix that problem,
+	some sort of as yet unspecified 12th generation point and click
+	programming interface will fix the problem (this was after it
+	seemed to be generally agreed that less than 5 people in America
+	can understand the Toolkit supplied, and they're arguing amongst
+	themselves about whether or not it can ever work, and besides, it
+	only handles a small subset of X anyhow and is too complicated.
+	And worse, although it's implemented in C for C programmers it was
+	never intended to be, they were forced to by someone, it should
+	have been implemented in some as yet unspecified language which
+	would solve *everything* according to the designers.)
+
+Somewhere in here I sense a wheel of reincarnation. If it's only a
+protocol and we should ignore (well, only if we don't like it) the
+current implementations of those protocols then I suppose we better
+not program anything as our code is doomed to obsolescence right after
+the next major semester break at MIT.
+
+If we shouldn't be coding at the level of XLIB and be using Toolkits
+instead as they provide the abstract interface we all desire then how
+come people privy seem to agree that the supplied toolkit is basically
+incomprehensible and should be, we should be waiting for something
+else? It's all starting to sound like Nixon's Secret Plan to end the
+Vietnam War (I suppose that metaphor reveals me to be as old as Mike.)
+
+The wheel of reincarnation reference is that if someone comes along
+with a toolkit which is useful then the first thing we should do is
+declare that to be X and throw away anything "below" it other than the
+protocol. If it can't do that then it's a pretty poor toolkit (not
+powerful enough or something.) Of course, then we will ask, why wasn't
+that approach taken in the first place? Well, I suppose one can say,
+because hindsight is 20/20. The road to hell is paved with myopia.
+
+Disclaimer: I sort of like X11, I use it as my primary window manager
+on my Sun, have ported the client interface to an Encore Multimax.
+Clients I have written are "out there" (mostly X10.) I recently wrote
+an X11 plot interface to DOE MacSyma which should appear on their next
+release tape and am involved with various groups' alpha and
+beta-testing new clients and I am working on some of my own.
+
+What I like about X is that it is available in a form which basically
+works (I'm not sure I can say the same for the competition yet) and is
+available under a very agreeable source release. Unfortunately there
+may be fundamental flaws in the model (eg. moving to different res or
+other variation devices seems to be very painful, again, that may not
+be the protocol but the implementation, as the NewSpeak goes.)
+
+I suppose one might say that right now there is nothing approaching a
+standard window system for Unix. NeWS might be a competitor some day
+although it may have fundamental flaws also (not so much in the
+windowing model which is very good but in the implementation
+approach.)
+
+Basically, X and NeWS seem to form the right and left brain halves of
+windowing systems. X is basic, fast (or should be) and analytical,
+NeWS seems to be what you should be using if you want something more
+creative than boxes with chars and/or line drawings in them of a
+fairly fixed nature. Right now people seem to be responding to each on
+that atavistic level.
+
+X is a jeep wagoneer with all options including a tow ball if you
+can't fit it inside the cab, NeWS is a DeLorean turning magnificently
+on a stand in the main lobby of the Museum of Modern Art, the engine
+comes in kit form, diesel, gasoline, ethanol, any number of cylinders
+all available, actually the kit is just a big cube of steel, very high
+grade, and a textbook on modern engine design.
+
+The X11/NeWS merge might very well end up to be the "long-awaited"
+station wagon version of the DeLorean, with the jeep hanging off the
+back on a newly attached brushed stainless steel tow ball, just in
+case.
+
+	-Barry Shein, Boston University
+
+------------------------------------------------------------------------
+Date: Sat, 6 Feb 88 05:38:39 EST
+To: NeWS-makers@brillig.umd.edu
+Subject: Comparing Display PostScript and X11/NeWS
+From: Don Hopkins <don@brillig.umd.edu>
+
+>   Date: 1 Feb 88 17:04:00 GMT
+>   From: necntc!dandelion!ulowell!apollo!dawson@husc6.harvard.edu  (Keith Dawson)
+>
+>   Apollo currently has no plans to support the NeWS product. Apollo's window
+>   strategy is based on the X Window System.
+>
+>   Apollo's Open Dialogue UIMS, along with other recent developments such as
+>   Adobe's Display PostScript product, address the issues of user interface
+>   development and PostScript capabilities under X in a manner we feel to be
+>   superior to NeWS.
+
+NeWS has extensions to the PostScript language that allow for programs
+(light weight processes), running in the display server, to receive input
+events on behalf of NeWS clients (other programs running on the same
+computer, or at some remote site). They may process input locally (on the
+same machine and in the same process where the events are happening),
+without consuming any communications bandwidth. This is a big advantage,
+if you want fast, responsive graphical feedback. NeWS processes can
+communicate with each other by manipulating shared data structures, and by
+sending messages through the event queue. They can receive low level input
+events ("The left mouse button was released at location (X,Y) in window W
+at time T"), and give graphical feedback ("erase the old slider, redraw it
+at its new position, and fill the border with bright red"). They can
+translate input from the user into high level, application specific
+events, which are sent to the client ("set the volume of the CD player to
+100%"). NeWS processes can run autonomously in the server, without a
+connection to a client, providing "desk accessories" such as a calculator,
+event journaling, menus, and control panels.
+
+According to the fellow from Adobe who talked at the PostScript BOF at
+the X conference, Adobe's Display PostScript provides output
+capabilities, but has no facilities for receiving input directly from
+of the X event queue.  As I understand his explanation, the X server
+must send X events over the IPC link (network, shared memory, modem,
+or whatever) to the client, which must then translate the events into
+PostScript commands, and send them back over the link to be executed
+by Display PostScript. Because there is no way for PostScript programs
+to read events off of the X event queue, the client must process input
+events behalf of the display server. Messages must go on a round trip,
+from the X server, to the client, and back to the Display PostScript
+extension in the server, to produce any graphical output on the
+screen.
+
+In answer to a question, the Adobe representative said that Display
+PostScript does not go through the X GC (graphics context), but instead,
+uses its own graphics libraries. I'd like to know just how device
+dependent these libraries are, and how much work is involved in porting
+the Display PostScript extension to a new piece of hardware?
+
+At the X conference, in her talk about Sun's merged X11/NeWS server, Robin
+Schaufler explained that X11/NeWS, which will be Sun's enhanced and
+supported X11 server, consists of two parallel protocol interpreters, on
+top of the same graphics library. The X11 protocol interpreter and the
+NeWS "PostScript based" language interpreter are both written in C.  They
+both use the same event queue, and the same "forest" of windows.  (A
+forest of windows is a group of trees of nested windows, on different
+displays, controlled by one server.)  NeWS processes can draw on X
+"windows" and X clients can draw on NeWS "canvases", because windows and
+canvases are the same thing. NeWS and X clients can communicate with each
+other through the single event queue. NeWS processes communicate over IPC
+links with X clients by using special primitives to encode and decode X
+events.
+
+The NeWS "Lite" user interface toolkit is written entirely in PostScript.
+Menus, buttons, windows, sliders, scroll bars, and even terminal
+emulators, are implemented as device independent PostScript programs, in
+NeWS's object oriented PostScript programming environment. Since the
+toolkit can run in the server, clients can share the same
+code, and a copy of the toolkit does not have to be linked into each
+client. It's easy to modify and customize the NeWS toolkit and user
+interface, and NeWS clients can use the modifications without having to
+be changed, recompiled, or relinked.
+
+Since you at Apollo seem to feel that that Display PostScript under X11 is
+a better alternative than Sun's X11/NeWS merge, I'd like hear how it is
+that you think Display PostScript can support the type of user interface
+development environment that NeWS does. And if you've got a better idea,
+I'd sure like to hear about that, too!
+
+>   Another advantage is that X is a public-domain window
+>   system, making it accessible to the entire industry.
+
+Will Adobe's Display PostScript be in the public domain? I sure doubt
+it! How available will the source code be? And how much will it cost? Will
+there be educational discounts? How will it be distributed?
+
+The X11/NeWS server will be distributed by AT&T as part of their normal
+source distributions, and no license with Sun will be required.  That's
+certainly accessible if you ask me!
+
+I would dearly love to see both NeWS *AND* Display PostScript end up
+in the public domain, where they belong! But both companies have a
+bunch of very good people putting a lot of hard work into development
+and support.  But Sun's sure not making a lot of money by selling NeWS
+binaries at $100 a pop. Besides a tape and a NeWS manual, they include
+two of Adobe's very own books on PostScript, the Red and Blue
+PostScriptures.
+
+>   Most important of all it the fact that the marketplace has chosen X as the
+>   industry standard window system.
+>
+>
+>       Ross Chapman, Apollo Computer
+>       !decvax!apollo!chapman_r
+
+That's exactly why Sun is supporting X11. The NeWS/X merge didn't happen
+over night, ya know!
+
+	-Don
+
+------------------------------------------------------------------------
+Date: Wed, 30 Mar 88 07:07:28 EST
+To: NeWS-makers@brillig.umd.edu
+Subject: Re: pie menus
+From: don@brillig.umd.edu (Don Hopkins)
+
+At the end of this message is a summary of the work-in-progress talk I
+gave at the Summer Usenix conference in Phoenix. It was published in
+the September/October 1987 issue of ";login:". (My address and phone
+number have since changed.)
+
+Jack Callahan and I will be presenting the paper "A Comparative
+Analysis of Pie Menu Performance" (by Jack Callahan, Don Hopkins, Mark
+Weiser, and Ben Shneiderman) at the CHI '88 conference, May 15-19 in
+Washington D.C. The paper describes the experiment that Jack designed
+and performed, comparing speed and error rate of pull down menus and
+pie menus. (Pie menus won on both counts!)
+
+At CHI '88 (the Conference on Human Factors in Computing Systems),
+I'll be giving demonstrations of various types of pie menus,
+implemented in object oriented PostScript under the NeWS window
+system, during one of the scheduled demo sessions, and also at the
+NeWS SIG on Thursday. (I'll send more info about that soon!)
+
+One example menu I'll demonstrate is a two level font selection menu:
+
+The first menu has names of font families in different directions.
+(Times-Roman, Courier, Helvetica, etc...) You choose a font family by
+moving the cursor into the corresponding wedge and clicking. A font
+style submenu pops up:
+
+          Times-Roman
+
+           \       /
+             \   /
+Bold           ^           Italic
+             /   \
+           /       \
+
+          Bold-Italic
+
+(The ^ is the cursor, which starts out in the menu center.)
+
+Each font style submenu has the same layout, so you only have to
+remember two orthogonal sets of directions.
+
+You choose one of the font styles by moving the cursor into the
+corresponding wedge.  The cursor distance from the menu center
+determines the font point size, so that the further out you move, the
+bigger the point size you get.
+
+As you move the cursor around the menu (browse), you see dynamic
+feedback of the font, style, and point size you get by choosing that
+part of the menu: You see the string "<n> point" in the wedge between
+menu center and the label of the currently active slice, in the
+appropriate font, style, and size.
+
+For example, if you move to the left and up a bit, you'd see something
+like:
+
+          Times-Roman
+
+           \       /
+        ^    \   /
+Bold  18 point             Italic
+             /   \
+           /       \
+
+          Bold-Italic
+
+(Of course, the above image barely conveys the actual look and feel of
+the menus. ASCII character graphics can hardly do justice to
+interaction techniques and images expressed in object oriented
+PostScript (with extensions for input, mind you!). I'll post the
+source code to my latest version of class PieMenu, as well as some
+useful subclasses, to NeWS-makers (aka comp.windows.news) real soon!)
+
+	-Don
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+	     Directional Selection is Easy as Pie Menus!
+
+			     Don Hopkins
+			University of Maryland
+		    Human Computer Interaction Lab
+			College Park, MD 20742
+			    (301) 454-1517
+
+		    Simple Simon popped a Pie Men-
+			u upon the screen;
+		    With directional selection,
+			all is peachy keen!
+
+The choices of a Pie Menu are positioned in a circle around the
+cursor, instead of in a linear row or column. The choice regions are
+shaped like the slices of a pie.  The cursor begins in the center of
+the menu, in an inactive region that makes no selection.  The target
+areas are all adjacent to the cursor, but in a different directions.
+
+Cursor direction defines the choice.  The distance from the menu
+center to the cursor, because it's independent of the direction, may
+serve to modify the choice.  The further away from the Pie Menu center
+the cursor is, the more precise the control of the selection is, as
+the Pie slice widens with distance.
+
+With familiar menus, choices can be made without even seeing the menu,
+because it's the direction, not the distance, that's important.
+"Mousing ahead" with Pie Menus is very easy and reliable. Experienced
+users can make selections quickly enough that it is not actually
+necessary to display the menu on the screen, if the mouse clicks that
+would determine the selection are already in the input queue.
+
+The circular arrangement of Pie Menu items is quite appropriate for
+certain tasks, such as inputing hours, minutes, seconds, angles, and
+directions. Choices may be placed in intuitive, mnemonic directions,
+with opposite choices across from each other, orthogonal pairs at
+right angles, and other appropriate arrangements.
+
+Pie menus have been implemented for uwm, a window manager for
+X-Windows version 10, for the SunView window system, and for NeWS,
+Sun's extensible PostScript window system.  Don Hopkins did the uwm
+and NeWS implementations, and Mark Weiser did the SunView
+implementation.
+
+Jack Callahan has shown Pie Menus to be faster and more reliable than
+linear menus, in a controlled experiment using subjects with little or
+no mouse experience. Three types of eight-item menu task groupings
+were used: Pie tasks (North, NE, East, etc...), linear tasks (First,
+Second, Third, etc...), and unclassified tasks (Center, Bold, Italic,
+etc...). Subjects were presented menus in both linear and Pie formats,
+and told to make a certain selection from each. They were able to make
+selections 15% faster, with fewer errors, for all three task
+groupings, using Pie Menus. Ben Shneiderman gave advice on the design
+of the experiment, and Don Hopkins implemented it in Forth and C,
+on top of the X-Windows uwm.
+
+The disadvantage of Pie Menus is that they generally take up more area
+on the screen than linear menus. However, the extra area does
+participate in the selection. The wedge-shaped choice regions do not
+have to end at the edge of the menu window -- they may extend out to
+the screen edge, so that the menu window only needs to be big enough
+to hold the choice labels.
+
+Proper handling of pop-up Pie Menus near the screen edge is important.
+The menu should idealy be centered at the point where the cursor was
+when the mouse button was pressed.  If the menu must be moved a
+certain amount from its ideal location, so that it fits entirely on
+the screen, then the cursor should be "warped" by that same amount.
+
+Pie Menus encompass most uses of linear menus, while introducing many
+more, because of their extra dimension. They can be used with various
+types of input devices, such as mice, touch pads, graphics tablets,
+joysticks, light pens, arrow keypads, and eye motion sensors. They
+provide a practical, intuitive, efficient way of making selections
+that is quick and easy to learn. And best of all, they are not
+proprietary, patented, or restricted in any way, so take a look and
+feel free!
+
+References:
+
+    Pies: Implementation, Evaluation, and Application of Circular Menus
+      By Don Hopkins, Jack Callahan, and Mark Weiser
+      (Paper in preparation. Draft available from authors.)
+
+    A Comparative Analysis of Pie Menu Performance
+      By Jack Callahan, Don Hopkins, Mark Weiser, and Ben Shneiderman
+      (Paper in preparation. Draft available from authors.)
+
+------------------------------------------------------------------------
+Date: Thu, 7 Jul 88 19:52:37 EDT
+To: NeWS-makers@brillig.umd.edu
+Subject: Re: is news loosing the battle?
+From: hpda!hp-sde!hpfcdc!hpfclp!diamant@ucbvax.Berkeley.EDU  (John Diamant)
+
+> 	2) The next questions are : what is the staying power of
+> 	   X given NeWS' availability on similar platforms?  Will the
+> 	   future simply be NeWS/X window managers or just one or the
+> 	   other?  I don't think too many people are arguing that X11
+> 	   is technically better ... rather more people tend to argue
+> 	   the reverse (surprisingly even some of the X folks concede
+> 	   the point) ...
+
+Whoa, there.  Interesting that you chose to post this in a NeWS only group.
+In an X group, I'm sure you'd get quite a bit of disagreement on this.
+Before I begin, let me say that I'm in the X camp myself (I'm an experienced
+X programmer, have seen NeWS and believe I understand the basic model, but
+am not a NeWS programmer, so feel free to correct any technical errors
+regarding NeWS -- which I'm sure you would even without an invitation :-)
+
+Both NeWS and X have technical advantages, but I don't believe one is
+fundamentally superior to the other.  However, X has from the beginning, been
+a completely open system, whereas NeWS has been an expensive, licensed piece
+of software until the introduction of the AT&T NeWS distribution.  Now that
+NeWS will be more freely available, NeWS and X can compete on equal footing.
+Until now, it was a simple choice:  do you want a proprietary system which one
+vendor is trying to foist on the world (NeWS) or a multi-vendor, open system,
+which has been freely available from the very start (X).
+
+NeWS advantages over X:
+high power imaging model (2D) using absolute dimensions, rather than pixels
+non-rectangular windows
+Postscript available
+Toolkits can be interpreted in the server, and thus substituted out from under
+	the application
+mimimal traffic between client and server
+
+disadvantages of NeWS relative to X:
+requires relatively powerful NeWS server -- a NeWS terminal will be more
+	expensive than an X terminal
+programming process context switching and partitioning between client and
+	server is a PAIN for the progammer.
+programming in Postscript is a pain (of course, Sun provides a C translator
+	so this isn't that big a problem).
+
+Now, let's examine the NeWS advantages for a moment and see how important they
+are.  Regarding the imaging model, it is only 2D, and X is getting the
+3D graphics extensions defined as a standard extensions, so any vendor with
+good hardware for graphics will probably support it.  The issue of absolute
+dimensions and font scaling is a real one, though, of course, there are
+workarounds in a pixel based system (adjusting depending on the screen size).
+
+Non-rectangular windows is "gee whiz," but frankly, I don't care about that
+at all.  Other than having round clocks, I just don't see this as a big deal.
+
+Postscript will be available on X as well, thanks to Display Postscript and
+some public Postscript previewers.
+(please note my distinction of the imaging model and just having Postscript --
+this item addresses the display of Postscript and the output language only)
+
+The ability to have interpretive toolkits which can be swapped is useful, but
+there are other ways to accomplish this in X as well (using dynamic loading,
+for instance).
+
+Probably the most significant difference between X and NeWS is the traffic
+between client and server.  First of all, Scheifler wrote a paper about why
+the traffic breakdown wouldn't be as good as the claims (because the
+communication for even simple operations like menus would be higher than
+expected).  Second of all, it doesn't really matter!  I'm a network
+administrator and I have some experience on this subject.  Lan bandwidth is
+rarely the bottleneck in communications between two machines.  We run
+diskless (including remote swap), remote X, etc. and the volume of traffic
+is just never that high (typically under 5% of lan utilization).  Also, most
+X servers run with Unix Domain sockets when running locally, so lan overhead
+isn't a big issue.  The only issue that remains is the performance in terms
+of throughput on the lan.  We are already at the point where lan performance
+is within the same ballpark as disk transfer rates, so it isn't that big a
+deal, and we're getting faster lan technology too.
+
+The only time this will really matter is for non-local lans, like SLIP remote
+links or over low-speed remote channels.  In that case, I concede that NeWS
+has an advantage, but that is probably only a small percent of the use of
+either NeWS or X, and running at 9600 baud over SLIP for X will still be
+acceptable, I believe.
+
+Basically, the assumptions that X used were that a high-speed byte stream
+was available between client and server and that the client was a more powerful
+machine than the display server.  NeWS uses a different set of assumptions
+(or at least it shines in a different environment).  NeWS is best when the link
+speed is low and the client and server are roughly the same power.  That means
+if you have a Sun workstations at home, then you are probably best off running
+NeWS remotely, but if you have a PC or a custom window terminal at your desk,
+you're better off running X.
+
+> 	One more note : I tend to think that those companies that
+> 	offer both systems are in a much better position than those
+> 	companies only offering X...
+
+This is probably true, at least until things settle out.
+
+Disclaimer: These opinions are my own and do not necessarily reflect those
+	    of Hewlett-Packard.
+
+John Diamant
+Software Development Environments
+Hewlett-Packard Co.		ARPA Internet: diamant@hpfclp.sde.hp.com
+Fort Collins, CO		UUCP:  {hplabs,hpfcla}!hpfclp!diamant
+
+------------------------------------------------------------------------
+Date: Thu, 7 Jul 88 19:55:16 EDT
+To: NeWS-makers@brillig.umd.edu
+Subject: Re: is news loosing the battle?
+From: ichthyosaur.cis.ohio-state.edu!elwell@tut.cis.ohio-state.edu  (Clayton M. Elwell)
+
+diamant@hpfclp.SDE.HP.COM (John Diamant) writes:
+    Before I begin, let me say that I'm in the X camp myself (I'm an
+    experienced X programmer, have seen NeWS and believe I understand
+    the basic model, but am not a NeWS programmer, so feel free to
+    correct any technical errors regarding NeWS -- which I'm sure you
+    would even without an invitation :-)
+
+Well, I'm in the NeWS camp.  I've used X a lot, but for programming
+I've been using NeWS (I gave up on X after the third try...).  I
+understand X pretty well, although I'm sure you (or, in fact my
+coworkers) will correct me if I get confused :-).
+
+    Both NeWS and X have technical advantages, but I don't believe one is
+    fundamentally superior to the other.
+Well, part of the difference between them, and part of why it's hard
+to compare them, is that they are based on very different ideas of
+"what a window system should be," and so some of the issues are more
+religious than technical.
+
+One, for example, is the whole issue of PostScript.  I actually don't
+find PostScript any more obtuse to program in than C, and with the
+class system that Sun provides as part of NeWS, doing user-interface
+type stuff is in fact a lot easier.  Of course, I also find my HP
+calculator perfectly easy to use :-).
+
+    Now, let's examine the NeWS advantages for a moment and see how
+    important they are.  Regarding the imaging model, it is only 2D,
+    and X is getting the 3D graphics extensions defined as a standard
+    extensions, [...]
+I think this a straw man argument.
+
+Most workstation displays I've seen are 2D...  Yeah, you can add
+3D rendering primitives to X, but I can add 3D rendering operators to
+NeWS, without (a) having to touch my binaries or (b) making
+assumptions about the display itself.  If I'm a vendor, I can even
+hack my version of the server to do it in hardware.
+
+    Non-rectangular windows is "gee whiz," but frankly, I don't care
+    about that at all.
+Well, it's not just windows.  Anything can be non-rectangular.  Like
+buttons and controls.  I agree that rectangular ones are good enough
+for most simple interfaces, but it's nice to have the generality there
+when you need it.
+
+    Postscript will be available on X as well, thanks to Display
+    Postscript and some public Postscript previewers.
+And Display PostScript is evidently very nice and fast.  However,
+previewing PostScript documents is a small portion of what I do with
+my workstation.  PostScript itself isn't so much the issue as having a
+well-defined way to extend the capabilities of the display server, on
+the fly if necessary.  The simplest way to do this is to pick a simple
+language with good graphics primitives.  Add popular to the
+requirement, and PostScript seems the logical choice to me.  I'd
+rather that than Interpress or HPGL :-).
+
+    The ability to have interpretive toolkits which can be swapped is
+    useful, but there are other ways to accomplish this in X as well
+    (using dynamic loading, for instance).
+Of course, dynamic loading is done differently on every flavor of
+UNIX, so the client support routines have to be kept up to date.  With
+NeWS, all you have to do is be able to talk to your display, which is
+kind of a given.
+
+    Probably the most significant difference between X and NeWS is the
+    traffic between client and server.  First of all, Scheifler wrote
+    a paper about why the traffic breakdown wouldn't be as good as the
+    claims (because the communication for even simple operations like
+    menus would be higher than expected).
+Well, in most of the programs I've seen, most menu choices either
+*don't send anything back to the client at all*, or send a byte as
+part of the input stream.  Seems pretty low overhead to me.  But
+that's probably not a good example.
+
+    Second of all, it doesn't really matter!
+I like that--the most significant difference doesn't really matter!
+
+    The only time this will really matter is for non-local lans, like
+    SLIP remote links or over low-speed remote channels.
+Which, of course, nobody ever really uses...  Take the ARPAnet, for
+example... :-).
+
+    Basically, the assumptions that X used were that a high-speed byte
+    stream was available between client and server and that the client
+    was a more powerful machine than the display server.  NeWS uses a
+    different set of assumptions (or at least it shines in a different
+    environment).
+I'd say that NeWS is based on the display server knowing about the
+details of the display hardware, so that the client didn't have to
+worry about it, and that abstraction is a good thing.  X is one of the
+least abstract systems I've ever used.  I like Bill Joy's
+description--"rasterop on wheels".  I like PostScript on a window
+system for the same reason I like it on a printer or a typesetter.
+Most of the time, I don't want to have to worry about how to chisel
+bits onto the screen.  I realize that things like Xtk and so on help,
+but still, it's a virtual display at a lower level than I care to deal
+with.
+
+
+Clayton M. Elwell <elwell@tut.cis.ohio-state.edu>
+Ohio State University CIS Dept. Research Computing Facility
+
+"... there was a *third* possibility that we hadn't even counted
+upon ..."		--Arlo Guthrie, "Alice's Restaurant"
+
+------------------------------------------------------------------------
+Date: Thu, 7 Jul 88 19:58:13 EDT
+To: NeWS-makers@brillig.umd.edu
+Subject: Re: is news loosing the battle?
+From: bzs@bu-cs.bu.edu  (Barry Shein)
+
+Hi, my name is Barry Shein and I am an alc...no, that's not right...
+
+I am not and never have been a card carrying member of...ummm, one more time...
+
+I'm trying to be very open-minded on the X/NeWS issue. This means I've
+probably pissed off both camps sufficiently and they are each quite
+sure I lean the other way, as religions are wont to do (see for
+example the writings of Cardinal Newman, "one cannot be both a
+believer and questioner"), relgions are usually more open to
+identifying heretics than observants...
+
+First, I have vastly more experience with X than NeWS tho I don't
+think I misunderstand NeWS, I think I get the point.
+
+I am very sensitive to the "imaging model" issue. One of the first
+things anyone attempting to write a toolbox in X runs into (at least
+any honest person) is the whole issue of pixel sizes and relative
+metrics, particularly with fonts, big problem with X, claims of
+"portability" seem to slip away when they can't even abstract the bit
+density of the screen away from the programmer (reminiscent of the old
+IBM/JCL decks I've had to debug, "no no no, you can't specify 8000
+bytes/track on a 3330 you fool!!!")
+
+For example, I was just writing an X11 widget which is a general
+purpose "meter", something with marked points and hands etc. If you
+resize the meter there's no problem redrawing the hash marks or hands
+to conform nicely, but what to do about the fonts?? (eg.  markings
+around the edge), not much except guess that some other font size
+*might* now be appropriate, sort of, using some threshold calculation
+(and hope that size is available in this server etc.)
+
+Generalized text can be even worse and the whole model (X) lends
+itself to such absurdities as distributing one bitmap font set on the
+tape (ludicrous! these are 84 dpi fonts and I'm on a 91 dpi screen,
+that's enough to make kerning etc just look wrong (and forget things
+like Hi-res monitors) and was my motivation for writing "gfto" which
+at least lets you regen fonts for your screen dpi, tho that only
+addresses part of the problem.)
+
+On the other hand, there it is (X), and it basically works quite well
+AS ADVERTISED and fits a model of subroutine access nicely enough
+(although object data management in C is less than wholesome, I'm not
+sure that mere Postscript can quite address that although an object
+oriented approach helps, at any rate, that's not *obviously* a fault
+of X but might be a sin of omission.)
+
+But NeWS seems to solve the imaging problem trivially (while creating
+others, like who the heck *wants* to program in postscript other than
+Don Hopkins :-)
+
+Why couldn't the whole remote interpreter thing (in re X) be
+more or less resolved by judicious use of the "rsh" command?
+Aren't window handles global? So why not something like:
+
+	sprintf(buf,"rsh %s Xfrob -wid 0x%x", HOST, WINDOWID);
+	system(buf);
+
+Sure, that's a little slow because you have to authenticate on each
+command but opening a socket to a remote shell or using something like
+rexec/rexd/rpc directly could solve that (you get the idea.)
+
+Forking has some overhead, is it important? I dunno, Unix sez no, not
+in general and this case would tend to weigh in its favor (if the
+thing was so short-lived that fork/exec is a major factor then you may
+as well have computed that on the client, that's another problem,
+*someone* has to make all these decisions.)
+
+It does mean you'd have to compile (with its disadvantage of either
+needing to make the decision beforehand or incurring the delay of
+compiling some rcp'd code, with the advantage of course that it would
+now be compiled/optimized, again assuming we bothered because it was
+too expensive to do on the client so cost is a relative thing and
+run-time speed is important ultimately.) Shared libraries of course
+help the disk space and loading time issue etc.
+
+Don't talk to me about dynamically loaded C object decks, I've had too
+much blood run out of my eyes porting those beasts and until someone
+puts that into OS's universally I say forget it except in special
+cases, and whoever puts it into the system should be obliged to write
+the routine needed for every OS that's requested, forever. It doesn't
+even port between minor OS releases in most cases.
+
+Similarly one could easily imagine opening a socket to a lisp which
+has CLX (Common Lisp X) pre-loaded and passing lisp structs much as
+above (I know, all together, "lisp is a memory pig", is postscript
+lightweight on memory? is this still a critical issue to most people?
+actually lisp doesn't have to be that much of a memory pig, that's an
+old wives tale borne mostly of non-paged 64KB/256KW machines.)
+
+My prediction? (hmm, maybe shoulda included comp.society.futures)
+
+That something else will come along in the next coupla years making
+both X and NeWS obsolete, if I knew what it was I'd go ahead and
+implement it, make a coupla billion and leave the rest of y'all in the
+dust :-)
+
+Don't confuse good ideas with mediocre implementations (there, good, I
+pissed off everyone *again*.)
+
+	-Barry Shein, Boston University
+
+------------------------------------------------------------------------
+Date: Thu, 14 Jul 88 23:03:49 EDT
+To: NeWS-makers@brillig.umd.edu
+Subject: Re: implementation of inheritance within PostScript
+From: ichthyosaur.cis.ohio-state.edu!elwell@tut.cis.ohio-state.edu  (Clayton M. Elwell)
+
+marshall@software.ORG (Eric Marshall) writes:
+
+    	Did Sun extend PostScript to incorporate inheritance,
+    or do the NeWS operators used to implement inheritance only need
+    PostScript's predefined dictionary semantics?
+
+It's pretty slick--they use just plain ole PostScript.  Basically,
+objects are dictionaries, and the dictionary stack is used to handle
+inheritance.  Methods are invoked with an explicit 'send' call, as in:
+
+	framebuffer /new DefaultWindow send
+
+which calls the 'new' method of the object (class) DefaultWindow.  By
+the time the method gets control, the operand stack is cleaned up, so
+the value of 'framebuffer' is available as an argument to the method.
+
+There are some performance hacks that take advantage of the fact that
+procedures in PostScript are really arrays deep in their hearts, and
+thus can be taken apart and put back together differently, but it's
+all strictly by the book (the red one, in this case).  If you want to
+do object-based stuff on your printer, it'll run...
+
+
+Clayton M. Elwell <elwell@tut.cis.ohio-state.edu>
+Ohio State University CIS Dept. Research Computing Facility
+
+"... there was a *third* possibility that we hadn't even counted
+upon ..."		--Arlo Guthrie, "Alice's Restaurant"
+------------------------------------------------------------------------
+Date: Sun, 24 Jul 88 18:24:15 EDT
+To: NeWS-makers@brillig.umd.edu
+Subject: is news loosing the battle?
+From: Don Hopkins <don@brillig.umd.edu>
+
+First of all, let me point out that I think the question "Is NeWS
+loosing the battle?" is totally meaningless. Right up there with
+"Is NeWS tighting the war?" sic(-;
+
+The X11/NeWS merge will be widely available as a standard part of AT&T
+Unix.  A battle between X and NeWS is as pointless as a battle between
+VT100 escape sequences and Tektronix control codes!  They're both
+widely supported and emulated standards, each one best for certain
+applications, and neither has destroyed the other. Terminal emulators
+such as xterm support both standards, and I don't think DEC is out to
+discourage people from using xterm's Tektronix features.
+
+   Date: Thu, 7 Jul 88 19:52:37 EDT
+   From: hpda!hp-sde!hpfcdc!hpfclp!diamant@ucbvax.Berkeley.EDU  (John Diamant)
+
+   Non-rectangular windows is "gee whiz," but frankly, I don't care
+   about that at all.  Other than having round clocks, I just don't
+   see this as a big deal.
+
+Sheez, some people are so stuck in the rut of rectangular windows,
+that when I tell them that NeWS has arbitrarily shaped windows,
+they assume I mean arbitrary rectangles ...
+
+Non rectangular windows are invaluable for many applications! It's
+the kind of thing that once you're used to, you'll never want to do
+without!
+
+The shape of a NeWS window ("canvas") is defined by a PostScript
+path.  They can have lines, arcs, bezier curves, and conic splines as
+edges.  They can even have holes in them, and disconnected regions!
+You can use either the even-odd or the zero winding rule to define
+what's inside and outside the path.
+
+The shape of a canvas influences the clipping of graphical output,
+and the distribution of input events.
+
+Each canvas has its own default coordinate system, the one that
+was in effect when it was reshaped.
+
+Canvases can be used as arbitrarily shaped targets.  NeWS processes
+can receive input events whenever the mouse enters, leaves, clicks,
+or moves around in a canvas, and event coordinates are reported in
+terms of the process's current coordinate system.
+
+NeWS canvases are natural to use as animated "sprites", using
+lightweight PostScript processes to periodically blink, move, or
+paint them. (This is a great way to implement a cursor, or a space
+invader!)
+
+Transparent canvases are like opaque canvases in that they have
+arbitrary shapes and coordinate systems, effecting clipping and
+event distribution, except that they don't have their own image --
+the image of their (first opaque) parent canvas shows through.
+Graphical output on a transparent canvas gets clipped to its shape,
+and drawn through into the parent's image.
+
+A hypermedia browser that I'm porting to NeWS for Ben Shneiderman,
+called HyperTIES, displays documents containing text and graphics
+with "embedded menus" of links to other documents.  Embedded menu
+buttons are overlayed on top of text and graphics, and highlight
+when you move the cursor into them.
+
+In NeWS HyperTIES, the embedded menu buttons are simply implemented
+using transparent canvases.  Text buttons use canvases overlayed on
+top of words in text, shaped like rounded rectangles. Graphical
+buttons use canvases overlayed on top of parts of pictures, shaped
+like the Hubble Space Telescope, a Faint Object Spectrograph, a
+circle, a pie slice, Bill Joy's head, a rabbit, a mouse pad, or
+whatever part of a picture you want to link to some document!
+
+When the mouse moves into a button, there is some feedback to show
+that it can be pressed, such as a color change, animation, or a
+pop-up cut-out magnified image cookie with a shadow behind it. (Just
+map a pre-fab opaque canvas with the translated and scaled image and
+target shape!)
+
+   The ability to have interpretive toolkits which can be swapped is
+   useful, but there are other ways to accomplish this in X as well
+   (using dynamic loading, for instance).
+
+There is a big difference between dynamically loaded toolkits, and
+toolkits written in an interactive interpretive environment. With
+NeWS, I can interactively debug PostScript code running in the
+server -- looking and and changing the values of variables,
+calling and redefining functions, setting breakpoints, examining
+and changing the execution state of lightweight NeWS processes,
+etc...
+
+The NeWS "Lite" user interface toolkit is based on Owen Densmore's
+object oriented programming package, a smooth fitting extension to
+the PostScript language. With Bruce Schwartz's class browser, you
+can interactively examine all the classes defined in the server.
+
+Toolkit hacking is *easy* to do in NeWS. For HyperTIES, I extended
+the NeWS "Lite" toolkit by making a Target subclass of Item, that
+highlights when the mouse moves into it. I then made subclasses of
+Target to do the kinds of highlighting I wanted for my application.
+When HyperTIES is run, it checks to see if the Target classes are
+defined in the server, and loads them in if they're not.
+
+I can hack on the pieces of the application interface and toolkit,
+reload 'em into NeWS, test them out, fix a bug, load 'em back up
+and try it out again, tweak a variable, play around some more,
+stick in some debugging statements, frob it until I get that funny
+condition, scrutinize a broken process's state, reach inside and
+redefine a function, continue the process, frob it mercilessly,
+sigh in relief, and then update the source code, iteration after
+iteration after iteration, all without restarting the NeWS client
+or recompiling anything at all!
+
+   Probably the most significant difference between X and NeWS is the traffic
+   between client and server.
+
+No, EXTENSIBILITY is the most significant difference between X and
+NeWS. Low client/server traffic is just one of the many advantages
+that comes from it. X is just not extensible the way NeWS is.
+
+An X11 client can ask the server if certain predefined extensions
+are available, and if they're not, the client can either give up
+or do without.
+
+NeWS extensibility is much more finer grained and application
+specific -- a client can load its own extensions into the server,
+teaching NeWS to communicate in whatever protocol is most convenient
+for the application.  It's a dynamic protocol -- clients can make
+local or global extensions, on the fly!  For example, when a CAD
+program needs to draw a particular integrated circuit for the first
+time, it could send the IC's name and a function to draw it, then
+extend the protocol by associating a token with the function.  From
+then on, it can just send the token to draw the IC.
+
+   First of all, Scheifler wrote a paper about why the traffic
+   breakdown wouldn't be as good as the claims (because the
+   communication for even simple operations like menus would be higher
+   than expected).
+
+I don't think that's true. With NeWS, all the clients share the
+same menu code, which runs entirely in the server. There is no
+network traffic at all involved with making a menu selection in
+NeWS. The only communication that is required is informing the
+client of the results of the selection (which could be as terse as
+a one byte token -- who needs fixed size packets?). In many cases,
+the selection can be acted upon entirely in the server!
+
+One of the big advantages NeWS has over X in network utilization
+is that for many applications, repainting a window can be handled
+entirely in the server. Instead of the client responding to every
+damage event (when the window is exposed or resized), it sends to
+the server a program to paint the display (or a display list, and
+a program to interpret it), which is executed whenever needed.
+
+   Second of all, it doesn't really matter!  I'm a network
+   administrator and I have some experience on this subject.  Lan
+   bandwidth is rarely the bottleneck in communications between two
+   machines.  We run diskless (including remote swap), remote X, etc.
+   and the volume of traffic is just never that high (typically under
+   5% of lan utilization).
+
+That sure doesn't agree with the numbers I've heard for the % of lan
+utilization on nets with with diskless workstations.  The way
+diskless clients eat up the net severely limits the number of them
+that can coexist on one piece of cable.  I think network utilization
+is a very important factor. I want to be able to run clients over the
+Internet, and over the phone!
+
+   Also, most X servers run with Unix Domain sockets when running
+   locally, so lan overhead isn't a big issue.
+
+When you run clients locally, paging and context switching become big
+issues. (Are you paging over the net? Even more fun!)  With X, if you
+run your window manager locally, and it rubber-bands a rectangle when
+you resize your window, there must be a Unix process context switch
+from the server to the window manager, and back to the server, every
+time you move the mouse. It's a big win to have the window manager
+running in the same Unix process as the server. No frantic context
+switching, and the WM does not need to keep its own copy of all those
+data structures that live in the server. With NeWS, switching to a new
+window manager is as easy as redefining the DefaultWindow class.  With
+X11/NeWS, NeWS window managers can manage X windows, too!
+
+   The only issue that remains is the performance in terms of
+   throughput on the lan.  We are already at the point where lan
+   performance is within the same ballpark as disk transfer rates, so
+   it isn't that big a deal, and we're getting faster lan technology
+   too.
+
+Disk transfer rates just don't cut it when compared to memory
+transfer rates. We're getting faster and faster processors, as
+well! Do you really think that advances in lan speed are going to
+be able to keep up with advances in processor speed? I doubt it!
+
+	-Don
+
+Don Hopkins
+don@brillig.umd.edu
+...!uunet!mimsy!don
+------------------------------------------------------------------------
+Date: Mon, 19 Sep 88 02:41:14 EDT
+To: NeWS-makers@brillig.umd.edu
+Subject: Re: type checking (I want PostScript) -- give NeWS a try!
+From: don@brillig.umd.edu (Don Hopkins)
+
+Hey all you Forth enthusiasts (and antagonists!!!) out there:
+
+If you want a powerful flexible object oriented multitasking
+interactive PostScript programming environment, then get NeWS!  NeWS
+officially stands for "Network extensible Window System", but once you
+see it in action, you'll realize that it really means "Neat Window
+System!" c(-;
+
+NeWS was written to be portable, and it currently runs on a wide
+variety of machine's: Silicon Graphics, Sun, Mac II (under AUX), PS/2
+and other 386 boxes (under OS/2), and many other systems.
+
+I could go on and on about how great it is to have a window system
+with the high level, device independent PostScript imaging model, and
+how much fun you can have with arbitrarily shaped windows, and what a
+performance win it is to have an extension language built into the
+window system that can perform local input processing and feedback,
+and its profound impact on client-server network traffic, and what an
+interactive programming environment means for the rapid prototyping of
+user interfaces, but I'll leave such discussions for comp.windows.news.
+The issue here is PostScript, the *programming language*! (Like xerox,
+the verb ;-)
+
+PostScript is a cross between Forth and Lisp. Objects are typed, like
+in Lisp. PostScript procedures can be passed around as arguments on
+the stack, and manipulated like any other data type, since they're
+just executable arrays. (i.e. "if" takes 2 arguments: a boolean and a
+procedure to execute (if the boolean's true)) Arrays are polymorphic
+-- each element can be an object of any type.  Dictionaries can be
+used like Lisp association lists or Forth vocabularies.  To define
+procedures and variables, you associate names with executable arrays
+and other values, in dictionaries. The scope is defined by the
+contents of the dictionary stack, searched top to bottom.  PostScript
+procedures can have named local variables just by pushing a new
+dictionary onto the dict stack, storing into it the arguments passed
+on the parameter stack, and other local variables, and popping the
+dict stack before exiting.  Names in PostScript are more like atoms in
+Lisp than like words in Forth: they don't have value slots or
+parameter fields -- they are associated with values in dictionaries.
+To execute a name, it is looked up on the dictionary stack, and its
+associated value is executed.
+
+One thing that makes NeWS such a powerful environment is Owen
+Densmore's object oriented PostScript programming package. It provides
+a Smalltalk-like class mechanism, using the dictionary stack to
+implement inheritence.  NeWS user interface objects such as menus,
+windows, buttons, and scroll bars are defined as classes. You can
+customize their look and feel by defining subclasses of these objects,
+saving time and reusing code by building on top of what is already
+there.
+
+The NeWS server is a MuLTiTaSKiNG PostScript interpreter, with an
+event queue, and a hierarchy of arbitrarily shaped overlapping drawing
+surfaces (canvases). Lightweight PostScript processes live together in
+the server, sharing code and data.  Keyboard and mouse input generate
+events, which are put on the event queue and delivered to interested
+processes in the order that they happened.  NeWS processes can
+communicate with each other by sharing data and sending events. NeWS
+provides monitors to synchronize access to shared data structures.
+You express interest in the types of event you want, and loop awaiting
+and servicing them. You can fork off processes to manage interactive
+objects, service events, do background processing, or whatever you
+like -- they're cheap!  There is also a PostScript debugger that lets
+you enter broken processes, examine their guts, fix them up, and send
+them on their way.
+
+NeWS smoothly incorporates many important extensions to the PostScript
+language. Certain NeWS data types, such as processes, canvases, and
+events, behave just like dictionaries. You can even push them onto the
+dictionary stack.  A process dictionary contains keys like
+/ExecutionStack, /OperandStack, /State, and /Interests, and a canvas
+dictionary contains keys like /Mapped, /Parent, /CanvasBelow, /Color,
+and /Retained. Reading and writing the values of these keys can have
+magical effects. For example, setting /Mapped in a canvas dictionary
+to true makes it appear on the screen; the /XLocation and /YLocation
+keys of an event are automatically transformed in terms of the current
+coordinate system.
+
+If you want to learn PostScript, NeWS is the way to go -- it's an
+exciting and gratifying programming environment!  Don't waste your
+time trying to learn an interactive interpretive language like
+PostScript by spooling files to a laser printer. NeWS isn't
+just for Display -- it's for Interaction!
+
+You can take a look and feel for yourself, if you go to the Sun User
+Group Southwest Regional Conference in Albuquerque, on September 30th.
+I'll be demonstrating the HyperTIES hypermedia browser, and the
+UniPress Emacs text editor, two NeWS applications I've worked on that
+make extensive use of interactive PostScript.
+
+If you want to know more, send me mail or post questions to the
+"comp.windows.news" newsgroup (or the Internet mailing list
+"NeWS-makers@brillig.umd.edu"). (If you want to be added to the
+mailing list, please send me mail at the address
+"NeWS-makers-REQUEST@brillig.umd.edu".)
+
+	-Don
+	don@brillig.umd.edu
+	...!uunet!mimsy!don
+------------------------------------------------------------------------
+Date: Mon, 19 Sep 88 23:20:02 EDT
+To: NeWS-makers@brillig.umd.edu
+Subject: Re: type checking (I want PostScript) -- give NeWS a try!
+From: phri!roy@nyu.edu  (Roy Smith)
+
+don@brillig.umd.edu.UUCP (Don Hopkins) writes:
+> If you want to learn PostScript, NeWS is the way to go -- it's an exciting
+> and gratifying programming environment!  Don't waste your time trying to
+> learn an interactive interpretive language like PostScript by spooling files
+> to a laser printer. NeWS isn't just for Display -- it's for Interaction!
+
+	While I happen to be a true-blue fan of PostScript, and at least a
+mild afficiando of NeWS, I can't agree that learning NeWS is the way to learn
+PostScript.  It's like trying to learn yacc at the same time you are learning
+C, or trying to appreciate Shakespere at the same time you are learning how to
+read.  NeWS in a complex system and you can't hope to understand what is going
+on unless you already know the fundementals of how PostScript works.
+--
+Roy Smith, System Administrator
+Public Health Research Institute
+{allegra,philabs,cmcl2,rutgers}!phri!roy -or- phri!roy@uunet.uu.net
+"The connector is the network"
+------------------------------------------------------------------------
+Date: Mon, 19 Sep 88 23:22:04 EDT
+To: NeWS-makers@brillig.umd.edu
+Subject: Re: type checking (I want PostScript) -- give NeWS a try!
+From: voder!wlbr!mh@ucbvax.Berkeley.EDU  (Mike Hoegeman)
+
+In article <3492@phri.UUCP> roy@phri.UUCP (Roy Smith) writes:
+>don@brillig.umd.edu.UUCP (Don Hopkins) writes:
+  >> If you want to learn PostScript, NeWS is the way to go -- it's an exciting
+  >> and gratifying programming environment!  Don't waste your time trying to
+  >> learn an interactive interpretive language like PostScript by
+  >> - spooling files
+  >> to a laser printer. NeWS isn't just for Display -- it's for Interaction!
+  >
+  >	While I happen to be a true-blue fan of PostScript, and at least a
+  >mild afficiando of NeWS, I can't agree that learning NeWS is the way to learn
+  >PostScript.  It's like trying to learn yacc at the same time you are learning
+  >C,
+  >or trying to appreciate Shakespere at the same time you are learning how to
+  >read. NeWS in a complex system and you can't hope to understand what is going
+  >on unless you already know the fundementals of how PostScript works.
+
+I think your analogies are pretty weak. You make it seem like there is
+tons and tons of NeWS stuff you have to learn before ever getting your
+hands on PostScript and that simply is not true.
+
+No one says you HAVE to start out using the NeWS extensions to
+postscript.  You can just fire up a psh (PostScript Shell) which gives
+you an environment pretty similar to that of a plain 'ol printer and
+start typing away!!
+
+Here's all you have to do.
+
+	newshost % psh
+	newshost % executive
+	Welcome to NeWS 1.1
+	erasepage 10 10 moveto (Hello world!) show
+	:
+	...etc...
+	:
+
+And, As Don was trying pointing out IT's INTERACTIVE !!  Using a
+printer to do PostScript development on is downright primitive in
+comparison.  How would you prefer to program in C? By submitting batch
+jobs via ftp to some remote machine where it get's compiled and then it
+mails you back the errors from the compiler? This is pretty much what
+you have to put up with if you are programming in PosctrScript via a
+printer.
+
+You don't really have to get into using processes, classes, etc.. at
+first if you don't want to but you get the bonus of an interactive
+environment and the debugger which is worth the price of NeWS alone if
+need to do alot of postscript debugging.
+
+-mike
+
+------------------------------------------------------------------------
+Date: Tue, 20 Sep 88 19:09:19 EDT
+To: NeWS-makers@brillig.umd.edu
+Subject: Why you shouldn't use NeWS as a tool to learn PostScript
+From: phri!roy@nyu.edu  (Roy Smith)
+
+mh@wlbr.eaton.com.UUCP (Mike Hoegeman) writes:
+> Here's all you have to do.
+>
+> 	newshost % psh
+> 	newshost % executive
+> 	Welcome to NeWS 1.1
+> 	erasepage 10 10 moveto (Hello world!) show
+> 	:
+> 	...etc...
+> 	:
+>
+
+	Yeah, well, that's sort of my point.  I just tried doing exactly
+that.  What I got was the background pattern blanking out.  The window in
+which I ran the psh happened to be in the lower-left corner of my screen,
+so I figured maybe the "Hellow world!" was hiding underneath it.  When I
+dragged it away, instead of finding the message, I got the grey background
+redrawn wherever I dragged the window from.  Feeding that line to psh again
+did indeed give me the message down in the lower-left corner of the screen.
+Hardly intuitive, and even with this simplest of examples, you're already
+having to worry about things like windows.  Of course, you might simply use
+psview instead of psh, but that has it's own subtle non-PostScript-isms
+like not having to put a showpage on the end, and not dealing very well
+with rotated or scaled fonts.
+
+	Well, OK, maybe that's not so bad.  Let's see what happens when I
+feed that same bit of PostScript to a LaserWriter:
+
+%%[ Error: invalidaccess; OffendingCommand: show ]%%
+%%[ Flushing: rest of job (to end-of-file) will be ignored ]%%
+
+	Hmm, that's odd.  Of course, the reason is that I had no current
+font set.  This didn't bother NeWS because NeWS seems to have a default
+current font already set when you fire up a psh.
+
+	I still maintain that NeWS is different enough from PostScript to
+make in inadvisable to use the former as a tool for learning the latter.
+--
+Roy Smith, System Administrator
+Public Health Research Institute
+{allegra,philabs,cmcl2,rutgers}!phri!roy -or- phri!roy@uunet.uu.net
+"The connector is the network"
+
+------------------------------------------------------------------------
+Date: Wed, 21 Sep 88 10:28:08 EDT
+To: NeWS-makers@brillig.umd.edu
+Subject: Re: Why you should use NeWS as a tool to learn PostScript
+From: brillig.umd.edu!don@mimsy.umd.edu  (Don Hopkins)
+
+    Date: 20 Sep 88 14:53:14 GMT
+    From: phri!roy@nyu.edu  (Roy Smith)
+    Subject: Why you shouldn't use NeWS as a tool to learn PostScript
+
+    [...]
+    I still maintain that NeWS is different enough from PostScript to
+    make in inadvisable to use the former as a tool for learning the latter.
+    --
+    Roy Smith, System Administrator
+    Public Health Research Institute
+    {allegra,philabs,cmcl2,rutgers}!phri!roy -or- phri!roy@uunet.uu.net
+    "The connector is the network"
+
+My argument, which applies to interpretive languages in general, is
+that it's easier to learn a language in an interactive programming
+environment than in a batch environment. Direct access and immediate
+feedback gives a programmer immersed in an interpretive environment
+intimate experience with the language, and incentive to experiment.
+
+The problems that you describe are minor compatibility issues, not
+fundamental learnability issues.
+
+PostScript is very different than the languages most people are used
+to.  The syntax of PostScript is extremely simple, but if you're ever
+going to be able to harness its power, you've got to understand the
+semantics. And playing around with an interactive interpreter is a
+quick and fun way to find out how it works.
+
+The fact that the PostScript interpreter in NeWS is different than the
+PostScript interpreter (whatever brand it is) that runs in your laser
+printer doesn't mean that it's harder to learn PostScript in NeWS. Of
+course NeWS is different: it has extensions, and it has bugs. But the
+fact that NeWS is an interactive programming environment that can give
+immediate visual feedback on the screen is a far more important issue
+to someone interested in learning a new language.
+
+Metaphorically, I'm saying that it's better to learn Spanish by living
+in Spain, than by writing letters to people in Spain. You're saying
+that it's inadvisable to learn Spanish by living to Spain, if you want
+to write letters to people in Mexico. c(-;
+
+	-Don
+	don@brillig.umd.edu
+	...!uunet!mimsy!don
+------------------------------------------------------------------------

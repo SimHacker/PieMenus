@@ -1,0 +1,32 @@
+* Patenting Pie Menus
+** Paying for it
+*** University patent office
+*** University grant
+*** Myself
+*** My mother
+*** Unipress
+** Things to ask
+*** Who gets their name on the patent?
+*** How long do I have to file?
+1 year to file patent application after publication, in the United States.
+*** How long does it take to file
+*** What publication considerations are there?
+**** Phoenix Usenix
+***** I talked to John Quarterman about publishing my paper at Usenix, and
+he encouraged me to submit an abstract for Phoenix Usenix.
+***** There was an award for outstanding student papers, which included
+membership and transportation to the convention.
+***** I could have submitted an abstract there, but did not because Mark
+recomended against it because it was too early.
+**** 4th Computer Graphics Workshop
+I have submitted an abstract to the Usenix's 4th Computer Graphics
+Workshop, held in Cambridge in October.
+*** How are the 'disclosure' forms sent by the university patent people doing? 
+*** Who can handle licensing?
+**** University of Maryland
+**** Unipress
+*** What rights does a patent give?
+*** Who is entitled to rights?
+*** What percentages are they entitled to?
+*** What will the money be used for?
+

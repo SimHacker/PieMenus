@@ -1,0 +1,42 @@
+#!/bin/csh -f
+set dir=$1
+if (x$2 == x) then
+  set level=1
+else
+  set level=$2
+endif
+cd $dir
+echo "dictbegin"
+foreach file (`/bin/ls -a`)
+  if (-d $file && $file != . && $file != ..) then
+     if ($level > 1) then
+#       echo "currentdict end"
+       @ level--
+       dir2dict $dir/$file $level
+       @ level++
+#       echo "begin"
+       echo "($file) exch def"
+     else
+       echo "($file) ((dir2dict $dir/$file|psh)forkunix) def"
+     endif
+  else
+    set info = (`/bin/ls -lgd $file`)
+#    set type = (`file $file`)
+    set type = (`echo foo $file`)
+    cat <<EOF
+($file) dictbegin
+/Mode /$info[1] def
+/Links $info[2] def
+/Owner /$info[3] def
+/Group /$info[4] def
+/Size $info[5] def
+/Time ($info[6] $info[7] $info[8]) def
+/Name ($dir/$info[9]) def
+/File ($type[2-]) def
+dictend
+%Mode (x) search {pop pop pop cvx} {pop} ifelse
+def
+EOF
+  endif
+end
+echo "dictend dup select-object pause"

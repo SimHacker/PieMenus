@@ -1,0 +1,237 @@
+Documentation for Unity3D Pie Menu component.
+By Don Hopkins, Stupid Fun Club.
+
+The pie menus are configured with JSON, read from the file "Content/Config/PieMenu.json".
+They can also be configured programatically, but it's easier to configure them with JSON.
+
+The file PieMenu.json should contain a dictionary, whose top level keys configure static class variables of the PieMenu class, common to all pie menus.
+The dictionary also contains a key "pieMenus" which is a dictionary mapping pie menu id strings to pie menu configuration dictionaries.
+Each pie menu configuration dictionary has a key "items" which contains an array of dictionaries that configure each of its items.
+
+Here are the various types of JSON objects that you can specify, and how they are converted to Unity3D objects:
+
+Colors are a comma separted list of 3 (RGB) or 4 (RGBA) numbers from 0 to 1.
+Fonts are a string name of a font in the Assets/Resources directory.
+Textures are a string name of a texture in the Assets/Resources directory.
+Booleans are a string "true" or "false", or a string "yes" or "no", or a boolean true or false value, or a number 0 or 1.
+GameObjects are the string name of a game object in the world.
+Curves are a string with a semicolon separated list of comma separated pairs of numbers, the keyframe x and y values.
+GuiSkins are the string name of a GuiSkin in the Assets/Resources directory.
+SubMenus are the string id of a pie menu to use as a submenu.
+
+{
+    // Required to identify that this dictionary configures the static variables in the PieMenu class.
+    "type": "PieMenuClass",
+
+    // The string name of the font used in the menu center for its title.
+    "titleFont": "Fonts/PieMenu Title Font Chumbly",
+
+    // The topmost, upper left and lower right colors for the pie menu title.
+    "titleTopColor": "0,1,0",
+    "titleUpperLeftColor": "1,1,1",
+    "titleLowerRightColor": "1,1,1", // the 
+
+    // The X and Y offset of the pie menu title from the cursor.
+    "titleOffsetX": 0,
+    "titleOffsetY": 10,
+
+    // The string name of the font used in the menu center for its description.
+    "descriptionFont": "Fonts/PieMenu Description Font Chumbly",
+
+    // The topmost, upper left and lower right colors for the pie menu description.
+    "descriptionTopColor": "0.3,1,0.3",
+    "descriptionUpperLeftColor": "0,0,0",
+    "descriptionLowerRightColor": "0,0,0",
+
+    // The X and Y offset of the pie menu description from the cursor.
+    "descriptionOffsetX": 0,
+    "descriptionOffsetY": -20,
+
+    // The string name of the font used for a pie menu item titles.
+    "itemTitleFont": "Fonts/PieMenu Item Title Font Chumbly",
+
+    // The topmost, upper left and lower right colors for the pie menu item titles.
+    "itemTitleTopColor": "0,0,1",
+    "itemTitleUpperLeftColor": "1,1,1",
+    "itemTitleLowerRightColor": "1,1,1",
+
+    // The topmost, upper left and lower right colors for the disabled pie menu item titles.
+    "itemTitleDisabledTopColor": "0.8,0.8,0.8",
+    "itemTitleDisabledUpperLeftColor": "0,0,0",
+    "itemTitleDisabledLowerRightColor": "0,0,0",
+
+    // The X and Y offset of the pie menu item titles from the cursor.
+    "itemTitleOffsetX": 0,
+    "itemTitleOffsetY": 10,
+
+    // The string name of the font used for a pie menu item descriptions.
+    "itemDescriptionFont": "Fonts/PieMenu Item Description Font Chumbly",
+
+    // The topmost, upper left and lower right colors for the pie menu item descriptions.
+    "itemDescriptionTopColor": "0.3,0.3,1",
+    "itemDescriptionUpperLeftColor": "0,0,0",
+    "itemDescriptionLowerRightColor": "0,0,0",
+
+    // The topmost, upper left and lower right colors for the disabled pie menu item descriptions.
+    "itemDescriptionDisabledTopColor": "0.8,0.8,0.8",
+    "itemDescriptionDisabledUpperLeftColor": "0,0,0",
+    "itemDescriptionDisabledLowerRightColor": "0,0,0",
+
+    // The X and Y offset of the pie meun item descriptions from the cursor.
+    "itemDescriptionOffsetX": 0,
+    "itemDescriptionOffsetY": -10,
+
+    // The layer to put the pie menu game item game objects in.
+    "itemObjectLayer": 8,
+
+    // The depth at which to put the unselected pie menu item game objects.
+    "itemObjectDepth": 50.0,
+
+    // The depth at which to put the selected pie menu item game objects.
+    "itemObjectSelectedDepth": 60.0,
+
+    // The scale of the pie menu item game objects.
+    "itemObjectScale": 0.15,
+
+    // The camera scale of the pie menu item game objects.
+    "itemObjectCameraScale": 1.0,
+
+    // The depth of the pie menu center game object.
+    "objectDepth": 100.0,
+
+    // The maximum speed to animate the pie menu items.
+    "animationMaxMoveSpeed": 0.1,
+
+    // The maximum time to animate the pie menu items.
+    "animationMaxMoveTime": 0.25,
+
+    // The minimum distance to animate the pie menu items.
+    "animationMinDistance": 2.0,
+
+    // The left and right margins of text label background shadows.
+    "textBackgroundLeftRightMargin": 6.0,
+
+    // The top and bottom margins of text label background shadows.
+    "textBackgroundTopBottomMargin": 2.0,
+
+    // The color of text label background shadows.
+    "textBackgroundColor": "0,0,0,0.5",
+
+    // The guiSkin to use for the pie menu.
+    "guiSkin": "Skins/GuiSkin",
+
+    // The dictionary mapping pie menu ids to pie menu configuration dictionaries.
+    "pieMenus": {
+
+        // The string id of a pie menu.
+        "Timeline": {
+
+            // Required to identify that this dictionary configures a pie menu.
+            "type": "PieMenu",
+
+            // The title of the pie menu, or null for none.
+            "title": "Timeline",
+
+            // The description of the pie menu, or null for none.
+            "description": "Select a command for the timeline.",
+
+            // The name of the pie menu center texture, or null for none.
+            "centerTexture": "CenterTextureName",
+
+            // The size of the pie menu center texture.
+            "centerTextureSize": 100.0,
+
+            // An arbitrary object to pass the application as the pie menu parameters, or null for none.
+            "parameters": null,
+
+            // The radius of the pie menu.
+            "radius": 100.0,
+
+            // The size of the pie menu items.
+            "itemSize": 70.0,
+
+            // The inactive radius of the pie menu.
+            "inactiveRadius": 10.0,
+            "popOutRadiusMin": 10.0,
+            "popOutRadiusMax": 400.0,
+            "popOutScale": 0.6,
+            "popInScale": 1.0,
+            "objectScale": 1.0,
+            "initialAngle": 90.0,
+            "clockwise": true,
+            "popupDuration": 0.25,
+            "defaultItemTexture": None,
+            "popOut": 0.0,
+            "centerGameObject": None,
+            "centerGameObjectScale": 1.0,
+            "items": [
+                {
+                    "id": "foo",
+                    "title": "Stupid Fun Club",
+                    "description": "Welcome to the Stupid Fun Club!",
+                    "parameters": null,
+                    "texture": null,
+                    "disabledReason": null,
+                    "disabled": false,
+                    "hidden": false,
+                    "subMenu": null,
+                    "gameObject": null
+                },
+
+                // More items...
+
+            ]
+
+        },
+
+        // More menus...
+
+    }
+
+}
+
+Callback events:
+
+There are both global class callback events (for receiving
+notification from all pie menus) and local object callback events (for
+receiving notification from particular pie menus).
+
+Here are the signatures of the callbacks, both global and local:
+
+    public delegate void PieMenuStartHandler(PieMenu pieMenu);
+    public delegate void PieMenuEndHandler(PieMenu pieMenu);
+    public delegate void PieMenuCancelHandler(PieMenu pieMenu);
+    public delegate void PieMenuPinHandler(PieMenu pieMenu);
+    public delegate void PieMenuSubMenuHandler(PieMenu pieMenu, PieMenuItem currentItem, PieMenu subMenu);
+    public delegate void PieMenuChangeHandler(PieMenu pieMenu, PieMenuItem currentItem, float direction, float distance);
+    public delegate void PieMenuUpdateHandler(PieMenu pieMenu, PieMenuItem currentItem, float direction, float distance);
+    public delegate void PieMenuUpdateCenterGameObjectHandler(PieMenu pieMenu, PieMenuItem currentItem, GameObject gameObject);
+    public delegate void PieMenuUpdateItemGameObjectHandler(PieMenu pieMenu, PieMenuItem currentItem, GameObject gameObject);
+    public delegate void PieMenuSelectHandler(PieMenu pieMenu, PieMenuItem currentItem, float direction, float distance);
+
+Here are the global callblack events:
+
+    public static event PieMenuStartHandler onGlobalStartEvent;
+    public static event PieMenuEndHandler onGlobalEndEvent;
+    public static event PieMenuCancelHandler onGlobalCancelEvent;
+    public static event PieMenuPinHandler onGlobalPinEvent;
+    public static event PieMenuSubMenuHandler onGlobalSubMenuEvent;
+    public static event PieMenuChangeHandler onGlobalChangeEvent;
+    public static event PieMenuUpdateHandler onGlobalUpdateEvent;
+    public static event PieMenuUpdateCenterGameObjectHandler onGlobalUpdateCenterGameObjectEvent;
+    public static event PieMenuUpdateItemGameObjectHandler onGlobalUpdateItemGameObjectEvent;
+    public static event PieMenuSelectHandler onGlobalSelectEvent;
+
+Here are the local callback events:
+
+    public event PieMenuStartHandler onStartEvent;
+    public event PieMenuEndHandler onEndEvent;
+    public event PieMenuCancelHandler onCancelEvent;
+    public event PieMenuPinHandler onPinEvent;
+    public event PieMenuSubMenuHandler onSubMenuEvent;
+    public event PieMenuChangeHandler onChangeEvent;
+    public event PieMenuUpdateHandler onUpdateEvent;
+    public event PieMenuUpdateCenterGameObjectHandler onUpdateCenterGameObjectEvent;
+    public event PieMenuUpdateItemGameObjectHandler onUpdateItemGameObjectEvent;
+    public event PieMenuSelectHandler onSelectEvent;
+

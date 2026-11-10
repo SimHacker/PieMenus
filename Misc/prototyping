@@ -1,0 +1,77 @@
+Prototyping:
+
+A prototype is a vehicle to get you to a certian vantage point where you can
+get a better look at the problem. 
+
+There are so many different ways that something can be done, it can be hard 
+to think about, without a particular implementation to serve as a reference 
+point, an anchor, a standard against which other solutions may be compared.
+
+There are good ways of doing things, and there are bad ways of doing things,
+and our job is to find the good ways of doing things, not to make the bad 
+ways of doing things good.
+
+What we are doing is modeling some basic underlying process.
+Implementation (programming) is the modeling of a problem solving process, in 
+a particular media (language).
+We make these models to exploit certian properties of that underlying process.
+A model can exhibit some the properties of the processes it represents, even 
+if it's not a complete or accurate model. 
+But the underlying process has properties of its own that our model may or 
+may not manifest, that we may not know about, that we may not have planned for,
+that we may have to discover, by studying an actual implementation, and 
+filling in the holes. Whether those properties are good or bad is a judgment 
+for us to make. There may be some holes we don't want to fill in, and some 
+that we can't.
+
+The goals we set for processes and the uses to which we put them do not
+necessarily determine all the properties of those processes.  We have a problem
+we want to solve, and we go about trying to find a natural process we can
+exploit that will solve that problem.  There may be other things that process
+can do besides solving our problem.
+
+Case in point:	Cold Fusion. Discovered in 1920's, as a way to make Helium.
+Case in point:	Emacs. It was originally intended as a text editor.
+	Now it's more than a desert topping, more than a floor wax, 
+	it's a way of life. One person even named their dog Emacs!
+Case in point:	O(n log n) solution to the traveling marketroid problem.
+	No, I don't know one, but if I did, you'd want me to tell you.
+	So why would a computer scientist want to make a marketroid's
+	life any easier?
+  Because he feels -- in fact he could *prove* (assuming he was awake in 
+  class that day) -- that if he could solve the traveling marketroid problem,
+  he could solve a whole class of other hard problems. 
+
+One problem can be reduced to others. 
+If the tools you use to solve a particular problem are sufficiently general,
+then some reductions can be trivial.
+
+Case in point:	Unix utilities.
+	Classic spell checker example.
+	tr => rot13; properties of rot13 (reversable transformation)
+
+What we are doing is not unnatural.
+Information processing is going on all the time in Nature.
+
+What we are doing is not contrived. 
+It's not arbitrary and capricious, like some laws we are forced to obey.
+
+We're exploiting the universe's natural tendency to behave regularly.
+The human brain shows us what is possible.
+Because our brains are exploiting tendencies of the same universe that our
+processes are operating in, we should be able to take advantage of our 
+brain's intuitions about the structure of those processes. 
+If our goal is to organize our information in a way that is natural and 
+efficient for our brains to interact with, then we'd *better* be taking 
+advantage of our intuitions. 
+
+There may be times when "It seemed to be the thing to do at the time" will be
+your best explanation. 
+
+
+
+One approach I use to writing programs is to make some input files for the
+program to process, before writing the program. It gives me a concrete goal:
+write a program that can process these input files. 
+
+NeWS: real-estate driven scheduler

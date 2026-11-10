@@ -1,0 +1,96 @@
+Image Composition for Ruby
+
+Goal:
+
+  Compose complicated images off screen (for animation, etc).
+  Smooth double buffered animation of an arbitrarily shaped layered
+  graphical object.
+
+Technique:
+
+  There is a panel of ClassFakePanel, containing all the graphical
+  objects on the card, which is itself contained in a canvas of
+  ClassFakeCanvas. The panel, which is the same size as the canvas
+  wrapped around it, is normally unretained and transparent. For the
+  purpose of drawing off screen, the panel can be unmapped and made
+  opaque and retained, without changing the canvas hierarchy or screen
+  image. After painting on the unmapped off screen panel, its image
+  can be copied to its mapped on screen parent canvas, for fast double
+  buffered animation. Once the animation is complete, the panel can be
+  made unretained, transparent, and mapped again, without changing the
+  screen image.
+
+  A single graphical object may be animated very quickly and flexibly,
+  by performing some setup at the start of animation. The speed of the
+  setup step depends on the size of the panel and the number of
+  canvases it contains.
+
+  Since the canvases below and above the animated canvas never change
+  during the course of the animation, you can divide the subcanvases
+  of FakePanel into three groups: the one canvas you're animating, the
+  canvases below it, and the canvases above it.
+
+  After unmapping the panel and making it opaque and retained, the
+  setup consists of creating an underlay, by copying the image of the
+  background and objects below the animated object, and creating an
+  overlay, by copying the image and shape of the objects above the
+  animated object. (Note: this "overlay" has nothing to do with the
+  "createoverlay" operator in NeWS)
+
+  To create the underlay image, you call the panel's /Paint method,
+  and the /paint method of the canvases below the animated canvas,
+  then copy the panel's image to the Underlay buffer. 
+
+  To create the overlay image, you create a clipping mask that includes
+  the shapes of the canvases above the animated canvas, and call the
+  /paint method of those canvases, then copy the image to the Overlay
+  buffer.
+
+  The Overlay includes a one bit deep mask that is used to keep track
+  of the clipping shape, accessed by set of methods that initialize,
+  add, and subtract rectangles and bitmap masks from the shape. This
+  overlay clipping mask is a one bit deep canvas, which is converted
+  into a clipping path with the "imagepath" operator, and the
+  "currentpath" is cached in a variable.
+
+  To compose each frame off screen during the animation, you copy the
+  saved background to the panel, then paint the animated object (after
+  changing its position or size or whatever property you want to
+  animate), then clip to the shape of the overlay image, and copy the
+  overlay on top. Finally copy the completed composition onto the
+  screen.
+
+  When the animation is finished, you make the panel unretained,
+  transparent, and map it again, like nothing ever happened. 
+
+Canvas Hierarchy:
+
+  framebuffer:
+    ClassOverlayCanvas
+    ClassUnderlayCanvas
+    ClassBaseWindow (opaque,mapped)
+      ClassFakeCanvas (transparent,mapped)
+	ClassFakePanel (transparent,mapped / opaque,retained,unmapped)
+	  ClassHSlider ... (transparent,mapped)
+	  ClassMaskedCanvas ... (transparent,mapped)
+  orphans:
+    PictureImage PictureMask ScreenImage ScreenMask (each ClassMaskedCanvas)
+    Mask (ClassOverlayCanvas)
+
+Class Hierarchy:
+
+  ClassCanvas
+    ClassUnderlayCanvas
+      ClassOverlayCanvas
+    ClassMaskedCanvas
+    ClassBag
+      ClassFakeCanvas
+      ClassPanel
+        ClassFakePanel
+
+Instructions:
+
+  Run OW2.0 and TNT2.0
+  psh fakefish.ps
+  psh
+  /demo ClassFakeCanvas send

@@ -1,0 +1,19 @@
+piemenu.ps
+	A few bug fixes. Does not keep root from repainting when piemenu.ps 
+	is run from a menu.
+neatwin.ps
+	One set of global frame menus shared by all members of the class. 
+	Spin does not mess up the global frame menu any more.
+sgipie.ps
+	A subclass of PieMenu that runs in the overlay plane of the
+	SGI Iris 4D, under 4Sight version 1.1 (Silicon Graphic's
+	post of NeWS 1.1)
+pullout.ps
+	A subclass of PieMenu that uses cursor distance from the
+	menu center to select between one of several arguments to each
+	menu key. Each key can have any number or no arguments. Each
+argument is a "Thing" (cf. litemenu.ps) that is painted in 
+the menu center when 
+	are "Thing"s. (cf litemenu.ps)
+and
+	the argument is displayed in the center of the 

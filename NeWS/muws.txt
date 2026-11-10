@@ -1,0 +1,34 @@
+MuWS
+
+Multi user Window System
+
+Selection mechanism based on objects in rooms, inventory, each other.
+
+Everything has a container and a contents list.
+Each container has an set of methods, that are links to neighboring
+containers, or actions. 
+
+Each user is in a room. Rooms contain objects, and the users who are
+in it. Users contain their inventory. Objects are like selections.
+They can be picked up, carried around, and dropped. They can be passed
+around and traded, duplicated and destroyed by the users.
+
+Between the user and the 
+
+A user can 
+
+carry around mechanisms:
+tape recorder, cellular phone, tricorder, zap gun, target
+
+These objects contained in the user can be protocol engines that
+handle messages that the user object does not know how to deal with.  
+As with event distribution over the canvas hierchy, their "shape" can
+define what subset of the events hitting their parent they have a
+chance at. 
+
+So an object should be able to express interest in events sent to its
+container. pre/post child interests. It should be able to schedule the
+execution the way DDL does, in the order that it gives various objects
+(room, direct object, etc) a chance at the verb. Exclusive interests
+can be used instead of the ddl-style exit. 
+

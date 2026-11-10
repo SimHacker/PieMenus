@@ -1,0 +1,174 @@
+multi headed support
+
+* Shared menus
+  Need to key menus off of /framebufferof object.
+  No special attempt made to keep menus in sync.
+  i.e. setting a shared menu default on one framebuffer doesn't effect
+  the copies of that shared menu on other framebuffers.
+** base window frame
+** popup window frame & submenu
+** vscrollbar & hscrollbar
+** scrolling list (exclusive & nonexclusive)
+** jed
+
+* Window placement
+  Needs to keep separate placement information for each framebuffer.
+  Maybe even for each window parent (being careful about obsolescence). 
+
+* Help
+  Needs to be sure to use the /framebufferof the object in question.
+
+* Drag'n'drop between screens
+** ClassFullScreenInterest has an interest that listens for /SunWindowExit
+   events, that sent /deactivateall to ClassFullScreenInterest, thus mucking
+   up the drag in progress by allowing olwm to grab mouse motion events and 
+   gobble the next up event. 
+*** removed the /deactivateall send, and now it works. Why was it doing that?
+** need a way to notify clients of World Crossings so they can update their
+   animation, i.e. clear and switch overlay planes, create another tracking
+   canvas, etc. Needs to be in TrackInterest, so track service clients can
+   explicitly ask for WorldCrossing notification.
+
+* Tracking world crossings
+  When tracking between screens, we need to erase our old overlay plane
+  and switch to the new ovelay plane. Some special tracking clients may
+  need to create a new tracking canvas on the other framebuffer.
+** TrackService
+*** Some clients of the track service may want to ask for notification
+    of world crossings by returning a name (say, /TrackWorldCrossing)
+    from /TrackStart. Some don't care, and work fine the way they are,
+    always animating on the screen the tracking started on (e.g. window
+    drag feedback).
+** SelectionService
+*** selection clients that use the overlay plane in Drag{Start,Adjust,Stop}
+    must be notified of world crossings so they can update the overlay
+    canvas that they're animating on.
+*** ClassTextCanvas
+    uses overlay
+    Propagates to text fields, jot, jet, ...?
+*** rap
+    uses tracking canvas
+
+* Defaults service
+** ClassDefaultsService
+   Expresses interest in /PropertyNotify events on the framebuffer.
+   May be some framebuffer specific issues with individual defaults.
+   Should listen on 0'th framebuffer. 
+
+* Selecting between different framebuffers
+** Wire service argument parsing
+   Should parse $DISPLAY for X style screen spec, and send down
+   ps_screen command to redefine /framebuffer in userdict. 
+   Also accept -screen %d argument.
+
+* Other bugs
+** Input focus snarfed when crossing screens!
+   Breaks secondary cut&paste between screens
+** Mixed 2d/3d panel painting when props brought up from menu on 
+  other framebuffer (jet)
+*** Added /Color override to ClassRegion, since ClassDrawable has
+    'framebuffer' operator autobound instead of using userdict definition.
+    Fixed the painting bug (regions were painting with the dimensionality
+    of the framebuffer under the cursor instead of their parent's).
+** pam
+   Can't move lightning bolt across screens.
+
+* Reparenting objects
+  Presently, you can only reparent regions to another framebuffer (not
+  canvases). If you move an instance of ClassMenuButtons to another
+  framebuffer, and forget to give it a new set of menus on the new
+  framebuffer, then you're outa luck. 
+
+* framebuffer
+  'framebuffer' is an operator in the NeWS package, that returns the
+  framebuffer under the cursor. It's autobound into some methods,
+  which is not what we want.  We want framebuffer to be a name, so it
+  picks up the local definition in userdict, instead of an operator
+  that returns the framebuffer under the cursor.  We could define the
+  name "/currentframebuffer" to be the operator 'framebuffer', and
+  define "/framebuffer" to be "{currentframebuffer}", early on in the
+  NeWS package, to keep framebuffer from getting autobound.  Ideally,
+  we want references to "framebuffer" to instead send /framebufferof
+  to the appropriate object, so it's easier to write applications that
+  use multiple screens. With parent scoping, /framebufferof could be 
+  implemented more efficiently than it currently is (simply define the
+  name "/framebufferof" in each framebuffer to be a circular reference to
+  that framebuffer).
+
+** ClassDrawable: /Color /NewHelpWindow /handlehelp
+*** /Color
+    Calls framebuffer operator, which should be name.
+    Or maybe it should be "/framebufferof self send",
+    but /framebufferof isn't defined in ClassDrawable.
+    Now framebuffer's a name so it's ok.
+    Solved the problem with mixed 2d/3d panel painting
+    by overriding /Color in ClassRegion, with {Parent /Color get}. 
+*** /NewHelpWindow /handlehelp
+    Calls framebuffer operator, which should be name.
+    Or maybe it should be "/framebufferof self send",
+    which leads me to suggest we might define /framebufferof
+    in ClassDrawable to be "{framebuffer}".
+    Now framebuffer's a name so it's ok.
+*** /MenuStart
+    It was calling "Menu" two times. 
+    Made it call "Menu" once and dup the value.
+*** /Menus /FindMenu /MakeMenu
+    Added new utilities to support sharing menus with multiple framebuffers.
+
+*** /HandleDefaults /setcolors /Set3DColors /Set2DColors
+
+** ClassScrollList: /MenuExclusive /MenuNonExclusive
+    Shared menus keyed on "/framebufferof self send".
+** ClassVScrollbar: /ScrollbarMenu
+    Shared menus keyed on "/framebufferof self send".
+** ClassHScrollbar: /ScrollbarMenu
+    Shared menus keyed on "/framebufferof self send".
+** ClassBaseWindow: /Menu
+    Shared menus keyed on "/framebufferof self send".
+** ClassPopupWindow: /DismissMenu /Menu
+    Shared menus keyed on "/framebufferof self send".
+
+** ClassMenuService: /StartMenuTracking /FirstTrack /CheckClick
+    Should be "/framebufferof CurrentMenu send"
+** ClassHGauge: /demo
+    Gauge measures size relative to framebuffer.
+    Should be "/framebufferof self send".
+** ClassTNTHelpWindow: /NewInit
+    Should be "/framebufferof self send".
+** ClassNoHelpNotice: /NewInit
+    Should be "/framebufferof self send".
+** ClassJotCanvas: /destroy
+	framebuffer setcanvas		% remove self from GC
+    Should be "/framebufferof self send".
+    Or maybe just nullcanvas, which doesn't exist any more.
+
+** ClassNotice: /NewInit /UnwarpCursor /SetApexName /ApexToXY
+	        /PositionNotice /open
+    The [x y] args should be relative to the /framebufferof the notice.
+    Should be "/framebufferof self send".
+
+** ClassWindow: /ArgsExecDict/Place /PlaceInit /place
+		/FixDragDropInterest /nohelp
+*** /ArgsExecDict/Place /PlaceInit /place
+    Placement keyed on "/framebufferof self send".
+    Better yet, placement keyed on Parent, with soft references.
+*** /FixDragDropInterest /nohelp
+    Should be "/framebufferof self send".
+** ClassBaseWindow: /Menu /Menus /MakeMenu /CheckMenuState
+*** /Menu /Menus /MakeMenu
+    Shared menu w/ multiple framebuffers.
+*** /CheckMenuState
+    Takes the menu as an arg, assumes state booleans defined in menu.
+** ClassPopupWindow: /Menu /Menus /MakeMenu /CheckMenuState
+*** /Menu /Menus /MakeMenu
+    Shared menu w/ multiple framebuffers.
+*** /CheckMenuState
+    Takes the menu as an arg, assumes state booleans defined in menu.
+
+** selectUI.ps: /FBEventCoords /FBStoreCoords /SaveBBox /InBBox?
+    Experience with numeric fields suggest the selection client
+    needs a way to control the autorepeat rectangle.
+    Convert to use globalroot coordinates.
+*** Server core dump: globalroot setcanvas createevent /XLocation 0 put
+    Using "framebuffer" for now. Not that important.
+

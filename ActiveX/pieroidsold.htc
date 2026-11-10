@@ -1,0 +1,638 @@
+<?XML version="1.0"?>
+
+<PACKAGE>
+
+  <?COMPONENT ERROR="TRUE" DEBUG="TRUE"?>
+
+  <COMMENT>
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Pie Menu Asteroids for Internet Explorer 5.0 JScript.
+// Copyright (C) 2001 by Don Hopkins.
+// All rights reserved. 
+// Designed and implemented by Don Hopkins. 
+//
+// mailto:xardox@mindspring.com
+// http://www.piemenu.com
+// http://www.catalog.com/hopkins
+//
+// This program is provided for unrestricted use, 
+// provided that this copyright message is preserved. 
+// There is no warranty, and no author or distributer 
+// accepts responsibility for any damage caused by 
+// this program. 
+//
+////////////////////////////////////////////////////////////////////////
+
+
+  </COMMENT>
+
+  <COMPONENT ID="pieroids">
+
+    <IMPLEMENTS ID="pieroids" TYPE="Behavior" DEFAULT="">
+      <ATTACH FOR="window" EVENT="onload" handler="HandleOnLoad"/>
+      <ATTACH FOR="window" EVENT="onkeypress" handler="HandleOnKeyPress"/>
+      <PUBLIC>
+        <EVENT NAME="OnFooBar" ID="evFooBar"/>
+      </PUBLIC>
+    </IMPLEMENTS>
+
+    <IMPLEMENTS TYPE="Automation">
+      <PUBLIC>
+	<METHOD NAME="MakeRandomRock"/>
+	<METHOD NAME="MakeRock"/>
+	<METHOD NAME="MakeBlast"/>
+	<METHOD NAME="HandleTick"/>
+
+        <PROPERTY NAME="foo" INTERNALNAME="gFoo"/>
+        <PROPERTY NAME="target" INTERNALNAME="gDiv"/>
+      </PUBLIC>
+    </IMPLEMENTS>
+
+    <SCRIPT LANGUAGE="JScript">
+
+
+var gDiv = null;
+var gSprites = new Array();
+var gShips = new Array();
+var gRocks = new Array();
+var gBlasts = new Array();
+var gSpaceWidth = 300;
+var gSpaceHeight = 300;
+var gTickTimeout = 1;
+var gTickCount = 0;
+var gTwoPi = 2.0 * Math.PI;
+var gInitialShipCount = 4;
+var gShipTurn = gTwoPi / 16.0;
+var gShipAccel = 1.0;
+var gInitialRockCount = 2;
+var gInitialRockSize = 50;
+var gInitialRockSpeed = 10.0;
+var gInitialRockDDir = 0.5;
+var gRockSmoosh = 0.5;
+var gAccelProb = 0.2;
+var gAccelRate = 3.0;
+var gTurnProb = 0.5;
+var gTurnRate = gTwoPi / 32;
+var gBlastProb = 0.01;
+var gBlastSpeed = 4.0;
+var gBlastTicks = 250;
+var gRockImageName = "asteroids/rock1.gif";
+var gShipImageName = "asteroids/s1.gif";
+var gBlastImageName = "asteroids/laser.gif";
+
+
+var gGenUniqueID = 0;
+
+function GenUniqueID()
+{
+  return "PIEROIDS_ID_" + (++gGenUniqueID);
+}
+
+
+function RandInt(n)
+{
+  return Math.floor(Math.random() * n);
+}
+
+
+function CalcDistance(dx, dy)
+{
+  return Math.sqrt((dx * dx) + (dy * dy));
+}
+
+
+function CalcAngle(dx, dy)
+{
+  if ((dx == 0) && (dy == 0)) {
+    return 0;
+  } else {
+    return Math.atan(dy, dx);
+  } // if
+}
+
+
+function MakeElement(obj, kind, fileName, x, y)
+{
+  var el;
+
+  if (kind == "image") {
+    el = gDiv.document.createElement("IMG");
+    el.src = fileName;
+  } else {
+    el = fileName;
+  } // if
+
+  obj.el = el;
+  el.id = GenUniqueID();
+  el.style.display = "block";
+  el.style.position = "absolute";
+  el.style.left = "100px";
+  el.style.top = "100px";
+  ShowElement(obj);
+  MoveElement(obj, x, y);
+  gDiv.appendChild(el);
+  obj.width = 0;
+  obj.height = 0;
+}
+
+
+function MoveElement(obj, x, y)
+{
+  var st = obj.el.style;
+  st.left = "" + x + "px";
+  st.top = "" + y + "px";
+  obj.x = x;
+  obj.y = y;
+}
+
+
+function ShowElement(obj)
+{
+  obj.el.style.visibility = "visible";
+}
+
+
+function HideElement(obj)
+{
+  obj.el.style.visibility = "hidden";
+}
+
+
+function MakeSprite(type, x, y, dir, kind, imageName)
+{
+  var obj = new Object();
+
+  obj.type = type;
+  obj.dx = 0;
+  obj.dy = 0;
+  obj.ddir = 0;
+  MakeElement(obj, kind, imageName, x, y);
+  PointThing(obj, dir);
+
+  gSprites.push(obj);
+
+  return obj;
+}
+
+
+function PointThing(obj, dir)
+{
+  obj.dir = dir;
+  obj.dirx = Math.cos(dir);
+  obj.diry = -Math.sin(dir);
+
+  if (obj.type == "ship") {
+    var twist = gTwoPi / 32;
+    var i = Math.floor((-dir + (9 * twist)) / (twist * 2));
+    i = ((i + 65536) % 16) + 1;
+    obj.el.src = "asteroids/s" + i + ".gif";
+  } else if (obj.type == "rock") {
+    obj.el.firstChild.style.rotation =
+      dir * 360.0 / gTwoPi;
+  } // if
+}
+
+
+function MakeRandomShip()
+{
+  return MakeShip(
+      Math.random() * gSpaceWidth,
+      Math.random() * gSpaceHeight,
+      Math.random() * 2.0 * 3.14159);
+}
+
+
+function MakeShip(x, y, dir)
+{
+  var obj =
+    MakeSprite(
+      "ship",
+      x,
+      y,
+      dir,
+      "image",
+      gShipImageName);
+
+  gShips.push(obj);
+
+  AccelerateSprite(obj, gShipAccel);
+
+  return obj;
+}
+
+
+function MakeRandomRock(size)
+{
+  return MakeRock(
+      Math.random() * gSpaceWidth,
+      Math.random() * gSpaceHeight,
+      Math.random() * 2.0 * 3.14159,
+      size);
+}
+
+
+function MakeRock(x, y, dir, size)
+{
+  var r =
+    size / 2;
+  var obj =
+    MakeSprite(
+      "rock",
+      x - r,
+      y - r,
+      dir,
+//      "image",
+//      gRockImageName);
+      "vml",
+      MakeRockVML(size));
+
+  RandomizeSprite(obj);
+  obj.size = size;
+
+  gRocks.push(obj);
+
+  return obj;
+}
+
+
+function RandomizeSprite(obj)
+{
+  obj.dx = obj.dirx * Math.random() * gInitialRockSpeed;
+  obj.dy = obj.diry * Math.random() * gInitialRockSpeed;
+  obj.ddir = (Math.random() - 0.5) * gInitialRockDDir;
+}
+
+
+function MakeRockVML(size)
+{
+  var div = 
+    gDiv.document.createElement("DIV");
+
+  div.style.width = size;
+  div.style.height = size;
+
+  var shapetypeid =
+    "asteroid_" + GenUniqueID();
+
+  var slop = 0.8;
+  var jitter = 0.5;
+  var center = size / 2;
+  var path = "m";
+  var r = center * slop;
+  var points = 16;
+  var turn = gTwoPi / points;
+  var ang = 0;
+  var i;
+  for (i = 0; i < points; i++) {
+    var x =
+      Math.floor(
+        center +
+	(r * Math.cos(ang)) +
+        ((Math.random() - 0.5) * r * jitter));
+    var y =
+      Math.floor(
+        center +
+	(r * Math.sin(ang)) +
+        ((Math.random() - 0.5) * r * jitter));
+    if (x < 0) x = 0;
+    if (x > size) x = size - 1;
+    if (y < 0) y = 0;
+    if (y > size) y = size - 1;
+//if (i == 0) {
+//  x = center; y = center;
+//} // if
+    path += x + "," + y;
+    if (i == 0) {
+      path += "l";
+    } else {
+      path += ",";
+    } // if
+    ang += turn;
+  } // for i
+  path += "0xe";
+
+  var html =
+    "<v:group style='width:" + size + "pt;height:" + size + "pt;rotation:0' " +
+    "coordsize='" + size + "," + size + "'>" +
+    "<v:shapetype id='" + shapetypeid + "' coordorigin='0,0' " +
+    "coordsize='" + size + "," + size + "' " +
+    "path='" +
+    path +
+    "'>" +
+    "<v:stroke joinstyle='mitre'/>" +
+    "</v:shapetype>" +
+    "<v:shape type='#" + shapetypeid + "' " +
+    "style='position:absolute;left:0;top:0;width:" + size + ";height:" + size + "' " +
+    "fill='true' fillcolor='gray' stroke='true' strokecolor='white'>" +
+    "</v:shape>" +
+    "</v:group>";
+
+  div.innerHTML = html;
+
+  return div;
+}
+
+
+function MakeBlast(ship)
+{
+  var obj = new Object();
+
+  var obj =
+    MakeSprite(
+      "blast",
+      ship.x + ship.width / 2,
+      ship.y + ship.height / 2,
+      ship.dir,
+      "image",
+      gBlastImageName);
+
+  obj.dx = ship.dx + ship.dirx * gBlastSpeed;
+  obj.dy = ship.dy + ship.diry * gBlastSpeed;
+
+  obj.startTick = gTickCount;
+  obj.endTick = gTickCount + gBlastTicks;
+
+  gBlasts.push(obj);
+
+  return obj;
+}
+
+
+function HandleOnLoad()
+{
+}
+
+
+function HandleOnKeyPress()
+{
+  var keyCode = window.event.keyCode;
+  var ship = gShips[0];
+
+Barf.innerText += "KEY " + keyCode + " ... ";
+
+  if (keyCode == 106) { // j
+    TurnSprite(ship, gShipTurn);
+  } else if (keyCode == 108) { // l
+    TurnSprite(ship, gShipTurn * -1);
+  } else if (keyCode == 107) { // k
+    AccelerateSprite(ship, gShipAccel);
+  } else if (keyCode == 32) { // space
+    FireBlast(ship);
+  }
+}
+
+
+function TurnSprite(sprite, twist)
+{
+  var dir = twist + sprite.dir;
+  while (dir < 0.0) dir += gTwoPi;
+  while (dir >= gTwoPi) dir -= gTwoPi;
+  PointThing(sprite, dir);
+}
+
+
+function AccelerateSprite(sprite, accel)
+{
+  sprite.dx += sprite.dirx * accel;
+  sprite.dy += sprite.diry * accel;
+}
+
+
+function FireBlast(sprite)
+{
+  MakeBlast(sprite);
+}
+
+
+function InitComponent()
+{
+  var itemRect = gDiv.getBoundingClientRect();
+  gSpaceWidth = itemRect.right - itemRect.left;
+  gSpaceHeight = itemRect.bottom - itemRect.top;
+
+  gDiv.innerHTML = "";
+  gSprites = new Array();
+
+  var i;
+  
+  for (i = 0; i < gInitialShipCount; i++) {
+    MakeRandomShip();
+  } // for i
+
+  for (i = 0; i < gInitialRockCount; i++) {
+    MakeRandomRock(gInitialRockSize);
+  } // for i
+
+  document.onkeypress = HandleOnKeyPress;
+
+  gDiv.focus();
+  gDiv.setCapture();
+
+  HandleTick();
+}
+
+
+function HandleTick()
+{
+  DoPhysics();
+  window.setTimeout(gDiv.id + ".HandleTick();", gTickTimeout, "JavaScript");
+}
+
+
+function DoPhysics()
+{
+  gTickCount++;
+  MoveSprites(gSprites);
+
+  CheckBlasts();
+  CheckShips();
+  CheckRocks();
+}
+
+
+function CheckBlasts()
+{
+  var i;
+
+  for (i = gBlasts.length - 1; i >= 0; i--) {
+    var blast = gBlasts[i];
+    if (blast.endTick <= gTickCount) {
+      gDiv.removeChild(blast.el);
+      gBlasts.splice(i, 1);
+    } // if
+  } // for i
+  
+}
+
+
+function CheckShips()
+{
+  var n = gShips.length;
+  var i;
+  for (i = 0; i < n; i++) {
+    var ship = gShips[i];
+
+    if (Math.random() < gAccelProb) {
+      AccelerateSprite(ship, (Math.random() - 0.5) * gAccelRate);
+    } // if
+
+    if (Math.random() < gTurnProb) {
+      TurnSprite(ship, (Math.random() - 0.5) * gTurnRate);
+    } // if
+
+    if (Math.random() < gBlastProb) {
+      FireBlast(ship);
+    } // if
+
+  } // for i
+}
+
+
+function CheckRocks()
+{
+  var collisionCount = 0;
+  var n = gRocks.length;
+  var i, j;
+
+  for (i = 0; i < n; i++) {
+    var r1 = gRocks[i];
+    r1.collisions = new Array();
+    r1.lastdx = r1.dx;
+    r1.lastdy = r1.dy;
+    r1.lastddir = r1.ddir;
+  } // for i
+
+  for (i = 0; i < n - 1; i++) {
+    var r1 = gRocks[i];
+    var r1size = r1.size;
+    var r1x = r1.x + r1size;
+    var r1y = r1.y + r1size;
+    for (j = i + 1; j < n; j++) {
+      var r2 = gRocks[j];
+      var r2size = r2.size;
+      var r2x = r2.x + r2size;
+      var r2y = r2.y + r2size;
+      var dx = r1x - r2x;
+      var dy = r1y - r2y;
+      var dist = CalcDistance(dx, dy);
+      var mindist = (r1size + r2size) * gRockSmoosh;
+      if (dist < mindist) {
+        r1.collisions.push(r2);
+        r2.collisions.push(r1);
+        collisionCount++;
+      } // if
+    } // for j
+  } // for i
+
+  if (collisionCount > 0) {
+    for (i = 0; i < n; i++) {
+      var r1 = gRocks[i];
+      var c = r2.collisions;
+      var l = c.length;
+      if (l > 0) {
+        var totaldx = 0;
+	var totaldy = 0;
+	var totalddir = 0;
+	for (j = 0; j < l; j++) {
+	  var r2 = c[j];
+	  totaldx += r2.lastdx;
+	  totaldy += r2.lastdy;
+	  totalddir += r2.lastddir;
+	} // for j
+	var dx = r1.dx;
+	var dy = r1.dy;
+	var speed1 = CalcDistance(dx, dy);
+	var ang1 = CalcAngle(dx, dy);
+	var speed2 = CalcDistance(totaldx, totaldy);
+	var ang2 = CalcAngle(totaldx, totaldy);
+	var twist = ang2 - (ang1 + Math.PI);
+	var ang3 = ang2 + twist;
+	dx = speed1 * Math.cos(ang3);
+	dy = speed1 * -Math.sin(ang3);
+	totalddir += r1.ddir;
+	r1.ddir = totalddir / (j + 1);
+r1.ddir = (Math.random() - 0.5) * gInitialRockDDir;
+        r1.dx = dx;
+        r1.dy = dy;
+        r1.ddir = -r1.ddir;
+      } // if
+    } // for i
+  } // if
+
+}
+
+
+function MoveSprites(sprites)
+{
+  var n = sprites.length;
+  var i;
+  for (i = 0; i < n; i++) {
+    var sprite = sprites[i];
+    var x = sprite.x;
+    var y = sprite.y;
+    var dx = sprite.dx;
+    var dy = sprite.dy;
+
+    if ((sprite.width == 0) || (sprite.height == 0)) {
+      var r = sprite.el.getBoundingClientRect();
+      sprite.width = r.right - r.left;
+      sprite.height = r.bottom - r.top;
+    } // if
+
+    var spaceWidth = gSpaceWidth - sprite.width;
+    var spaceHeight = gSpaceHeight - sprite.height;
+
+    x += dx;
+    y += dy;
+    
+    if (x < 0) {
+      dx = -dx;
+      x = 0;
+    } else if (x >= spaceWidth) {
+      dx = -dx;
+      x = spaceWidth - 1;
+    } // if
+
+    if (y < 0) {
+      dy = -dy;
+      y = 0;
+    } else if (y >= spaceHeight) {
+      dy = -dy;
+      y = spaceHeight - 1;
+    } // if
+
+    sprite.dx = dx;
+    sprite.dy = dy;
+
+    if (sprite.ddir != 0) {
+      PointThing(sprite, sprite.dir + sprite.ddir);
+    } // if
+
+    MoveElement(sprite, x, y);
+
+  } // for i
+}
+
+
+////////////////////////////////////////////////////////////////////////
+// Construction
+
+
+if (id == "") {
+  id = uniqueID;
+} // if
+var gDiv = eval(id);
+
+
+InitComponent();
+
+
+////////////////////////////////////////////////////////////////////////
+
+
+</SCRIPT>
+
+</HTML>

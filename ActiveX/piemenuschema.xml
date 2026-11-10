@@ -1,0 +1,277 @@
+<?xml version="1.0"?>
+
+<Schema
+  name="piemenuschema" 
+  xmlns="urn:schemas-microsoft-com:xml-data" 
+  xmlns:dt="urn:schemas-microsoft-com:datatypes">
+
+  <AttributeType
+    name="id" dt:type="string"/>
+  <AttributeType
+    name="name" dt:type="string"/>
+  <AttributeType
+    name="clockwise" dt:type="boolean"/>
+  <AttributeType
+    name="initialangle" dt:type="float"/>
+  <AttributeType
+    name="fixedradius" dt:type="float"/>
+  <AttributeType
+    name="minradius" dt:type="float"/>
+  <AttributeType
+    name="extraradius" dt:type="float"/>
+  <AttributeType
+    name="inactiveradius" dt:type="float"/>
+  <AttributeType
+    name="radiusnotch" dt:type="float"/>
+  <AttributeType
+    name="border" dt:type="float"/>
+  <AttributeType
+    name="maxpieitems" dt:type="int"/>
+  <AttributeType
+    name="pagedpieitems" dt:type="int"/>
+  <AttributeType
+    name="linearorderreversed" dt:type="bool"/>
+  <AttributeType
+    name="lineardirection" dt:type="enumeration"
+    dt:values="up down left right center"/>
+  <AttributeType
+    name="transparentitems" dt:type="bool"/>
+  <AttributeType
+    name="itemborder" dt:type="float"/>
+  <AttributeType
+    name="itemmargin" dt:type="float"/>
+  <AttributeType
+    name="itemwidth" dt:type="float"/>
+  <AttributeType
+    name="itemheight" dt:type="float"/>
+  <AttributeType
+    name="itemnormalbackground" dt:type="string"/>
+  <AttributeType
+    name="itemselectedbackground" dt:type="string"/>
+  <AttributeType
+    name="centerbackground" dt:type="string"/>
+  <AttributeType
+    name="centermargin" dt:type="float"/>
+  <AttributeType
+    name="centerborderwidth" dt:type="float"/>
+  <AttributeType
+    name="centervisible" dt:type="bool"/>
+  <AttributeType
+    name="action" dt:type="string"/>
+  <AttributeType
+    name="onselect" dt:type="string"/>
+  <AttributeType
+    name="onchange" dt:type="string"/>
+  <AttributeType
+    name="onpreview" dt:type="string"/>
+  <AttributeType
+    name="url" dt:type="string"/>
+
+  <ElementType
+    name="html" content="mixed" model="open">
+    <description>HTML element containing arbitrary XHTML (HTML in XML syntax)</description>
+  </ElementType>
+
+  <ElementType
+    name="piemenu" content="eltOnly" model="closed">
+
+    <description>Pie Menu element containing zero or one html elements and zero or more item elements.</description>
+
+    <element
+      type="html" minOccurs="0" maxOccurs="1"/>
+    <element
+      type="item" minOccurs="0" maxOccurs="*"/>
+
+    <attribute
+      type="id" default="">
+      <description>Pie Menu Unique ID</description>
+    </attribute>
+    <attribute
+      type="name" default="">
+      <description>Pie Menu Name, shown if the HTML Content is empty</description>
+    </attribute>
+    <attribute
+      type="clockwise" default="1">
+      <description>Clockwise Layout Direction (false for CCW)</description>
+    </attribute>
+    <attribute
+      type="initialangle" default="90">
+      <description>Initial Angle for Pie Item Layout</description>
+    </attribute>
+    <attribute
+      type="fixedradius" default="0">
+      <description>Fixed Radius for Pie Item Layout (0 to Disable)</description>
+    </attribute>
+    <attribute
+      type="minradius" default="0">
+      <description>Minimum Radius for Pie Item Layout</description>
+    </attribute>
+    <attribute
+      type="extraradius" default="20">
+      <description>Extra Radius for Pie Item Layout</description>
+    </attribute>
+    <attribute
+      type="inactiveradius" default="8">
+      <description>Inactive Radius of Pie Menu Center</description>
+    </attribute>
+    <attribute
+      type="radiusnotch" default="2">
+      <description>Radius Notch for Pie Item Layout</description>
+    </attribute>
+    <attribute
+      type="border" default="2">
+      <description>Border around Menu for Pie Item Layout</description>
+    </attribute>
+    <attribute
+      type="maxpieitems" default="8">
+      <description>Maximum Number of Pie Items</description>
+    </attribute>
+    <attribute
+      type="pagedpieitems" default="0">
+      <description>Number of Pie Items Paged</description>
+    </attribute>
+    <attribute
+      type="linear" default="0">
+      <description>Pie Menu Linear Flag</description>
+    </attribute>
+    <attribute
+      type="linearorderreversed" default="0">
+      <description>Reversed Linear Order Layout Flag</description>
+    </attribute>
+    <attribute
+      type="lineardirection" default="down">
+      <description>Direction of Linear Item Layout</description>
+    </attribute>
+    <attribute
+      type="transparentitems" default="0">
+      <description>Make Unselected Items Transparent</description>
+    </attribute>
+    <attribute
+      type="itemborder" default="2">
+      <description>Border Around Items for Pie Item Layout</description>
+    </attribute>
+    <attribute
+      type="itemmargin" default="2">
+      <description>Margin Inside Items for Pie Item Layout</description>
+    </attribute>
+    <attribute
+      type="itemwidth" default="0">
+      <description>Fixed Item Width for Pie Item Layout (0 for Measured)</description>
+    </attribute>
+    <attribute
+      type="itemheight" default="0">
+      <description>Fixed Item Height for Pie Item Layout (0 for Measured)</description>
+    </attribute>
+    <attribute
+      type="itemnormalbackground" default="buttonface">
+      <description>Item Normal Background Color</description>
+    </attribute>
+    <attribute
+      type="itemselectedbackground" default="buttonhighlight">
+      <description>Item Selected Background Color</description>
+    </attribute>
+    <attribute
+      type="centerbackground" default="buttonface">
+      <description>Pie Menu Center Background Color</description>
+    </attribute>
+    <attribute
+      type="centermargin" default="16">
+      <description>Pie Menu Center Margin</description>
+    </attribute>
+    <attribute
+      type="centerborderwidth" default="2">
+      <description>Pie Menu Center Border Width</description>
+    </attribute>
+    <attribute
+      type="centervisible" default="1">
+      <description>Pie Menu Center Visibility Flag</description>
+    </attribute>
+    <attribute
+      type="url" default="">
+      <description>URL for Pie Menu Selection</description>
+    </attribute>
+    <attribute
+      type="action" default="">
+      <description>Action for Pie Menu Item Selection</description>
+    </attribute>
+    <attribute
+      type="onselect" default="">
+      <description>Handler for Pie Menu Item Selection (Called After Selection)</description>
+    </attribute>
+    <attribute
+      type="onchange" default="">
+      <description>Handler for Pie Menu Item Change (Called Before Selection)</description>
+    </attribute>
+    <attribute
+      type="onpreview" default="">
+      <description>Handler for Pie Menu Item Preview (Called After Mouse Movement)</description>
+    </attribute>
+
+  </ElementType>
+
+  <ElementType
+    name="item" content="eltOnly" model="closed">
+
+    <description>Pie Menu Item element containing zero or one html elements and zero or one piemenu elements.</description>
+
+    <element
+      type="html" minOccurs="0" maxOccurs="1"/>
+    <element
+      type="piemenu" minOccurs="0" maxOccurs="1"/>
+
+    <attribute
+      type="id" default="">
+      <description>Pie Menu Item Unique ID</description>
+    </attribute>
+    <attribute
+      type="name" default="">
+      <description>Pie Menu Item Name, shown if the HTML Content is empty</description>
+    </attribute>
+    <attribute
+      type="linear" default="0">
+      <description>Pie Menu Item Linear Flag</description>
+    </attribute>
+    <attribute
+      type="fixedradius" default="0">
+      <description>Fixed Radius for Pie Item Layout (0 to Disable)</description>
+    </attribute>
+    <attribute
+      type="itemwidth" default="0">
+      <description>Fixed Item Width for Pie Item Layout (0 for Measured)</description>
+    </attribute>
+    <attribute
+      type="itemheight" default="0">
+      <description>Fixed Item Height for Pie Item Layout (0 for Measured)</description>
+    </attribute>
+    <attribute
+      type="lineardirection" default="down">
+      <description>Direction of Linear Item Layout</description>
+    </attribute>
+    <attribute
+      type="linearorderreversed" default="0">
+      <description>Reversed Linear Order Layout Flag</description>
+    </attribute>
+    <attribute
+      type="url" default="">
+      <description>URL for Pie Menu Item Selection</description>
+    </attribute>
+    <attribute
+      type="action" default="">
+      <description>Action for Pie Menu Item Selection</description>
+    </attribute>
+    <attribute
+      type="onselect" default="">
+      <description>Handler for Pie Menu Item Selection (Called After Selection)</description>
+    </attribute>
+    <attribute
+      type="onchange" default="">
+      <description>Handler for Pie Menu Item Change (Called Before Selection)</description>
+    </attribute>
+    <attribute
+      type="onpreview" default="">
+      <description>Handler for Pie Menu Item Preview (Called After Mouse Movement)</description>
+    </attribute>
+
+  </ElementType>
+
+</Schema>

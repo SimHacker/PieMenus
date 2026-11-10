@@ -1,0 +1,1243 @@
+#!/bin/sh
+psh << '%EOF'
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% This file is a product of Sun Microsystems, Inc. and is provided for
+% unrestricted use provided that this legend is included on all tape
+% media and as a part of the software program in whole or part.	 Users
+% may copy or modify this file without charge, but are not authorized to
+% license or distribute it to anyone else except as part of a product
+% or program developed by the user.
+%
+% THIS FILE IS PROVIDED AS IS WITH NO WARRANTIES OF ANY KIND INCLUDING THE
+% WARRANTIES OF DESIGN, MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+% PURPOSE, OR ARISING FROM A COURSE OF DEALING, USAGE OR TRADE PRACTICE.
+%
+% This file is provided with no support and without any obligation on the
+% part of Sun Microsystems, Inc. to assist in its use, correction,
+% modification or enhancement.
+%
+% SUN MICROSYSTEMS, INC. SHALL HAVE NO LIABILITY WITH RESPECT TO THE
+% INFRINGEMENT OF COPYRIGHTS, TRADE SECRETS OR ANY PATENTS BY THIS FILE
+% OR ANY PART THEREOF.
+%
+% In no event will Sun Microsystems, Inc. be liable for any lost revenue
+% or profits or other special, indirect and consequential damages, even
+% if Sun has been advised of the possibility of such damages.
+%
+% Sun Microsystems, Inc.
+% 2550 Garcia Avenue
+% Mountain View, California  94043
+%
+%
+% @(#)rap 1.16 91/07/22
+%
+% Copyright (c) 1991 by Sun Microsystems, Inc.
+
+
+% ---------------------------  RASTER RAP! ---------------------------
+%
+% This program shows some of the image manipulations that can be done
+% with NeWS, including scaling, rotation, skewing and clipping.  The
+% program shows use of double buffering techniques to make display
+% updating as smooth as possible.
+%
+% The application uses exclusive settings to control the drawing mode
+% and the current picture.  Drag the mouse in the drawing area of the
+% window to see the animation.
+%
+% To see what is going on behind the scenes with the double buffering,
+% click on the "Show Buffers" button.  Windows will open to show the
+% canvases used for buffering.
+%
+% --------------------------------------------------------------------
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Setup for OpenWindows 2.0 or 3.0
+
+/is_v2? systemdict /findpackage known not def
+
+is_v2? {
+  systemdict /shareddict known not {
+      systemdict /shareddict growabledict put
+  } if
+} {
+  /NeWS 3 0 findpackage beginpackage
+  /TNTCore 3 0 findpackage beginpackage
+  /TNT 3 0 findpackage beginpackage
+} ifelse
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Class definitions
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ClassSelectableRasterCanvasn
+%
+% A shared mixin class of raster related utilities.
+% It helps with selection and drag'n'drop of raster images.
+% The two subclass responsibilities are:
+%   /MakeSelectionCanvas % - => canvas
+%   /HandleCanvasReception % canvas => -
+%
+/ClassSelectableRasterCanvas ClassCanvas []
+classbegin
+
+    /destroy { % - => -
+        /SelectionCanvas unpromote
+        /DragCanvas unpromote
+	/destroy super send
+    } def
+
+    /Selectable? true def
+    /SelectableType /Graphics def
+
+    /SelectionStart { % event selection => bool
+        /SelectionCanvas unpromote
+        pop true
+    } def
+
+    /SelectionAdjust { % event selection => -
+        pop pop
+    } def
+
+    /SelectionStop { % event selection => -
+        pop pop
+    } def
+
+    /SelectionContext { % event selection => name
+        pop pop
+        /SelectedObject
+    } def
+
+    /NewSelection { % event rank => sel
+        exch pop
+	Holder /new ClassRasterSelection send
+    } def
+
+    /DragStart { % event selection => -
+	framebuffer /MakeDragCanvas self send
+	/DragAdjust self send
+    } def
+
+    /DragAdjust { % event selection => -
+	gsave
+	    DragCanvas /Parent get setcanvas
+	    pop begin % event
+	        XLocation 8 add YLocation 40 sub
+	    end % event
+	    DragCanvas setcanvas
+	    DragCanvas /Mapped false put
+	    movecanvas
+	    DragCanvas /Mapped true put
+	grestore
+    } def
+
+    /DragStop { % event selection => -
+	pop pop
+	/DragCanvas unpromote
+    } def
+
+    /DragScreen { % event selection => -
+        1 index /Canvas get /MakeDragCanvas self send
+	/DragAdjust self send
+    } def
+
+    /MakeDragCanvas { % parent => -
+	gsave
+	    dup setcanvas
+	    /DragCanvas exch newcanvas def
+	    DragCanvas /Mapped false put
+	    0 0 40 32 rectpath
+	    DragCanvas reshapecanvas
+	    DragCanvas /Transparent false put
+	    DragCanvas /Retained true put
+	    DragCanvas /SaveBehind true put
+	    SelectionCanvas DragCanvas CopyCanvas
+	grestore
+    } def
+
+    /SelectionCancel { % selection => -
+	pop
+	/DragCanvas unpromote
+    } def
+
+    /SelectionCanvas { % - => can
+        /MakeSelectionCanvas self send
+	/SelectionCanvas 1 index promote
+    } def
+
+    /MakeSelectionCanvas { % - => can
+        SubClassResponsibility
+    } def
+
+    /RenderSelectionCanvas { % - => can
+        /SelectionCanvas promoted? not
+	currentprocess /eventmgr self send ne  and { % if:
+	    /eventmgr self send
+	    /active? 1 index send not { pop } { % else:
+	        % Ask the manager to cache the canvas in the instance,
+		% and wake us up.
+		[ currentprocess
+		  { SelectionCanvas pop continueprocess }
+		  self
+		] /sendmanager 3 -1 roll send
+		% Take out some life insurance, and go to sleep.
+		currentprocess
+		{ % fork:
+		  //is_v2? { .0167} { [1 0] } ifelse sleep
+		  continueprocess
+		} fork dup /ProcessName (RenderSelectionCanvas Timeout) put
+		exch suspendprocess
+		% Try to get a refund on the life insurance.
+		killprocess
+	    } ifelse
+	    /SelectionCanvas promoted? not { % if:
+	        % We gave it our best try. Time to give up.
+	        /SelectionCanvas null def
+	    } if
+	} if
+	SelectionCanvas
+    } def
+
+    /ClearSelection { % - => -
+        /SelectionCanvas unpromote
+    } def
+
+    /Receptible? true def
+    /Keyable? true def
+
+    /HandleReception { % event selection => bool
+	exch						% sel event
+	//is_v2? {
+	    /begintransfer 2 index send			% sel event
+	} {
+	    self /begintransfer 3 index send		% sel event
+	} ifelse
+
+	10 dict dup begin % rdict			% sel event rdict
+	    /Canvas dup def
+	    /ContentsAscii dup def
+	end % rdict
+	/request 3 index send begin			% sel event
+	    ContentsAscii type /stringtype eq { % ifelse:
+		dup ContentsAscii			% sel event event string
+		/AsciiReception self send		% sel event bool
+	    } { false } ifelse				% sel event bool
+	    { pop true } { % else:			% sel event
+		Canvas type /canvastype eq {
+		    Canvas /CanvasReception self send
+							% sel bool
+	        } { pop false } ifelse			% sel bool
+	    }  ifelse					% sel bool
+	end
+
+	dup /endtransfer 4 -1 roll send			% bool
+    } def
+
+    /AsciiReception { % event string => bool
+	/readcanvascache shareddict send
+	dup null eq { % ifelse:
+	    pop pop beep false
+	} { % else:
+	    /CanvasReception self send
+	} ifelse
+    } def
+
+    /CanvasReception { % event canvas => bool
+	dup type /canvastype ne { pop pop false } { % else:
+	    /HandleCanvasReception self send
+	    true
+        } ifelse
+    } def
+
+    /HandleCanvasReception { % event canvas => -
+        SubClassResponsibility
+    } def
+
+classend def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ClassRapCanvas
+%
+% The rapplication drawing pad.
+%
+/ClassRapCanvas ClassSelectableRasterCanvas
+[
+    /BackCanvas				% shadow copy of visible canvas
+    /DrawCanvas				% composition canvas
+    /PictCanvas				% selected image, scaled
+    /Picture				% selected image, unscaled
+    /PictureWidth			% selected image width
+    /PictureHeight			% selected image height
+    /IconImage				% icon canvas
+]
+classbegin
+
+% Class variables:
+
+    % Overrides:
+    /BorderStroke 0 def
+    /BackgroundColor 0 0 0 rgbcolor def
+
+    % Backstops for variables promoted for tracking:
+    /StartX 0 def			% Location at start of tracking
+    /StartY 0 def			% (sometimes updated during drags)
+    /Rotation 0 def
+    /Radius 100 def
+    /NewRadius 0 def
+    /LastAngle null def
+    /KeepEdit? true def
+    /SelectionX 0 def
+    /SelectionY 0 def
+    /SelectionWidth 0 def
+    /SelectionHeight 0 def
+    /Selection? false def
+    /MotionProc NullNotify def		% Current drawing mode proc
+    /Mode /Iris def
+
+    % Measurements:
+    /IconSize 64 def
+
+% Overridden methods:
+
+    /minsize { % - => width height
+        64 64
+    } def
+
+    /preferredsize { % - => width height
+        Picture null eq { 300 300 } { % else:
+	    Picture false getbbox 4 2 roll pop pop
+	} ifelse
+    } def
+
+    /NewInit { % - => -
+	/NewInit super send
+
+	/PictCanvas ClassPictCanvas   CreateBuffer def
+	/BackCanvas ClassBufferCanvas CreateBuffer def
+	/DrawCanvas ClassBufferCanvas CreateBuffer def
+
+	/IconImage
+	    IconSize dup
+	    //is_v2? {
+		Color {8} {1} ifelse
+		[] null buildimage
+	    } {
+		Visual /Depth get
+		[] null Colormap buildimage
+	    } ifelse
+	def
+    } def
+
+    /Paint { % - => -
+	BackCanvas imagecanvas
+    } def
+
+    % Override to reshape the buffer canvases as well.
+    %
+    /reshape { % x y w h => -
+	/reshape super send
+
+	[PictCanvas BackCanvas DrawCanvas] { % forall canvases:
+	    /location 1 index send			% canvas x y
+	    /size self send /reshape 5 index send	% canvas
+	    /Parent get					% window
+	    { % send to window frame:
+		/location self send
+		/preferredsize self send
+		/reshape self send
+		/?validate self send
+	    } exch send
+	} forall
+
+	/cleardrawing self send
+    } def
+
+% Public methods:
+
+    % Erase the drawing.
+    %
+    /cleardrawing { % - => -
+	gsave
+	    BackCanvas setcanvas
+	    BackgroundColor /FillCanvas self send
+	    DrawCanvas setcanvas
+	    BackgroundColor /FillCanvas self send
+	    /UpdateIcon self send
+
+	    % Damage the drawing canvas.  Note: we don't just fill the canvas
+	    % because this method may be called after the canvas has been
+	    % mapped but before damage on its frame has been handled.
+	    % Instead, we just let the damage handling repaint the canvas
+	    % later.  Note2: we must damage the base frame because it is the
+	    % only opaque parent, i.e.  the drawing canvas does not receive
+	    % /Damaged events.
+
+	    Parent setcanvas
+	    /bbox self send
+	    rectpath extenddamage
+	grestore
+    } def
+
+    /setpicture { % image => -
+	(Loading Image...) () /setfooter Parent send
+
+	/Picture exch def
+
+	% Remember the picture's size in terms of its default 
+	% coordinate system. We scale by the inverse of this to
+	% make "Picture imagecanvas" cover the unit square.
+	gsave
+	    Picture setcanvas
+	    Picture false getbbox
+	    /PictureHeight exch def /PictureWidth exch def
+	    pop pop
+	grestore
+
+	Picture /setpicture PictCanvas send
+	() () /setfooter Parent send
+    } def
+
+    % Open the buffer subwindows. 
+    %
+    /showbuffers { % - => -
+	/subwindows Parent send { % forall:
+	    /pin 1 index send
+	    /open exch send
+	} forall
+    } def
+
+% Utilities
+
+    % Note: The order of mapping is important to avoid flashing.  Create the
+    % buffer canvas unmapped, then don't map it until after unmapping its
+    % parent frame.
+    %
+    % The buffer canvases are not reshaped here, so their shapes must be
+    % set after this function is called.
+    %
+    /CreateBuffer { % name canvasclass - => name canvas
+	10 dict begin % localdict
+	    /Class exch def
+	    /Title 1 index def
+	    /can framebuffer /new Class send def
+
+	    /popup can framebuffer /new ClassPopupWindow send def
+	    Title 50 string cvs /setlabel popup send
+	    Title /setname popup send
+
+	    /Reshape? false /setattribute popup send
+
+	    /BufferWindows BufferWindows popup arrayappend store
+
+	    /unmap popup send
+	    /map can send
+	    can
+	end % localdict
+    } def
+
+    % Copy the drawing to the icon, scaled to fit.
+    %
+    /UpdateIcon { % - => -
+	IconImage setcanvas
+	/size DrawCanvas send
+	exch 1 exch div exch 1 exch div scale
+	1 IconSize div dup scale
+	DrawCanvas imagecanvas
+    } def
+
+% Notify handlers:
+
+    /HandleClearDrawing { % arg obj => -
+        pop pop
+	/cleardrawing self send
+    } def
+
+    /HandleShowBuffers { % arg obj => -
+        pop pop
+	/showbuffers self send
+    } def
+
+    /HandleModeSelect { % [index true] setting => -
+	exch 0 get /item 3 -1 roll send
+	cvn /setmode self send
+    } def
+    
+    /HandlePictSelect { % [index true] setting => -
+	pop
+	0 get
+	RapImages exch get
+	/setpicture self send
+	nullevent /PrimarySelection /NewSelection PictSelectorBag send
+	/setselection exch send
+    } def
+
+% Track service:
+
+    /Trackable? true def
+
+    /TrackStart { % event => false | [/label...] true | /name true
+	gsave
+	    self setcanvas
+	    dup /Coordinates get aload pop
+	grestore
+	/StartY exch def
+	/StartX exch def
+
+	% If we are in /Select mode, then refuse tracking,
+	% so that the selection service gets to take a crack at the event.
+	% If we return false from /TrackStart, and we are selectable (which we
+	% inherited from ClassSelectableRasterCanvas), then /SelectionStart
+	% will be called on the same event, and we start selecting.
+	Mode /Select eq { % ifelse:
+	    pop false % Give the selection service a crack at it
+	} { % else:
+	    /TrackMotion self send
+	    /Default true
+	} ifelse
+    } def
+
+    /TrackMotion { % event => -
+	gsave
+	    self setcanvas
+	    dup /Coordinates get aload pop
+	    /YLocation exch def
+	    /XLocation exch def
+
+	    DrawCanvas setcanvas
+	    gsave MotionProc grestore
+	    pop
+
+	    self setcanvas
+	    DrawCanvas imagecanvas
+	grestore
+    } def
+
+    % End of tracking.  Copy DrawCanvas to BackCanvas and update the icon.
+    % Note: the updating of the icon could be optimized to happen only
+    % when the window closes.  However, doing it here is simpler and the
+    % time taken isn't noticable since the user has just finished an
+    % interaction and is now admiring her picture.
+    %
+    /TrackStop { % event => -
+        /TrackMotion self send
+	KeepEdit? { % ifelse:
+	    gsave
+		BackCanvas setcanvas
+		DrawCanvas imagecanvas
+		/UpdateIcon self send
+	    grestore
+	} { /KeepEdit? unpromote } ifelse
+	/Radius unpromote
+	/NewRadius unpromote
+	/Rotation unpromote
+    } def
+
+    % Set the drawing mode.
+    %
+    /setmode { % name => -
+        /Mode 1 index def
+	{ % case:
+	    /Select	{/SelectProc /ClearSelection self send}
+	    /Scale	{/ScaleProc}
+	    /Rotate	{/RotateProc}
+	    /Transform	{/TransformProc}
+	    /Spray	{/SprayProc}
+	    /Scratch	{/ScratchProc}
+	    /Spotlight	{/SpotlightProc}
+	    /Iris	{/IrisProc}
+	    /Strobe	{/StrobeProc}
+	    /Drag	{/DragProc}
+	    /Darken	{/DarkenProc}
+	    /Brighten	{/BrightenProc}
+	    /Twist	{/TwistProc}
+	    /Warp	{/WarpProc}
+	    /Default	{/ScaleProc}
+	} case
+	load
+	/MotionProc exch def
+	/paint self send
+    } def
+
+    % Motion procs for the various modes.
+    %
+    % Each is called from the /TrackMotion routine.  The event is on the
+    % stack for examination, but it must be left on the stack at exit.
+    % Each is called in a gsave/grestore context.  See /TrackMotion for
+    % other entry conditions.
+    %
+    % In general, composition is done on DrawCanvas, which is the current
+    % canvas upon entry.  After exit, DrawCanvas is copied to the canvas
+    % on the screen.  The buffer BackCanvas contains the image as it was
+    % when tracking started.  Many of these routines will want to start
+    % with the original picture, so they will start by doing an imagecanvas
+    % of BackCanvas.  Note: composition is done in DrawCanvas then copied
+    % to the screen even when it would be possible to compose directly on
+    % the visible canvas.  This allows drawing to be done under obscurred parts
+    % of the visible canvas.
+
+    /ScratchProc { % event => event
+	StartX StartY moveto
+	XLocation YLocation lineto
+
+	10 setlinewidth
+	1 setlinecap
+	strokepath clip
+
+	PictCanvas imagecanvas
+
+	/StartX XLocation def
+	/StartY YLocation def
+    } def
+
+    /SpotlightProc { % event => event
+	BackCanvas imagecanvas
+
+	XLocation YLocation Radius 0 360 arc clip
+	PictCanvas imagecanvas
+    } def
+
+    /ScaleProc { % event => event
+	BackCanvas imagecanvas
+
+	StartX StartY XLocation YLocation points2rect rectpath
+	clip newpath
+
+	StartX StartY translate
+	XLocation StartX sub PictureWidth div		% width
+	YLocation StartY sub PictureHeight div		% width height
+	scale						%
+
+	Picture imagecanvas
+    } def
+
+    /RotateProc { % event => event
+	BackCanvas imagecanvas
+
+	StartX StartY translate
+
+	YLocation StartY sub				% h
+	XLocation StartX sub				% h w
+	2 copy 0 eq exch 0 eq and { pop pop } { % else:
+	    2 copy atan					% h w angle
+	    rotate					% h w
+
+	    % size = sqrt(width**2 + height**2)
+	    dup mul exch dup mul add sqrt		% size
+	    dup PictureWidth div exch PictureHeight div	% width height
+	    scale					%
+
+	    Picture imagecanvas
+        } ifelse
+    } def
+
+    /TransformProc { % event => event
+	BackCanvas imagecanvas
+
+	StartX StartY translate
+	[   XLocation StartX sub 60 60			% width 60 60
+	    YLocation StartY sub 0 0			% ... height 0 0
+	] concat
+
+	1 PictureWidth div 1 PictureHeight div scale
+	Picture imagecanvas
+    } def
+
+    /IrisProc { % event => event
+	/XLocation XLocation StartX sub def
+	/YLocation YLocation StartY sub def
+
+	/Radius NewRadius def
+	/NewRadius
+	    XLocation dup mul
+	    YLocation dup mul add sqrt
+	def
+
+	StartX StartY Radius 0 360 arc
+	StartX StartY NewRadius 0 360 arc 
+
+	Radius NewRadius lt { % ifelse:
+	    eoclip 
+	    PictCanvas imagecanvas
+	} { % else:
+	    eoclip 
+	    BackCanvas imagecanvas
+	} ifelse
+    } def
+
+    /SprayProc { % event => event
+        matrix currentmatrix
+	XLocation YLocation translate
+
+	newpath
+	10 { % repeat:
+	    360 random mul rotate
+	    25 random mul 0 1 0 360 arc closepath
+	} repeat
+	clip newpath
+	
+	setmatrix
+	PictCanvas imagecanvas
+    } def
+
+    /StrobeProc { % event => event
+	/Radius 30 def
+
+	XLocation YLocation Radius 0 360 arc
+	clip newpath
+
+	XLocation Radius sub
+	YLocation Radius sub translate
+
+	Radius dup add				% r
+	dup PictureWidth div			% r width
+	exch PictureHeight div			% width height
+	scale					% -
+
+	Picture imagecanvas
+    } def
+
+    /DragProc { % event => event
+	BackCanvas imagecanvas
+	StrobeProc
+    } def
+
+    /TwistProc { % event => event
+	20 dict begin % localdict
+	    /size self send /h exch def /w exch def
+	    /cx w 2 div def  /cy h 2 div def
+	    /dx0 StartX cx sub def
+	    /dy0 StartY cy sub def
+	    /ang0
+	      dx0 0 eq dy0 0 eq and { 0 } { dy0 dx0 atan } ifelse
+	    def
+	    /dx1 XLocation cx sub def
+	    /dy1 YLocation cy sub def
+	    /ang1
+	      dx1 0 eq dy1 0 eq and { 0 } { dy1 dx1 atan } ifelse
+	    def
+	    /dang ang1 ang0 sub def
+	    gsave
+		cx cy translate
+		0 0 w h min 2 div 0 360 arc closepath clip newpath
+		dang rotate
+		cx neg cy neg translate
+		BackCanvas imagecanvas
+	    grestore
+	end % localdict
+    } def
+
+    /DarkenProc { % event => event
+	BackCanvas imagecanvas
+
+	/Radius 30 def
+
+	gsave
+	    3D? {
+		XLocation YLocation Radius 0 360 arc
+		clip newpath
+		{dup mul} settransfer
+		BackCanvas imagecanvas
+	    } {
+		0 setgray
+		Gray12Stipple
+		XLocation Radius sub YLocation Radius sub
+		Radius dup add dup
+		{ovalpath} StipplePath
+	    } ifelse
+	grestore
+    } def
+
+    /BrightenProc { % event => event
+	BackCanvas imagecanvas
+
+	/Radius 30 def
+
+	gsave
+	    3D? {
+		XLocation YLocation Radius 0 360 arc
+		clip newpath
+		{sqrt} settransfer
+		BackCanvas imagecanvas
+	    } {
+		1 setgray
+		Gray12Stipple
+		XLocation Radius sub YLocation Radius sub
+		Radius dup add dup
+		{ovalpath} StipplePath
+	    } ifelse
+	grestore
+    } def
+
+    /WarpProc { % event => event
+        20 dict begin % localdict
+	    /size self send /h exch def /w exch def
+	    /sl StartX def  /sr w sl sub def
+	    /sb StartY def  /st h sb sub def
+	    /dl XLocation def  /dr w dl sub def
+	    /db YLocation def  /dt h db sub def
+
+	    sl 0 ne sb 0 ne and { % if:
+		gsave
+		    0 0 dl db  rectpath  clip newpath
+		    dl sl div  db sb div  scale
+		    BackCanvas imagecanvas
+		grestore
+	    } if
+	    sr 0 ne sb 0 ne and { % if:
+		gsave
+		    dl 0 dr db  rectpath  clip newpath
+		    dl 0 translate
+		    dr sr div  db sb div  scale
+		    sl neg 0 translate
+		    BackCanvas imagecanvas
+		grestore
+	    } if
+	    sl 0 ne st 0 ne and { % if:
+		gsave
+		    0 db dl dt  rectpath  clip newpath
+		    0 db translate
+		    dl sl div  dt st div  scale
+		    0 sb neg translate
+		    BackCanvas imagecanvas
+		grestore
+	    } if
+	    sr 0 ne st 0 ne and { % if:
+		gsave
+		    dl db dr dt  rectpath  clip newpath
+		    dl db translate
+		    dr sr div  dt st div  scale
+		    sl neg sb neg translate
+		    BackCanvas imagecanvas
+		grestore
+	    } if
+        end % localdict
+    } def
+
+    /SelectProc { % event => event
+       BackCanvas imagecanvas
+
+        XLocation YLocation
+        Selection? { % ifelse:
+	    SelectionX SelectionY xysub
+	    /SelectionHeight exch def /SelectionWidth exch def
+	} { % else:
+	    /Selection? true promote
+	    /SelectionY exch def /SelectionX exch def
+	    /SelectionWidth unpromote /SelectionHeight unpromote
+	} ifelse
+        /KeepEdit? false def
+	gsave
+	    0 0 /size self send rectpath
+	    SelectionBBox rectpath
+	    eoclip % save the clip path
+	    {.5 mul} settransfer
+	    BackCanvas imagecanvas
+	    initclip
+	    .5 setgray 2 setlinewidth stroke % consume the clip path
+	grestore
+    } def
+
+% Selections:
+
+    /SelectionBBox { % - => x y w h
+        SelectionX SelectionY SelectionWidth SelectionHeight
+	rect2points points2rect
+    } def
+
+    /MakeSelectionCanvas { % - => can
+	10 dict begin gsave
+	    SelectionBBox
+	    /Height exch 1 max def /Width exch 1 max def
+	    /Y exch def /X exch def
+	    Width Height
+	    //is_v2? {
+		Color {8} {1} ifelse
+		[] null
+		buildimage
+	    } {
+		Visual /Depth get
+		[] null
+		Colormap buildimage
+	    } ifelse
+	    dup setcanvas
+	    1 Width div 1 Height div scale
+	    X neg Y neg translate
+	    BackCanvas imagecanvas
+	end grestore
+    } def
+
+    /ClearSelection { % - => -
+        /ClearSelection super send
+        /SelectionWidth unpromote
+	/SelectionHeight unpromote
+	/Selection? unpromote
+	/paint self send
+    } def
+
+    /SelectionStart { % event selection => bool
+	pop /TrackMotion self send
+	true
+    } def
+
+    /SelectionAdjust { % event selection => -
+        pop /TrackMotion self send
+    } def
+
+    /SelectionStop { % event selection => -
+        pop /TrackStop self send
+    } def
+
+    /SelectionContext { % event selection => name
+        pop
+	Selection? {
+	    begin gsave self setcanvas XLocation YLocation grestore end
+	    SelectionBBox pointinrect?
+	} { pop false } ifelse
+	{ /SelectedObject } { /UnselectedObject } ifelse
+    } def
+
+    /HandleCanvasReception { % event canvas => -
+	gsave
+	    exch pop
+	    Selection? { /ClearSelection self send } if
+	    DrawCanvas setcanvas
+	    /size self send scale
+	    imagecanvas
+	    BackCanvas setcanvas
+	    DrawCanvas imagecanvas
+	    /UpdateIcon self send
+	    /paint self send
+	grestore
+    } def
+
+classend def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ClassPictSelectorBag
+%
+% A bag for picture selector settings, supporting selection and drag'n'drop.
+%
+/ClassPictSelectorBag [ClassSelectableRasterCanvas ClassBorderBag] []
+classbegin
+
+    /HandleCanvasReception { % event can => -
+	{ % send to PictSelector:
+	    gsave Parent setcanvas			% event canvas
+		exch begin				% canvas
+		    XLocation YLocation			% canvas
+		end
+	        /pointtoitem self send { % ifelse:	% canvas i
+		    [1 index] /setvalue self send
+		    RapImages 1 index			% canvas i [images] i
+		    3 index put				% canvas i 
+		    exch MakeChoiceCanvas exch		% can i
+		    2 copy ChoiceImages 3 1 roll	% can i CI can i
+		    exch put				% can i
+		    dup 3 -1 roll			% i i can
+		    /replaceitem self send		% i
+		    /paint self send
+		    /Notifier				% i /Notifier
+		    /ExecuteSettingNotify self send	%
+		} { % else:				% canvas
+		    pop					%
+		} ifelse
+	    grestore
+	} PictSelector send
+    } def
+
+    % If the click down is over the selected setting, then refuse tracking,
+    % so that the selection service gets to take a crack at the event.
+    % If we return false from /TrackStart, and we are selectable (which we
+    % inherited from ClassSelectableRasterCanvas), then /SelectionStart
+    % will be called on the same event, and we start dragging the selection.
+    % 
+    /TrackStart { % event => false | /Default true
+	{ % send to PictSelector:
+	    gsave Parent setcanvas
+		dup begin
+		    XLocation YLocation			% event x y
+		end
+	    grestore
+	    /pointtoitem self send not { null } if	% event index|null
+	    /value self send 0 get eq			% event same?
+	} PictSelector send				% event same?
+	{ % ifelse:
+	    pop false					% false
+	} { % else:
+	    /TrackStart super send			% false | /Default true
+	} ifelse
+    } def
+
+    /MakeSelectionCanvas { % - => can
+        RapImages /value PictSelector send 0 get get
+    } def
+
+classend def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ClassRasterSelection
+%
+% A selection for a raster image canvas.
+%
+/ClassRasterSelection ClassSelection []
+classbegin
+    /CanRenderAs 10 dict dup begin
+        /Canvas { % oldval => newval
+	    pop /RenderSelectionCanvas Holder send
+	} def
+    end def
+
+    /Deselect { % - => -
+	/ClearSelection Holder send
+    } def
+
+    /SingleRequest { % oldval key => newval
+	CanRenderAs 1 index known {
+	    CanRenderAs exch get exec
+	} {
+	    pop pop /UnknownRequest
+	} ifelse
+    } def
+
+classend def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ClassBufferCanvas
+%
+% This canvas is used as an off screen buffer. (But it is sometimes
+% mapped on screen in a popup window frame for instructional purposes.)
+%
+/ClassBufferCanvas ClassCanvas []
+classbegin
+
+    /Transparent false def
+    /Retained true def
+    /Mapped false def
+
+    /Paint nullproc def
+
+    /minsize { % - => w h
+        /size self send
+    } def
+
+classend def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ClassPictCanvas
+%
+% This canvas holds a scaled copy of the source picture.
+%
+/ClassPictCanvas ClassBufferCanvas [/Picture]
+classbegin
+
+    /setpicture { % image => -
+	/Picture exch store
+	Picture self CopyCanvas
+    } def
+
+    % Since the canvas is retained, this only gets called when there
+    % is damage, e.g. when the canvas is reshaped.  Reset the picture,
+    % causing it to rescale to the current canvas size.
+    %
+    /Paint { % - => -
+	Picture self CopyCanvas
+    } def
+
+classend def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Utilities
+%
+
+shareddict begin
+
+    /CanvasCache growabledict ?def
+
+    /clearcanvascache { % - => -
+        CanvasCache cleanoutdict
+    } ?def
+
+    /readcanvascache { % name => can|null
+	CanvasCache 1 index known {			% name
+	    CanvasCache exch get			% can
+	} {						% name
+	    dup { readcanvas } stopped {		% name name
+		pop pop null				% null
+	    } {	    					% name can
+	        exch 1 index				% can name can
+		putcanvascache				% can
+	    } ifelse					% can|null
+	} ifelse
+    } ?def
+
+    /putcanvascache { % name canvas => -
+        CanvasCache 3 1 roll put
+    } ?def
+
+    /uncachecanvas { % canvas => -
+	CanvasCache exch dictkey {
+	    uncachenamedcanvas
+	} if
+    } ?def
+
+    /uncachenamedcanvas { % canvas => -
+        CanvasCache exch undef
+    } ?def
+
+end % shareddict
+
+% The images are stored in an array, Images.  Another array, ChoiceImages,
+% contains scaled-down versions of the images for use in the exclusive
+% setting control.
+
+% Read an image canvas from the Open Windows demo directory.
+%
+/ReadDemoCanvas { % name => canvas
+    (OPENWINHOME) getenv
+    //is_v2? { (/demo/images/) } { (/share/images/raster/) } ifelse
+    append exch append
+    (.im8) append /readcanvascache shareddict send
+} def
+
+% Make a small image canvas suitable for use as a DisplayItem for a control.
+%
+/MakeChoiceCanvas { % image => canvas
+    40 32
+    //is_v2? {
+	RapCanvas /Color get {8} {1} ifelse
+	[] null
+	buildimage
+    } {
+	RapCanvas /Visual get /Depth get
+	[] null
+	RapCanvas /Colormap get buildimage
+    } ifelse
+    dup 3 1 roll CopyCanvas
+} def
+
+% Copy the image of one canvas onto another.
+% Works with source and destination canvases of any default scale.
+%
+/CopyCanvas { % Source Dest => -
+    gsave 20 dict begin % localdict
+
+	/Dest exch def /Source exch def
+
+	% Measure the source canvas
+	Source setcanvas
+	Source false getbbox
+	/SourceH exch def /SourceW exch def pop pop
+
+	% Measure the destination canvas
+	Dest setcanvas
+	Dest false getbbox
+	/DestH exch def /DestW exch def pop pop
+
+	% Scale to map the source onto the destination
+	DestW SourceW div  DestH SourceH div
+	scale
+
+	% Copy the source image onto the destination
+	Source imagecanvas
+
+    grestore end % localdict
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Run the application
+
+
+% The image array.
+%
+%
+/RapImages [
+    (mandrill) ReadDemoCanvas
+    is_v2? { (mona-smile) } { (monasmile) } ifelse ReadDemoCanvas
+    (bf) ReadDemoCanvas
+    (saturn) ReadDemoCanvas
+    (vla) ReadDemoCanvas
+    (taj) ReadDemoCanvas
+    (joshua) ReadDemoCanvas
+    (stormy) ReadDemoCanvas
+] def
+
+/BufferWindows nullarray def
+
+/RapCanvas framebuffer /new ClassRapCanvas send def
+/Window RapCanvas framebuffer /new ClassBaseWindow send def
+
+/ChoiceImages [
+    RapImages {MakeChoiceCanvas} forall
+] def
+
+RapImages 0 get /setpicture RapCanvas send
+
+% Drawing mode selector
+
+/ModeSelector /Grid framebuffer /new ClassSettings send def
+[   (Select)
+    (Scale) (Rotate) (Transform)
+    (Spray) (Scratch)
+    (Spotlight) (Iris)
+    (Strobe) (Drag)
+    (Darken) (Brighten)
+    (Twist) (Warp)
+] /setitemlist ModeSelector send
+[true 14 1] /setlayoutparameters ModeSelector send
+[1] /setvalue ModeSelector send
+/HandleModeSelect /setnotifier ModeSelector send
+RapCanvas /settarget ModeSelector send
+
+/West ModeSelector /addclient Window send
+
+% Picture selector
+
+/PictSelectorBag framebuffer /new ClassPictSelectorBag send def
+
+/PictSelector /Grid framebuffer /new ClassSettings send def
+ChoiceImages /setitemlist PictSelector send
+[true ChoiceImages length 1] /setlayoutparameters PictSelector send
+[0] /setvalue PictSelector send
+/HandlePictSelect /setnotifier PictSelector send
+RapCanvas /settarget PictSelector send
+
+/Center PictSelector /addclient PictSelectorBag send
+/East PictSelectorBag /addclient Window send
+
+% Buttons
+
+/buttons /Grid framebuffer /new ClassButtons send def
+[   [(Clear)		/HandleClearDrawing]
+    [(Show Buffers)	/HandleShowBuffers]
+] /setitemlist buttons send
+RapCanvas /settarget buttons send
+
+[true 1 2] /setlayoutparameters buttons send
+10 0 /setgaps buttons send
+/South buttons /addclient Window send
+
+% Base Window
+
+(RasterRap) /setlabel Window send
+/IconImage RapCanvas send /seticonimage Window send
+
+% Initialization
+
+/Scale /setmode RapCanvas send
+5 5 5 5 /setgaps Window send
+/place Window send
+
+BufferWindows {
+    /place 1 index send
+    /addsubwindow Window send
+} forall
+/BufferWindows null def
+
+/mgr /new ClassEventMgr send def
+mgr /activate Window send
+/map Window send
+
+newprocessgroup currentfile closefile
+%EOF

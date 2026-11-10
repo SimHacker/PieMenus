@@ -1,0 +1,503 @@
+% ------------------------------------ %
+% Extensions
+
+systemdict begin
+
+  /getmenuaction { % index => action
+    dup null ne {
+	MenuActions 1 index MenuActions length 1 sub min get
+% Execute actions that are names! (This is so we can have references
+% to submenus (executable names) as actions, as opposed to having the
+% submenu object dict itsself! We can also have references to functions
+% that compute and return the menu action! (A menu or function.))
+	dup type /nametype eq { exec } if
+    } {nullproc} ifelse
+    exch pop
+  } def
+
+
+% ------------------------------------ %
+% PieMenu
+systemdict /PieMenu known not {
+  (NeWS/piemenu.ps) LoadFile pop
+} if
+
+
+
+% ------------------------------------ %
+% ColorPie
+
+/ColorPie PieMenu
+dictbegin
+  /LabelMinRadius 60 def
+  /NumbRadius 25 def
+  /Hue 0 def
+  /Saturation 1 def
+  /Brightness 1 def
+  /Hues 20 def
+  /HueRot null def
+  /HueStep null def
+  /SelectClientColor null def
+  /RetainCanvas? false def
+dictend
+classbegin
+  /new { % - => obj
+    [() {}]
+    /new super send
+    begin
+      /SelectClientColor exch def
+      currentdict
+    end
+  } def
+
+  /getmenuaction {
+    {select-color}
+  } def
+
+  /PaintMenuItems {
+    MenuGSave
+      PieRadius dup translate
+
+      /HueStep 1 Hues div def
+      /HueRot 360 HueStep mul def
+
+      gsave
+        newpath
+        0 0 NumbRadius 0 360 arc
+	closepath
+	0 0 PieRadius Border sub 0 360 arc 
+	closepath
+ 	eoclip
+	HueRot -2 div rotate
+        0
+        Hues {
+	  dup 1 Brightness sethsbcolor
+          newpath
+	  0 0 moveto
+          0 0 PieRadius HueRot -2 div dup neg arc
+ 	  fill
+	  HueRot rotate
+	  HueStep add
+        } repeat
+       pop
+      grestore
+    grestore
+  } def
+
+  /cvfixed {
+    16384 mul floor cvi -14 bitshift
+  } def
+
+  /SetMenuValue { % x y => - (Sets /MenuValue)
+        /PieDistance
+	  2 index cvr dup mul 2 index cvr dup mul add sqrt def
+	exch atan /PieDirection exch def
+	/Hue PieDirection 360 div def
+ 	/Saturation
+	  PieDistance PieRadius min NumbRadius sub
+	  PieRadius NumbRadius sub div
+	  1.3 mul .3 sub 0 max
+	def
+	/MenuValue
+	  PieDistance NumbRadius le
+	  { null }
+	  { Hue cvfixed Saturation cvfixed Brightness cvfixed hsbcolor } ifelse
+	def
+    } def
+
+    /PaintMenuValue { % - => - (Hilite current item, un-hilite prev one.)
+	MenuValue        PaintSlice
+	/PaintedValue	 MenuValue store
+    } def
+
+  /showat {
+    /MenuValue null def
+    /showat super send
+  } def
+
+  /PaintSlice { % slice => -
+    MenuGSave
+      pop
+      PieRadius dup translate
+      newpath
+      MenuValue null eq {
+        0 0 NumbRadius 0 360 arc
+        MenuFillColor setcolor
+        fill
+      } {
+        0 0 NumbRadius Border sub 0 360 arc
+        MenuValue setcolor
+        fill
+        0 0 NumbRadius 0 360 arc
+        0 0 NumbRadius Border sub 0 360 arc
+	MenuBorderColor contrastswithcurrent 
+	MenuBorderColor MenuFillColor ifelse
+	setcolor
+	eofill
+      } ifelse
+    grestore
+  } def
+
+  /select-color {
+    MenuValue null ne {
+      SelectClientColor
+    } if
+  } def
+
+classend def
+
+
+
+% ------------------------------------ %
+% ParamPieMenu
+
+/ParamPieMenu LayeredPieMenu
+dictbegin
+  /SliceWedges false def
+  /HiLiteWithArrow? false def
+  /PrinterMatch? false def
+  /ArgBorder 2 def
+dictend
+classbegin
+
+  /new {
+    /new super send begin
+      MenuArgs length MenuKeys length lt {
+	  /MenuArgs [ % pad out args w/ last arg
+	      MenuArgs aload pop
+	      MenuKeys length MenuArgs length sub {dup} repeat
+	  ] def
+      } if
+      currentdict
+    end
+  } def
+
+  /MenuGSave {
+    /MenuGSave super send
+    PrinterMatch? setprintermatch
+  } def
+
+  /DragProc {
+    ChildMenu null eq {
+      MenuGSave
+        PieRadius dup translate
+        CurrentEvent begin
+          XLocation DeltaX add
+          YLocation DeltaY add
+        end
+        SetMenuValue
+
+        MenuValue PaintedValue ne {
+          PaintMenuValue
+        } if
+        getmenuarg /PaintedArg load ne {
+          PaintMenuArg
+        } if
+      grestore
+    } if
+  } def
+
+  /DamageProc {
+    MenuGSave
+      damagepath clipcanvas
+      /paint self send
+      PaintedValue PaintSlice
+      /PaintedArg load PaintArg
+      newpath clipcanvas
+    grestore
+  } def
+
+  /PaintMenuArg {
+    /PaintedArg load EraseArg
+    getmenuarg PaintArg
+    /PaintedArg getmenuarg store
+  } def
+
+  /EraseArg { % thing => -
+    dup null eq {
+      MenuGSave
+	pop
+	PieRadius dup translate
+	MenuFillColor setcolor
+	0 0 LabelRadius Gap sub 0 360 arc
+	fill
+      grestore
+    } {
+      MenuGSave
+	PieRadius dup translate
+	MenuFillColor setcolor
+        ThingSize
+        2 copy
+	-.5 mul exch -.5 mul exch
+	4 -2 roll
+	ArgBorder neg 5 1 roll insetrect % Some extra padding...
+	rectpath fill
+      grestore
+    } ifelse
+  } def
+
+  /PaintArg { % thing => -
+    dup null eq {
+      MenuGSave
+	pop
+	PieRadius dup translate
+	MenuBorderColor setcolor
+	MenuItems {
+	  begin
+	    gsave
+	      newpath
+	      ang PieSliceWidth 2 div sub rotate
+	      NumbRadius 0 moveto
+	      LabelRadius Gap sub 1 sub 0 lineto
+              MenuBorderColor setcolor
+	      stroke
+	    grestore
+	  end
+	} forall
+      grestore
+    } {
+      MenuGSave
+	PieRadius dup translate
+	MenuTextColor setcolor
+        dup ThingSize
+	-.5 mul exch -.5 mul exch
+	ShowThing
+      grestore
+    } ifelse
+  } def
+
+  /showat {
+    PaintedArg null ne PaintedValue null ne and
+    MenuCanvas null ne and MenuWidth null ne and {
+      MenuGSave
+        /PaintedArg load EraseArg
+        /PaintedArg null store
+	null PaintArg
+      grestore
+    } if
+    /showat super send
+  } def
+
+  /SetMenuValue { % x y => -
+    /SetMenuValue super send
+    /MenuArg
+      MenuValue null eq
+      {null true}
+      {MenuArgs MenuValue get dup length 0 eq} ifelse {
+        pop null
+      } {
+        PieDistance PieRadius 1 sub min NumbRadius sub
+	PieRadius NumbRadius sub div 1 index length mul floor
+	get
+      } ifelse
+    def
+  } def
+
+  /getmenuarg {
+    /MenuArg load
+  } def
+
+classend def
+
+% ------------------------------------------------------------------------ %
+% Menu definitions
+
+  /makeFontThings { % [points] family => things ...
+    10 dict begin
+      /font exch findfont def
+      { /point exch def
+	[ point (% point) sprintf
+	  font point scalefont ]
+      } forall
+    end
+  } def
+
+  /firstword {
+    ( ) search {
+      exch pop exch pop
+    } if
+  } def
+
+/piemenu:font [
+  [(Times-Roman) /Times-Roman findfont 18 scalefont]	/piemenu:times-roman-font cvx
+  [(Screen) /Screen findfont 18 scalefont]		/piemenu:screen-font cvx
+  [(More) /Times-Italic findfont 18 scalefont]	/piemenu:more-font cvx
+  [(Helvetica) /Helvetica findfont 18 scalefont]	/piemenu:helvetica-font cvx
+  [(Courier) /Courier findfont 18 scalefont]		/piemenu:courier-font cvx
+  [(Other) /Times-Italic findfont 18 scalefont]	/piemenu:other-font cvx
+] /new PieMenu send def
+piemenu:font /ID /piemenu:font put
+
+
+/piemenu:times-roman-font [
+  [ [9 10 12 14 16 18 19 20 23 24 26 28 31 32 36 41 46 51 56 62 72 92]
+    /Times-Roman makeFontThings ]		% Times-Roman
+  [ [10 12 14 18 24 26 29 32 33 38 43 47 53 57 67 86]
+    /Times-Italic makeFontThings ]
+  [ [10 12 14 18 24 32] /Times-BoldItalic makeFontThings ]
+  [ [10 12 14 18 24 25 27 30 32 34 39 44 49 54 59 69 89]
+    /Times-Bold makeFontThings ]
+] [
+  [(Times-Roman) /Times-Roman findfont 18 scalefont]
+  [(Italic) /Times-Italic findfont 18 scalefont]
+  [(BoldItalic) /Times-BoldItalic findfont 18 scalefont]
+  [(Bold) /Times-Bold findfont 18 scalefont]
+] [
+  { {/Times-Roman /Times-Italic /Times-BoldItalic /Times-Bold } 
+    MenuValue get
+    getmenuarg 0 get firstword cvi
+    /font-menu-callback ThisWindow send }
+] /new ParamPieMenu send def
+piemenu:times-roman-font /ID /piemenu:times-roman-font put
+piemenu:times-roman-font /PieInitialAngle 135 put
+piemenu:times-roman-font /LabelMinRadius 110 put
+piemenu:times-roman-font /PrinterMatch? true put
+piemenu:times-roman-font /ArgBorder 8 put
+piemenu:times-roman-font /RetainCanvas? false put
+
+/piemenu:screen-font [
+  [ [7 11 13 15] /Screen makeFontThings ]	% Screen
+  [ [13 15] /Screen-Bold makeFontThings ]	% Screen-Bold
+] [
+  [(Screen) /Screen findfont 15 scalefont]
+  [(Bold) /Screen-Bold findfont 15 scalefont]
+] [
+  { {/Screen /Screen-Bold} MenuValue get
+    getmenuarg 0 get firstword cvi
+    /font-menu-callback ThisWindow send }
+] /new ParamPieMenu send def
+piemenu:screen-font /ID /piemenu:screen-font put
+piemenu:screen-font /LabelMinRadius 30 put
+piemenu:screen-font /RetainCanvas? false put
+
+/piemenu:more-font [
+  [ [9 10 12 18 30 35] /Boston makeFontThings ]		% Boston
+  [ [11] /Cyrillic makeFontThings ]				% Cyrillic
+] [
+  [(Boston) /Boston findfont 18 scalefont]
+  [(Cyrillic) /Times-Roman findfont 18 scalefont]
+] [
+  { {/Boston /Cyrillic} MenuValue get
+    getmenuarg 0 get firstword cvi
+    /font-menu-callback ThisWindow send }
+] /new ParamPieMenu send def
+piemenu:more-font /ID /piemenu:more-font put
+piemenu:more-font /LabelMinRadius 30 put
+piemenu:more-font /RetainCanvas? false put
+
+/piemenu:helvetica-font [
+  [ [7 9 10 12 14 18 24 32] /Helvetica makeFontThings ]		% Helvetica
+  [ [10 12 14 18 24 32] /Helvetica-Oblique makeFontThings ]		% Helvetica-Oblique
+  [ [10 12 14 18 24 32] /Helvetica-BoldOblique makeFontThings ]	% Helvetica-BoldOblique
+  [ [10 12 14 18 24 32] /Helvetica-Bold makeFontThings ]		% Helvetica-Bold
+] [
+  [(Helvetica) /Helvetica findfont 18 scalefont]
+  [(Oblique) /Helvetica-Oblique findfont 18 scalefont]
+  [(BoldOblique) /Helvetica-BoldOblique findfont 18 scalefont]
+  [(Bold) /Helvetica-Bold findfont 18 scalefont]
+] [
+  { {/Helvetica /Helvetica-Oblique /Helvetica-BoldOblique /Helvetica-Bold}
+    MenuValue get
+    getmenuarg 0 get firstword cvi
+    /font-menu-callback ThisWindow send }
+] /new ParamPieMenu send def
+piemenu:helvetica-font /ID /piemenu:helvetica-font put
+piemenu:helvetica-font /PieInitialAngle 135 put
+piemenu:helvetica-font /LabelMinRadius 60 put
+piemenu:helvetica-font /PrinterMatch? true put
+piemenu:helvetica-font /ArgBorder 6 put
+piemenu:helvetica-font /RetainCanvas? false put
+
+/piemenu:courier-font [
+  [ [1 6 7 8 9 10 12 14 16 18 24 32] /Courier makeFontThings ]      % Courier
+  [ [10 12 14 16 18 24 32] /Courier-Oblique makeFontThings ]	% Courier-Oblique
+  [ [10 12 14 16 18 24 32] /Courier-BoldOblique makeFontThings ]	% Courier-BoldOblique
+  [ [10 12 14 16 18 24 32] /Courier-Bold makeFontThings ]		% Courier-Bold
+] [
+  [(Courier) /Courier findfont 16 scalefont]
+  [(Oblique) /Courier-Oblique findfont 16 scalefont]
+  [(BoldOblique) /Courier-BoldOblique findfont 16 scalefont]
+  [(Bold) /Courier-Bold findfont 16 scalefont]
+] [
+  { {/Courier /Courier-Oblique /Courier-BoldOblique /Courier-Bold}
+    MenuValue get
+    getmenuarg 0 get firstword cvi
+    /font-menu-callback ThisWindow send }
+] /new ParamPieMenu send def
+piemenu:courier-font /ID /piemenu:courier-font put
+piemenu:courier-font /PieInitialAngle 135 put
+piemenu:courier-font /LabelMinRadius 40 put
+piemenu:courier-font /RetainCanvas? false put
+
+/piemenu:other-font [
+  [ /eye_bld1 /eye_bld2 /eye_bld3 /eye4 /eye3 /eye2 /eye1]	% Icon
+  [ [10 12 14 18 24 32] /Symbol makeFontThings ]		% Symbol
+] [
+  [(Icon) /Times-Roman findfont 18 scalefont]
+  [(Symbol) /Times-Roman findfont 18 scalefont]
+] [
+  { /Icon 64 /font-menu-callback ThisWindow send }		% Icon
+  { /Symbol
+    getmenuarg 0 get firstword cvi
+    /font-menu-callback ThisWindow send }
+] /new ParamPieMenu send def
+piemenu:other-font /ID /piemenu:other-font put
+piemenu:other-font /LabelMinRadius 40 put
+
+/piemenu:color-wheel {
+  ColorName MenuValue /color-menu-callback ThisWindow send 
+} /new ColorPie send def
+
+/do-piemenu:color-wheel {
+  MenuValue
+  framebuffer /Color get {
+    piemenu:color-wheel
+    dup /ColorName
+    4 -1 roll
+    put
+    dup /Brightness
+    /value getmenuarg exec
+    put
+  } {
+    [ exch /value getmenuarg exec dup dup rgbcolor 
+      /color-menu-callback /ThisWindow cvx /send cvx ] cvx
+  } ifelse
+} def
+
+/grayThing { % gray => thing
+  exch {
+    /size { pop NumbRadius dup add dup }
+    /paint {
+      gsave
+	newpath
+	0 0 NumbRadius Border sub 0 360 arc
+	setgray
+	fill
+	0 0 NumbRadius 0 360 arc
+	0 0 NumbRadius Border sub 0 360 arc
+	MenuBorderColor setcolor
+	eofill
+      grestore }
+    /value { }
+  } case
+} def
+
+/piemenu:color [
+  [ 0  1 32 div  1 { [ exch /grayThing cvx ] cvx } for ]
+] [
+  (Space) /do-piemenu:color-wheel cvx
+  (HiLite Text) /do-piemenu:color-wheel cvx
+  (HiLite Space) /do-piemenu:color-wheel cvx
+  (Text) /do-piemenu:color-wheel cvx
+] /new ParamPieMenu send def
+
+piemenu:color /NumbRadius 25 put
+piemenu:color /LabelMinRadius 45 put
+
+% /font-menu-callback { % Family Point => -
+% } def
+% 
+% /color-menu-callback { % name color => -
+% } def
+
+end % systemdict

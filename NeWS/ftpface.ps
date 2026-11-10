@@ -1,0 +1,305 @@
+%!
+%
+% NeWS program to suck faces from uunet's ftp server.
+% Don Hopkins
+% Lots of code Stoken from Stan Switzer
+%
+% Copyright (C) 1989 by Don Hopkins. All rights reserved.
+% This program is provided for unrestricted use, provided that this 
+% copyright message is preserved. There is no warranty, and no author 
+% or distributer accepts responsibility for any damage caused by this 
+% program. 
+%
+
+% USER anonymous
+% PASS suck_face
+% CWD <FaceDir>/<Place>
+% TYPE I
+% PORT 128,8,128,49,4,238
+% RETR <Person>[.Z]
+% QUIT
+
+systemdict begin
+
+/GetFace { % Host FaceDir Place Person => can / null
+  { 40 dict begin
+      /Person exch def % File name of person's face
+      /Place exch def % Directory name of person's place
+      /FaceDir exch def % Ftp server's faces directory
+      /Host exch def % Ftp server's host name
+      /User (anonymous) def % Ftp server login
+      /Pass (suck_face) def % Ftp login password
+      /Cache (/tmp) def
+      Place Cache (%/%) sprintf (r) { file } errored {
+        pop (mkdir ) exch append forkunix
+	.25 60 div sleep
+      } { closefile } ifelse
+      /TmpFile Person Place Cache (%/%/%) sprintf def
+      TmpFile (r) { file } errored {
+	pop pop
+      } {
+	closefile 
+(Face file % already cached!\n) [TmpFile] dbgprintf
+	TmpFile readface
+	currentprocess killprocess
+      } ifelse
+      /Server (%socketc21.) Host append (rw)
+	{ file } errored {
+	  null
+(Can't connect to ftp server on %!\n) [Host] dbgprintf
+	  currentprocess killprocess
+	} if
+      def
+      /LocalPort Server getsocketlocaladdress
+        (;) search { exch pop exch pop } if
+	(.) search { pop pop } if
+	cvi
+      def
+      LocalPort 0 le LocalPort 65535 gt or {
+	null
+(Can't figure local socket address: %\n) 
+[Server getsocketlocaladdress] dbgprintf
+        currentprocess killprocess
+      } if
+      /R { % str => str -- read from socket
+	Server exch readline pause
+	dup { (<--- %\n) [3 index] } { (<--- EOF\n) [] } ifelse dbgprintf
+      } def
+      /W { % str => - -- write socket
+	(---> %) [2 index] dbgprintf
+	Server exch writestring Server flushfile 
+      } def
+      /SR { % (good) (bad) timeoutsec => good? true -or- false -- srch
+	/Time exch 60 div def
+	/Interest createevent dup begin
+	    /Name /DoneEvent def
+	end dup expressinterest def
+	/Bad exch def
+	/Good exch def
+	/Match1 { 
+	  anchorsearch { pop pop true } { pop false } ifelse 
+        } def
+	/Match {
+	  dup type /arraytype eq {
+	    false exch
+	    { 2 index exch Match1 { pop true exit } if
+	    } forall
+	    exch pop
+	  } {
+	    Match1
+	  } ifelse
+	} def
+	/Str 200 string def
+	/Proc { % fork
+	  { % loop
+	    Str R not { /Ugly exit } if
+	    dup Good Match { pop /Good exit } if
+	    dup Bad Match { pop /Bad exit } if
+	    pop
+	  } loop
+	  Interest createevent copy dup /Action 4 -1 roll put sendevent
+	} fork def
+	/Timer Interest createevent copy dup begin
+	  /Action /TimeOut def
+	  /TimeStamp currenttime Time add def
+	end dup sendevent def
+	awaitevent /Action get
+	dup /TimeOut eq {
+	  Proc killprocess
+	  pop /Ugly
+	} if
+	dup /Ugly eq {
+	  Timer recallevent
+	  pop false
+	} {
+	  /Good eq true
+	} ifelse
+	Interest revokeinterest
+      } def
+      /Sucker null def
+      /StartSucking {
+	/Listener null def
+	6 {
+	  /PortNumber LocalPort def
+(Trying port %...\n) [PortNumber] dbgprintf
+	  (%socketl) PortNumber 10 string cvs append (r) { file } errored {
+	    pop pop
+	  } {
+	    /Listener exch def
+	    exit
+	  } ifelse
+	} repeat
+	Listener null eq { null } {
+(Got it!\n) [] dbgprintf
+	  { Listener acceptconnection } errored { 
+	    null 
+(Drat! Doesn't accept!\n) [] dbgprintf
+	  } {
+            /Out TmpFile Uncompress? { (.Z) append } if (w) file def
+	    /Bytes 0 def
+	    /StartTime currenttime def
+	    /In exch def
+(Accepted %!\n) [In] dbgprintf
+	    { pause
+	      In 256 string readstring 
+	      exch
+	      /Bytes 1 index length Bytes add def
+	      Out exch writestring
+	      (#) [] dbgprintf
+	      not { exit } if
+	    } loop
+	    Out flushfile
+	    Out closefile In closefile
+	    ( Done.\nTransfered % bytes in % seconds (% bytes/sec).\n)
+	    [ Bytes  currenttime StartTime sub 60 mul  2 copy div
+	    ] dbgprintf
+	    /In null def /Out null def
+	    Uncompress? {
+	      (Uncompressing...\n) [] dbgprintf
+	      { 25 dict begin % fork (to keep events from being confused)
+		  /Interest createevent dup begin
+		    /Name [ /TimeOut /Done ] def
+		    /Action TmpFile def
+		  end dup expressinterest def
+		  /Timer Interest createevent copy dup begin
+		    /Name /TimeOut def
+		    /TimeStamp currenttime 30 60 div add def
+		    /Action TmpFile def
+		  end dup sendevent def
+		  TmpFile dup
+		  (rm -f % ; uncompress %.Z ; ) sprintf
+		  (echo "createevent dup begin /Name /Done def ) append
+		  (/Action \() append TmpFile append (\) def ) append
+		  (end sendevent" | psh) append forkunix
+		  awaitevent /Name get /TimeOut eq {
+		    false
+		  } {
+		    Timer recallevent
+		    true
+		  } ifelse
+	        end
+	      } fork waitprocess % => success?
+	      { TmpFile readface } { null } ifelse
+	    } {
+	      TmpFile readface
+	    } ifelse
+	  } ifelse
+	  Listener closefile
+	  /Listener null def
+	} ifelse
+      } def
+
+      /Sucker null def
+      { % only once through:
+	(220 ) (xxx ) 15 SR
+	not { null exit } if not { null exit } if
+	(USER ) User append (\n) append W
+	(331 ) [ (530 ) (500 ) ] 15 SR
+	not { null exit } if not { null exit } if
+	(PASS ) Pass append (\n) append W
+	(230 ) [ (530 ) (500 ) ] 20 SR 
+	not { null exit } if not { null exit } if 
+	Place FaceDir (CWD %/%\n) sprintf W
+	(250 ) (550 ) 20 SR
+	not { null exit } if not { null exit } if 
+	(TYPE I\n) W
+	(200 ) (500 ) 20 SR
+	not { null exit } if not { null exit } if 
+	/Uncompress? false def
+	/Sucker { StartSucking } fork def pause
+	Person (RETR %\n) sprintf W
+	(150 ) [ (550 ) ] 20 SR
+	not { null exit } if { % got it
+	  (226) (xxx ) 100 SR
+	  not { null exit } if not { null exit } if
+	} { %  try .Z
+	  /Uncompress? true def
+	  Person (RETR %.Z\n) sprintf W
+	  (150 ) [ (550 )  ] 20 SR
+	  not { null exit } if { % got it
+	    (226 ) (xxx ) 200 SR
+	    not { null exit } if not { null exit } if 
+	  } { null exit } ifelse
+	} ifelse
+	Sucker waitprocess
+	/Sucker null def
+	exit
+      } loop
+      Sucker null ne { Sucker killprocess /Sucker null def } if
+      (QUIT\n) W
+      Server closefile
+    end
+  } fork
+  5 1 roll pop pop pop pop
+  waitprocess
+} def
+
+% ----------------------------------------------------------------------
+
+% This should probably image into the area given by the "Image: x y d"
+% field, but I'm lazy.
+
+/HeaderDict 20 dict def
+HeaderDict begin
+  /PicData: {
+    cvx exec /Depth exch def /Height exch def /Width exch def
+  } def
+end % HeaderDict
+
+/readface { % filename => can
+  20 dict begin
+  mark exch { % mark filename
+    /File exch (r) file def
+    /Width 96 def /Height 128 def /Depth 8 def % Defaults
+    0
+    { File 256 string readline not { barf! } if
+      /Line exch def
+(Header: % <%>\n) [Line dup length exch] dbgprintf
+      Line length 0 eq { exit } if
+      Line token {
+	HeaderDict 1 index known {
+	  HeaderDict exch get exec
+	} {
+	  pop pop
+	} ifelse
+      } if
+    } loop
+
+    % NeWS seems to ignore the matrix...
+    Width Height Depth [Width 0 0 Height neg 0 Height] {
+      File 256 string readhexstring not { pop (Barf?! ) } if
+    } buildimage
+    /Can exch def
+    File closefile
+    /File null def
+    % ...So we have to flip it by hand.
+    Can setcanvas
+    0 Height translate  Width Height neg scale
+    Can imagecanvas
+    cleartomark
+    Can
+  } stopped { cleartomark null } if
+  end
+} def
+
+/showcan { % can => -
+  gsave
+    framebuffer setcanvas
+    gsave dup setcanvas clippath pathbbox grestore
+    scale pop pop
+    4 4 scale
+    imagecanvas
+  grestore
+} def
+
+/Host (uunet.uu.net) def
+/FaceDir (faces) def
+/f {
+  Host FaceDir 4 2 roll
+  GetFace dup null eq { pop } { showcan } ifelse
+} def
+
+end % systemdict
+
+(sun.com) (hvr)
+f

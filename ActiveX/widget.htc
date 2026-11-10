@@ -1,0 +1,185 @@
+<?XML version="1.0"?>
+
+<PACKAGE>
+
+  <?COMPONENT ERROR="TRUE" DEBUG="TRUE"?>
+
+  <COMMENT>
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Widgets for Internet Explorer 5.0 JScript.
+// Copyright (C) 2001 by Don Hopkins.
+// All rights reserved. 
+// Designed and implemented by Don Hopkins. 
+//
+// mailto:xardox@mindspring.com
+// http://www.piemenu.com
+// http://www.catalog.com/hopkins
+//
+// This program is provided for unrestricted use, 
+// provided that this copyright message is preserved. 
+// There is no warranty, and no author or distributer 
+// accepts responsibility for any damage caused by 
+// this program. 
+// 
+// This code and the ideas behind it were developed 
+// over time by Don Hopkins, thanks to the support of:
+// University of Maryland, UniPress Software, 
+// Sun Microsystems, DUX Software, Turing Institute, 
+// Carnegie Mellon University, Kaleida Labs, 
+// Interval Research Corporation, Maxis Software,
+// Electronic Arts, and Lush Creations. 
+//
+// The ideas behind pie menus are not patented or 
+// restricted in any way, and the interface and 
+// algorithms may be freely copied and improved upon. 
+// Don't bother patenting pie menus, because the idea
+// has been around for a long time in many forms,
+// and the patent will likely be easy to challenge. 
+//
+// Pie menus are the natural result of optimizing an 
+// interface with respect to Fitts' Law. 
+// It states that the larger the area and closer the 
+// distance of the target, the less time (and the fewer errors) 
+// users require to select the target. 
+// 
+// Therefore all of the pie menu targets have a large area
+// (pie slice shaped regions), each of them positioned closely 
+// around the cursor in a different direction.
+// Their directional nature enables the user to
+// move the cursor further out, in order to gain
+// more precise control over the selection (leverage).
+//
+////////////////////////////////////////////////////////////////////////
+
+
+  </COMMENT>
+
+  <COMPONENT ID="widget">
+
+    <IMPLEMENTS ID="widget" TYPE="Behavior" DEFAULT="">
+      <ATTACH FOR="window" EVENT="onload" handler="HandleOnLoad"/>
+      <ATTACH EVENT="onmousedown" handler="HandleMouseDown"/>
+      <PUBLIC>
+        <EVENT NAME="OnFooBar" ID="evFooBar"/>
+      </PUBLIC>
+    </IMPLEMENTS>
+
+    <IMPLEMENTS TYPE="Automation">
+      <PUBLIC>
+        <METHOD NAME="FooBar"/>
+
+        <PROPERTY NAME="foobar" INTERNALNAME="gFooBar"/>
+      </PUBLIC>
+    </IMPLEMENTS>
+
+    <SCRIPT LANGUAGE="JScript">
+
+
+////////////////////////////////////////////////////////////////////////
+// Attached Event Handlers
+
+
+var gDiv = null;
+var gFooBar = null;
+var gDownX = 0;
+var gDownY = 0;
+var gCurX = 0;
+var gCurY = 0;
+var gLastX = 0;
+var gLastY = 0;
+var gDeltaX = 0;
+var gDeltaY = 0;
+
+
+function InitWidget()
+{
+}
+
+
+function HandleOnLoad()
+{
+  this.style.position = "absolute";
+  this.style.border = "outset 2";
+}
+
+
+function MouseX()
+{
+//  return window.event.clientX + gDiv.document.body.scrollLeft;
+//  return parseInt(window.event.clientX + gDiv.document.body.scrollLeft - gDiv.style.pixelLeft);
+  return parseInt(window.event.screenX);
+}
+
+
+function MouseY()
+{
+//  return window.event.clientY + gDiv.document.body.scrollTop;
+//  return parseInt(window.event.clientY + gDiv.document.body.scrollTop - gDiv.style.pixelTop);
+  return parseInt(window.event.screenY);
+}
+
+
+function HandleMouseDown()
+{
+  gDiv.setCapture();
+  gDiv.onmousemove = HandleMouseMove;
+  gDiv.onmouseup = HandleMouseUp;
+  gDownX = MouseX();
+  gDownY = MouseY();
+  gLastX = gDownX;
+  gLastY = gDownY;
+  HandleMouseMove();
+}
+
+
+function HandleMouseMove()
+{
+  gCurX = MouseX();
+  gCurY = MouseY();
+  gDeltaX = gCurX - gLastX;
+  gDeltaY = gCurY - gLastY;
+  gLastX = gCurX;
+  gLastY = gCurY;
+
+  if ((gDeltaX != 0) || (gDeltaY != 0)) {
+    if (gDeltaX != 0) {
+      gDiv.style.pixelLeft += gDeltaX;
+    } // if
+    if (gDeltaY != 0) {
+      gDiv.style.pixelTop += gDeltaY;
+    } // if
+  } // if
+}
+
+
+function HandleMouseUp()
+{
+  HandleMouseMove();
+  gDiv.onmousemove = null;
+  gDiv.onmouseup = null;
+  gDiv.releaseCapture();
+}
+
+
+////////////////////////////////////////////////////////////////////////
+// Construction
+
+
+if (id == "") {
+  id = uniqueID;
+} // if
+var gDiv = eval(id);
+
+
+InitWidget();
+
+
+////////////////////////////////////////////////////////////////////////
+
+
+</SCRIPT>
+
+</HTML>

@@ -1,0 +1,257 @@
+
+* The Problem
+
+	Menus are large and complicated. They needed to be simplified
+	in order to fix several bugs and make several improvements.
+	Old popup menus draw their own borders, and have a North
+	client that contains the label and the pin. When a menu is
+	pinned, a pinned copy is made, which has significantly
+	different structure than the popup version of the menu. Pinned
+	menus don't draw their borders, and don't have a North client
+	containing the label and pin. They are wrapped in a subclass
+	of ClassPopupWindow, which handles the borders, the pin, and
+	the label. This makes it difficult to base the minimum size of
+	the menu on the width of the label. This difference in
+	structure also means that when you pin a menu, the toolkit has
+	to make a bunch of new objects for the pinned copy, and very
+	carefully position them in the same place as the popup copy,
+	and then repaint the new copy, causing the display to flicker.
+	It is unnecessary to have so many objects, with different
+	structures. Simplifying menus so that pinned and unpinned
+	menus are the same, means that you can pin a menu instantly
+	with no flicker at all by just leaving it on the screen, and
+	that it's not necessary to create a copy of the original menu
+	unless or until another copy us actually popped up.
+
+	Menu clients need notification when menus are pinned, and
+	when their defaults are set. An API is proposed.
+
+* The Model
+	The new menu implementation simplifies things (eliminating 2
+	classes, ClassMenuHeader and ClassPinnedMenu, by making
+	ClassMenu a subclass of ClassPopupWindow instead of
+	ClassBorderBag), so pinned and unpinned menus have the same
+	structure, an architectural change that makes it possible
+	to pin a menu and have it simply *stay* up on the screen, no
+	flicker or nuthin, defering creating the copy of the menu
+	until it's actually needed (if ever)! This requires no
+	api changes.
+
+	In the current menu implementation, the client has a handle on
+	the unpinned menu, and the class takes care of updating the
+	other menu, so the client doesn't have to worry or even know
+	about the pinned copy.  This is still the case, except now the
+	client's menu may or may not be pinned, so after the client
+	gives that menu to the menu service by /MenuStart, the menu
+	service must ask that menu for the menu to *actually* pop up
+	(and make the CurrentClient of the menu service). If the
+	client's menu is not pinned, then it returns itself.
+	Otherwise it realizes that it needs to appear in two places at
+	once, so it makes a copy of itself, caches that copy, and
+	returns the copy for the menu service to pop up.  So when you
+	pin the original popup menu, it can just hang around on the
+	screen like a lazy bum with nothing to do.
+
+* The Interface
+	The architectural changes to menus do not change the menu api. 
+
+	I propose two new menu client notification callbacks:
+	/MenuTrackPinned and /MenuTrackDefault
+
+	/MenuTrackPinned % menu => -
+	    This is sent from the menu service to the menu client when
+	    a menu is pinned. The argument is the menu who was pinned
+	    or unpinned. You can ask the menu what its current pinned
+	    state is.
+
+	/MenuTrackDefault % [menu0 menu1 ...] => -
+	    This is sent from the menu service to the menu client when
+	    a menu's default is set.  The argument is a list of nested
+	    pullright menus whose defaults were set, in the order they
+	    were popped up. You can ask the menus what their new
+	    defaults are, but each menu's default may or may not have
+	    changed (it might have been set to what it already was).
+	    If the array contains more than one menu, menu1 is a
+	    submenu of menu0, etc...
+
+	The argument to the /MenuTrackDefault notifier would be an
+	array of menus whose defaults were set, in the order they were
+	popped up, from the base menu to the current menu.  All the
+	menus passed to the client will be the original descendants of
+	the original base menu that the client has a handle on. This
+	will be the case even if some or all of the actually menus
+	tracking are not the ones the client knows about.  They are
+	replaced by their "known" original copies before the array is
+	handed to the client, since by then they will have had their
+	default value synchronized with the actual tracking menus.
+	Menus can be nested in a tree, and you can set the default
+	while tracking anywhere in the menu tree, so the defaults of
+	all the menus and submenus up to and including the current
+	submenu are set to their current value.
+
+	The /MenuTrackDefault notifier must pass enough information
+	that you can tell which menus were effected, what state they
+	are in, and where they are in the tree.  So it passes the
+	array of the menus themselves, in the order popped up. It
+	doesn't need to pass item indices, since you can forall over
+	the array asking each menu what its current default is, to
+	find out the item index of the each submenu.  On the other
+	hand, /MenuTrackDefault could pass just the base menu, and you
+	could climb down the menu tree to find the leaf default, but
+	then you wouldn't be able to distinguish between setting the
+	default to a leaf n levels down, from setting the default of
+	the top level menu to a submenu who already has a default set
+	that leads down to a nth level leaf. 
+
+	(I've talked it over with Bob, and he pointed out that this
+	*is* however a pretty drastic *user* interface change, if the
+	mental paradigm you're expecting to relate to is a universe in
+	which objects poked by push pins temporarily pop out of
+	existence, eventually reappearing in the general vicinity but
+	with subtly different visual characteristics, which is the
+	paradigm he is used to living with.  I countered that he might
+	be taking this What You See Is What You Get stuff a bit too
+	seriously, since what you see is 100% bullshit, but at least
+	that's consistant with what you get.  But then Warren walked
+	in and asked what all the white noise was about, and we had to
+	take a break from the heavy work to be friendly and sociable
+	for a while.)
+
+* The Impact
+
+	The client still has a handle on only one of the menus, and the
+	other menu (if it exists) is automatically kept up to date.
+	Before, the menu that the client had a handle on was never
+	pinned. Now it may or may not be pinned. Pinned menus are added
+	to the invoker's base window as subwindows -- that is the only
+	legal way for the client to get a handle on the other menus.
+
+	These changes might help to solve some problems of sharing
+	pinned menus. A /MenuTrackPinned notifier would also help (whose
+	argument is the menu that the client has ahold of). And a
+	/MenuTrackDefault notifier would help solve problems such as
+	synchronizing shared menu defaults across framebuffers,
+	associating shared menu defaults with individual windows, or
+	informing the client about changes to menu defaults, so it
+	could save and restore menu defaults across sessions, or
+	whatever.
+
+	Unresolved issues:
+
+	/setinvoker is confusing.
+	    What *should* be happening with /SecondaryInvoker?
+
+	/deactivate is being called when unpinning menu.
+	    Because ClassMenu defined /eventmgr as follows:
+
+ClassMenu:
+    % We define the local event manager for a menu to be the local event
+    % manager of whatever its invoker is.
+    %
+    /eventmgr { % - => process
+	Invoker dup null eq {
+	    pop /eventmgr super send
+	} {
+	    /eventmgr exch send
+	} ifelse
+    } def
+
+	When we unpin the menu, its superwindow (invoker) executes the
+	following with the pinned menu as an argument:
+
+ClassWindow:
+    % Remove this subwindow.  Deactivate the subwindow if it shares
+    % the superwindow's eventmgr.
+    %
+    /removesubwindow { % oldsubwindow => -
+	SubWindows 1 index arrayindex {			% subwin i
+	    SubWindows exch arraydelete			% subwin array
+	    /SubWindows 1 index def			% subwin array
+	    length 0 eq {/SubWindows unpromote} if	% subwin
+	% REMIND: why not simply always deactivate?
+	    /eventmgr 1 index send /eventmgr self send eq {
+		/deactivate 1 index send
+	    } if					% subwin
+
+	    dup /OpenedBy undef				% subwin
+	    /SuperWindow undef				% -
+	} {pop} ifelse
+    } def
+
+	So the window finds the /eventmgr of the menu is equal to its
+	own /eventmgr, so it incorrectly deactivates the menu (whose
+	eventmgr *was* the GlobalEventMgr, passed to /activate in the
+	menu's /NewInit.). Patched around this problem by making it
+	impossible to deactivate a menu (except by destroying it):
+
+ClassMenu:
+% XXX: ??? needed when removing pinned subwindow from superwindow
+    /deactivate % - => -
+        nullproc
+    def
+
+    /destroy { % - => -
+    	OtherCopy null ne {
+    	    /destroy OtherCopy send
+    	    /OtherCopy null def
+    	} if
+    	OriginalCopy null ne {
+    	    /OriginalCopy null def
+    	    self /removepinnedclient MenuService send
+    	} if
+    	null /setinvoker self send
+    	/SecondaryInvoker unpromote
+	/deactivate super send
+    	/destroy super send
+    } def
+
+* The Prototype
+	The prototype in in ~hopkins/menu.ps. It implements the
+	major architectural changes described in this document,
+	but not the pinning and default setting notification.
+
+* The Performance
+
+	The following test was performed to compare the memory usage of old
+	and new menus.
+
+	/demo ClassMenu send
+	% pop up menu
+	% pin menu
+	% pop up other menu
+	% clear
+
+		Old 1		Old 2		New 1		New 2
+		-----		-----		-----		-----
+/demo ClassMenu send
+  total		18848		21204		17660		17280
+  dictionary	9384		9384		7272		7272
+% pop up menu
+  total		2664		2420		2648		2476
+  dictionary	168		168		168		168
+% pin menu
+  total		6908		6756		17884 (272)	18060 (448)
+  dictionary	2280		2280		0		0
+% pop up other menu
+  total		-108		-416		3424		3396
+  dictionary	-120		-120		1176		1176
+% clear
+  total		-26388		-26184		-39320 (-21708)	-39148 (-21536)
+  dictionary	-11136		-11136		-8040		-8040
+
+	The numbers in parenthesis were adjusted by subtracting the size of
+	the 17K "bitmap data", which is the pinned menu savebehind store. It
+	doesn't go away when I set the canvas's SaveBehind to false (when it's
+	pinned), but I can make it go away by unmapping and mapping the menu
+	(which I certainly don't want to do). Josh looked at the
+	source and found that Shapes doesn't free the savebehind cache
+	when it's invalidated or when SaveBehind is turned off, but
+	only when the canvas is unmapped. I consider this a bug in the
+	server. It should at least free the memory when I explicitly
+	turn SaveBehind off.
+
+* Design Choices
+
+	7. Design Choices. (Explain the options that were available to
+	you in designing this component, and why you chose the one you
+	did. Give pros and cons for the important design tradeoffs.)

@@ -1,0 +1,607 @@
+%!
+%
+% NeWS irc client
+% Don Hopkins
+%
+% Copyright (C) 1989 by Don Hopkins. All rights reserved.
+% This program is provided for unrestricted use, provided that this 
+% copyright message is preserved. There is no warranty, and no author 
+% or distributer accepts responsibility for any damage caused by this 
+% program. 
+%
+
+% nick <nickname>
+% user <user> <host> <server> <name>
+
+%createevent dup /Name /IRCReset put sendevent pause pause pause
+
+/irc-id random currenttime mul def
+
+/irc-nickname
+  random currenttime mul dup floor sub 100 mul floor
+  (neewis%) sprintf
+def
+/irc-user (USER) getenv def
+/irc-host localhostname def
+{(IRCSERVER) getenv} errored { pop (tumtum.cs.umd.edu) } if
+/irc-server exch def
+/irc-name (Multi NeWSer Sketch Pad) def
+
+/irc-channel 2000 def
+
+/irc-port 6667 def
+/irc-socket null def
+
+/irc-listener null def
+/irc-monitor null def
+
+/irc-buf 512 string def
+/irc-line null def
+/irc-prefix null def
+/irc-command null def
+/irc-parameter null def
+
+/open-irc-socket { % - => bool
+  close-irc-socket
+  irc-server irc-port (%socketc) (%%.%) sprintf
+  (rw) { file } errored {
+    /irc-socket null store
+    pop pop false
+  } {
+    /irc-socket exch store
+    true
+  } ifelse
+} def
+
+/close-irc-socket {
+  irc-socket type /filetype eq {
+    irc-socket status {
+      mark { 
+        irc-socket (\nquit\n) writestring
+        irc-socket flushfile
+	irc-socket closefile
+      } errored cleartomark
+    } if
+  } if
+} def
+
+/irc-send { % string => -
+  mark exch {
+    irc-socket exch writestring
+  } errored cleartomark
+} def
+
+/irc-flush {
+  mark { irc-socket flushfile } errored cleartomark
+} def
+
+/greet-irc-server {
+  irc-channel
+  irc-name
+  irc-server
+  irc-host
+  irc-user
+  irc-nickname
+  (NICK %\nUSER % % % %\nCHANNEL %\n)
+  sprintf irc-send
+  irc-flush
+} def
+
+/irc-listener-proc {
+  % Read lines of the format ":prefix command parameters", where
+  % the prefix and parameters are optional. There can be any number
+  % of spaces between them. If the first character of the parameter
+  % is ':', it is stripped, so there can be leading spaces in 
+  % parameter.
+  {
+    clear
+    irc-socket irc-buf { readline } errored { exit } if
+    not { exit } if
+    dup length string copy
+    /irc-line exch def
+    irc-line length 0 ne {
+
+      % (:prefix command parameter)
+      irc-line
+      dup 0 get 58 eq { % Starts with ':'?
+	irc-token { % rest prefix
+	  /irc-prefix exch def % rest
+	} { % 
+	  /irc-prefix nullstring def % bogus?
+	} ifelse
+      } {
+	/irc-prefix nullstring def
+      } ifelse
+
+      irc-token { % rest command
+	/irc-command exch def % rest
+      } { %
+        /irc-command nullstring def
+	nullstring % rest
+      } ifelse
+
+      /irc-parameter exch def
+
+      createevent begin
+	/Name /IRCInput def
+	/Action irc-id def
+	/ClientData 10 dict def
+	ClientData begin
+	  /Time currenttime def
+	  /Socket irc-socket def
+	  /Prefix irc-prefix def
+	  /Command irc-command def
+	  /Parameter irc-parameter def
+	  /Line irc-line def
+	end % ClientData
+	currentdict sendevent
+      end
+    } if
+  } loop
+} def
+
+/irc-token { % str => str rest true / false
+  % strip leading spaces
+  { ( ) anchorsearch { pop } { exit } ifelse } loop
+  ( ) search { % post match pre
+    exch pop exch % pre post
+    % strip leading spaces
+    { ( ) anchorsearch { pop } { exit } ifelse } loop
+    dup length 0 ne {
+      dup 0 get 58 eq { % (:parameter)?
+	1 1 index length 1 sub getinterval % (parameter)
+      } if
+    } if
+    exch true % post pre true
+  } { % str
+    dup length 0 eq {
+      pop false % false
+    } {
+      () exch true % () str true
+    } ifelse
+  } ifelse
+} def
+
+/start-irc-listener {
+  irc-listener type /processtype eq {
+    irc-listener killprocess
+  } if
+  /irc-listener { irc-listener-proc } fork store
+  irc-listener-proc
+} def
+
+/irc-unknown-command {
+  (IRC: Prefix: % Command: % Parameter: % Line: <%>\n)
+  [ Prefix Command Parameter Line ]
+  printf
+} def
+
+/irc-commands 100 dict def
+irc-commands begin
+  /PING {
+    Parameter (PONG %\n) sprintf
+    irc-send irc-flush
+  } def
+
+  /NOTICE {
+    Parameter (Notice: %\n) printf
+  } def
+
+  /ERROR {
+    Parameter (Error: %\n) printf
+  } def
+
+  /MSG {
+    Parameter irc-token {
+      cvn {
+        /line {
+	  {number number number number} check-args {
+	    gsave
+	      can setcanvas
+	      {ClientWidth ClientHeight} win send
+	      scale
+	      newpath
+	      4 2 roll
+	      moveto lineto
+	      0 setgray stroke
+	    grestore
+	  } if
+	}
+
+	/rect {
+	  {number number number number} check-args {
+	    gsave
+	      can setcanvas
+	      {ClientWidth ClientHeight} win send
+	      scale
+	      newpath
+	      rectpath
+	      0 setgray stroke
+	    grestore
+	  } if
+	}
+
+	/oval {
+	  {number number number number} check-args {
+	    gsave
+	      can setcanvas
+	      {ClientWidth ClientHeight} win send
+	      scale
+	      newpath
+	      ovalpath
+	      0 setgray stroke
+	    grestore
+	  } if
+	}
+
+        /erase {
+          pop
+	  gsave
+	    can setcanvas erasepage
+	  grestore
+	}
+
+        /text {
+	  {number number {0 1 range} name rest} check-args {
+	    gsave
+	      can setcanvas
+	      {ClientWidth ClientHeight} win send
+	      /h exch store /w exch store
+	      5 1 roll
+              {findfont} errored { pop DefaultFont } if
+	      exch scalefont
+	      setfont
+	      w h scale
+	      moveto
+	      0 setgray
+	      .001 rotate
+              show
+	    grestore
+	  } if
+	}
+
+	/default {
+	  pop
+	}
+      } case
+    } if
+  } def
+
+  /PRIVMSG /MSG load def
+
+end % irc-commands
+
+/arg-checkers 100 dict def
+arg-checkers begin
+  /number { % str => num true
+    cvr true
+  } def
+  /range { % str min max => num true
+    3 -1 roll cvr 3 1 roll % num min max
+    2 index lt { % num min IT WORKS!!!!!
+      pop pop false % false
+    } { % num min
+      1 index le { % num
+        true % num true
+      } { % num
+        pop false % false
+      } ifelse
+    } ifelse
+  } def
+  /string { % str => str true
+    true
+  } def
+  % must have a token before string to ignore...
+  /rest { % str => str true
+    pop argument true
+  } def
+  /name { % str => name true
+    cvn true
+  } def
+end % arg-checkers
+
+/check-args { % irc-arguments arg-template => arg1 ... argn true / false
+  10 dict begin
+    /templates exch cvlit def
+    /argument exch cvlit def
+    /bad false def
+    mark
+    templates {
+      /slot exch cvlit def
+      argument irc-token {
+	/str exch def
+	/argument exch def
+	str % token
+	slot dup type /arraytype eq { aload pop } if % token ...? checker
+	arg-checkers exch get exec % val true / false
+        not {
+	  /bad true def
+	  exit
+	} if
+      } {
+	/bad true def
+	exit
+      } ifelse
+    } forall
+
+    bad {
+/bad dbgbreak
+      cleartomark false
+    } {
+      counttomark 1 add -1 roll pop true
+    } ifelse
+
+  end % 10 dict
+} def
+
+/irc-monitor-proc {
+  createevent begin
+    /Name /IRCDoit def
+    currentdict expressinterest
+  end
+  createevent begin
+    /Name /IRCReset def
+    currentdict expressinterest
+  end
+  createevent begin
+    /Name /IRCInput def
+    /Action irc-id def
+    currentdict expressinterest
+  end
+  { clear
+    awaitevent
+    dup /Name get {
+      /IRCDoit {
+	dup /ClientData get cvx exec
+      }
+      /IRCReset {
+	close-irc-socket
+	irc-listener killprocess
+	/destroy win send
+	irc-monitor killprocess
+	currentprocess killprocess % just in case
+      }
+      /IRCInput {
+	/ClientData get begin
+	  irc-commands Command cvn 2 copy known {
+	    get cvx exec
+	  } {
+	    pop pop
+	    irc-unknown-command
+	  } ifelse
+        end
+      }
+    } case
+  } loop
+} def
+
+/start-irc-monitor {
+  irc-monitor type /processtype eq {
+    irc-monitor killprocess
+  } if
+  /irc-monitor { irc-monitor-proc } fork store
+} def
+
+% ------------------------------------------------------------------------
+
+%!
+%
+% Date: Wed, 21 Sep 88 10:30:16 EDT
+% To: NeWS-makers@brillig.umd.edu
+% Subject: Re: Color PostScript screendump for NeWS
+% From: campfire!scout@sun.com  (David LaVallee)
+% 
+% Here's a little cut and paste and sketch program that uses the file
+% /tmp/clip as its storage. NeWS stores the "clip" as a run-length
+% encoded sun raster file (B+W or Color).
+% 
+% I have used this program to clip stuff for B+W and color raster
+% printers, on a Sun with TRANSCRIPT software this is one way to
+% print the rasterfile to a LaserWriter:
+% 
+% /usr/lib/rasfilters/convert.2 /tmp/clip | pssun | lpr
+% 
+% --Scoutly
+
+%%NeWS1.1
+%%author:	David A. LaVallee
+%%title:	paint2
+
+[/x0 /y0 /x1 /y1 /x /y /win /can] {null def} forall
+/tool /freehand def
+/str () def
+/strfont /Times-Roman def
+/strsize .1 def
+/win framebuffer /new DefaultWindow send def
+/reshapefromuser win send
+{   /ClientMenu [
+        (erase!)
+    {
+	erase-sketch irc-flush
+    }
+	(freehand)
+    {
+	/tool /freehand store
+    }
+	(line)
+    {
+	/tool /line store
+    }
+	(rectangle)
+    {
+	/tool /rectangle store
+    }
+	(oval)
+    {
+	/tool /oval store
+    }
+	(text)
+    {
+	/tool /text store
+    }
+        (font...)
+	  [ (Times-Roman) (Times-Bold) (Times-Italic) (Times-BoldItalic) 
+	    (Courier) (Courier-Bold) (Courier-Oblique) (Courier-BoldOblique)
+	  ]
+	  [ {MenuKeys MenuValue get cvn exec /strfont exch store} ]
+	  /new DefaultMenu send
+
+        (size...)
+	  [ (.01) (.02) (.03) (.04) (.05) (.06) (.07) (.08) (.09) (.1)
+	    (.15) (.2) (.25) (.3) (.35) (.4) (.45) (.5) ]
+	  [ {MenuKeys MenuValue get cvx exec /strsize exch store} ]
+	  /new DefaultMenu send
+    ] /new DefaultMenu send def
+} win send
+/map win send
+/can win /ClientCanvas get def
+can /Retained true put
+
+%/paintit {0 setgray x1 y1 moveto x y lineto stroke} def
+/paintit {
+  newpath
+  0 setgray x1 y1 moveto x y lineto stroke
+  {ClientWidth ClientHeight} win send
+  /h exch def /w exch def
+  (MSG line % % % %\n) 
+  [ x w div  y h div  x1 w div  y1 h div ]
+  sprintf
+  irc-send
+} def
+
+/paintrect {
+  newpath
+  0 setgray x1 y1 x y points2rect rectpath stroke
+  {ClientWidth ClientHeight} win send
+  /h exch def /w exch def
+  
+  (MSG rect % % % %\n) 
+  [ x1 w div  y1 h div  x w div  y h div points2rect ]
+  sprintf
+  irc-send
+} def
+
+/paintoval {
+  newpath
+  0 setgray x1 y1 x y points2rect ovalpath stroke
+  {ClientWidth ClientHeight} win send
+  /h exch def /w exch def
+
+  (MSG oval % % % %\n)
+  [ x1 w div  y1 h div  x w div  y h div points2rect ]
+
+  sprintf
+  irc-send
+} def
+
+/painttext {
+  /PrimarySelection getselection dup null eq { pop } {
+    dup /ContentsAscii known not { pop } {
+      gsave
+	/ContentsAscii get
+	[ exch {
+	    dup 32 lt { pop 32 } {
+	      dup 127 gt { pop 32 } if
+	    } ifelse
+	  } forall
+	] cvas
+	0 1 index length 256 min getinterval
+	/str exch store
+	{ClientWidth ClientHeight} win send
+	/h exch def /w exch def
+	{strfont findfont} errored { pop DefaultFont } if
+	strsize scalefont setfont
+	can setcanvas
+	x1 y1 moveto
+	w h scale
+	.001 rotate
+        str show
+	(MSG text % % % % = %\n)
+	[x1 w div  y1 h div  strsize  strfont  str]
+	sprintf
+	irc-send
+      grestore
+    } ifelse
+  } ifelse
+} def
+
+/erase-sketch {
+  gsave
+    can setcanvas erasepage
+  grestore
+  (MSG erase\n) sprintf irc-send
+} def
+
+/setxy {
+	/x1 x store /y1 y store
+	begin /x XLocation store /y YLocation store end
+} def
+
+/paintbrush {
+10 dict begin
+  gsave
+    currentcursorlocation /y exch store /x exch store
+    /x0 x store /y0 y store
+    /x1 x store /y1 y store
+    tool {
+      /freehand {
+	paintit
+	[   null {currentprocess killprocess} /UpTransition null 
+	    eventmgrinterest
+	    MouseDragged {setxy paintit} null null 
+	    eventmgrinterest
+	] forkeventmgr waitprocess pop
+	irc-flush
+      }
+      /line {
+	can createoverlay setcanvas
+	x1 y1
+	{lineto} getanimated waitprocess aload pop
+	/y exch def /x exch def
+	can setcanvas
+	paintit
+	irc-flush
+      }
+      /rectangle {
+	can createoverlay setcanvas
+	x1 y1
+	{x1 y1 4 2 roll points2rect newpath rectpath} 
+	getanimated waitprocess aload pop
+	/y exch def /x exch def
+	can setcanvas
+	paintrect
+	irc-flush
+      }
+      /oval {
+	can createoverlay setcanvas
+	x1 y1
+	{x1 y1 4 2 roll points2rect newpath ovalpath} 
+	getanimated waitprocess aload pop
+	/y exch def /x exch def
+	can setcanvas
+	paintoval
+	irc-flush
+      }
+      /text {
+	can setcanvas
+	painttext
+	irc-flush
+      }
+    } case
+  grestore
+end
+} def
+
+/PaintEventMgr [
+        PointButton {
+                can setcanvas paintbrush
+        } /DownTransition can eventmgrinterest
+] forkeventmgr def
+
+open-irc-socket {
+  greet-irc-server
+  start-irc-monitor
+  start-irc-listener
+} {
+  (Can't connect!\n) printf
+} ifelse

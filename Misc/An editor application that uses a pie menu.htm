@@ -1,0 +1,202 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0064)http://doc.trolltech.com/solutions/qtpiemenu/editor-example.html -->
+<!-- examples/editor/editor.doc:1 --><HTML><HEAD><TITLE>An editor application that uses a pie menu</TITLE>
+<SCRIPT src="An editor application that uses a pie menu_files/__utm.js" 
+type=text/javascript>&nbsp;</SCRIPT>
+
+<META http-equiv=Content-Type content="text/html; charset=ISO-8859-1">
+<STYLE type=text/css>H3.fn {
+	MARGIN-LEFT: 1cm; TEXT-INDENT: -1cm
+}
+SPAN.fn {
+	MARGIN-LEFT: 1cm; TEXT-INDENT: -1cm
+}
+A:link {
+	COLOR: #004faf; TEXT-DECORATION: none
+}
+A:visited {
+	COLOR: #672967; TEXT-DECORATION: none
+}
+BODY {
+	BACKGROUND: #ffffff; COLOR: black
+}
+</STYLE>
+
+<META content="MSHTML 6.00.2900.2604" name=GENERATOR></HEAD>
+<BODY>
+<TABLE cellSpacing=0 cellPadding=0 width="100%" border=0>
+  <TBODY>
+  <TR bgColor=#e5e5e5>
+    <TD vAlign=center><A 
+      href="http://doc.trolltech.com/solutions/qtpiemenu/index.html"><FONT 
+      color=#004faf>Home</FONT></A> </TD>
+    <TD vAlign=center align=right><IMG 
+      src="An editor application that uses a pie menu_files/solutions-small.png" 
+      align=right border=0></TD></TR></TBODY></TABLE>
+<H1 align=center>An editor application that uses a pie menu</H1>
+<P>This tiny editor uses a pie menu on a QTextEdit. It supports some common 
+operations such as undo, redo, cut, copy and paste. 
+<P>
+<CENTER><IMG height=190 
+src="An editor application that uses a pie menu_files/editor.png" 
+width=230></CENTER>
+<P>
+<HR>
+
+<P>editor.h: 
+<P><PRE>#ifndef EDITOR_H
+#define EDITOR_H
+#include &lt;qtextedit.h&gt;
+#include &lt;qevent.h&gt;
+
+class QtPieMenu;
+
+class Editor : public QTextEdit
+{
+    Q_OBJECT
+
+public:
+    Editor(QWidget *parent = 0, const char *name = 0);
+
+    QSize sizeHint() const;
+
+protected slots:
+    void setUndoAvailable(bool);
+    void setRedoAvailable(bool);
+    void setCopyAvailable(bool);
+    void setPasteAvailable(void);
+
+protected:
+    void contentsMousePressEvent(QMouseEvent *e);
+    void contextMenuEvent(QContextMenuEvent *e);
+
+private:
+    <A href="http://doc.trolltech.com/solutions/qtpiemenu/qtpiemenu.html">QtPieMenu</A> *p;
+    <A href="http://doc.trolltech.com/solutions/qtpiemenu/qtpiemenu.html">QtPieMenu</A> *markMenu;
+};
+
+#endif
+
+</PRE>
+<P>
+<HR>
+
+<P>editor.cpp 
+<P><PRE>#include &lt;qapplication.h&gt;
+#include &lt;qclipboard.h&gt;
+#include "editor.h"
+#include &lt;<A href="http://doc.trolltech.com/solutions/qtpiemenu/qtpiemenu-h.html">qtpiemenu.h</A>&gt;
+
+<A name=f3></A>Editor::Editor(QWidget *parent, const char *name)
+    : QTextEdit(parent, name)
+{
+    p = new <A href="http://doc.trolltech.com/solutions/qtpiemenu/qtpiemenu.html">QtPieMenu</A>("Root menu", this, "Root menu", 10, 50);
+
+    markMenu = new <A href="http://doc.trolltech.com/solutions/qtpiemenu/qtpiemenu.html">QtPieMenu</A>("Edit", p, "Edit menu", 10, 50);
+<A name=x8></A>    markMenu-&gt;<A href="http://doc.trolltech.com/solutions/qtpiemenu/qtpiemenu.html#insertItem">insertItem</A>("All", this, SLOT(selectAll()));
+    markMenu-&gt;<A href="http://doc.trolltech.com/solutions/qtpiemenu/qtpiemenu.html#insertItem">insertItem</A>("Cut", this, SLOT(cut()));
+    markMenu-&gt;<A href="http://doc.trolltech.com/solutions/qtpiemenu/qtpiemenu.html#insertItem">insertItem</A>("Del", this, SLOT(del()));
+    markMenu-&gt;<A href="http://doc.trolltech.com/solutions/qtpiemenu/qtpiemenu.html#insertItem">insertItem</A>("Copy", this, SLOT(copy()));
+<A name=x11></A>    markMenu-&gt;<A href="http://doc.trolltech.com/solutions/qtpiemenu/qtpiemenu.html#setItemWeight">setItemWeight</A>(2, 0);
+    markMenu-&gt;<A href="http://doc.trolltech.com/solutions/qtpiemenu/qtpiemenu.html#setItemWeight">setItemWeight</A>(2, 2);
+
+    p-&gt;<A href="http://doc.trolltech.com/solutions/qtpiemenu/qtpiemenu.html#insertItem">insertItem</A>(markMenu);
+
+    p-&gt;<A href="http://doc.trolltech.com/solutions/qtpiemenu/qtpiemenu.html#insertItem">insertItem</A>("&lt;i&gt;Undo&lt;/i&gt;", this, SLOT(undo()));
+    p-&gt;<A href="http://doc.trolltech.com/solutions/qtpiemenu/qtpiemenu.html#insertItem">insertItem</A>("Paste", this, SLOT(paste()));
+    p-&gt;<A href="http://doc.trolltech.com/solutions/qtpiemenu/qtpiemenu.html#insertItem">insertItem</A>("&lt;i&gt;Redo&lt;/i&gt;", this, SLOT(redo()));
+
+    connect(this, SIGNAL(undoAvailable(bool)), SLOT(setUndoAvailable(bool)));
+    connect(this, SIGNAL(redoAvailable(bool)), SLOT(setRedoAvailable(bool)));
+    connect(this, SIGNAL(copyAvailable(bool)), SLOT(setCopyAvailable(bool)));
+    connect(QApplication::clipboard(), SIGNAL(dataChanged()), SLOT(setPasteAvailable()));
+
+    setUndoAvailable(false);
+    setRedoAvailable(false);
+    setCopyAvailable(false);
+
+    setText(tr("Mark some text and activate the context menu!"));
+}
+
+QSize <A name=f4></A>Editor::sizeHint() const
+{
+    return QSize(200, 150);
+}
+
+void <A name=f5></A>Editor::contentsMousePressEvent(QMouseEvent *e)
+{
+    if ( e-&gt;button() &amp; Qt::RightButton ) {
+<A name=x9></A>        p-&gt;<A href="http://doc.trolltech.com/solutions/qtpiemenu/qtpiemenu.html#popup">popup</A>(e-&gt;globalPos());
+        return;
+    }
+    QTextEdit::contentsMousePressEvent( e );
+}
+
+void <A name=f6></A>Editor::contextMenuEvent(QContextMenuEvent *)
+{
+}
+
+void <A name=f7></A>Editor::setUndoAvailable(bool enabled)
+{
+<A name=x10></A>    p-&gt;<A href="http://doc.trolltech.com/solutions/qtpiemenu/qtpiemenu.html#setItemEnabled">setItemEnabled</A>(enabled, 1);
+}
+
+void <A name=f8></A>Editor::setRedoAvailable(bool enabled)
+{
+    p-&gt;<A href="http://doc.trolltech.com/solutions/qtpiemenu/qtpiemenu.html#setItemEnabled">setItemEnabled</A>(enabled, 3);
+}
+
+void <A name=f9></A>Editor::setCopyAvailable(bool enabled)
+{
+    markMenu-&gt;<A href="http://doc.trolltech.com/solutions/qtpiemenu/qtpiemenu.html#setItemEnabled">setItemEnabled</A>(enabled, 1);
+    markMenu-&gt;<A href="http://doc.trolltech.com/solutions/qtpiemenu/qtpiemenu.html#setItemEnabled">setItemEnabled</A>(enabled, 2);
+    markMenu-&gt;<A href="http://doc.trolltech.com/solutions/qtpiemenu/qtpiemenu.html#setItemEnabled">setItemEnabled</A>(enabled, 3);
+}
+
+void <A name=f10></A>Editor::setPasteAvailable()
+{
+    bool enabled = QApplication::clipboard()-&gt;text(QClipboard::Clipboard);
+    p-&gt;<A href="http://doc.trolltech.com/solutions/qtpiemenu/qtpiemenu.html#setItemEnabled">setItemEnabled</A>(enabled, 2);
+}
+</PRE>
+<P>
+<HR>
+
+<P>main.cpp: 
+<P><PRE>#include &lt;qapplication.h&gt;
+#include "editor.h"
+
+int main(int argc, char *argv[])
+{
+    QApplication app(argc, argv);
+
+    Editor window(0, "Editor");
+    app.setMainWidget(&amp;window);
+    window.show();
+
+    return app.exec();
+}
+</PRE>
+<P>
+<HR>
+
+<P>editor.pro: 
+<P><PRE>TEMPLATE = app
+INCLUDEPATH += .
+
+include(../../src/qtpiemenu.pri)
+
+HEADERS += editor.h
+SOURCES += editor.cpp main.cpp
+</PRE><!-- eof --><BR>
+<ADDRESS>
+<DIV align=center>
+<TABLE cellSpacing=0 width="100%" border=0>
+  <TBODY>
+  <TR>
+    <TD>Copyright © 2003-2004 <A 
+href="http://www.trolltech.com/">Trolltech</A>
+    <TD><A href="http://www.trolltech.com/trademarks.html">Trademarks</A> 
+    <TD align=right>
+      <DIV align=right>Qt 
+Solutions</DIV></TR></TBODY></TABLE></DIV></ADDRESS></BODY></HTML>

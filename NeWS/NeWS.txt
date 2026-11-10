@@ -1,0 +1,34 @@
+			      NeWS Speak
+
+	According to a *completely* unsubstantiated rumor, the
+	Sun Product Naming Division performed a great deal of
+	research to come up with a name for Sun's Network
+	extensible Window System, good enough to replace its
+	original name, "SunDew."  (Supposedly, the problem with
+	the name "SunDew" was that the word was not in common
+	enough usage.)  It was found that the phrase most often
+	uttered by test subjects shown SunDew was, "Wow! Neat
+	Window System!"  This was thought to be a very catchy
+	slogan; however it turned out that the word "Wow" was a
+	trademark of Dolby Labs.  So in a reactive flurry of
+	trendy acronymization, the slogan was condensed into
+	the stylishly Californian name, "NeatWS", from which it
+	was eventually transmogrified to "Ne@WS", in order to
+	emphasize its internetworkability.  They bounced the
+	idea off the network gurus, who in exclamation pointed
+	out that SunDew was not limited to the SMTP protocol
+	alone, and that the name "Ne@WS" probably wouldn't go
+	over very well with more sophisticated users who use @
+	as their line kill character.  Thus it was decided to
+	make the @ silent, as well as invisible, resulting in
+	the name that was finally settled on: "NeWS".  However,
+	once the marketing people made the realization that the
+	name "NeWS" by some strange accident so splendidly
+	paralleled the name "NFS", (except for the "e", but
+	it's small enough that nobody would ever notice ...)
+	they were so excited that they completely forgot about
+	their original slogan.  But those "in the know"
+	pronounce "NeWS" just as its capitalization suggests:
+	"Nee-Wus", of course!
+
+		-Don

@@ -1,0 +1,88 @@
+systemdict begin
+/lsc { % can =>
+  [ exch list-canvases cleartomark
+} def
+
+/list-canvases { % can => 
+    0
+    { pause
+      1 index null eq
+      {pop pop exit} if
+      counttomark {(.) print} repeat
+      dup (xxx) cvs print (:) print
+      1 add exch
+      dup show-can
+      dup /TopChild get list-canvases
+      /CanvasBelow get
+      exch
+    } loop
+} def
+
+/show-can { % canvas => -
+  (ch% in% % @%,% %\n)
+  gsave exch begin [
+    TopChild count-children
+    Interests length
+    EventsConsumed {
+      /AllEvents {(AE)}
+      /MatchedEvents {(ME)}
+      /NoEvents {(NE)}
+      /Default {(??)}
+    } case
+    Parent null ne {
+      Parent setcanvas
+      currentdict getcanvaslocation
+    } { 0 0 } ifelse
+    currentdict
+  ] end grestore
+  printf
+} def
+
+/count-children { % can => n
+  dup null eq {
+    pop 0
+  } {
+    /CanvasBelow get
+    count-children
+    1 add
+  } ifelse
+} def
+
+/procs { % dict => -
+ {
+  { pause
+    (.) print
+    dup type {
+      /processtype {
+        (\n) print
+        begin [ count copy pop
+	  /Oper: OperandStack length /Dict: DictionaryStack length
+	  /Int: Interests length Execee State ErrorCode
+        ] end == 
+	pop
+       }
+       /dicttype {
+         procs pop
+       }
+      /Default { pop pop }
+    } case
+  } forall
+ } errored {pop} if
+} def
+
+/rd {
+  [DbgDicts {pop} forall] {
+    dup /State get /zombie eq {
+      DbgDicts 1 index undef
+      killprocess
+    } { pop } ifelse
+  } forall
+} def
+
+/canvas-files { % can => -
+  [ exch /Interests get {
+    /Process get /ExecutionStack get
+  } forall ]
+} def
+
+end % systemdict

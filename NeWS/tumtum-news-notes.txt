@@ -1,0 +1,152 @@
+cps:
+
+I would like a way to put data which the client wants to send to the
+server, but otherwise has no use for, into an external database,
+instead if compiling it into the client as strings.
+
+psterm:
+
+Added -c columns -l lines arguments
+Hacked around some bogosities to make it work.
+The screen width and height from the termcap entry should not override
+the values set from the command line.
+The font name /Courier should not be wired in!
+
+The icon zoom function (and other such frivolous feedback functions)
+should do pauses to let other processes schedule, checking the time
+elapsed, and not doing as much animation when other stuff seems to be
+going on. 
+
+reshapefromuser could pop up a pie menu of window sizes upon the mouse
+down that specifies a window corner. Selecting
+nothing (no movement between mouse down and up) allows you to specify
+the other corner with the next click. Other types of sizing actions in
+appropriate directions. Depending on the mouse button used, different
+actions could take place. (constraining in one dimension, or choosing
+between a number of common window sizes, etc...) Clients could then
+pop up submenus to select initial configuration options, which could
+be dudu'ed to select the defaults.
+
+util.ps:
+getanimated:
+expresses interest in an event:
+
+    {	createevent dup begin
+	  %/Name LeftMouseButton def
+	  /Action [UpTransition DownTransition] def
+	  end expressinterest
+
+This expresses interest in key strokes, as well as mouse buttons.  I
+noticed that key presses would set the corners of windows, which
+didn't seem right. I put in "/Exclusivity true put", so only one
+window is shaped at a time, instead of shaping all at once. But what
+really should be used is a monitor, so only one getinteractive can be
+going on at a time. How does this interact with menus, and other
+things that do interactive tracking delimited by mouse buttons? Should
+there be one such interaction lock that they all should use, or does
+the exclusivity provide this mechanism? It seems that when using
+exclusivity, interaction processes "stack up" in the wrong order. Do
+you want reshapefromuser to happen while you're in a menu, or should
+it wait until afterwards. Each interaction that is delimited by a pair
+of mouse events (any transition, or a du (down-up), as the user
+prefers.)  should not interleave or share delimiters with other
+pending interactions, and the interactions should happen in the order
+that their processes were forked. Are there some interactions that
+should nest? (i.e. menus during reshape & vice verse?)
+
+Neat (undocumented?) trick:
+/foo 10 def
+{foo /foo //foo} ==
+{foo /foo 10}
+
+in liteitem.ps:
+systemdict /Item known not { systemdict begin
+% ... all that stuff
+end } if  %  systemdict /Item known not { systemdict begin ...
+
+Seems like a waste to read in and parse all that stuff even it it's
+not going to be used. Is there a way to end the reading of the file?
+Use stop maybe?
+
+Why is case often called with a literal array argument, that's
+constructed upon every execution, instead of an executable array,
+that's constructed when read in, when either would seem to produce the
+same result? i.e.:
+  foo [/a {yow} /b {zam}] case % makes a new array each time
+should be:
+  foo {/a {yow} /b {zam}} case % uses the same one every time
+
+I really want a writecanvas primative!
+
+I want to be able to get to the screen as a canvas. Not the
+framebuffer, but the whole screen. i.e. using the framebuffer as a
+source for imagecanvas gets weird results. (some windows (spin?) are
+kinda there, but others not.) What I want is a canvas whose pixrect is
+the real screen.  It should be trivial to write a magnifying glass
+program using such a canvas.
+
+Why does spin rewind when you close it, and why does it flash white
+every time it moves when you drag it or do window madness bounce all? 
+
+NeWS manual:
+p. 34: modifyproc, shouldn't the example be
+/myproc dup load {(myproc called\n) print} {} modifyproc store
+instead of
+/myproc myproc {(myproc called\n) print} {} modifyproc store
+
+What is:
+'writeobject'
+'controlpoint'
+'rcontrolpoint'
+'extend'
+'outofbandprint'
+'overlaydraw'
+'overlayerase'
+'showoverlay'
+'xbyteswap'
+'xreceivedata'
+'xreceiveparam'
+'xtransmitdata'
+'xtransmitevent'
+'xtransmitparam'
+
+setcursorlocation is broken: It sets the cursor's location on the
+screen, but when the mouse is subsequently moved, it pops back to
+where it was. 
+
+To core dump server:
+% screendump -f /dev/cgone0 > sd1
+% psh
+executive
+/sd1 (sd1) readcanvas def
+[sd1 {pop} forall] ==
+% Blammo
+
+Lines that extend from one piece of a canvas to another piece that is
+to the "shadow" to the right of a hole cut in the canvas (the part
+that gets drawn last) sometimes only get drawn in the part of the
+canvas not in the "shadow". To show: Turn on arrows, and stretch the
+silly meaningless icon pie menu out real big with the dragon, so the
+arrowhead to the right is taller than NumbRadius. The lines of the
+arrowhead to the right of the hole cut in the canvas are not drawn.
+
+When resizing a window from a menu that has a retained canvas, parts
+of the menu that are on top of the window are copied to the new window
+location, and what was underneath the window is drawn into the menu
+canvas. The menu canvas is then unmapped, and the resized window
+refreshed. The retained menu canvas is messed up next time you pop it
+up. 
+
+Clipping lines to circular holes in canvases seems to have an
+off-by-one error that causes the endpoints of the lines to be drawn
+off the edge of the canvas on whatever's underneath.
+
+Make the cps library to kill the client if the server connection
+closes and the client goes on a rampage. i.e. send getpid() a QUIT
+signal (or whatever) if pprintf or pscanf get called many times in a
+row and keep getting an end of file.
+
+In the setnewshost shell script, set IFS to '<tab><space>' instead of
+just <tab>, because we do not run YP, and have host tables with spaces
+in them. Otherwise setnewshost does not work!
+

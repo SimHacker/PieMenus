@@ -1,0 +1,611 @@
+<html>
+  <head>
+    <title>Outside the Box: Pie Menus</title>
+  </head>
+  <body>
+    <center>
+
+      <h1>Outside the Box: Pie Menus</h1>
+      <h2><a href="http://www.donhopkins.com/home/PieMenus.html">http://www.donhopkins.com/home/PieMenus.html</a></h2>
+
+      <hr/>
+
+      <h1>What is a Pie Menu?</h1>
+
+      <p>
+        A 
+	<a href="http://en.wikipedia.org/wiki/Pie_menu">pie menu</a>
+	is a user interface technique for selection based
+        on direction. A goal of pie menus is to provide a smooth,
+        reliable gestural style of interaction for novices and
+        experts.
+      </p>
+
+      <p>
+        <img src="http://www.donhopkins.com/home/pub/piemenus/ddj/weekpie.gif"/>
+      </p>
+
+      <hr/>
+
+      <h1>What's wrong with traditional linear menus?</h1>
+
+      <p>
+        Traditional linear "pull down" menus require you to always
+        move the cursor in the same direction (down), but for a
+        different distance to select each item, so all items are hard
+        to select (because of their small target size), and items
+        further down on the menu take even longer to select (because
+        of their greater distance).
+      </p>
+
+      <p>
+        <img src="http://www.donhopkins.com/home/images/EmpericalComparisonFigure1.jpg"/>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <img src="http://www.donhopkins.com/home/images/EmpericalComparisonFigure2.jpg"/>
+      </p>
+
+      <hr/>
+
+      <h1>Why are pie menus better?</h1>
+
+      <h2><a href="http://www.donhopkins.com/drupal/node/100">An Empirical Comparison of Pie vs. Linear Menus</a></a></h2>
+
+      <p>
+        <img src="http://www.donhopkins.com/home/images/EmpericalComparisonFigure4.jpg"/>
+	<br/>
+	Target location (x) vs. seek time (y) in seconds
+	<br/>
+	<br/>
+	<img src="http://www.donhopkins.com/home/images/EmpericalComparisonFigure5.jpg"/>
+	<br/>
+	Target location (x) vs. number of errors (Y)
+	<br/>
+	<br/>
+	<table border="1">
+	  <tr>
+	    <td></td>
+
+	    <th colspan="3">Task Type</th>
+	    <td></td>
+	  </tr>
+	  <tr>
+	    <td></td>
+	    <th>Pie</th>
+	    <th>Linear</th>
+
+	    <th>Unclass.</th>
+	    <th>Mean menu</th>
+	  </tr>
+	  <tr>
+	    <th>Using Pie Menus</th>
+	    <td>0.45</td>
+	    <td>0.60</td>
+
+	    <td>0.60</td>
+	    <td>0.55</td>
+	  </tr>
+	  <tr>
+	    <th>Using Linear Menus</th>
+	    <td>0.88</td>
+	    <td>0.73</td>
+
+	    <td>1.24</td>
+	    <td>0.95</td>
+	  </tr>
+	  <tr>
+	    <th>Mean task</th>
+	    <td>0.66</td>
+	    <td>0.69</td>
+
+	    <td>0.92</td>
+	    <td></td>
+	  </tr>
+	</table>
+
+	<br/>
+	Number of errors means per cell, menu type, and task type (all observations including no errors)
+      </p>
+
+      <h2>Fitts' Law</h2>
+
+      <p>
+        <a href="http://en.wikipedia.org/wiki/Fitts_law">Fitts' Law</a>
+	predicts the larger and closer a target, the less time it
+	takes to select.
+      </p>
+
+      <img src="http://upload.wikimedia.org/math/8/a/c/8ac57dd5c75cc1e1499a8669ab4308b6.png"/>
+      <br/>
+      <em>
+	D is target distance, and W is target width.
+	<br/>
+	From the equation, we see a speed-accuracy tradeoff associated with pointing,
+	whereby targets that are smaller and/or further away require more time to acquire.
+	<br/>
+	Therefore, math = fun.
+      </em>
+
+      <p>
+        Pie menus exploit Fitts' Law, because they optimize for both
+        large target size and small target distance, by placing each
+        item adjacent to the cursor, but in a different direction.
+      </p>
+
+      <h2>Directional Nature</h2>
+
+      <p>
+        And because of their directional nature, it's easy to select
+        an item from a pie menu without looking at the screen, and the
+        further out you move, the more reliable control you have over
+        the direction (by increasing "leverage").
+      </p>
+
+      <p>
+        But linear menus make you move the mouse a certain distance,
+        which requires much more visual attention and hand-eye
+        feedback, and prevents you from reliably "mousing ahead",
+        spoiling the possibility of quick gestures.
+      </p>
+
+      <h2><a href="http://en.wikipedia.org/wiki/Mouse_gestures">Mouse Gestures</a> and <a href="http://en.wikipedia.org/wiki/Muscle_memory">Muscle Memory</a></h2>
+
+      <p>
+	Once you learn the pie menus direction with "muscle memory",
+	you can quickly and reliably "mouse ahead" to select items,
+	without looking at the screen -- so pie menus support self
+	revealing, unambiguous, predictable, gestural interaction.
+      </p>
+
+      <h2>Unambiguity, Precision and Error Correction</h2>
+
+      <p>
+        All pie menu gestures are valid, unambiguous selections,
+	directly defined in a way that the user can easily understand.
+	The selection is defined purely by the direction (not the path
+	or distance) between the down and up events. The further out
+	you move, the better control you have over the direction. You
+	can always correct the selection after making a mistake or
+	changing your mind.
+      </p>
+
+      <p>
+	Compare pie menus to general gesture and handwriting
+	recognition: Pie menus fully saturate "gesture space", while
+	most handwriting gestures are syntax errors. Where is the
+	boundary between an "S" and a "5"?
+      </p>
+
+      <hr/>
+
+      <h1>Problems, Approaches and Solutions</h1>
+
+      <h2>Limited Number of Items</h2>
+
+      <p>
+        Pie menus are harder to use with too many and odd numbers of
+	items.  Their ease of use and memorability depends heavily on
+	how many items they have, and it's a complex non-linear
+	relationship.  There are many ways to deal with too many and
+	odd numbers of items in different contexts.
+      </p>
+
+      <h3>Ideal Numbers of Items</h3>
+
+      <p>
+        Four is the most ideal number of items, which is very
+	reliable, and works well with small touch screens and big
+	fingers.  Eight is the idea number if the screen is large
+	enough and the input device is precise enough. Twelve is
+	getting crowded, but works well because of its association
+	with the clock and zodiac. It's very desirable to have an even
+	number of items on the menu, to keep it synmetrical, even if
+	it means adding an inactive blank dummy item.
+      </p>
+
+      <p>
+        <img src="http://www.donhopkins.com/home/pub/piemenus/ddj/weekpie.gif"/>
+      </p>
+
+      <h3>Nested Sub-Menus</h3>
+
+      <p>
+        Pie menu items can invoke both pie and linear nested
+	sub-menus.  Nesting large numbers of items works well if you
+	can subdivide them into logically related groups, there are
+	not too many of them, and they are not dynamic. But it's easy
+	to get carried away and design trees of menus that are too
+	deep or too wide.
+      </p>
+
+      <p>
+        <img src="http://www.donhopkins.com/home/pub/piemenus/ddj/grabedge.gif"/>
+      </p>
+
+      <h3>Scrolling and Paging</h3>
+
+      <p>
+        Scrolling and paging pie menus reveal more items as you wind
+        around or page up and down a spiral or stack of pies. They can
+        remember your place in the sequence, like a scrollbar does in
+        a drop-down list. It's best that the directions of the items
+        not change as you scroll, because that would disorient and
+        defeat muscle memory.
+      </p>
+
+      <p>
+        <img src="http://www.piemenu.com/images/example-months-1.jpg"/>
+      </p>
+
+      <h3>Pull-Out Pie Menus</h3>
+
+      <p>
+        Pull-out pie menus can assign several items to each direction,
+        which you select between by pulling out from the menu
+        center. This technique sacrifices the user's ability to trade
+        off distance for precision, but works well for a small number
+        of related items (small/medium/large), or one parameterized
+        item (font/size).
+      </p>
+
+      <h3>Ringed Pie Menus</h3>
+
+      <p>
+        Ringed pie menus have several layers of items. Each concentric
+        layer may have a different number of items, so outer rings
+        typically have more items than inner rings (like an
+        atom). This technique also sacrifices the user's ability to
+        trade off distance for precision, but it enables you to put a
+        lot of items on one menu, in priority order. It does look
+        rather cluttered, unless you can get away with using small
+        squareish icons instead of elongated text.
+      </p>
+
+      <p>
+        <img src="http://www.donhopkins.com/home/images/MicropolisTwoRingPalette.png"/>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <img src="http://www.donhopkins.com/home/ringed_pie_0.png"/>
+      </p>
+
+      <h3>Hybrid Linear/Pie Menus</h3>
+
+      <p>
+        Hybrid pie/linear menus can combine items in the circular pie
+        format with items in linear format in any direction (pull
+        down/up/right/left). The linear items are selected by pointing
+        at their label rectangle. The hybrid menu can limit the number
+        of pie menu items (to 8 by default), and place overflow items
+        in linear rows or columns.
+      </p>
+
+      <p>
+        <img src="http://www.donhopkins.com/home/compass_pie_0.png"/>
+      </p>
+
+      <h3>User Editable Menus</h3>
+
+      <p>
+        User editable pie menus solve the problem elegently by
+        enabling each users to define their own menus of comonly used
+        commands, according to their own particular work
+        flow. Alias|Wavefront enables 3D artists to define their own
+        "marking menus" for the various tasks they work on and tools
+        they use. User editable pie menus can use dialogs, text, xml,
+        or direct manipulation to enable users to construct their own
+        menu structures. The iLoci application lets you define
+        networks of rooms that you navigate with pie gestures.
+      </p>
+
+      <p>
+        <img src="http://www.piemenu.com/images/props-demo1.gif"/>
+      </p>
+
+      <hr/>
+
+      <h1>Pie Menu Applications</h1>
+
+      <hr/>
+
+      <h2><a href="http://www.donhopkins.com/drupal/node/85">X10</a> and X11</h2>
+
+      <p>
+	X10 and X11 window system. 
+        <a href="http://www.donhopkins.com/home/movies/X10PieMenuWM.mov">X10 "uwm" window manager</a>. 
+	Forth extensible window manager and usability experiment. 
+	(<a href="http://www.donhopkins.com/home/pub/piemenus/uwm">source</a>)
+	X11 "piewm" window manager. X11 TCL/Tk pie menu widget for SimCity. 
+      </p>
+
+      <hr/>
+
+      <h2>NeWS</h2>
+
+      <p>
+	NeWS PostScript based window system. Pie menu widget,
+        compatible with linear menus. Change all menus in the window
+        system to pie menus.  Window managers. Tabbed
+        windows. Application launchers.
+      </p>
+
+      <p>
+        NeWS experiments: Pull-out menu. Ringed menu. Continuous
+	direction/distance. Precision pie
+	menu. Scrolling. Paging. Hybrid. Overlay feedback. Live
+	application level feedback. User editable menus. Cut and paste
+	items. Editor dialogs. Text submenu outline. HyperLook
+	integration. Window managers. HyperTIES integration. Pie menu
+	applets.
+	<a href="http://www.donhopkins.com/home/movies/JustThePieMenus.mov">Just the Pie Menus</a>.
+      </p>
+
+      <p>
+	UniPress Emacs text editor. Text editing and
+        process control commands. Pie menu items are function keys
+        that can be bound and recorded in macros. User defined menus
+        compiled from "info" hypertext documentation trees and
+        downloaded into server in PostScript. Font face/style/size
+        selection. Color hue/saturation/brightness
+        selection. 
+	<a hrev="http://www.donhopkins.com/home/movies/NeMACSDemo.mov">NeMACS Demo</a>.
+      </p>
+
+      <p>
+        <img src="http://www.donhopkins.com/home/images/HyperTIESAuthoring.jpg"/>
+      </p>
+
+      <p>
+	<a href="http://www.donhopkins.com/drupal/node/102">HyperTIES</a>
+	hypermedia browser. 
+	<a href="http://www.donhopkins.com/drupal/node/101">Emacs authoring tool</a>.
+	Paging. Linking. Directing navigation. Applets. User
+        defined pie menus and commands.
+	<a href="http://www.donhopkins.com/home/movies/HyperTIESDemo.mov">HyperTIES Demo</a>.
+      </p>
+
+      <p>
+        <img src="http://www.donhopkins.com/home/images/HyperTIESDiagramSmall.jpg"/>
+      </p>
+
+      <p>
+        <a href="http://www.donhopkins.com/drupal/node/97">PSIBER</a>
+	PostScript visual programming environment,
+        PseudoScientific Visualizer, PostScript data editing and
+        visualization, programming and debugging.
+	<a href="http://www.donhopkins.com/home/movies/PSIBERDemo.mov">PSIBER Demo</a>.
+	<a href="http://www.donhopkins.com/home/movies/PseudoScientific.mov">Pseudoscientific Visualizer Demo</a>.
+      </p>
+
+      <p>
+        <img src="http://www.donhopkins.com/home/pub/piemenus/psiber/3.gif"/>
+	<br/>
+	<br/>
+        <img src="http://www.donhopkins.com/home/pub/piemenus/psiber/11.gif"/>
+      </p>
+
+      <p>
+        SimCity. Tool palette. Selecting editing tool. Eliminate need
+        to move cursor back and forth between map and
+        palette. Locality of reference.
+      </p>
+
+      <p>
+        <img src="http://www.donhopkins.com/home/images/HyperLook-SimCity.gif"/>
+      </p>
+
+      <hr/>
+
+      <h2>TCL/Tk</h2>
+
+      <p>
+        TCL/Tk: used by the old version of TCL/Tk SimCity, OLPC
+        SimCity/Micropolis.
+      </p>
+
+      <p>
+        <img src="http://www.donhopkins.com/home/images/SimCity-For-X11.gif"/>
+      </p>
+
+      <hr/>
+
+      <h2>The Sims</h2>
+
+      <p>
+        The Sims. Action menus, to control the simulated people. C++
+        "Gonzo" Toolkit. Dynamic items. Object placement tool for
+        picking up, moving, placing and rotating objects. Direct
+        manipulation. In-game real-time immersive feedback.
+      </p>
+
+      <p>
+        <a href="http://www.originalsims.com/dumbold">Dumbold Voting Machine</a>
+	<br/>
+	<br/>
+	<img src="http://www.originalsims.com/Objects/PieVoting.jpg"/>
+	<br/>
+	<br/>
+	<img src="http://www.originalsims.com/Objects/PieMenu.jpg"/>
+      </p>
+
+      <hr/>
+
+      <h2>C++ / OLE / ActiveX</h2>
+
+      <p>
+        <img src="http://www.piemenu.com/images/example-round.jpg"/>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <img src="http://www.piemenu.com/images/example-round-selected.jpg"/>
+	<br/>
+	<br/>
+        <img src="http://www.piemenu.com/images/demo1.gif"/>
+	<br/>
+	<br/>
+        <img src="http://www.piemenu.com/images/example-week-rectangle.jpg"/>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <img src="http://www.piemenu.com/images/example-week-round.jpg"/>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <img src="http://www.piemenu.com/images/example-week-punched.jpg"/>
+	<br/>
+        <br/>
+        <img src="http://www.piemenu.com/images/example-week-speech.jpg"/>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <img src="http://www.piemenu.com/images/example-week-spokes.jpg"/>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <img src="http://www.piemenu.com/images/example-week-thought.jpg"/>
+        <br/>
+        <br/>
+        <img src="http://www.piemenu.com/images/example-week-minimal.jpg"/>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <img src="http://www.piemenu.com/images/example-week-picture.jpg"/>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <img src="http://www.piemenu.com/images/example-week-asshole.jpg"/>
+        <br/>
+        <br/>
+        <img src="http://www.piemenu.com/images/props-demo1.gif"/>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <img src="http://www.piemenu.com/images/props-demo2.gif"/>
+        <br/>
+	<br/>
+        <img src="http://www.piemenu.com/images/props-demo3.gif"/>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <img src="http://www.piemenu.com/images/props-demo4.gif"/>
+      </p>
+
+      <hr/>
+
+      <h2>JavaScript</h2>
+
+      <p>
+        JavaScript: Internet Explorer DHTML Behavior / Adobe SVG
+        Player / OpenLaszlo component. 
+      </p>
+
+      <p>
+        <img src="http://www.donhopkins.com/home/images/PieExperiment.jpg"/>
+      </p>
+
+      <hr/>
+
+      <h2><a href="http://connectedtv.net">ConnectedTV Palm Application</a></h2>
+
+      <p>
+        ConnectedTV. Palm pilot application. Touch screen, consumer IR
+        universal remote control, personalized TV guide, customizable
+        control interfaces, with pie menus. Uses touch screen "finger
+        pie" menus for paging (next/previous/index/more info),
+        navigation (2d map of screens), rating (thumbs up/down),
+        control (channel/volume up/down), related commands (input
+        a/b/c/d). Customizable interfaces for remote controlling
+        specific devices, arranged logically, with most commonly used
+        commands big and easily accessible.
+      </p>
+
+      <table cellSpacing="0" cellPadding="0" width="1%" border="0">
+	<tr>
+	  <td width="100%" colSpan="3">
+	    <img height="38" src="http://connectedtv.net/Images/topborder" width="237" border="0"/>
+	  </td>
+	</tr>
+	<tr>
+	  <td width="6%" rowSpan="2">
+	    <img height="231" src="http://connectedtv.net/Images/leftborder" width="39" border="0"/>
+	  </td>
+	  <td width="20%">
+	    <p align="center">
+	      <img height="160" src="http://connectedtv.net/Images/animated_screens_color" width="160" border="0"/>
+	    </p>
+	  </td>
+	<td width="74%" rowSpan="2">
+	  <img height="231" src="http://connectedtv.net/Images/rightborder" width="30" border="0">
+	</td>
+      </tr>
+      <tr>
+	<td vAlign=bottom width="20%">
+	  <img height=65 src="http://connectedtv.net/Images/mainmenu" width="168" border="0"/>
+	</td>
+      </tr>
+	<tr>
+	  <td width="100%" colSpan="3">
+	    <img height=28 src="http://connectedtv.net/Images/mainmenu_bottom" width="237" border="0"/>
+	  </td>
+	</tr>
+	<tr>
+	  <td width="100%" colSpan="3">
+	    <img height="42" src="http://connectedtv.net/Images/bottom1" width="237" border="0"/>
+	  </td>
+	</tr>
+	<tr>
+	  <td width="100%" colSpan="3">
+	    <img height="35" src="http://connectedtv.net/Images/bottom2" width="237" border="0"/>
+	  </td>
+	</tr>
+      </table>
+
+      <h3>Discover Shortcut Strokes</h3>
+
+      <img src="http://connectedtv.net/UserGuide/images/Shortcuts.GIF"/>
+      <br/>
+
+      <h3>Stations and Shows</h3>
+
+      <img src="http://connectedtv.net/UserGuide/images/NerdStations.GIF"/>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <img src="http://connectedtv.net/UserGuide/images/NerdShows.GIF"/>
+      <br/>
+      <img src="http://connectedtv.net/UserGuide/images/Help_1.GIF"/>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <img src="http://connectedtv.net/UserGuide/images/Guide_Time__Day.gif"/>
+
+      <h3>Show Details</h3>
+
+      <img src="http://connectedtv.net/UserGuide/images/Details.GIF"/>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <img src="http://connectedtv.net/UserGuide/images/My_Rating.gif"/>
+      <br/>
+
+      <h3>TV, Set Top Box, VCR and DVR Controls</h3>
+
+      <img src="http://connectedtv.net/UserGuide/images/TVDevice.GIF"/>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <img src="http://connectedtv.net/UserGuide/images/Box_color.gif"/>
+      <br/>
+      <img src="http://connectedtv.net/UserGuide/images/VCR_color.GIF"/>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <img src="http://connectedtv.net/UserGuide/images/DVR.GIF"/>
+      <br/>
+
+      <hr/>
+
+      <h2>Python</h2>
+
+      <p>
+        Python: GTK / Cairo / Pango. Used by Micropolis
+	(SimCity). Usable by other PyGTK applications.  To be
+	integrated with OLPC Sugar environment.
+      </p>
+
+      <p>
+        <img src="http://www.donhopkins.com/home/simcity_tools_0.png"/>
+	&nbsp;&nbsp;&nbsp;&nbsp;
+        <img src="http://www.donhopkins.com/home/simcity_zone_0.png"/>
+	&nbsp;&nbsp;&nbsp;&nbsp;
+        <img src="http://www.donhopkins.com/home/simcity_build_2.png"/>
+      </p>
+
+      <hr/>
+
+      <h2>iLoci</h2>
+
+      <p>
+        iLoci on iPhone. Panning navigation interface.  User editable
+	map of interconnected rooms.  Navigate between rooms with
+	directional gestures.  Like pie menus without the menus,
+	without hierarchy.  A network of interconnected rooms, instead
+	of a tree of menus. Reversable navigation. Memory palace. Mind
+	map. Adventure map. 
+      </p>
+
+      <hr/>
+
+    </center>
+
+  </body>
+</html>

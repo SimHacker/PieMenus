@@ -1,0 +1,281 @@
+/StillDict 200 dict def
+StillDict begin % The following is in the spirit of Glenn Reid's Distillery
+
+  /_out null def
+  /_out? false def
+  /_outfile (still_out.ps) def
+
+  /_ascii? true def % false doesn't work yet because of typedprint
+
+  /_display_def? false def
+
+  /_wrap_things? true def
+
+  /_buf 80 string def
+
+  /_smartcolor false def
+  /_usefont false def
+
+  /_fonts 100 dict def
+  /_fcount 0 def
+  /_font null def
+  /_color null def
+  /_linecap null def
+  /_linejoin null def
+  /_linewidth null def
+  /_miterlimit null def
+  /_dashoff null def
+  /_dasharray null def
+
+  /_output_flatness 0 def
+
+  /_outputmatrix matrix def
+
+  /_MOVETO (moveto\n) def
+  /_LINETO (lineto\n) def
+  /_CURVETO (curveto\n) def
+  /_CLOSEPATH (closepath\n) def
+  /_CONTROLPOINT (controlpoint\n) def
+  /_FILL (fill\n) def
+  /_EOFILL (eofill\n) def
+  /_STROKE (stroke\n) def
+  /_SHOW (show\n) def
+  /_NEWPATH (\n) def
+  /_SETFONT (setfont\n) def
+  /_GSAVE (gsave\n) def
+  /_GRESTORE (grestore\n) def
+  /_SETGRAY (setgray\n) def
+  /_SETHSBCOLOR (sethsbcolor\n) def
+  /_SETLINECAP (setlinecap\n) def
+  /_SETLINEJOIN (setlinejoin\n) def
+  /_SETLINEWIDTH (setlinewidth\n) def
+  /_SETMITERLIMIT (setmiterlimit\n) def
+  /_SETDASH (setdash\n) def
+  /_DISPLAYBEGIN (/display {\n) def
+  /_DISPLAYEND (} def\n) def
+  /_STILLBEGIN (\n) def
+  /_STILLEND (\n) def
+  /_BEGINGROUP { ProcessMax 1 gt (\n) (% BeginGroup {\n) ifelse } def
+  /_ENDGROUP { ProcessMax 1 gt (\n) (%} EndGroup\n) ifelse } def
+  /_BEGINTHING ({\n) def
+  /_ENDTHING (} exec\n) def
+
+  /_stillbegin {
+    _init
+    _out null eq {
+      _out? {
+        /_out _outfile (w) file def
+        (%!\n%BoundingBox: % % % %\n/display_w % def\n/display_h % def\n\n)
+	[ (%) (%%)
+	  gsave clippath pathbbox points2rect grestore
+	  2 copy
+	] sprintf
+	_write_out
+	_display_def? { _DISPLAYBEGIN _write_out } if
+	_STILLBEGIN _write_out
+      } if
+    } if
+  } def
+
+  /_stillend {
+    _out? {
+      _STILLEND _write_out
+      _display_def? { _DISPLAYEND _write_out } if
+      _out closefile
+      /_out null store
+    } if
+  } def
+
+  /_init {
+    _outputmatrix currentmatrix pop
+    /_fonts 100 dict store
+    /_fcount 0 store
+    /_font null store
+    /_color null store
+    /_linecap null store
+    /_linejoin null store
+    /_linewidth null store
+    /_miterlimit null store
+    /_dasharray null store
+    /_dashoff null store
+    _output_flatness setflat
+  } def
+
+  /_write_out {
+    _out exch writestring
+  } def
+
+  % XXX: Writes to stdout!
+  /_typed_out {
+    typedprint
+  } def
+
+  /_write_string {
+    _ascii? { litstring _write_out } { _typed_out } ifelse
+  } def
+
+  /_write_number {
+    _ascii? { _buf cvs _write_out ( ) _write_out } { _typed_out } ifelse
+  } def
+
+  /_write_state {
+    _font currentfont ne _usefont and {
+      _fonts currentfont known {
+	_fonts currentfont get
+      } {
+        _fonts currentfont _fcount (_f%) sprintf put
+	_fcount
+	currentfont /FontName get (/% findfont ) _write_out
+	currentfont /FontMatrix get 0 get _write_number
+	(scalefont dup /_f% exch def ) sprintf _write_out
+	/_fcount _fcount 1 add store
+      } ifelse
+      _SETFONT _write_out
+      /_font currentfont store
+    } if
+    _smartcolor {
+      % ...
+    } {
+      _color currentcolor ne {
+	currentrgbcolor
+	1 index eq { eq } { pop pop false } ifelse {
+	  currentgray _write_number _SETGRAY _write_out
+	} {
+	  currenthsbcolor
+	  3 -1 roll _write_number exch _write_number _write_number
+	  _SETHSBCOLOR _write_out
+	} ifelse
+        /_color currentcolor store
+      } if
+    } ifelse
+    _linecap currentlinecap ne {
+      currentlinecap _write_number _SETLINECAP _write_out
+      /_linecap currentlinecap store
+    } if
+    _linejoin currentlinejoin ne {
+      currentlinejoin _write_number _SETLINEJOIN _write_out
+      /_linejoin currentlinejoin store
+    } if
+    gsave _outputmatrix setmatrix
+      _linewidth currentlinewidth ne {
+	currentlinewidth _write_number
+	_SETLINEWIDTH _write_out
+	/_linewidth currentlinewidth store
+      } if
+    grestore
+    _miterlimit currentmiterlimit ne {
+      currentmiterlimit _write_number
+      _SETMITERLIMIT _write_out
+      /_miterlimit currentmiterlimit store
+    } if
+    currentdash exch _dashoff ne { pop false } {
+      dup length _dasharray length ne { pop false } {
+        _dasharray {eq} arrayop
+	true exch {not {not exit} if} forall
+      } ifelse
+    } ifelse {
+      currentdash exch
+      ([) _write_out { _write_number } forall (]) write_out
+      _write_number
+      _SETDASH _write_out
+      currentdash /_dasharray exch store /_dashoff exch store
+    } if
+  } def
+
+  /_write_path {
+    gsave _outputmatrix setmatrix
+      _output_flatness setflat
+      %flattenpath
+      { { exch _write_number _write_number
+          _MOVETO _write_out }
+	{ exch _write_number _write_number 
+	  _LINETO _write_out }
+	{ 6 -1 roll _write_number
+	  5 -1 roll _write_number
+	  4 -1 roll _write_number
+	  3 -1 roll _write_number
+	  exch _write_number _write_number
+	  _CURVETO _write_out }
+	{ _CLOSEPATH _write_out }
+%	{ 3 -1 roll _write_number exch _write_number _write_number
+%	  _CONTROLPOINT _write_out }
+      } pathforallvec
+    grestore
+  } def
+
+  /_begingroup {
+    _out? {
+      _BEGINGROUP _write_out
+    } if
+  } def
+
+  /_endgroup {
+    _out? {
+      _ENDGROUP _write_out
+    } if
+  } def
+
+  /_fill {
+    _out? {
+      gsave fill grestore
+      _write_path
+      _write_state
+      _FILL _write_out
+      newpath
+    } {
+      fill
+    } ifelse
+  } def
+
+  /_eofill {
+    _out? {
+      gsave eofill grestore
+      _write_path
+      _write_state
+      _EOFILL _write_out
+      newpath
+    } {
+      eofill
+    } ifelse
+  } def
+
+  /_stroke {
+    _out? {
+      gsave stroke grestore
+      _write_path
+      _write_state
+      _STROKE _write_out
+      newpath
+    } {
+      stroke
+    } ifelse
+  } def
+
+  /_show {
+    _out? {
+      _write_state
+      _GSAVE _write_out
+      _write_matrix
+      currentpoint exch _write_number _write_number
+      _MOVETO write_out
+      _write_string
+      _SHOW _write_out
+      _GRESTORE _write_out
+    } if
+    show
+  } def
+
+  /_newpath { % signifies a new object
+    _out? {
+      _NEWPATH _write_out
+    } if
+    newpath
+  } def
+
+% ------------------------------------------------------------------------
+
+  /_still_names [
+    fill eofill stroke show newpath
+  ] def
+
+end % StillDict

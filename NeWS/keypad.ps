@@ -1,0 +1,151 @@
+systemdict begin
+
+/maybe-bindkey { %  key func => -
+  keyboard_positions 2 index known {
+    bindkey
+  } { pop pop } ifelse
+} ?def
+
+% Express interest in function key UpTransitions some how, leave
+% the Action field alone, and just send one event...
+
+/fake-button { % event name => event
+%  1 index createevent copy		% event name event
+%  begin					% event name
+%    /Name exch def			% event
+%    /Action /DownTransition def
+%  currentdict end			% event FakeDownEvent
+%  dup sendevent
+%  { exch				% FakeDownEvent event
+%    createevent copy
+%    dup /Action /UpTransition put
+%    expressinterest			% FakeDownEvent
+%    createevent copy
+%    dup /Action /UpTransition put	% FakeUpEvent
+%    awaitevent pop
+%    sendevent				%
+%  } fork pop				% event FakeDownEvent
+%  pop					% event
+
+  1 index createevent copy		% event name event
+  begin					% event name
+    /Name exch def			% event
+  currentdict end			% event FakeDownEvent
+  sendevent
+
+  % Force the interest to catch up transitions! (HACK!)
+  dup /Interest get
+  /Action [/UpTransition /DownTransition] put
+} def
+
+/push-button {
+  true
+  1 index /KeyState get {
+    { /Control { pop /LeftMouseButton fake-button false exit }
+      /Shift { pop /MiddleMouseButton fake-button false exit }
+      /Meta { pop /RightMouseButton fake-button false exit }
+    } case
+  } forall
+  { redistributeevent } if
+} def
+
+/move-mouse { % event dx dy => event
+  gsave
+    framebuffer setcanvas
+    2 index begin
+      /Name /MouseDragged def
+      YLocation add /YLocation exch def
+      XLocation add /XLocation exch def
+      XLocation YLocation setcursorlocation
+    currentdict end sendevent
+  grestore
+} def
+
+/mouse-small-step 1 def
+/mouse-medium-step 16 def
+/mouse-big-step 100 def
+
+/push-mouse { % event x y => event
+  true
+  3 index /KeyState get {
+    { /Control { pop
+        mouse-small-step mul exch mouse-small-step mul exch
+	move-mouse false exit }
+      /Shift { pop
+        mouse-medium-step mul exch mouse-medium-step mul exch
+	move-mouse false exit }
+      /Meta { pop
+        mouse-big-step mul exch mouse-big-step mul exch
+	move-mouse false exit }
+    } case
+  } forall
+  { pop pop redistributeevent } if
+} def
+
+/FunctionR7 {
+  -1 1 push-mouse
+} maybe-bindkey
+
+/FunctionR8 {
+  0 1 push-mouse
+} maybe-bindkey
+
+/FunctionR9 {
+  1 1 push-mouse
+} maybe-bindkey
+
+/FunctionR10 {
+  -1 0 push-mouse
+} maybe-bindkey
+
+/FunctionR12 {
+  1 0 push-mouse
+} maybe-bindkey
+
+/FunctionR13 {
+  -1 -1 push-mouse
+} maybe-bindkey
+
+/FunctionR14 {
+  0 -1 push-mouse
+} maybe-bindkey
+
+/FunctionR15 {
+  1 -1 push-mouse
+} maybe-bindkey
+
+/FunctionR11 {
+  push-button
+} maybe-bindkey
+
+% Make arrow function keys autorepeat!
+UI_private begin
+repeater_private begin
+repeat_keys_dict begin
+
+[ /FunctionR7  /FunctionR8  /FunctionR9 
+  /FunctionR10		    /FunctionR12
+  /FunctionR13 /FunctionR14 /FunctionR15 ]
+{ keyboard_positions 1 index known {
+    keyfromchar /repeater_changed load def 
+  } { pop } ifelse
+} forall
+
+end % repeat_keys_dict
+
+repeat_proc killprocess
+framebuffer setcanvas
+/repeat_proc {
+    repeater_private begin
+    newprocessgroup
+    shuttle /Process currentprocess put
+    repeat_keys_interest expressinterest
+    repeat_events_interest expressinterest
+    /awaitevent load loop
+} fork def
+
+end % repeater_private
+end % UI_private
+
+end % systemdict
+

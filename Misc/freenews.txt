@@ -1,0 +1,63 @@
+192.9.9.1
+
+To: 
+
+  edz@sun.com
+    Ed Zanders
+    Sales
+
+  keating@sun.com
+    Bill Keating
+    Windows managment? Engineering?
+
+  wolf@sun.com
+    Carl G. Wolf
+
+  messino@sun.com
+    Steve Messino
+    Windows Marketing Manager
+
+  rosing@sun.com
+    rosing@doober.eng.sun.com
+    Wayne Rosing
+    He and Eric Schmidt run the whole workstation division (engineering 
+    side, hardware) 
+
+  scott@sun.com
+    Scott McNealy
+    CEO
+
+Send reasoned out letter, and send messages supporting my points.
+
+========================================================================
+
+To: rms@wheaties.ai.mit.edu
+CC: tower@wheaties.ai.mit.edu
+In-reply-to: Richard Stallman's message of Wed, 15 Feb 89 04:53:01 EST <8902150953.AA00480@sugar-bombs.ai.mit.edu>
+Subject: [don@brillig.umd.edu: Freeing NeWS 1.1]
+--text follows this line--
+NeWS isn't just a window system. It's a multitasking object oriented
+graphical programming environment, like SmallTalk. 
+
+NeWS uses much less bandwidth than X. You can run a NeWS client over a
+modem, and still get good interactive performance. This is because
+NeWS clients can download code to handle interaction and feedback, and
+they can define their own communications protocol, that makes the best
+use of the bandwidth.
+
+There are bugs in NeWS.
+There is a lot very useful code in NeWS. 
+Conix, arbitrarily shaped windows, multitasking PostScript interpreter.
+Stuff that people would be free to incorperate into the Gnu window
+system. 
+
+Gnu needs a PostScript interpreter.
+GnuScript is good, but parts of it are slow. 
+NeWS has a fast graphics library, with fantastic curves. 
+It uses Vaughan Pratt's fast conic spline package, and it decomposes
+arcs and bezier curves into a few conic sections, instead of many
+short straight lines. 
+
+NeWS has arbitrarily shaped windows. 
+All that code is in there. 
+

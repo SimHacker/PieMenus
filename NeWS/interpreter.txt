@@ -1,0 +1,595 @@
+To: NeWS-makers@brillig.umd.edu, comp-lang-postscript@ucbvax.berkeley.edu
+Subject: A PostScript interpreter written in PostScript
+--text follows this line--
+Obvious Question:
+  Why would anybody ever write a PostScript interpreter in PostScript?
+
+Possible Answers:
+  To use as a debugging tool.
+  To trace and single step through the execution of PostScript code.
+  To serve as a basis for PostScript algorithm animation.
+  To gain a deeper understanding of how PostScript works.
+  To try out some ideas from Structure and Interpreteration.
+  To experiment with extensions to the PostScript language.
+  To demonstrate that PostScript isn't just for breakfast any more.
+  To make PostScript run even slower (but thicker).
+  To avoid programming in C (the portable assembly language of the 80's).
+  To use to interpret its self.
+  To have something nerdish to talk about at parties.
+
+The meta-interpreter has its own meta-execution stack, a PostScript
+array, onto which it pushes continuations for control structures.
+(forall, loop, stopped, etc...)  The continuations are represented by
+dictionaries in which is stored the state needed by the control
+structure (plus some other info to help with debugging), as well as a
+function /continue, and a /continuation type.
+
+Before executing any operator, the meta-interpreter looks to see if
+it's defined in the iexec-operators dict, and if it is, the associated
+procedure is executed instead. Since the meta-interpreter uses its own
+execution stack, any operator that effects the execution stack (loop,
+exit, exec, etc...)  must be redefined to use the meta-execution
+stack, so that the meta-interpreter can trace the execution.  The NeWS
+execution stack is just used to execute the code implementing the
+meta-interpreter -- the code being meta-interpreted uses the
+meta-execution stack. The MumbleFrotz function uses the NeWS execution
+stack to temporarily hold the state of the meta-interpreter (a dict)
+when it's not on the dictionary stack. (or rather, it uses the
+execution stack of whatever interpreter is interpreting the
+meta-interpreter ;-)
+
+Some things that are not implemented yet: error handling (which has a
+lot of potential for being useful :-), pathforall, countexecstack,
+tracing of the supersend primative in X11/NeWS. I can't think of a way
+to trace the execution of event manager callback procedures stored in
+interest Name and Action dictionaries, that awaitevent executes
+automatically before returning, short of wrapping calls to the
+interpreter around each of the callbacks (eeugh). 
+
+The awaitevent operator is the only way to get an event, and sometimes
+it uses the NeWS execution stack, by pushing event callbacks on it.
+This means they get executed by the NeWS interpreter without being
+traced. (Nothing bad happens, it's just invisible to the
+meta-interpreter.) Unfortunatly, I'd really like to be able to trace
+those...  What the meta-interpreter needs is a dumbawaitevent
+operator, that returns the callback instead of executing it (on
+purpose -- cf blankscreen comments).
+
+Three things that inspired this implementation are Abelson and
+Sussman's "Structure and Interpretation of Computer Programs" from MIT
+Press, and Crispin Goswell's paper, "An Implementation of PostScript",
+published in the book "WorkStations and Publication Systems", from
+Springer Verlag, and hot steam forced violently past finely ground
+Cafe' Bellissimo, mixed with lots of steamed milk and brown sugar.
+
+	-Don
+
+%!
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% @(#)ps.ps
+% PostScript meta-interpreter.
+% Copyright (C) 1989.
+% By Don Hopkins. (don@brillig.umd.edu)
+% All rights reserved.
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+%  This program is provided for UNRESTRICTED use provided that this
+%  copyright message is preserved on all copies and derivative works.
+%  This is provided without any warranty. No author or distributor
+%  accepts any responsibility whatsoever to any person or any entity
+%  with respect to any loss or damage caused or alleged to be caused
+%  directly or indirectly by this program. If you have read this far, 
+%  you obviously take this stuff far too seriously, and if you're a 
+%  lawyer, you should give up your vile and evil ways, and go find
+%  meaningful employment. So there. 
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Problems:
+%   How do we catch the execution of interest Name and Action dict values,
+%   executed by awaitevent?
+
+systemdict begin
+
+/iexec-types 100 dict def
+/iexec-operators 100 dict def
+/iexec-names 200 dict def
+/iexec-exit-stoppers 20 dict def
+/iexec-single-forall-types 20 dict def
+/iexec-array-like-types 20 dict def
+
+/iexecing? false def
+
+/signal-error { % errorname => -
+  dbgbreak
+} def
+
+/iexec { % obj => ...
+  100 dict begin
+    % This functions "end"s the interpreter dict, executes an object in the
+    % context of the interpreted process, and "begin"'s back onto the
+    % interpreter dict. Note the circularity.
+    /MumbleFrotz [ % obj => ...
+      /end load /exec load currentdict /begin load
+    ] cvx def
+
+    /ExecStack 100 array def
+    /ExecSP -1 def
+
+    /PushExec [ % obj => -
+      /ExecSP dup cvx 1 /add load /store load
+      ExecStack /exch load /ExecSP cvx /exch load /put load
+    ] cvx def
+
+    /PopExec [ % obj => -
+      ExecStack /ExecSP cvx /get load
+      /ExecSP dup cvx 1 /sub load /store load
+    ] cvx def
+
+    /TraceStep {
+      iexec-step
+    } def
+
+    PushExec
+
+    { ExecSP 0 lt { nullproc exit } if % nothing left to execute? goodbye.
+
+      % pop top of exec stack onto the operand stack
+      PopExec
+
+      TraceStep
+
+      % is it executable? (else just push literal)
+      dup xcheck { % obj
+	% do we know how to execute it?
+	dup type
+        //iexec-types 1 index known { % obj type
+	  //iexec-types exch get exec % ...
+	} { % obj type
+	  % some random type. just push it.
+	  pop % obj
+	} ifelse
+      } if % else: obj
+
+    } loop % goodbye-proc
+
+    currentdict /MumbleFrotz undef % Clean up circular reference
+  end
+  exec % whoever exited the above loop left a goodbye proc on the stack.
+} def
+
+/iexec-step { % operand stack ... execee
+} def
+
+/iexec-sends { % - => context0 context1 ... contextn
+  ExecSP 1 sub -1 0 {
+    ExecStack exch get % ob
+    dup type /dicttype eq {
+      dup /continuation known {
+	dup /continuation get /send eq {
+	  /context get
+	  dup null eq { pop } if
+	} { pop } ifelse
+      } { pop } ifelse
+    } { pop } ifelse
+  } for
+} def
+
+% Re-enter the NeWS PS interpreter, execute object, and return.
+% We need to construct the currentprocess's /SendStack from the interpreter's
+% send stack, so ThisWindow and other functions that look at the SendStack
+% will work.
+/iexec-reenter { % obj => ...
+  mark
+  /ParentDictArray where pop
+  iexec-sends % obj mark context0 context1 ... contextn
+  { { % obj mark context0 context1 ... contextn {func}
+      1 index mark eq { % obj mark {func}
+        pop pop % obj
+	exec % ...
+      } { % obj mark context0 context1 ... contextn {func}
+        dup 3 -1 roll send % ...
+      } ifelse
+    } dup exec
+  } MumbleFrotz
+} def
+
+iexec-array-like-types begin
+  /arraytype true def
+  /packedarraytype true def
+end % iexec-array-like-types
+
+/iexec-token { % token => ...
+  dup xcheck {
+    % This is the "weird" thing about PostScript:
+    % If object is isn't an executable array, execute it, else push it.
+    //iexec-array-like-types 1 index type known not { PushExec } if
+  } if
+} def
+
+iexec-types begin
+
+  /nametype { % name => ...
+    pause
+    % We could push a dummy name continuation on the exec stack here to
+    % help with debugging, by making stack dumps more informative...
+    //iexec-names 1 index known { % name
+      //iexec-names exch get % func
+      exec %
+    } {
+      dup % name name
+%       [ /where load currentdict ] % name name fn
+%       end cvx exec begin % name dict true / name false
+      {where} MumbleFrotz % name dict true / name false
+      { % name dict
+	exch get
+	PushExec
+      } { % name
+	/undefined signal-error
+      } ifelse
+    } ifelse
+  } def
+
+  /arraytype { % array => ...
+    dup length dup 0 eq { % array length
+      pop pop %
+    } { % array length
+      1 eq { % array
+        0 get %
+	PushExec %
+      } { % array
+        dup 0 get % array head
+	% push rest of array to execute later
+	exch 1 1 index length 1 sub getinterval % head tail
+	PushExec % head
+        iexec-token %
+      } ifelse
+    } ifelse
+  } def
+
+  /packedarraytype /arraytype load def
+
+  /stringtype { % string => ...
+    dup token { % string rest token
+      exch dup length 0 eq { pop } { PushExec } ifelse % string token
+      exch pop % token
+      iexec-token % ...
+    } { % str
+      dup length 0 eq {
+        pop %
+      } { % str
+        /syntax signal-error
+      } ifelse
+    } ifelse
+  } def
+
+  /filetype { % file => -
+    dup token { % file token
+      exch dup % token file file
+      status { PushExec } { pop } ifelse % token
+      iexec-token % ...
+    } { % file
+      dup status {
+        /syntax signal-error
+      } {
+	pop
+      } ifelse
+    } ifelse
+  } def
+
+  /operatortype { % operator => -
+    //iexec-operators 1 index known {
+      //iexec-operators exch get exec
+    } {
+%       [ exch currentdict ] cvx
+%       end exec begin
+      MumbleFrotz
+    } ifelse
+  } def
+
+  /dicttype { % dict => -
+    dup /continuation known {
+      dup /continue get exec
+    } if
+  } def
+
+end % iexec-types
+
+iexec-operators begin
+
+  /exec load { % obj => -
+    PushExec
+  } def
+  
+  /if load { % bool proc => -
+    exch {
+      PushExec
+    } {
+      pop
+    } ifelse
+  } def
+
+  /ifelse load { % bool trueproc falseproc
+    3 -1 roll { exch } if % wrongproc rightproc
+    PushExec pop
+  } def
+
+  iexec-single-forall-types begin
+    {/arraytype /packedarraytype /stringtype}
+    {true def} forall
+  end % iexec-single-forall-types
+
+  /forall load { % obj proc => -
+    10 dict begin
+      /continuation /forall def
+      /proc exch def
+      /obj exch cvlit def
+      /i 0 def
+      //iexec-single-forall-types obj type known {
+	/continue { % dict => -
+	  begin
+	    i obj length lt {
+	      currentdict cvx PushExec
+	      obj i get
+	      /proc load PushExec
+	    } if
+	    /i i 1 add def
+	  end
+	} def
+      } {
+	/keys [
+	  obj {pop} forall
+	] def
+	/continue { % dict => -
+	  begin
+	    i obj length lt {
+	      currentdict cvx PushExec
+	      keys i get % key
+	      obj 1 index get % key val
+	      /proc load PushExec
+	    } if
+	    /i i 1 add def
+	  end
+	} def
+      } ifelse
+      currentdict cvx PushExec
+    end
+  } def
+
+  /for load { % first step last proc
+    10 dict begin
+      /continuation /for def
+      /proc exch def
+      /last exch def
+      /step exch def
+      /first exch def
+      /i first def
+      /continue { % dict => -
+        begin
+	  i last le {
+	    currentdict cvx PushExec
+	    i
+	    /proc load PushExec
+	    /i i step add def
+	  } if
+	end
+      } def
+      currentdict cvx PushExec
+    end
+  } def
+
+  /repeat load {
+    10 dict begin
+      /continuation /repeat def
+      /proc exch def
+      /times exch def
+      /i 0 def
+      /continue { % dict => -
+        begin
+	  i times lt {
+	    currentdict cvx PushExec
+	    /proc load PushExec
+	    /i i 1 add def
+	  } if
+	end
+      } def
+      currentdict cvx PushExec
+    end
+  } def
+
+  /loop load {
+    10 dict begin
+      /continuation /loop def
+      /proc exch def
+      /continue { % dict => -
+        begin
+	  currentdict cvx PushExec
+	  /proc load PushExec
+	end
+      } def
+      currentdict cvx PushExec
+    end
+  } def
+
+  /pathforallvec load {
+%...
+  } def
+
+  iexec-exit-stoppers begin
+    {/forall /for /repeat /loop /pathforallvec}
+    {true def} forall
+  end % iexec-exit-stoppers
+
+  /exit load {
+    { ExecSP 0 lt { % exit out of interpreter?
+	true exit
+      } {
+        PopExec % obj
+	dup dup xcheck exch type /dicttype eq and { % obj
+	  dup /continuation known {
+	    dup /continuation get iexec-exit-stoppers exch known {
+		pop false exit
+	      } {
+	        pop
+	      } ifelse
+	  } {
+	    pop
+	  } ifelse
+	} { % obj
+	  pop
+	} ifelse
+      } ifelse
+    } loop
+
+    { {exit} exit } if
+  } def
+
+  /stop load {
+    { ExecSP 0 lt { % stop out of interpreter?
+	true exit
+      } {
+        PopExec % obj
+	dup dup xcheck exch type /dicttype eq and { % obj
+	  dup /continuation known {
+	    dup /continuation get /stopped eq {
+	      pop true false exit
+	    } {
+	      pop
+	    } ifelse
+	  } {
+	    pop
+	  } ifelse
+	} { % obj
+	  pop
+	} ifelse
+      } ifelse
+    } loop
+
+    { {stop} exit } if
+  } def
+
+  /stopped load { % proc
+    10 dict begin
+      /continuation /stopped def
+      /continue { % dict => -
+	pop false
+      } def
+      /proc 1 index def % debugging
+      currentdict cvx PushExec
+      PushExec
+    end
+  } def
+
+  /send load { % <args> message object => <results>
+    { currentdict } MumbleFrotz % message object context
+    2 copy eq { % message object context
+      pop pop cvx PushExec
+    } { % message object context
+      10 dict begin
+	/continuation /send def
+	/context
+	  exch dup /ParentDictArray known not { pop null } if
+	def % message object
+        /object exch def % message
+	/message 1 index def % message
+	/continue { % cdict => -
+          { % cdict
+	    ParentDictArray dup type /arraytype ne { % X11/NeWS
+	      /ParentDictArray get length 1 add
+	    } {
+	      length
+	    } ifelse
+            1 add {end} repeat
+	    /context get % context
+	    dup null eq { % context
+	      pop %
+	    } { % idict context
+	      dup /ParentDictArray get {begin} forall begin %
+	    } ifelse %
+	  } MumbleFrotz
+	} def
+	/unwind /continue load def
+	currentdict cvx PushExec
+        object context % message object context
+      end % of cdict
+      { null ne {
+	  ParentDictArray length 1 add {end} repeat
+	} if
+        dup /ParentDictArray get
+        dup type /arraytype ne { % X11/NeWS
+          dup /ParentDictArray get
+	  {begin} forall begin begin % message
+        } {
+	  {begin} forall begin % message
+        } ifelse
+      } MumbleFrotz % message
+      cvx PushExec %
+    } ifelse
+  } def
+  
+% supersend (operator in X11/NeWS, proc in 1.1?)
+
+  /currentfile load { % => file
+    null
+    ExecStack length 1 sub -1 0 {
+      ExecStack exch get % obj
+      dup type /filetype eq {
+	exit
+      } {
+        pop
+      } ifelse
+    } for
+    dup null eq {
+      pop currentfile
+    } {
+      exch pop
+    } ifelse
+  } def
+
+  % We have to have the send contexts set up right when we do a fork, since
+  % the child process inherits them. (i.e. so ThisWindow works)
+  /fork load {
+    {fork} iexec-reenter
+  } def
+
+  /countexecstack load {
+    /countexecstack dbgbreak
+  } def
+
+  /quit load {
+    /quit dbgbreak
+  } def
+
+end % iexec-operators
+
+iexec-names begin
+
+  /sendstack {
+    [ iexec-sends
+      currentprocess /SendContexts get aload pop
+    ]
+  } def
+
+  /iexecing? true def
+
+  % meta-exec is a hook back up to the interpreter context.
+  /meta-exec {
+    exec
+  } def
+
+  /append {
+    {append} MumbleFrotz
+  } def
+
+  /sprintf {
+    {sprintf} MumbleFrotz
+  } def
+
+% execstack
+
+end % iexec-names
+
+end % systemdict
+

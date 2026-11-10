@@ -1,0 +1,66 @@
+/PieRange 2 def
+/PieDiv 128 def
+/PieStep .5 def
+/N 1 def
+
+/ln2 2 ln def
+systemdict /pause known not { /pause {} def } if
+/min { 2 copy gt { exch } if pop } def
+/max { 2 copy lt { exch } if pop } def
+
+/points2rect { %	x y x' y'  =>  x y w h
+    3 index 2 index min		% x y x' y' X
+    3 index 2 index min		% x y x' y' X Y
+    5 index 4 index sub abs	% x y x' y' X Y W
+    5 index 4 index sub abs	% x y x' y' X Y W H
+    8 -4 roll pop pop pop pop	% X Y W H
+} def
+
+erasepage
+clippath pathbbox newpath points2rect
+4 2 roll translate
+1 index 2 div 1 index 2 div 2 copy translate
+min .95 mul dup scale
+
+      gsave
+        0 setgray
+	0 setlinewidth
+1 N div dup scale
+%	80 PieStep 190
+	0 PieStep 360
+        { /ThisAngle exch def  pause 
+ThisAngle =
+	  gsave
+	    ThisAngle rotate
+
+	    /PieScale
+	      ThisAngle
+	      dup 90 ge {
+		dup 270 ge {
+		  360 sub
+		} {
+		  180 exch sub
+		} ifelse
+	      } if
+
+	      PieRange mul
+	      -90 div
+	      2 exch exp % PieScale
+	    def
+
+	    1 PieScale div 1 scale
+
+	    0
+	    PieScale PieDiv div ln ln2 div .5 add floor 2 exch exp
+	    PieScale
+N mul
+	    {
+		0 moveto 0 0 rlineto stroke
+	    } for
+	  grestore
+	} for
+      grestore
+
+showpage
+
+

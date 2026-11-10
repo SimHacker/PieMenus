@@ -1,0 +1,419 @@
+EmacsDict begin
+
+% ------------------------------------ %
+% ParamPieMenu
+
+/ParamPieMenu LayeredPieMenu
+dictbegin
+  /SliceWedges false def
+  /HiLiteWithArrow? false def
+dictend
+classbegin
+
+  /new {
+    /new super send begin
+      MenuArgs length MenuKeys length lt {
+	  /MenuArgs [ % pad out args w/ last arg
+	      MenuArgs aload pop
+	      MenuKeys length MenuArgs length sub {dup} repeat
+	  ] def
+      } if
+      currentdict
+    end
+  } def
+
+  /DragProc {
+    ChildMenu null eq {
+      MenuGSave
+        PieRadius dup translate
+        CurrentEvent begin
+          XLocation DeltaX add
+          YLocation DeltaY add
+        end
+        SetMenuValue
+
+        MenuValue PaintedValue ne {
+          PaintMenuValue
+        } if
+        getmenuarg /PaintedArg load ne {
+          PaintMenuArg
+        } if
+      grestore
+    } if
+  } def
+
+  /DamageProc {
+    MenuGSave
+      damagepath clipcanvas
+      /paint self send
+      PaintedValue PaintSlice
+      /PaintedArg load PaintArg
+      newpath clipcanvas
+    grestore
+  } def
+
+  /PaintMenuArg {
+    /PaintedArg load EraseArg
+    getmenuarg PaintArg
+    /PaintedArg getmenuarg store
+  } def
+
+  /EraseArg { % thing => -
+    dup null eq {
+      MenuGSave
+	pop
+	PieRadius dup translate
+	MenuFillColor setcolor
+	0 0 LabelRadius Gap sub 0 360 arc
+	fill
+      grestore
+    } {
+      MenuGSave
+	PieRadius dup translate
+	MenuFillColor setcolor
+        ThingSize
+        2 copy
+	-.5 mul exch -.5 mul exch
+	4 -2 roll
+	rectpath fill
+      grestore
+    } ifelse
+  } def
+
+  /PaintArg { % thing => -
+    dup null eq {
+      MenuGSave
+	pop
+	PieRadius dup translate
+	MenuBorderColor setcolor
+	MenuItems {
+	  begin
+	    gsave
+	      newpath
+	      ang PieSliceWidth 2 div sub rotate
+	      NumbRadius 0 moveto
+	      LabelRadius Gap sub 1 sub 0 lineto
+              MenuBorderColor setcolor
+	      stroke
+	    grestore
+	  end
+	} forall
+      grestore
+    } {
+      MenuGSave
+	PieRadius dup translate
+	MenuTextColor setcolor
+        dup ThingSize
+	-.5 mul exch -.5 mul exch
+	ShowThing
+      grestore
+    } ifelse
+  } def
+
+  /showat {
+    PaintedArg null ne PaintedValue null ne and
+    MenuCanvas null ne and MenuWidth null ne and {
+      MenuGSave
+        /PaintedArg load EraseArg
+        /PaintedArg null store
+	null PaintArg
+      grestore
+    } if
+    /showat super send
+  } def
+
+  /SetMenuValue { % x y => -
+    /SetMenuValue super send
+    /MenuArg
+      MenuValue null eq
+      {null true}
+      {MenuArgs MenuValue get dup length 0 eq} ifelse {
+        pop null
+      } {
+        PieDistance PieRadius 1 sub min NumbRadius sub
+	PieRadius NumbRadius sub div 1 index length mul floor
+	get
+      } ifelse
+    def
+  } def
+
+  /getmenuarg {
+    /MenuArg load
+  } def
+
+classend def
+
+
+
+
+
+% ------------------------------------------------------------------------ %
+% Menu definitions.
+
+/EmacsDefaultPopupMenu PieMenu def
+/EmacsDefaultSystemMenu LitePullRightMenu def
+
+/EmacsColorPie
+  {
+    ColorName MenuValue
+    {store hiliteOff /sendfcpnt parentFrame send} ThisWindow send
+  } /new ColorPie send def
+
+/doEmacsColorPie {
+  EmacsColorPie
+  dup /ColorName
+  currentkey {
+    (Space) {/BgColor}
+    (HiLite Text) {/HlFgColor}
+    (HiLite Space) {/HlBgColor}
+    (Text) {/FgColor}
+    /Default {/bad-color-name dbgbreak}
+  } case
+  put
+  dup /Brightness
+  /value getmenuarg exec
+  put
+} def
+
+/grayThing { % gray => thing
+  exch {
+    /size { pop NumbRadius dup add dup }
+    /paint {
+      gsave
+	newpath
+	0 0 NumbRadius Border sub 0 360 arc
+	setgray
+	fill
+	0 0 NumbRadius 0 360 arc
+	0 0 NumbRadius Border sub 0 360 arc
+	MenuBorderColor setcolor
+	eofill
+      grestore
+    }
+    /value { }
+  } case
+} def
+
+/EmacsColorMenu [
+  [ 0 .1 1 {
+      [ exch /grayThing cvx ] cvx
+    } for
+  ]
+] [
+  (Space) /doEmacsColorPie cvx
+  (HiLite Text) /doEmacsColorPie cvx
+  (HiLite Space) /doEmacsColorPie cvx
+  (Text) /doEmacsColorPie cvx
+] /new ParamPieMenu send def
+
+EmacsColorMenu /NumbRadius 25 put
+EmacsColorMenu /LabelMinRadius 45 put
+
+/firstword {
+  ( ) search {
+    exch pop exch pop
+  } if
+} def
+
+/sendprefixarg { % arg => -
+  [ 27 3 -1 roll 10 string cvs ] /sendstring ThisWindow send
+} def
+
+/getmenuarg 1 def
+
+/sendmovementarg { % num => -
+  getmenuarg firstword sendprefixarg
+  /menucallback ThisWindow send
+} def
+
+/makenumberlabel { % n label => string
+  exch
+  dup 1 eq () (s) ifelse	% label n s
+  3 1 roll			% s label n
+  (% %%) sprintf		% string
+} def
+
+/EmacsMoveMenu [
+  [1 1 16 { (line) makenumberlabel } for]	% Up
+  [1 1 4 { (page) makenumberlabel } for]	% Previous
+  [1 1 16 { (char) makenumberlabel } for]	% Right
+  [1 1 4 { (page) makenumberlabel } for]	% Next
+  [1 1 16 { (line) makenumberlabel } for]	% Down
+  [/toggle1 /toggle2 /toggle3]			% End
+  [1 1 16 { (char) makenumberlabel } for]	% Left
+  [/toggle3 /toggle2 /toggle1]			% Beginning
+] [
+  (Up)		{ 100 sendmovementarg }
+  (Previous)	{ 101 sendmovementarg }
+  (Right)	{ 102 sendmovementarg }
+  (Next)	{ 103 sendmovementarg }
+  (Down)	{ 104 sendmovementarg }
+  (End)		{ 105 /menucallback ThisWindow send }
+  (Left)	{ 106 sendmovementarg }
+  (Beginning)	{ 107 /menucallback ThisWindow send }
+] /new ParamPieMenu send def
+
+EmacsMoveMenu /LabelMinRadius 30 put
+EmacsMoveMenu /MapShortDelay .5 60 div put
+
+/setemacsfont { % Family Point => -
+  exch (\033xset-frame-font %.%\n) sprintf
+  { [ /BUCKY 3 -1 roll ] sendstring } ThisWindow send
+} def
+
+/makeFontThings { % [points] family => things ...
+  10 dict begin
+    /font exch findfont def
+    { /point exch def
+      [ point (% point) sprintf
+        font point scalefont ]
+    } forall
+  end
+} def
+
+/EmacsFontMenu [
+  [ /eye_bld1 /eye_bld2 /eye_bld3 /eye4 /eye3 /eye2 /eye1]	% Icon
+  [ [1 10 12 14 16 18 24 32] /Courier makeFontThings ]		% Courier
+  [ [10 12 14 16 18 24 32] /Courier-Bold makeFontThings ]	% Courier-Bold
+  [ [10 12 14 18 24 32] /Symbol makeFontThings ]		% Symbol
+  [ [13 15] /Screen-Bold makeFontThings ]			% Screen-Bold
+  [ [7 11 13 15] /Screen makeFontThings ]			% Screen
+] [
+  [(Icon) /Times-Bold findfont 12 scalefont]
+  [(Courier) /Courier findfont 12 scalefont]
+  [(Courier-Bold) /Courier-Bold findfont 12 scalefont]
+  [(Symbol) /Symbol findfont 12 scalefont]
+  [(Screen-Bold) /Screen-Bold findfont 12 scalefont]
+  [(Screen) /Screen findfont 12 scalefont]
+] [
+  { (Icon) (1) setemacsfont }					% Icon
+  { currentkey 0 get
+    getmenuarg 0 get firstword
+    setemacsfont }						% the rest...
+] /new ParamPieMenu send def
+
+EmacsFontMenu /LabelMinRadius 60 put
+
+/getThisWindowModeMenu {
+  ThisWindow /ModeMenu known {
+    ThisWindow /ModeMenu get
+  } {
+    { currentcursorlocation [(No)(Mode)(Menu)] popmsg pop }
+  } ifelse
+} def
+
+/EmacsStyleMenu [
+  (Font...)		EmacsFontMenu
+  (Color...)		EmacsColorMenu
+] /new EmacsDefaultPopupMenu send def
+
+/EmacsWindowMenu [
+  (Delete)		{}
+  (Transpose)		{}
+  (Zoom)		{}
+  (Delete Others)	{}
+  (Freeze)		{}
+  (Guard)		{}
+  (Toggle Modeline)	{}
+  (Save Layout)		{}
+  (Restore Layout)	{}
+  (All Buffers)		{}
+] /new EmacsDefaultPopupMenu send def
+
+/EmacsMajorModeMenu [
+  (text-mode)		{}
+  (elec-mlisp-mode)	{}
+  (elec-c-mode)		{}
+  (elec-lisp-mode)	{}
+  (nroff-mode)		{}
+  (forth-mode)		{}
+] def
+
+/EmacsBufferMenu [
+  (Switch)		{}
+  (Describe)		{}
+  (Rename)		{}
+  (Edit Name)		{}
+  (Delete)		{}
+  (Major Mode)		EmacsMajorModeMenu
+  (Minor Mode)		{}
+  (Edit List)		{}
+] /new EmacsDefaultPopupMenu send def
+
+/EmacsFileMenu [
+  (Describe File)	{}
+  (Save)		{}
+  (Switch)		{}
+  (Delete)		{}
+  (Rename)		{}
+  (Edit Name)		{}
+  (Revert)		{}
+] /new EmacsDefaultPopupMenu send def
+
+/EmacsOptionMenu [
+  (Session)		{}
+  (Ruler)		{}
+  (Minor Mode)		{}
+  (Help)		{}
+  (Mouse)		{}
+  (Environment)		{}
+  (Variable)		{}
+  (Macro)		{}
+  (Description Search)	{}
+  (Word Description)	{}
+  (Any Option)		{}
+] /new EmacsDefaultPopupMenu send def
+
+/EmacsMacroMenu [
+  (Playback)		{}
+  (Start)		{}
+  (Stop)		{}
+  (Edit)		{}
+] /new EmacsDefaultPopupMenu send def
+
+/EmacsSystemMenu [
+  (Shell)		{}
+  (PS Shell)		{}
+  (Info)		{}
+] /new EmacsDefaultPopupMenu send def
+
+/EmacsCommandMenu [
+  (System...)		EmacsSystemMenu
+  (Exit Emacs)		{}
+] /new EmacsDefaultPopupMenu send def
+
+
+/EmacsEditMenu [
+  (Move...)		EmacsMoveMenu
+  (Macro...)		EmacsMacroMenu
+  (Option...)		EmacsOptionMenu
+] /new EmacsDefaultPopupMenu send def
+
+/EmacsHelpMenu [
+  (Apropos)		{}
+  (Function)		{}
+  (Variable)		{}
+  (Key)			{}
+  (Where Is)		{}
+  (Bindings)		{}
+  (Last Keystrokes)	{}
+  (Buffer)		{}
+  (Major Mode)		{}
+  (Recursive Edit)	{}
+  (Emacs News)		{}
+  (Info)		{}
+  (Tutorial)		{}
+] /new EmacsDefaultPopupMenu send def
+
+/EmacsMenu [
+  (Edit...)		EmacsEditMenu
+  (Window...)		EmacsWindowMenu
+  (Buffer...)		EmacsBufferMenu
+  (File...)		EmacsFileMenu
+  (Mode...)		/getThisWindowModeMenu cvx
+  (Command...)		EmacsCommandMenu
+  (Help...)		EmacsHelpMenu
+  (Style...)		EmacsStyleMenu
+] /new EmacsDefaultPopupMenu send def
+
+end % EmacsDict

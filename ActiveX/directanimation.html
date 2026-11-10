@@ -1,0 +1,96 @@
+<HTML>
+
+  <HEAD>
+    <TITLE>Pie Menu Direct Animation Demo</TITLE>
+  </HEAD>
+
+  <BODY>
+
+    <DIV style="width:100%;height:100%;behavior:url(piemenu.htc)"
+      id="myPieTarget"
+      onafterinitpie="SetupDirectAnimation()"
+      onpreview="HandleChange(event)"
+      onselect="HandleSelect(event)">
+
+      <CENTER>
+	<H1>Pie Menu Direct Animation Demo</H1>
+
+        <BR/>
+        <H2>Click here to pop up a pie menu using Direct Animation.</H2>
+        <BR/>
+
+      </CENTER>
+
+      <HR/>
+
+      <DIV ID="Barf"/>
+
+      <XML src="directanimation.xml"/>
+    </DIV>
+
+    <SCRIPT>
+
+var pic1, pic2, pic3, pic4, pic5, pic6, pic7, pic8;
+var ovalPath, followOvalPath;
+
+function SetupDirectAnimation()
+{
+  lib = DAViewer.PixelLibrary;
+
+  pic1 = lib.ImportImageColorKey("Punkemon/punkachu.gif", 255, 255, 255);
+  scale = lib.Scale2(0.0, 0.0);
+  scalemod = lib.ModifiableBehavior(scale);
+  rot = lib.Rotate2(0.0);
+  rotmod = lib.ModifiableBehavior(rot);
+  pic2 = pic1.Transform(scalemod);
+  ovalPath = lib.Oval(200, -200);
+  followOvalPath = lib.FollowPath(ovalPath, 8).RepeatForever();
+  pic3 = pic2.Transform(followOvalPath);
+  
+  offsets = new Array();
+  colors = new Array();
+  offsets[0] = 0;
+  colors[0] = lib.Red;
+  offsets[1] = 20;
+  colors[1] = lib.Green;
+  offsets[2] = 40;
+  colors[2] = lib.Blue;
+
+//  col1 = lib.RadialGradientMulticolor(offsets, colors);
+  pic10 = lib.ImportImage("blob.jpg").Opacity(0.5);
+  scale2 = lib.Scale2(5.0, 5.0);
+  pic11 = pic10.Transform(scale2);
+  
+  col1 = lib.SolidColorImage(lib.Gray);
+
+  pic5 = ovalPath.Fill(lib.DefaultLineStyle, pic11);
+
+  finalPic1 = lib.Overlay(pic3, pic5);
+
+  DAViewer.Image = finalPic1;
+  DAViewer.Start();
+}
+
+
+function HandleChange(event)
+{
+  var lib = DAViewer.PixelLibrary;
+  var dist = myPieTarget.rootpiemenu.distance;
+  var dir = myPieTarget.rootpiemenu.direction;
+  var s = dist / 20.0;
+  var r = dir;
+
+  sc = lib.Scale2(s, s);
+  scalemod.SwitchTo(sc);
+}
+
+function HandleSelect(event)
+{
+}
+
+    </SCRIPT>
+
+  </BODY>
+
+</HTML>
+

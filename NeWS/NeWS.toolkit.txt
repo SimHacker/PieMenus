@@ -1,0 +1,28 @@
+To: frode@m2cs.uu.no, anders@m2cs.uu.no
+In-reply-to: Frode Odegard's message of Mon, 6 Mar 89 14:44:15 +0100 <8903061344.AA21254@m2cs.uu.no>
+Subject: NeWS toolkits
+--text follows this line--
+What we're all waiting for is NDE -- NeWS Development Environment. It
+looks like OPEN LOOK, but it's a tool kit kit, i.e. OPEN LOOK is only
+an example of what you can do with it. You're not stuck with it! 
+
+They've done some wonderful extensions to the class system, magic
+dictionaries, and the way in which objects fit into the window hierarchy.
+Now there's multiple inheritance. And the class hierarchy has been
+restructured so menus, windows, items, etc, are all based on class Canvas,
+and use the actual canvas as an instance dictionary...  The "magic
+dictionaries" like canvases, processes, events, fonts, etc, are now just
+like regular dictionaries! You can put your own things in them! And they
+don't show up in all the other magic dictionaries! What this means is that
+you can take any particular canvas (say, the framebuffer), and make it
+into an instance of some class, by using the canvas as an instance
+dictionary! So sending a message to a canvas is exactly the same thing as
+sending a message to the object that uses that canvas. That means objects
+can access other objects through the window hierarchy. An Item can ask its
+/Parent canvas for its background color by sending it a message. Or follow
+/CanvasBelow links sending /bbox messages to see which sibling Items might
+have to be repained when it moves. When you get an event, you can grab its
+/Canvas field and send a message to it! No more self PutInEventMgrInterest
+bull-pucky! Whole new realms of possibilities open up!
+
+	-Don

@@ -1,0 +1,98 @@
+From: Hopkins, Don [mailto:Hopkins, Don] 
+Sent: Wednesday, September 30, 1998 9:45 PM
+To: 'Richard I. Anderson'
+Cc: dhopkins@maxis.com
+Subject: RE: BayCHI - Oct. 13
+
+I'm sorry this took so long. We just made a milestone today, so I've
+been up late working hard all week! The result of the milestone is a
+nice stable game with many new features, that will be fun to
+demonstrate at the talk!
+
+Here is a title, an abstract, and a short bio. 
+
+I've put together an outline for the talk, and the next step is
+editing together the videos I want to show. I don't have the necessary
+AV equipment but I will ask some friends if I can borrow theirs. I
+will make a hi-8 tape with excerpts from a bunch of video tapes I've
+taken.
+
+I've ordered Brad Meyers' "All The Widgets" video (I lent out my copy)
+that has a bunch of good pie menu demos I produced, that I'd like to
+show at the talk. They should be shipping it to me soon. Would it be
+possible for me to queue the tape and for an AV person to switch from
+hi-8 to vhs live during the talk, or would it be better for me to copy
+the parts I want onto one hi-8 tape?
+
+All the Widgets starts out with the most amazing black and white film
+of Doug Engelbart demonstrating his mouse and chord keyboard with NLS
+in 1968, that I would love to show if there is time. Almost like the
+introduction to the outer limits, it captures the fantastic wonder of
+things we take for granted today. ("We control the horizontal. We
+control the vertical. Do not attempt to adjust your computer.") I have
+one of his old mice and a chord keyboard I could bring for show and
+tell, which might be interesting!
+
+    -Don
+
+
+Title
+
+Natural Selection: The Evolution of Pie Menus
+
+Abstract
+
+Pie menus are a naturally efficient user interface technique:
+directional selection of pie slice shaped targets. The cursor starts
+out in the center of the pie, so all targets are large, nearby, and in
+different directions. Fitts' Law explains the advantages of pie menus,
+relating fast selection speed and low error rate to large target size
+and small distance. Pie menus are easy for novice users, who just
+follow the directions, and efficient for experienced users, who can
+quickly "mouse ahead" once they know the way.
+
+The practical development and evolution of pie menus has been driven
+not only by scientific theory and experiments, but also by practical
+first hand experience using pie menus on a regular basis, and applying
+them to real world products.
+
+User interface design is not so much a process of raw artistic
+creation, nor the legalistic application of interface guidelines and
+theories, but more like the exploration and discovery of naturally
+efficient ways of solving problems given particular sets of
+constraints. The outcome is different every time because the
+constraints always vary, but some of the underlying principles are
+universal. Doug Engelbart believes very strongly that the human-tool
+co-evolution should be based on rigorous exploratory use in a wide
+variety of real-world applications.
+
+Don Hopkins will discuss the design of various real- and
+not-so-real-world applications he's developed with pie menus, from his
+first X10 window manager 11 years ago, to his latest game at Maxis,
+"The Sims".
+
+Bio
+
+Don Hopkins has been researching and programming alternative user
+interfaces across various platforms in different tongues, including
+Forth, PostScript, Lisp, and ScriptX, and lots of obscure special
+purpose extension languages. His interests include cellular automata,
+visual programming, user interfaces, games, networking, real time
+graphics, toolkits and window managers, object oriented programming,
+distributed objects and hypermedia, artificial intelligence, reading
+and writing code, and applying the works of Philip K. Dick and
+Stanislaw Lem to software design.
+
+Don has worked as a migrant research programmer for the University of
+Maryland Parallel Processing Lab, Heterogeneous Systems Lab, and Human
+Computer Interaction Lab, as well as The Turing Institute, Carnegie
+Mellon University, Kaleida Labs, and Interval Research Corporation.
+
+He's also worked in the real world as a software developer,
+programming am Open Look NeWS toolkit in PostScript for Sun
+Microsystems, porting SimCity to Unix and adding multi-player
+collaboration for DUX Software, developing a real time visual data
+flow programming language for Levity and Interval, creating a visual
+NeWS programming environment for HCIL and Grasshopper Group, and
+hacking Gosling Emacs for UniPress Software. He's currently working at
+Maxis on a family simulation game designed by Will Wright.

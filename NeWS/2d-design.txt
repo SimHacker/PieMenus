@@ -1,0 +1,310 @@
+2D/3D Open Look Componants
+
+* The Problem
+    The NeWS Toolkit Open Look componants are drawn in a trendy "3D"
+    style using five different brightness values to represent light
+    and dark shading of beveled edges. This effect is unusable on a
+    black and white display when gray values are approxomated by
+    stipple patterns. So in order to make it usable in two colors
+    (i.e. black and white), the toolkit must be taught to draw the
+    classic "2D" style Open Look.
+
+* The Model
+    The design is very simple: it is to insert "if" and "ifelse"
+    conditionals into appropriate places in the painting code, to
+    switch between 2D and 3D drawing procedures. A componant is
+    painted in 2D or 3D according to the value of a variable, called
+    "3D?". If 3D? is true, the componant is rendered in five color 3D.
+    Otherwise it's rendered in two color 2D. This approach of having
+    conditionals in the code is necessary in order to support multiple
+    heads and canvases of differing depths.
+
+* The Interface
+    The interface consists of a class variable called "/3D?" (which
+    may actually be method), the method "/set3D", the color class
+    variables "2DFG" and "2DBG", and the utility functions
+    "ForegroundColor" and "BackgroundColor", all defined in
+    ClassDrawable.  The Open Look painting code (called by /Paint)
+    uses "3D?" to decide whether to render in 2D or 3D.  The size of
+    each Open Look componant is exactly the same in 2D and 3D.  Idealy
+    the drawing code is factored to share as much as possible between
+    2D and 3D. The "3D?" variable only effects a componant's look, it
+    does not change its layout, size, or behavior.
+
+    Defined in ClassDrawable:
+
+    /3D?		% - => bool
+	This variable (or method) controls the dimensionality of Open
+        Look objects. If it's true, they are drawn in 3D, using the 5
+        colors, FG BG BG0 BG2 and BG3. If it's false, they are drawn
+        in 2D, using the 2 colors, 2DFG and 2DBG.
+
+    /set3D		% bool => -
+	Sets the dimensionality to 3D if bool is true, or 2D if false.
+	This method does not cause the object to repaint, but it does
+	invalidate objects of the following classes (because they have
+        cached drawing information that needs to be updated):
+	    ClassButtons ClassMenuButtons ClassMenu
+	    ClassVScrollbar ClassHScrollbar
+
+    /Color		% - => bool
+	Method that returns true if the drawable is color.
+	In ClassDrawable, it is defined as "framebuffer /Color get".
+	(Maybe it should be a SubClassResponsibility?)
+	In ClassCanvas, it is overridden by the /Color key of the canvas
+	magic dictionary, which returns true if the canvas is color. 
+	In ClassRegion, it is defined as "Parent /Color get".
+
+    /2DBG		% - => color
+    	White.
+
+    /2DFG		% - => color
+    	Black.
+
+    /BackgroundColor	% - => color
+    	BG or 2DBG, according to the dimensionality.
+	You are encouraged to use BackgroundColor instead of BG,
+	if you want text to be legible in monochrome.
+
+    /ForegroundColor	% - => color
+	FG or 2DFG, according to the dimensionality.
+	You are encouraged to use this ForegroundColor of FG,
+	if you want text to be legible in monochrome.
+
+    /Paint2DBox % x y w h bold? => -
+	Paint a 2D box using the 2DFG and 2DBG colors, whose bounding
+        box is defined by the arguments. When down? is true the box
+        appears stroked with a double thick line. 
+
+* The Impact
+    The 3D drawing code must be identified and conditionalized.  This
+    effects code that uses specific colors, Paint3DBox, or the 3D
+    olglyph characters.
+
+    Example:
+
+    /PaintSlider { % - => -
+	GraphicFont setfont
+	SliderX 10 add SliderY
+	2 copy moveto
+	3D? {
+	    BG setcolor //VERT_SLIDER_CONTROL_FILL show
+	    2 copy moveto
+	    BG0 setcolor //VERT_SLIDER_CONTROL_UL show
+	    moveto
+	    BG3 setcolor //VERT_SLIDER_CONTROL_LR show
+	    SliderHilited? {
+		SliderX 13 add SliderY
+		2 copy moveto
+		BG3 setcolor //DIMPLE_UL show
+		moveto
+		BG0 setcolor //DIMPLE_LR show
+	    } if
+	} {
+	    2DBG setcolor
+	      //VERT_SLIDER_CONTROL_FILL show
+	    2DFG setcolor
+	      moveto
+	      //VERT_SLIDER_CONTROL_OUTLINE show
+	} ifelse
+    } def
+
+* The Prototype
+    As a prototype, I have put conditionalized 3D/2D drawing code
+    for all of the componants into the toolkit code. This meant
+    changing the following files and classes:
+
+  drawable.ps:	ClassDrawable 
+  region.ps:	ClassRegion
+  canvas.ps:	ClassCanvas
+  label.ps:	ClassLabel
+  buttons.ps:	ClassButtons ClassMenuButtons
+  scrollbar.ps:	ClassVScrollBar ClassHScrollBar
+  menu.ps:	ClassMenu ClassMenuHeader ClassCommandMenu ClassSettingsMenu
+  list.ps:	ClassScrollList
+  slider.ps:	ClassHSlider ClassVSlider
+  window.ps:	ClassWindow ClassBaseWindow ClassPopupWindow
+  textfield.ps:	ClassTextField
+  numfield.ps:	ClassNumericField
+  settings.ps:	ClassSettings ClassCheckBoxes
+  gauge.ps:	ClassVGauge ClassHGauge
+  notice.ps:	ClassNotice
+
+* The Performance
+    There will be an impact on speed and size, because of the extra
+    drawing code and the extra tests at run time. The 2D drawing is 
+    faster than the 3D drawing since it uses fewer colors and glyphs,
+    but both the 2D code and the 3D code must be loaded and active at
+    once in order to have 2D and 3D displayed at the same time, as 
+    is required by screens with multiple heads or plane depths.
+
+** Size
+3D:	Standard 3D
+	load 3D sampler:	+486252
+	3D sampler avg:		+162476
+
+2Di:	2D, Mono? instance variable = true 
+	load 2Di sampler:	+497640
+	2Di sampler avg:	+171088
+
+3Di:	3D, Mono? instance variable = false
+	load 3Di sampler:	+498212
+	3Di sampler avg:	+172704
+
+2Dc:	2D, Mono? class variable = true
+	load 2Dc sampler:	+496444
+	2Dc sampler avg:	+170456
+
+3Dc:	3D, Mono? class variable = false
+	load 3Dc sampler:	+496364
+	3Dc sampler avg:	+171124
+
+** Speed
+
+*** Legend
+3D:	Standard 3D
+2Di:	2D, Mono? instance variable = true
+3Di:	3D, Mono? instance variable = false
+2Dc:	2D, Mono? class variable = true
+3Dc:	3D, Mono? class variable = false
+
+*** Demo window /paint timing (including window frame):
+
+**** Paint All Demo Windows:
+    Send "/paint" to all 20 demo windows. 
+
+		3D	3Di	2Di	3Dc	2Dc
+		==	===	===	===	===
+		1132.69	1142.0	970.9	1154.8	971.4
+
+**** Paint Individual Demo Windows:
+    Send "/paint" to each of the 20 demo windows.
+
+		3D	3Di	2Di	3Dc	2Dc
+		==	===	===	===	===
+***** Demo of 2 regions
+		36.35	37.1	30.9	38.0	31.4
+***** BorderBag Demo
+		43.26	43.4	37.1	43.8	37.7
+***** Checkbox Demo
+		92.88	96.0	71.1	96.6	72.0
+***** Settings Demo
+		130.4	117.3	108.6	117.8	107.3
+***** Scrolling List Demo
+		68.58	67.4	58.9	69.5	61.3
+***** Notice Demo
+		39.24	38.4	32.5	39.6	32.3
+***** ClassVScrollbar
+		44.49	46.8	39.7	47.2	40.6
+***** ClassHScrollbar
+		49.06	48.9	42.0	50.2	42.5
+***** ClassVGauge Demo!
+		51.84	51.9	43.8	52.5	43.7
+***** ClassHGauge Demo!
+		42.28	43.8	36.2	44.3	37.0
+***** ClassVSlider Demo!
+		78.57	78.1	68.4	77.2	66.2
+***** ClassHSlider Demo!
+		48.92	48.9	41.3	49.2	41.2
+***** ClassNumericField Demo
+		55.01	55.9	43.5	56.0	43.5
+***** ClassTextField Demo
+		40.43	42.1	36.3	42.2	35.9
+***** Menu Demo
+		35.56	36.4	30.5	37.2	30.3
+***** Demo of 4 labels
+		41.21	42.2	35.5	42.0	36.2
+***** ClassMenuButtons Demo
+		57.98	77.2	64.4	78.6	66.1
+***** ClassButtons Demo
+		61.56	69.1	57.4	69.8	57.1
+***** ClassPopupWindow Demo
+		72.35	72.6	69.7	73.4	58.3
+***** ClassBaseWindow Demo
+		32.47	33.6	29.0	33.6	28.1
+
+*** Corrected demo /paint timing (not including window frame):
+    Calculated by subtracting the time it takes to paint the
+    ClassBaseWindow Demo window from the time it takes to paint 
+    the 20 demo windows.
+
+**** Paint Individual Demos:
+
+***** Demo of 2 regions
+		3.88	3.5	1.9	4.4	3.3
+***** BorderBag Demo
+		10.79	9.8	8.1	10.2	9.6
+***** Checkbox Demo
+		60.41	62.4	42.1	63.0	43.9
+***** Settings Demo
+		97.93	83.7	79.6	84.2	79.2
+***** Scrolling List Demo
+		36.11	33.8	29.9	35.9	33.2
+***** Notice Demo
+		6.77	4.8	3.5	6.0	4.2
+***** ClassVScrollbar
+		12.02	13.2	10.7	13.6	12.5
+***** ClassHScrollbar
+		16.59	15.3	13.0	16.6	14.4
+***** ClassVGauge Demo!
+		19.37	18.3	14.8	18.9	15.6
+***** ClassHGauge Demo!
+		9.81	10.2	7.2	10.7	8.9
+***** ClassVSlider Demo!
+		46.1	44.5	39.4	43.6	38.1
+***** ClassHSlider Demo!
+		16.45	15.3	12.3	15.6	13.1
+***** ClassNumericField Demo
+		22.54	22.3	14.5	22.4	15.4
+***** ClassTextField Demo
+		7.96	8.5	7.3	8.6	7.8
+***** Menu Demo
+		3.09	2.8	1.5	3.6	2.2
+***** Demo of 4 labels
+		8.74	8.6	6.5	8.4	8.1
+***** ClassMenuButtons Demo
+		25.51	43.6	35.4	45.0	38.0
+***** ClassButtons Demo
+		29.09	35.5	28.4	36.2	29.0
+***** ClassPopupWindow Demo
+		39.88	39.0	40.7	39.8	30.2
+***** ClassBaseWindow Demo
+		0.0	0.0	0.0	0.0	0.0
+
+* Design Choices
+
+** Short term goals
+    Open Look 2D and 3D controls are the exact same size, so control
+    panels do not have to be arranged differently.
+
+    Display 2D and 3D at the same time (multi head, multi plane,
+    testing 2D on color).
+
+    Choose between 2D and 3D at for all subsequently created objects,
+    by sending a "/set3D" message to ClassDrawable.
+
+    Change a particular object between 2D and 3D at run time by
+    sending it a "/set3D" message.
+
+** Long term holy grails
+    Clean up painting code.
+    Scalability.
+    Printability.
+
+** Dynamic Behavior
+    How well do objects deal with "3D?" changing?  If you tell a
+    particular instance to set its dimensionality, it will work,
+    because classes that cache state based on /3D? can invalidate it
+    by overriding /set3D. But if you tell a whole *class* (i.e.
+    ClassDrawable) to set its dimensionality, controls of that class
+    that were previously created may be put into a strange state. In
+    most cases [if /3D? is not promoted to an instance variable],
+    pre-existing controls will still correctly repaint in the new
+    dimensionality next time they are damaged. But the more
+    complicated controls that cache strings and colors will not update
+    properly until they are invalidated (which may be impossible for
+    the user to cause to happen). Some controls cache some values
+    based on 3D? at validation time, but calculate others at paint
+    time, so they will paint in a strange mixture of 2D/3D, but at
+    least they will not crash if /3D? is changed out from underneath
+    them.

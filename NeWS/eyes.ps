@@ -1,0 +1,374 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Red Eyes
+%
+% Don Hopkins
+%
+% To make more eyes, select "Split" from the pupil menu.
+% To resize the eye, select it by clicking the left button,
+% and drag the red border.
+% To make deep eyes, drag one eye into the pupil of another.
+%
+
+/NeWS 3 0 findpackage beginpackage
+/TNTCore 3 0 findpackage beginpackage
+/TNT 3 0 findpackage beginpackage
+
+/ClassEyeBall ClassBaseWindow []
+classbegin
+  /BackgroundColor 1 1 1 rgbcolor def
+
+  /PupilSize .8 def
+
+  /destroy { % - => -
+    /Center /client self send {
+      /destroy exch send
+      /Center /removeclient self send { pop } if
+    } if
+    /EyeInterest unpromote
+    /unmap self send
+    /destroy super send
+  } def
+
+  /Layout { % - => -
+    /size self send		% w h
+    2 copy min PupilSize mul	% w h s
+    dup 4 1 roll		% s w h s
+    sub .5 mul			% s w h-s/2
+    dup /SInset exch def 1 add /NInset exch def % s w
+    exch sub .5 mul		% w-s/2
+    dup /WInset exch def 1 add /EInset exch def %
+    /Layout super send
+  } def
+
+  /path { % x y w h => -
+    ovalpath
+  } def
+
+  /Paint { % - => -
+    BackgroundColor /FillCanvas self send
+    /Center /client self send {
+      /bbox exch send
+      2 div exch 2 div exch xyadd
+      gsave translate
+        360 random mul rotate
+	17
+	360 1 index div exch {
+	  0 0 moveto  1000 0 lineto
+	  dup rotate
+	} repeat
+	pop
+	1 0 0 setrgbcolor stroke
+      grestore
+    } if
+    /PaintBorder self send
+  } def
+
+  /preferredsize { % - => w h
+    126 64
+  } def
+
+  /minsize { % - => w h
+    8 4
+  } def
+
+  /Close? false def
+  /Footer? false def
+  /Label? false def
+  /Pin? false def
+  /Reshape? true def
+
+  /BorderPath {
+    BorderEdge					% inset
+    /bbox self send				% inset x y w h
+    4 copy rectpath
+    insetrect					% x y w h
+    3 -1 roll 1 add 3 1 roll 1 1 xysub
+    ovalpath					%
+  } def
+
+  /SetSelectionRepaintingClip { % - => -
+      /BorderPath self send clip		% -
+  } def
+
+  /InReshapeArea? { % event => bool
+    Selected? {
+      gsave
+	self setcanvas
+	/BorderPath self send
+	begin XLocation YLocation end
+	pointinpath
+      grestore
+    } { pop false } ifelse
+  } def
+
+  /PaintBorder { % - => -
+    Selected? {
+	/BorderPath self send
+	1 0 0 setrgbcolor fill
+    } if
+  } def
+
+  /InCloseArea? { % event => bool
+    pop false
+  } def
+
+  /PoppedOut? false def
+
+  /MoveStart { % event => -
+    /PoppedOut? unpromote
+    /MoveStart super send
+  } def
+
+  /MoveMotionSub { % event => -
+    PoppedOut? not {
+      /PoppedOut? true promote
+      /framebufferof self send
+      dup Parent eq { pop } {
+	gsave setcanvas
+	  /location self send
+	  /unmap self send
+	  /Parent currentcanvas def
+	  /move self send
+	  /map self send
+	grestore
+      } ifelse
+    } if
+    /MoveMotionSub super send
+  } def
+
+  /MoveStopSub { % event => -
+    /MoveStopSub super send
+    TrackHasMoved? {
+	gsave /framebufferof self send setcanvas
+	    currentcursorlocation
+	    /Mapped false def
+	    canvasesunderpoint
+	    {   dup /EyeBallContainer! known
+		Selected? { SelectedWindows 2 index known not and } if {
+		    /active? 1 index send {
+			gsave setcanvas
+			    /location self send
+			    { /Parent currentcanvas def } stopped {
+				pop pop pop pop
+			    } {
+				/move self send
+				exit
+			    } ifelse
+			grestore
+		    } { pop } ifelse
+		} { pop } ifelse
+	    } forall
+	    /Mapped true def
+	grestore
+    } if
+  } def
+
+  /PaintFocus { % - => -
+  } def 
+
+  /ToggleOpened { % - => -
+    /ToggleOpened super send
+    /Center /client self send {
+      Opened? not {
+	gsave self setcanvas
+	0 0 /size self send
+	PupilSize mul exch PupilSize mul exch
+	min dup
+	/reshape 5 index send
+	/map exch send
+      } {
+        /layout self send pop
+      } ifelse
+      /look self send
+    } if
+  } def
+
+  /look { % - => -
+    /Center /client self send {
+      /look exch send
+    } if
+  } def
+
+  /IconSize { % - => w h
+    64 32
+  } def
+
+  /PaintIcon { % - => -
+    /Center /client self send {
+      /paint exch send
+    } {
+      /PaintIcon super send
+    } ifelse
+  } def
+
+  /SplitEye { % ctl => -
+    pop
+    gsave
+      Parent setcanvas
+      /bbox self send			% x y w h
+      2 copy ge {
+        exch .5 mul exch		% x y w/2 h
+	4 copy /reshape self send
+	4 -1 roll	     		% y w/2 h x 
+	2 index add			% y w/2 h x+w/2
+	4 1 roll			% x+w/2 y w/2 h
+      } {
+        .5 mul				% x y w h/2
+	4 copy /reshape self send
+	dup 4 -1 roll	     		% x w h/2 h/2 y
+	add				% x w h/2 y+h/2
+	3 1 roll			% x y+h/2 w h/2 
+      } ifelse
+      Parent setcanvas
+      /makedemo ClassEyeBall send
+      { /reshape self send /map self send
+      } exch send
+    grestore
+  } def
+
+  % Makes an eyeball on the current canvas
+  %
+  /makedemo { % - => eye
+    currentcanvas /new ClassIris send
+    currentcanvas /new ClassEyeBall send
+    /new ClassEventMgr send
+    dup /ProcessName (EyeBall Tracker) put
+    /activate 2 index send
+    userdict 1 index dup put
+  } def
+
+  /demo { % - => eye
+    framebuffer setcanvas
+    /makedemo self send
+    /place 1 index send
+    /map 1 index send
+  } def
+
+  /QuitFromUser { % ctl => -
+      userdict self undef
+      /QuitFromUser super send
+  } def
+classend def
+
+/ClassIris ClassCanvas [/EyeBallContainer!]
+classbegin
+
+  /Transparent false def
+  /Mapped true def
+
+  /Direction 0 def
+  /Distance 0 def
+  /DistanceScale 1 1000 div def
+
+  /WatchMotion /All def
+
+  /HandleMotion { % event => -
+    gsave
+      Parent setcanvas
+      /size Parent send 2 div exch 2 div exch translate
+      begin
+        YLocation XLocation
+      end
+      dup dup mul 2 index dup mul add sqrt
+      DistanceScale mul 1 min
+      /Distance 1 index promote
+      0 eq { pop pop 0 } { atan } ifelse
+      /Direction exch promote
+    grestore
+    /look self send
+  } def
+
+  /look { % - => -
+      gsave
+        Parent setcanvas
+	/size Parent send scale
+	.5 .5 translate
+	Direction rotate
+	Distance .5 mul 0 translate
+	Direction neg rotate
+	/size self send -.5 mul exch -.5 mul exch
+	/move self send
+      grestore
+  } def
+
+  /Menuable? true def
+  /Menu /Grid framebuffer /new ClassMenu send def
+  [ [ (Split)
+	{ exch pop /SplitEye /sendtarget 2 index send} ]
+    [ (Quit)
+	{ exch pop /QuitEye /sendtarget 2 index send} ]
+  ] /setitemlist Menu send
+  
+  /SplitEye { % ctl => -
+    /SplitEye Parent send
+  } def
+
+  /QuitEye { % ctl => -
+    /QuitFromUser Parent send
+  } def
+
+  /BackgroundColor 0 0 0 rgbcolor def
+
+  /Paint { % - => -
+    BackgroundColor /FillCanvas self send
+    /Iris self send
+  } def
+
+  /Iris { % - => -
+    gsave
+      /size self send scale .5 .5 translate
+
+      0 setlinewidth
+      0 1 0 setrgbcolor
+      360 16 div
+      16 {
+        .2 0 moveto 1 0 lineto
+	dup rotate
+      } repeat
+      stroke
+      .5 mul rotate
+
+      0 0 1 setrgbcolor
+      360 16 div
+      16 {
+        .3 0 moveto 1 0 lineto
+	dup rotate
+      } repeat
+      stroke
+      .5 mul rotate
+
+    grestore
+  } def
+
+  /path { % x y w h => -
+    closepath ovalpath closepath
+  } def
+
+  /minsize { % - => w h
+    2 2 
+  } def
+
+  /destroy { % - => -
+    /children self send
+    dup length 0 eq { pop } {
+      gsave /framebufferof self send setcanvas
+	{
+	  dup isinstance? {
+	    { /mapped? self send /unmap self send
+	      /location self send
+	      currentcanvas /reparent self send
+	      /move self send
+	      { /map self send } if
+	    } exch send
+	  } { pop } ifelse
+	} forall
+      grestore
+    } ifelse
+    /destroy super send
+  } def
+
+classend def
+
+/demo ClassEyeBall send
+
+newprocessgroup currentfile closefile

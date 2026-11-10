@@ -1,0 +1,244 @@
+%!
+% Character objects
+%
+% Copyright (C) 1988 by Don Hopkins
+%
+% Let's see what we can do with the NeWS 1.1 font machinery!
+%
+
+systemdict begin
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/EmacsSounder	Object
+dictbegin
+    /soundFile	    null def	% file for sound device
+    /soundInterest  null def	% interest in soundEvent
+    /soundEvent	    null def	% event signaling end of beep
+
+    /beepMS	    150 def	% duration of beep in milliseconds
+    /beeping	    null def	% monitor for locking beep
+
+    /dottime	    50 60000 div def
+    /dashtime	    100 60000 div def
+    /spacetime	    50 60000 div def
+
+dictend
+classbegin
+    /new {
+	/new super send begin
+	    { (/dev/kbdzs) (w) file } stopped { pop pop } {
+		/soundFile exch def } ifelse
+	    /soundInterest createevent begin
+		/Name /SoundEvent def
+		/Canvas null def
+		/Action null def
+		currentdict end
+	    def
+	    /soundEvent soundInterest createevent copy def
+	    /beeping createmonitor def
+	    currentdict
+	end
+    } def
+    /beep {
+	{
+	    beepMS 60000 div		    % convert to minutes
+	    beeping {
+		soundEvent begin
+		    currenttime add /TimeStamp exch def
+		    currentdict
+		end sendevent
+		soundInterest expressinterest
+		1 tone
+		awaitevent
+		0 tone
+		soundInterest revokeinterest
+	    } monitor
+	} fork pop
+    } def
+
+    /tone {
+	0 ne 2 3 ifelse
+	soundFile null ne {
+	    soundFile exch write soundFile flushfile
+	} { pop } ifelse
+    } def
+
+    /space {
+	beeping {
+	  spacetime sleep
+	} monitor
+    } def
+
+    /dot {
+	beeping {
+	  1 tone
+	  dottime sleep
+	  0 tone
+	  spacetime sleep
+	} monitor
+    } def
+
+    /dash {
+	beeping {
+	  1 tone
+	  dottime sleep
+	  0 tone
+	  spacetime sleep
+	} monitor
+    } def
+classend def
+
+/Sounder /new EmacsSounder send def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/MorseChar Object
+dictbegin
+  /width null def
+  /str null def
+dictend
+classbegin
+  /new { % string => obj
+    /new super send
+    begin
+      /str exch def
+      /width str length def
+      currentdict
+    end
+  } def
+
+  /get-char-width { % - => xoffset yoffset
+    width 1 add 0
+  } def
+
+  /get-char-bbox { % - => llx lly urx ury
+    0 0 width 1 add 1
+  } def
+
+  /char-build {
+    get-char-width setcharwidth
+    char-show
+  } def
+
+  /char-show {
+    char-path char-fill
+  } def
+
+  /char-path { % - => -
+    str {
+      46 eq { % dot
+        .5 .5 .4 0 360 arc closepath
+	/dot Sounder send
+      } { % dash
+        .1 .4 .8 .2 rectpath
+	/dash Sounder send
+      } ifelse
+      1 0 translate
+    } forall
+    /space Sounder send
+  } def
+
+  /char-fill { % - => -
+    fill
+  } def
+
+classend def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/newfont 50 dict def
+newfont begin
+
+/FontType 3 def
+/FontMatrix [1 0 0 1 0 0] def
+/FontBBox [0 0 8 1] def
+/Encoding [
+  32 {/.notdef} repeat
+  /Space /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /Apostrophe
+  /Paren /Paren /.notdef /.notdef /Comma /Dash /.notdef /Slash
+  /0 /1 /2 /3 /4 /5 /6 /7
+  /8 /9 /Colon /Semicolon /.notdef /.notdef /.notdef /Question
+  /.notdef /A /B /C /D /E /F /G
+  /H /I /J /K /L /M /N /O 
+  /P /Q /R /S /T /U /V /W
+  /X /Y /Z
+  4 {/.notdef} repeat
+  /Underscore
+  /.notdef /A /B /C /D /E /F /G
+  /H /I /J /K /L /M /N /O 
+  /P /Q /R /S /T /U /V /W
+  /X /Y /Z
+  5 {/.notdef} repeat
+] def
+
+/CharProcs 300 dict def
+CharProcs begin
+
+  /.notdef null def
+  /Space () /new MorseChar send def
+  /A (.-) /new MorseChar send def
+  /B (-...) /new MorseChar send def
+  /C (-.-.) /new MorseChar send def
+  /D (-..) /new MorseChar send def
+  /E (.) /new MorseChar send def
+  /F (..-.) /new MorseChar send def
+  /G (--.) /new MorseChar send def
+  /H (....) /new MorseChar send def
+  /I (..) /new MorseChar send def
+  /J (.---) /new MorseChar send def
+  /K (-.-) /new MorseChar send def
+  /L (.-..) /new MorseChar send def
+  /M (--) /new MorseChar send def
+  /N (-.) /new MorseChar send def
+  /O (---) /new MorseChar send def
+  /P (.--.) /new MorseChar send def
+  /Q (--.-) /new MorseChar send def
+  /R (.-.) /new MorseChar send def
+  /S (...) /new MorseChar send def
+  /T (-) /new MorseChar send def
+  /U (..-) /new MorseChar send def
+  /V (...-) /new MorseChar send def
+  /W (.--) /new MorseChar send def
+  /X (-..-) /new MorseChar send def
+  /Y (-.--) /new MorseChar send def
+  /Z (--..) /new MorseChar send def
+  /1 (.----) /new MorseChar send def
+  /2 (..---) /new MorseChar send def
+  /3 (...--) /new MorseChar send def
+  /4 (....-) /new MorseChar send def
+  /5 (.....) /new MorseChar send def
+  /6 (-....) /new MorseChar send def
+  /7 (--...) /new MorseChar send def
+  /8 (---..) /new MorseChar send def
+  /9 (----.) /new MorseChar send def
+  /0 (-----) /new MorseChar send def
+  /Comma (--..--) /new MorseChar send def
+  /Question (..--..) /new MorseChar send def
+  /Semicolon (-.-.-.) /new MorseChar send def
+  /Colon (---...) /new MorseChar send def
+  /Apostrophe (.----.) /new MorseChar send def
+  /Dash (-....-) /new MorseChar send def
+  /Slash (-..-.) /new MorseChar send def
+  /Paren (-.--.-) /new MorseChar send def
+  /Underscore (..--.-) /new MorseChar send def
+
+end % CharProcs
+
+/BuildChar {
+%  (building %\n) [2 index] dbgprintf
+  exch begin
+  Encoding exch get
+  CharProcs exch get
+  end
+  dup null ne {
+    /char-build exch send
+  } {pop} ifelse
+  %pause
+} def
+
+end % newfont
+
+/Morse newfont definefont pop
+
+end % systemdict

@@ -1,0 +1,202 @@
+% Stolen from scrolldata.ps, by Bruce V Schwartz and Brett K Thaeler
+% Frobbed by Don Hopkins
+
+    /ShowThingDict 20 dict dup begin
+	    /fonttype {setfont dup type exec} def
+	    /colortype {setcolor dup type exec} def
+	    /integertype {rmoveto dup type exec} def
+	    /realtype {rmoveto dup type exec} def
+	    /stringtype {
+		    0 currentfont fontdescent rmoveto
+		    show
+		    0 currentfont fontdescent neg rmoveto
+		    dup type exec
+	    } def
+	    /nametype {
+		    gsave
+			    iconfont setfont icondict exch get cvis dup show
+			    stringbbox 4 2 roll pop pop pop
+		    grestore
+		    0 rmoveto
+
+		    dup type exec
+	    } def
+	    /arraytype {
+		    dup xcheck {
+			gsave
+			    currentpoint translate
+			    /paint 1 index exec
+			    /size exec pop
+			grestore
+			0 rmoveto
+			dup type exec
+		    } {
+			    aload pop dup type exec
+		    } ifelse
+	    } def
+	    /dicttype {/paint exch send dup type exec} def
+	    /marktype { pop } def
+	    /nulltype { pop dup type exec} def
+	    /canvastype {
+		    gsave
+			dup setcanvas clippath pathbbox points2rect
+			4 2 roll pop pop
+		    grestore
+		    gsave
+			1 index exch scale imagecanvas
+		    grestore
+		    0 rmoveto
+		    dup type exec
+	    } def
+    end def
+
+    /ShowThing { % object => -
+	    gsave
+		    dup type /fonttype eq { % Item flavored things!
+			    % 
+		    } if
+		    ShowThingDict begin
+			    mark exch dup type exec
+		    end
+	    grestore
+    } def
+
+    /ThingSizeDict 20 dict dup begin
+	    /x 0 def
+	    /y 0 def
+	    /mx 0 def
+	    /my 0 def
+	    /fonttype {setfont dup type exec} def
+
+	    % /colortype {setcolor dup type exec} def
+	    % color shouldn't affect size.
+	    /colortype {pop dup type exec} def
+
+	    /integertype {
+		    y exch add /y exch def
+		    y my gt { /my y def } if
+
+		    x exch add /x exch def
+		    x mx gt { /mx x def } if
+
+		    dup type exec
+	    } def
+	    /realtype {
+		    y exch add /y exch def
+		    y my gt { /my y def } if
+
+		    x exch add /x exch def
+		    x mx gt { /mx x def } if
+
+		    dup type exec
+	    } def
+	    /stringtype {
+		    stringwidth pop
+		    x exch add
+		    /x exch def
+		    x mx gt { /mx x def } if
+
+		    currentfont fontheight
+		    y exch add
+		    dup my gt { /my exch def } { pop } ifelse
+
+		    dup type exec
+	    } def
+	    /nametype {
+		    gsave
+			    iconfont setfont icondict exch get cvis
+			    stringbbox 				% X Y W H
+			    y exch add 				% X Y W y+H
+			    3 -1 roll				% X W y+H Y
+			    neg dup 				% X W y+H -Y -Y
+			    3 1 roll add			% X W -Y y+H+(-Y)
+			    1 add
+			    dup my gt { /my exch def } { pop } ifelse
+			    y exch add /y exch def
+
+			    x exch add				% ... x x+w
+			    exch neg add			% ... x+w+(-x)
+			    /x exch def
+			    x mx gt { /mx x def } if
+		    grestore
+
+		    dup type exec
+	    } def
+
+	    /arraytype {
+		    dup xcheck { % x y /size => x y mx my
+			    /size 1 index exec
+
+			    /my exch y add my max def
+			    /x exch x add def
+			    /mx x mx max def
+
+			    dup type exec
+		    } {
+			    aload pop dup type exec
+		    } ifelse
+	    } def
+	    /dicttype {
+		    % x y /size => x y mx my
+		    x y /size 4 -1 roll send
+		    4 2 roll
+		    /y exch def
+		    /x exch def
+
+		    /my exch y add def
+		    /mx exch x add def
+
+		    dup type exec
+	    } def
+	    /marktype { pop } def
+	    /nulltype { pop dup type exec} def
+	    /canvas {
+		    gsave
+			setcanvas clippath pathbbox points2rect
+			4 2 roll pop pop
+		    grestore
+
+		    y exch add
+		    dup my gt { /my exch def } { pop } ifelse
+
+		    x exch add
+		    /x exch def
+		    x mx gt { /mx x def } if
+
+		    dup type exec
+	    } def
+
+    end def
+
+    /ThingSize { % object => xoff yoff
+	    gsave
+		    ThingSizeDict begin
+			    /x 0 def
+			    /y 0 def
+			    /mx 0 def
+			    /my 0 def
+			    mark exch dup type exec
+			    mx my
+		    end
+	    grestore
+    } def
+
+
+/thing [ (foobar) /Helvetica-Bold findfont 32 scalefont ] def
+
+/win framebuffer /new DefaultWindow send def
+
+{
+  reshapefromuser
+  /PaintClient {
+    gsave
+      clippath pathbbox /ch exch def /cw exch def
+      thing ThingSize /th exch def /tw exch def
+      cw tw div ch th div scale
+      0 0 moveto thing ShowThing
+    grestore
+  } def
+  map
+  newprocessgroup
+} win send
+

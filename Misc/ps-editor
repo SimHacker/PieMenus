@@ -1,0 +1,44 @@
+From don@brillig.umd.edu  Thu Aug 25 03:29:42 1988
+Date: Thu, 25 Aug 88 03:29:42 EDT
+To: NeWS-makers@brillig.umd.edu
+Subject: Re: Is NeWS UseABLE?
+From: asente@decwrl.dec.com  (Paul Asente)
+Sender: NeWS-makers-request@brillig.umd.edu (Don Hopkins)
+
+In article <3499@encore.UUCP> bzs@encore.UUCP (Barry Shein) writes:
+>Does there exist any graphics editor which can take a postscript image
+>description and let you edit it visually in some useful way?
+>
+>Is this hard? I think it's possible, but my intuitions say it's very
+>hard, not sure why exactly other than that such editors tend to want
+>object descriptions and postscript doesn't particularly lend itself to
+>that (it could be enforced as a discipline of course, I mean that
+>given some random graphic image from someone it won't likely be
+>structured in any particularly useful way.)
+>...
+>What would it have taken to have made postscript also appropropriate
+>for graphical editing? Not sure. This is just a bunch of questions.
+
+Funny you should ask this question.  I spent the last few years of my life
+doing a thesis on this very subject.  You are right; it's very hard.  My
+solution was to design a new language that was very close to PostScript
+but had the idea of objects.  It would be possible to imbed this in
+PostScript by defining new operators, but it was still a new language.
+There are reasons that you don't want to do this by imbedding --
+PostScript is so flexible that it's impossible to statically analyze a
+program and deduce anything interesting about it.  In order to make
+editing fast you have to do some reasoning about the program, so I gave up
+some of PostScript's flexibility.  PostScript programs that are "well
+behaved" can mechanically be translated into my language, but others
+cannot.
+
+If you want all the details, you can order report 87/6 from DEC WRL:
+
+	Carmen Rouse
+	DEC Western Research Laboratory
+	100 Hamilton Avenue
+	Palo Alto, CA 94301
+
+	-paul asente
+	    asente@decwrl.dec.com	decwrl!asente
+

@@ -1,0 +1,73 @@
+From: Hopkins, Don [mailto:Hopkins, Don] 
+Sent: Monday, January 25, 1999 4:23 PM
+To: dave@scripting.com
+Cc: dhopkins@maxis.com
+Subject: pie menus and XML
+
+Hay Dave! 
+
+I'm improving my ActiveX pie menu control, so you can specify nested
+pie menus in XML.  Something like:
+
+<piemenu BorderWidth=2>
+  <level radius=10>
+    <item label="foo" action="bar"/>
+    <item label="submenu">
+      <level>
+        <item label="xyzzy" action="plugh"/>
+      </level>
+    </item>
+  </level> 
+</piemenu>
+
+When you make a selection from a pie menu, it sends an ActiveX event
+to the web page it's on (i.e. its OLE container), that you can handle
+in JavaScript or VBScript or whatever. But the scripts have to be
+embeded on the web page, instead of in the menu specification. This
+separation of menu specification and action scripts is a pain in the
+wazoo.
+
+It might be nice to be able to fully specify a menu and its behavior
+in the xml file, so no scripting was necessary.  It occurrs to me that
+XML-RPC or something like that might be a good way to specify menu
+actions.  So the XML file describing the menu could contain XML remote
+procedure calls to be executed when you select items from the menu.
+I'm not up on the syntax of XML-RPC, but I assume there's a way to
+give a remote procedure call a name or id, to which the pie menu
+item's "action" fields could refer (like "bar" and "plugh" in the
+example).  Then they could be dispatched automatically by the pie menu
+when you select the item.
+
+Of course it would still be possible to write javascript event
+handlers on the web page as you currently can, but xml rpc could be an
+optional way to package up all the behavior of the pie menu in one
+file.
+
+Another approach besides XML-RPC to self-contained programmable pie
+menus, would be to embed javascript or vbscript in the pie menu xml
+file itself, and use the IScriptingEngine interface to execute the
+scripts in the pie menu xml file, instead of on the web page.
+
+Both approaches could work together.  When you select an item from a
+pie menu, first the menu could look for the XML-RPC object named in
+the action.  If that existed, it would dispatch it. If it didn't, it
+would give the scripting engine a try, asking it to execute the
+function named in the action.  If that didn't work, then it could pass
+the action onto the container as an ActiveX event (so the web browser
+can call javascripts on the web page).  The pie menu should expose
+callbacks to the scripting language so scripts in the pie menu can
+pass arguments and invoke the XML-RPC objects defined in the pie menu
+xml file. Then you could do all kinds of local processing, and pass
+the computed arguments onto the XML-RPC call.
+
+Have you played around with the IScriptingEngine stuff?  The
+requirement is that the program that wants to host the engine has to
+expose itself as an OLE object, which pie menus already do.  Then they
+have to have a way to persist the objects and scripts they contain,
+which XML enables.  So first I'm going to get the XML saving and
+loading working, and then tinker around with IScriptingEngine to put
+scripts in the XML file.  Is there a library or some code I can use to
+implement XML-RPC call-outs?  Where should I start reading?
+
+      -Don
+

@@ -1,0 +1,1303 @@
+%!
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  SoftTTY.ps
+%
+%  PostScript terminal emulator.
+%  Copyright (C) 1987.
+%  By Don Hopkins for Wedge Computer, Inc.
+%  All rights reserved.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% SoftTTY is a product of Don Hopkins, and Wedge Computer, Inc. and is
+% provided for unrestricted use provided that this legend is included on
+% all tape media and as a part of the software program in whole or part.
+% Users may copy or modify SoftTTY without charge, but are not
+% authorized to license or distribute it to anyone else except as part
+% of a product or program developed by the user.
+% 
+% SoftTTY is provided as is with no warranties of any kind including
+% the warranties of design, merchantibility and fitness for a
+% particular purpose. 
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+systemdict begin
+
+/ClassTermCanvas ClassCanvas
+dictbegin
+
+% Instance Variables
+
+  /Rows 24 def
+  /Columns 80 def
+  /BottomMargin 24 def
+  /TopMargin 0 def
+  /Lines nullarray def
+  /CurX 0 def
+  /CurY 0 def
+  /SaveCurX 0 def
+  /SaveCurY 0 def
+  /CharWidth 0 def
+  /CharHeight 0 def
+  /CharMatrix matrix def
+  /PixelMatrix matrix def
+  /CharDescent 0 def
+  /TermFont null def
+  /InputFile null def
+  /OutputFile null def
+  /ErrorCount null def
+  /Arguments null def
+  /ArgumentsNeeded 0 def
+  /CursorCanvas null def
+  /CursorState false def
+  /InputBuffer null def
+  /InputString null def
+  /InputLength null def
+  /InputAt null def
+  /PendingFunction nullproc def
+
+dictend
+classbegin
+
+% Class Variables
+
+  /BG 1 1 1 rgbcolor def
+  /FG 0 0 0 rgbcolor def
+
+  /FontSize 12 def
+  /FontName /Screen def
+  /TextMargin 6 def
+  /TextVSpace 5 def
+  /BellTime .2 60 div def
+  /CursorDelay 1.5 60 div def
+  /LocalEcho? false def
+  /WrapLeft? true def
+  /WrapRight? true def
+  /AutoCR? false def
+  /ReverseVideo? false def
+  /Spaces 512 string def
+  0 1 511 {Spaces exch 32 put} for
+  /NullArgs [null] def
+  /GraphicsRendition null def
+
+% methods
+  /NewInit {
+    /NewInit super send
+    /InputBuffer 2048 string def
+  } def
+
+  /localecho? { % - => bool
+    LocalEcho?
+  } def
+
+  /setlocalecho { % bool => -
+    /LocalEcho? exch def
+  } def
+
+  /autocr? { % - => bool
+    AutoCR?
+  } def
+
+  /setautocr { % bool => -
+    /AutoCR? exch def
+  } def
+
+  /setfontnamesize { % name size => -
+    /FontSize exch def
+    /FontName exch def
+    /initfont self send
+    /fitfont self send
+    /initcursor self send
+    /paint self send
+  } def
+
+  /setfontsize { % size => -
+    FontName exch /setfontnamesize self send
+  } def
+
+  /setfontname { % name => -
+    FontSize /setfontnamesize self send
+  } def
+
+  /initfont {
+    gsave
+      self setcanvas
+      false setprintermatch
+      /TermFont FontName findfont FontSize scalefont def
+      /CharDescent TermFont fontdescent def
+      /CharHeight TermFont fontheight TextVSpace add def
+      /CharWidth (M) stringwidth pop 1 max def
+      /PixelMatrix matrix currentmatrix def
+      TextMargin CharHeight TextMargin add translate
+      CharWidth CharHeight scale
+      /CharMatrix matrix currentmatrix def
+      /initcursor self send
+    grestore
+  } def
+
+  /initcursor {
+    gsave
+      self setcanvas
+      CursorCanvas null eq {
+        /CursorCanvas self newcanvas def
+        CursorCanvas /Transparent false put
+        CursorCanvas /SaveBehind true put
+      } if
+      /shapecursor self send
+    grestore
+  } def
+
+  /reshape {
+    /reshape super send
+    /initfont self send
+    /initcursor self send
+    /fitfont self send
+  } def
+
+  % XXX
+  /minsize { % - => w h
+    400 300
+  } def
+
+  /preshape { % x y => -
+    /initfont self send
+    /fitwindow self send
+    /initcursor self send
+  } def
+
+  % XXX: I don't remember this as ever working ...
+  /fitwindow {
+    gsave
+      TextMargin dup add Columns CharWidth mul add
+      TextMargin dup add Rows CharHeight mul add
+      /reshape super send
+      /initcursor self send
+      /initlines self send
+    grestore
+  } def
+
+  /fitfont {
+    gsave
+      /size self send
+      TextMargin dup add sub CharHeight div floor 1 max cvi /Rows exch def
+      TextMargin dup add sub CharWidth div floor 1 max cvi /Columns exch def
+      /initlines self send
+    grestore
+  } def
+
+  /initlines {
+    10 dict begin % localdict
+      /old-lines Lines def
+      /space Spaces 0 Columns getinterval def
+      /Lines [
+	Rows { 
+	  Columns string
+	  space exch copy
+	} repeat
+      ] store
+
+      old-lines null ne {
+	0 1 old-lines length Rows min 1 sub { /i exch def
+	  Lines i get 0
+	  old-lines i get
+	  dup length Columns gt {
+	    0 Columns getinterval
+	  } if
+	  putinterval
+	} for
+      } if
+    end % localdict
+
+    /TopMargin 0 def
+    /BottomMargin Rows def
+    /CurX CurX Columns 1 sub min cvi def
+    /CurY CurY Rows 1 sub min cvi def
+    /updatecursor self send
+  } def
+
+  /Paint {
+    TermFont setfont
+    BG fillcanvas
+    FG setcolor
+    Rows 0 ne {
+      0 1 Rows 1 sub {
+	/putline self send
+      } for
+    } if
+  } def
+
+  /slowrefresh {
+    gsave
+      self setcanvas
+      TermFont setfont
+      Rows 0 ne {
+        0 1 Rows 1 sub {
+          /wipeline self send
+	  FG setcolor
+          /putline self send
+	} for
+      } if
+    grestore
+  } def
+
+% Terminal methods
+
+  /charpos { % col row => x y
+    CharMatrix transform
+  } def
+
+  /wipeline { % line => line
+    newpath
+    Columns 0 2 index
+    /charrect self send
+    BG setcolor fill
+  } def
+
+  /putline { % line => -
+    0 1 index /charpos self send
+    CharDescent add moveto
+    Lines exch get
+    show
+  } def
+
+  /putstring { % str => -
+    { dup length CurX add Columns lt { exit } if
+      Columns CurX sub
+      2 copy 0 exch getinterval
+      /putfitstring self send
+      2 copy exch length exch sub getinterval
+%      pause
+    } loop
+    /putfitstring self send
+  } def
+
+  /putfitstring { % str => -
+    dup length 0 eq { pop } {
+      Lines CurY get CurX 2 index putinterval
+      dup length CurX CurY /charrect self send
+      BG setcolor fill
+      CurX CurY /charpos self send
+      CharDescent add moveto
+      FG setcolor
+      dup show
+      length /movecurx self send
+    } ifelse
+  } def
+
+  /setcur { % x y => -
+    Rows 1 sub min 0 max  /CurY exch cvi def
+    Columns 1 sub min 0 max  /CurX exch cvi def
+  } def
+
+  /movecurx { % delta => -
+    CurX add 
+    dup 0 lt {
+      WrapLeft? {
+        Columns 1 sub 1 index sub Columns div floor
+        dup /linestarves self send
+        Columns mul add
+      } {
+        pop 0
+      } ifelse
+    } {
+      dup Columns ge {
+        WrapRight? {
+          dup Columns div floor
+          dup /linefeeds self send
+          Columns mul sub
+        } {
+          pop Columns 1 sub
+        } ifelse
+      } if
+    } ifelse
+    /CurX exch cvi def
+  } def
+
+  /linefeeds { % count => -
+    CurY add
+    dup BottomMargin ge {
+      CurY BottomMargin ge {
+        Rows 1 sub min
+      } {
+        BottomMargin 1 sub sub
+        TopMargin BottomMargin 3 -1 roll /scrollregion self send
+        BottomMargin 1 sub
+      } ifelse
+    } if
+    /CurY exch cvi def
+  } def
+
+  /linestarves { % count => -
+    CurY exch sub
+    dup TopMargin lt {
+      CurY TopMargin lt {
+        0 max
+      } {
+        TopMargin sub
+        TopMargin BottomMargin 3 -1 roll /scrollregion self send
+        TopMargin
+      } ifelse
+    } if
+    /CurY exch cvi def
+  } def
+
+  /deletelines { % first #lines => -
+    Rows exch
+    /scrollregion self send
+  } def
+
+  /insertlines { % first #lines => -
+    neg /deletelines self send
+  } def
+
+  /deletechars { % #chars => -
+    dup 0 eq {pop} {
+      10 dict begin % localdict
+	/char-count exch def
+	/after-cur Columns CurX sub def
+	/to-copy after-cur char-count sub 0 max def
+	Lines CurY get
+	to-copy 0 ne {
+	  dup dup
+	  to-copy CurX char-count add
+	  2 copy CurY /charrect self send
+	  char-count CharWidth mul neg 0 copyarea
+	  exch getinterval
+	  CurX exch putinterval
+	} if
+	after-cur to-copy sub
+	CurX to-copy add
+	2 copy CurY /charrect self send
+	BG setcolor fill
+	Spaces 0 4 -1 roll getinterval putinterval
+      end % localdict
+    } ifelse
+  } def
+
+  /insertchars { % #chars => -
+    dup 0 eq {pop} {
+      10 dict begin % localdict
+	/char-count exch def
+	/after-cur Columns CurX sub def
+	/to-copy after-cur char-count sub 0 max def
+	Lines CurY get
+	to-copy 0 ne {
+	  dup dup
+	  to-copy CurX CurY /charrect self send
+	  char-count CharWidth mul 0 copyarea
+	  CurX to-copy getinterval
+	  CurX char-count add exch putinterval
+	} if
+	after-cur to-copy sub
+	dup CurX CurY /charrect self send
+	BG setcolor fill
+	CurX Spaces 0 4 -1 roll getinterval putinterval
+      end % localdict
+    } ifelse
+  } def
+
+  /updateline { % line => -
+    newpath
+    Columns 0 2 index /charrect self send
+    BG setcolor fill
+    TermFont setfont
+    FG setcolor
+    /putline self send
+  } def
+
+  /charrect { % width col row => -
+    /charpos self send
+    3 -1 roll CharWidth mul CharHeight
+    rectpath
+  } def
+
+  /flashcursor {
+    /animatecursor self send
+    CursorCanvas begin
+      /Mapped Mapped not CursorState and def
+    end
+  } def
+
+  /shapesquarecursor { % - => -
+    gsave
+      self setcanvas
+      newpath
+      CharWidth CharHeight scale
+      0 0 1 1 rectpath
+      CursorCanvas /Mapped false put
+      CursorCanvas eoreshapecanvas
+      CursorCanvas setcanvas
+      FG fillcanvas
+      CursorState { /cursoron self send } if
+    grestore
+  } def
+
+  /paintsquarecursor { % - => -
+    gsave
+      CursorCanvas setcanvas
+      PixelMatrix setmatrix
+      BG3 fillcanvas
+      FG setcolor
+      0 CharDescent moveto
+      TermFont setfont
+      Lines CurY get CurX 1 getinterval show
+    grestore
+  } def
+
+  /squarecursor {
+    /shapecursor /shapesquarecursor load def
+    /paintcursor /paintsquarecursor load def
+    /animatecursor nullproc def
+    /shapecursor self send
+  } def
+
+  /shapedonutcursor { % - => -
+    gsave
+      self setcanvas
+      CursorCanvas /Mapped false put
+      newpath
+      CharWidth CharHeight scale
+      .49 .5 .5 0 360 arc
+      closepath
+      .49 .5 .3 0 360 arc
+      CursorCanvas eoreshapecanvas
+      CursorCanvas setcanvas
+      0 fillcanvas
+      CursorState { /cursoron self send } if
+    grestore
+  } def
+
+  /donutcursor {
+    /shapecursor /shapedonutcursor load def
+    /paintcursor nullproc def
+    /animatecursor nullproc def
+    /shapecursor self send
+  } def
+
+  /shapeerrorcursor { % - => -
+    gsave
+      seld setcanvas
+      CursorCanvas /Mapped false put
+      CharWidth CharHeight scale
+      newpath
+	.2 0 moveto	0 .3 lineto	.1 .5 lineto	.2 .5 lineto
+	.2 .55 lineto	.3 .6 lineto	.4 .55 lineto	.4 .95 lineto
+	.5 1 lineto	.6 .95 lineto	.6 .55 lineto	.7 .6 lineto
+	.8 .55 lineto	.8 .5 lineto	.9 .55 lineto	1 .5 lineto
+	1 .3 lineto	.8 0 lineto
+      closepath
+      CursorCanvas eoreshapecanvas
+      CursorCanvas setcanvas
+      FG fillcanvas
+      CursorState { /cursoron self send } if
+    grestore
+  } def
+
+  /animateerrorcursor {
+    ErrorCount null ne {
+      /ErrorCount
+        ErrorCount 1 sub dup 0 le {
+	  pop null /donutcursor self send
+	} if
+      def
+    } if
+  } def
+
+  /errorcursor {
+    /shapecursor /shapeerrorcursor load def
+    /paintcursor nullproc def
+    /animatecursor /animateerrorcursor load def
+    /shapecursor self send
+  } def
+
+  /shapecursor /shapedonutcursor load def
+  /paintcursor nullproc def
+  /animatecursor nullproc def
+
+  /updatecursor {
+    self setcanvas
+    CurX CurY /charpos self send
+    CharHeight div exch CharWidth div exch 
+    CursorCanvas setcanvas
+    movecanvas
+    /paintcursor self send
+  } def
+
+  /cursoron {
+    gsave
+      /updatecursor self send
+      CursorCanvas /Mapped true put
+      /CursorState true def
+    grestore
+  } def
+
+  /cursoroff {
+    CursorCanvas /Mapped false put
+    /CursorState false def
+  } def
+
+  /erasetoeos {
+    self setcanvas
+    newpath
+    Columns CurX sub CurX CurY /charrect self send
+    CurY 1 add Rows lt {
+      0 CurY /charpos self send
+      CharWidth Columns mul
+      CharHeight Rows CurY sub 1 sub mul neg
+      rectpath
+    } if
+    BG setcolor fill
+    /cleartoeos self send
+  } def
+
+  /cleartoeos {
+    /cleartoeol self send
+    CurY 1 add
+    dup Columns lt {
+      1 Rows 1 sub {
+        /clearline self send
+      } for
+    } { pop } ifelse
+  } def
+
+  /erasetosos {
+    self setcanvas
+    newpath
+    CurY 0 ne {
+      0 CurY 1 sub /charpos self send
+      CharWidth Columns mul
+      CharHeight CurY mul
+      rectpath
+    } if
+    CurX 0 ne { CurX 0 CurY charrect } if
+    BG setcolor fill
+    /cleartosos self send
+  } def
+
+  /cleartosos {
+    /cleartosol self send
+    CurY 0 ne {
+      0 1 CurY 1 sub {
+        /clearline self send
+      } for
+    } if
+  } def
+
+  /erasetoeol {
+    self setcanvas
+    newpath
+    Columns CurX sub CurX CurY /charrect self send
+    BG setcolor fill
+    /cleartoeol self send
+  } def
+
+  /cleartoeol {
+    Lines CurY get
+    CurX
+    Spaces 0 Columns CurX sub getinterval
+    putinterval
+  } def
+
+  /erasetosol {
+    self setcanvas
+    newpath
+    CurX 0 CurY /charrect self send
+    BG setcolor fill
+    /cleartosol self send
+  } def
+
+  /cleartosol {
+    Lines CurY get  0
+    Spaces 0 CurX getinterval
+    putinterval
+  } def
+
+  /eraseline { % line => -
+    self setcanvas
+    newpath
+    Columns 0 2 index /charrect self send
+    BG setcolor fill
+    /clearline self send
+  } def
+
+  /clearline { % line => -
+    Lines exch get
+    0 Spaces 0 Columns getinterval putinterval
+  } def
+
+  /erasescreen {
+    self setcanvas
+    BG fillcanvas
+    /clearscreen self send
+  } def
+
+  /clearscreen {
+    0 1 Rows 1 sub {
+      /clearline self send
+    } for
+  } def
+
+  /scrollregion { % first-line last-line+1 region-steps
+    dup 0 ne {
+      20 dict begin % localdict
+	/region-steps exch cvi def
+	BottomMargin min
+	/region-bottom exch cvi def
+	TopMargin max
+	/region-first exch cvi def
+	/region-height region-bottom region-first sub def
+
+	region-height 0 ne {
+	  self setcanvas
+	  region-height region-steps abs gt {
+	    region-steps 0 lt {
+	      region-height region-steps add		% from-height
+	      region-first				% from-height from-top
+	    } {
+	      region-height region-steps sub		% from-height
+	      region-bottom 1 index sub			% from-height from-top
+	    } ifelse
+	    /from-top exch def  /from-height exch def
+
+	    /Lines [
+	      Lines aload pop
+	      Rows dup region-bottom sub roll
+	      region-height region-steps neg roll
+	      Rows region-bottom Rows sub roll
+	    ] store
+
+	    0 from-top 1 sub /charpos self send		% x y
+	    Columns CharWidth mul			% x y w
+	    from-height CharHeight mul neg		% x y w h
+	    rectpath					%
+	    0 region-steps CharHeight mul copyarea
+	  } if
+
+	  region-steps 0 lt {
+	    region-first
+	    dup region-steps sub 1 sub
+	  } {
+	    region-bottom 1 sub
+	    dup region-steps sub 1 add
+	    exch
+	  } ifelse
+	  Rows 1 sub min 0 max /clear-last exch def
+	  Rows 1 sub min 0 max /clear-first exch def
+
+	  newpath
+	  0 clear-last /charpos self send
+	  Columns CharWidth mul
+	  clear-first clear-last sub 1 sub neg CharHeight mul
+	  rectpath
+	  1 setgray fill
+
+	  clear-first 1 clear-last {
+	    /clearline self send
+	  } for
+	} if
+      end % localdict
+    } { pop pop pop } ifelse
+  } def
+
+  /defaultarg { % default arg# => val
+    dup Arguments length ge {
+      pop
+    } {
+      Arguments exch get
+      dup null ne { exch } if
+      pop
+    } ifelse
+  } def
+
+  /NumericArgument { % char => -
+    Arguments dup length 1 sub               % char [args] len-1
+    2 copy get                          % char [args] len-1 arg
+    dup null eq { pop 0 } { 10 mul } ifelse
+    4 -1 roll                           % [args] len-1 arg*10 char
+    48 sub add                          % [args] len-1 arg*10+digit
+    put
+  } def
+
+  /qmark { % - => -
+    pop
+    Arguments ==
+    /resettermulator self send
+  } def
+
+  /semi { % char => -
+    pop
+    /Arguments [ Arguments aload pop null ] def
+  } def
+
+  /TermulateANSII { % char => -
+    ANSIIParseArray 1 index get exec
+  } def
+
+  /TermulateEscape { % char => -
+    EscapeParseArray 1 index get exec
+  } def
+
+  /TermulateANSIIPrefix {
+    /TermulateChar //TermulateANSII def
+    /Arguments NullArgs def
+  } def
+
+  /EscapePrefix {
+    /TermulateChar //TermulateEscape def
+  } def
+
+  /TermulatePS {
+    dup 27 eq {
+      pop
+      /resettermulator self send
+      PSString 0 PSStringLength getinterval cvx
+      { exec } stopped pop
+    } {
+      PSString PSStringLength 3 -1 roll put
+      /PSStringLength PSStringLength 1 add def
+      PSStringLength PSString length eq {
+        /PSString
+          PSStringLength dup add string
+          PSString 1 index copy pop
+        def
+      } if
+    } ifelse
+  } def
+
+  /PSStringPrefix {
+    PSString null eq { PSString 256 string promote } if
+    /PSStringLength 0 def
+    /TermulateChar //TermulatePS def
+  } def
+
+  /PrintingChar { % char => -
+    pop                                                 %
+    InputString InputAt					% str at
+    2 copy						% str at str at
+    dup InputLength exch sub getinterval		% str at substr 
+    0 exch {						% str at len char
+      32 lt { exit } if					% str at len
+      1 add
+    } forall						% str at len
+    2 copy add 1 sub /InputAt exch def
+    getinterval
+    /putstring self send				%
+  } def
+
+  /Ignore { % char => -
+    pop
+  } def
+
+  /BadEsc { % char => -
+    /resettermulator self send
+  } def
+
+  /Control { % char proc => -
+    exec pop
+  } def
+
+  /RControl { % char proc => -
+    /resettermulator self send
+    /Control self send
+  } def
+
+  /EControl { % char proc => -
+    /Control self send
+    /ErrorCount 20 def
+    /errorcursor self send
+  } def
+
+  /CollectArguments { % char => -
+    Arguments dup length ArgumentsNeeded sub 3 -1 roll put
+    /ArgumentsNeeded ArgumentsNeeded 1 sub def
+    ArgumentsNeeded 0 eq {
+      /resettermulator self send
+      Arguments aload pop
+      /PendingFunction self send
+    } if 
+  } def
+
+  /StartSupdup { % char function #args => char
+    /ArgumentsNeeded exch def
+    /Arguments ArgumentsNeeded array def
+    /PendingFunction exch def
+    /TermulateChar //CollectArguments def
+  } def
+
+  /TermulateNormal { % char => -
+    TermParseArray 1 index get exec
+  } def
+
+  /resettermulator {
+    /TermulateChar //TermulateNormal def
+  } def
+
+%  Terminal program itsself
+
+  /term {
+    currentfile dup fileterm
+  } def
+
+  /fileterm { % InputFile OutputFile => -
+    self setcanvas
+    TermFont setfont
+    /OutputFile exch def
+    /InputFile exch def
+
+    /InputLength 0 def
+    /InputAt 0 def
+
+    resettermulator
+    { clear
+      /getnextchar self send
+      /TermulateChar self send
+      /InputAt 1 InputAt add def
+      pause
+    } loop
+  } def
+
+  /getnextchar { % - => char
+    InputLength InputAt eq {
+      /InputLength
+        InputFile bytesavailable dup -1 eq { pop pop exit } if
+        InputBuffer length min 1 max
+      def
+      /InputString
+        InputFile
+        InputBuffer 0 InputLength getinterval
+        InputLength 1 eq {
+          /cursoron self send
+          readstring
+          /cursoroff self send
+        } {
+          readstring
+        } ifelse
+        not { pop exit } if
+      def
+      /InputAt 0 def
+    } if
+    InputString InputAt get
+  } def
+
+  /FlashCursor {
+    /flashcursor self send
+    begin
+      /TimeStamp currenttime CursorDelay add def
+      currentdict
+    end
+    sendevent
+  } def
+
+  /XXXDoKeyProcess {
+    systemdict /Selections known {
+      currentcanvas addkbdinterests pop
+%      currentcanvas addselectioninterests pop
+%      currentcanvas addfunctionstringsinterest pop 
+    } {
+      /kbd-interests createevent dup begin
+        /Name 256 dict dup begin
+          0 1 255 { dup def } for
+        end def
+        /Canvas ClientCanvas def
+      end def
+      kbd-interests expressinterest
+    } ifelse
+ 
+    /cursor-interest createevent dup begin
+      /Name /FlashCursor def
+      /Canvas ClientCanvas def
+    end def
+    cursor-interest expressinterest
+    cursor-interest createevent copy sendevent
+    {
+      clear
+      ( ) dup 0
+      awaitevent
+      dup /Name get
+      dup type /integertype eq {
+        exch begin KeyState end
+        { /Meta eq { 128 or } if } forall
+        LocalEcho? { dup TermulateChar } if
+        put dup OutputFile exch writestring
+        OutputFile flushfile
+      } {
+        { cvx exec } stopped
+        pop
+      } ifelse
+    } loop
+  } def
+
+  /Keyable? true def
+
+  /KeyStart { % event => /Default true
+    pop /Default true
+  } def
+
+  /StandardKey { % event => -
+    /Name get cvis
+    OutputFile null eq { pop } {
+      OutputFile status not { pop } {
+        OutputFile exch writestring
+	OutputFile flushfile
+      } ifelse
+    } ifelse
+  } def
+
+  /demo {
+    10 dict begin
+      /t framebuffer /new ClassTermCanvas send def
+      /win t framebuffer /new ClassBaseWindow send def
+      /new ClassEventMgr send /activate win send
+      /place win send /map win send
+      win t
+%      { (script) pipe /fileterm 3 index send } fork
+    end
+  } def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% VT100 emulation
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  /bell {
+    gsave
+      self setcanvas
+      /size self send scale
+      0 setgray  5 setrasteropcode
+      currenttime BellTime add
+      {
+        random random random 4 div 0 360 arc
+        gsave eofill
+        pause dup currenttime le {exit} if
+        grestore eofill
+      } loop
+      pop
+      grestore eofill
+    grestore
+  } def
+
+  /backspace {
+    -1 /movecurx self send
+  } def
+
+  /tab {
+    /CurX
+      CurX 8 div floor 1 add 8 mul
+      Columns 1 sub min cvi
+    def
+  } def
+
+  /newline {
+    AutoCR? { /carriagereturn self send } if
+    /linefeed self send
+  } def
+
+  /linefeed {
+    1 /linefeeds self send
+  } def
+
+  /linestarve {
+    1 /linestarves self send
+  } def
+
+  /formfeed {
+    0 0 /setcur self send
+    /erasescreen self send
+  } def
+
+  /carriagereturn {
+    /CurX 0 def
+  } def
+
+  /HashPrefix { % char => -
+    56 eq {
+      /testpattern self send
+    } if
+    /resettermulator self send
+  } def
+
+  /dohash {
+    /TermulateChar //HashPrefix def
+  } def
+
+  /testpattern {
+    Columns 0 ne Rows 0 ne and {
+      Columns string
+      0 1 Columns 1 sub {
+        1 index exch 69 put
+      } for
+      0 1 Rows 1 sub {
+        Lines exch get 1 index exch copy pop
+      } for
+      pop
+    } if
+    /slowrefresh self send
+  } def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%     Escape Sequence Functions
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  /ICH { % char => -
+    1 0 /defaultarg self send /insertchars self send
+  } def
+
+
+  /CUU { % char => -
+    /CurY
+      CurY
+      1 0 /defaultarg self send
+      1 max  sub  0 max  cvi
+    def
+  } def
+
+  /CUD { % char => -
+    /CurY
+      CurY
+      1 0 /defaultarg self send
+      1 max  add  Rows 1 sub min  cvi
+    def
+  } def
+
+  /CUF { % char => -
+    1 0 /defaultarg self send 1 max
+    CurX add Columns 1 sub min
+    /CurX exch cvi def
+  } def
+
+  /CUB { % char => -
+    1 0 /defaultarg self send
+    neg -1 min CurX add 0 max
+    /CurX exch cvi def
+  } def
+
+  /CNL { % char => -
+    0  Rows 1 sub  CurY
+    1 0 /defaultarg self send
+    add min
+    /setcur self send
+  } def
+
+  /HVP { % char => -
+    1 1 /defaultarg self send 1 sub
+    1 0 /defaultarg self send 1 sub
+    /setcur self send
+  } def
+
+  /CUP //HVP def
+
+  /ED { % char => -
+    0 0 /defaultarg self send {
+      0 { /erasetoeos self send }
+      1 { /erasetosos self send }
+      2 { /erasescreen self send }
+    } case
+  } def
+
+  /EL { % char => -
+    0 0 /defaultarg self send {
+      0 { /erasetoeol self send }
+      1 { /erasetosol self send }
+      2 { CurY /eraseline self send }
+    } case
+  } def
+
+  /IL { % char => -
+    CurY
+    1 0 /defaultarg self send
+    /insertlines self send
+  } def
+
+  /DL { % char => -
+    CurY
+    1 0 /defaultarg self send
+    /deletelines self send
+  } def
+
+  /DCH { % char => -
+    1 0 /defaultarg self send
+    /deletechars self send
+  } def
+
+  /SGR { % char => -
+    /GraphicsRendition 0 0 /defaultarg self send def
+  } def
+
+  /SUNBOW { % char => -
+    /ReverseVideo? false def
+  } def
+
+  /SUNWOB { % char => -
+    /ReverseVideo? true def
+  } def
+
+  /SCRL { % char => -
+    1 0 /defaultarg self send dup 0 eq { pop 1 } if
+    1 sub Rows 1 sub min
+    /TopMargin exch def
+    Rows 1 /defaultarg self send dup 0 eq { pop 1 } if
+    Rows min TopMargin 1 add max
+    /BottomMargin exch def
+    0 0 /setcur self send
+  } def
+
+  /SUNRESET { % char => -
+    % XXXX
+  } def
+
+  /savecursorpos { %
+    /SaveCurX CurX def
+    /SaveCurY CurY def
+  } def
+
+  /restorecursorpos { 
+    SaveCurX SaveCurY /setcur self send
+  } def
+
+  /NEL {
+    /carriagereturn self send
+    /linefeed self send
+  } def
+
+  /zPSH {
+    % Write me
+  } def
+
+  /zPOP {
+    % Write me
+  } def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Character dispatch table
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  /TermParseArray [
+    % @ABC DEFG
+    //Ignore //Ignore //Ignore //Ignore
+    //Ignore //Ignore //Ignore { //bell Control }
+    % HI JK LM NO
+    {//backspace Control} {//tab Control}
+    {//newline Control} {//linestarve Control}
+    {//formfeed Control} {//carriagereturn Control}
+    //Ignore //Ignore
+    % PQRS TUVW
+    //Ignore //Ignore //Ignore //Ignore
+    //Ignore //Ignore //Ignore //Ignore
+    % XYZ[ \]^_
+    //Ignore //Ignore //Ignore {//EscapePrefix Control}
+    //Ignore //Ignore //Ignore {//PSStringPrefix Control}
+    % printing
+    96 128 add { //PrintingChar } repeat
+  ] def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Parse Dictionary
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  /EscapeDict 100 dict def
+  EscapeDict begin
+    ([) 0 get
+      { //TermulateANSIIPrefix Control } def
+    (#) 0 get
+      { //dohash RControl } def
+    (7) 0 get
+      { //savecursorpos RControl } def
+    (8) 0 get
+      { //restorecursorpos RControl } def
+    (D) 0 get
+      { //linefeed RControl } def
+    (M) 0 get
+      { //linestarve RControl } def
+    (E) 0 get
+      { //NEL RControl } def
+    (H) 0 get
+      { //HTS RControl } def
+    (c) 0 get
+      { //SUNRESET RControl } def
+  end
+
+  /EscapeParseArray [
+    0 1 255 {
+      EscapeDict 1 index known {
+        EscapeDict exch get
+      } {
+        pop //BadEsc
+      } ifelse
+    } for
+  ] def
+
+  currentdict /EscapeDict undef
+
+  /AnsiiParseArray [
+  % Control
+    % @ABC DEFG
+    //Ignore //Ignore //Ignore //Ignore
+    //Ignore //Ignore //Ignore { //bell EControl }
+    % HIJK LMNO
+    {//backspace EControl} {//tab EControl}
+    {//newline EControl} {//linestarve EControl}
+    {//formfeed EControl} {//carriagereturn EControl}
+    //Ignore //Ignore
+    % PQRS TUVW
+    //Ignore //Ignore //Ignore //Ignore
+    //Ignore //Ignore //Ignore //Ignore
+    % XYZ[ \]^_
+    //Ignore //Ignore //Ignore {//EscapePrefix EControl}
+    {{} RControl} //Ignore //Ignore {//PSStringPrefix EControl}
+  % Printing
+    % <space>!"#$%&'
+    //BadEsc //BadEsc //BadEsc //BadEsc //BadEsc //BadEsc //BadEsc //BadEsc 
+    % ()*+,-./
+    //BadEsc //BadEsc //BadEsc //BadEsc //BadEsc //BadEsc //BadEsc //BadEsc 
+    % 0123456789
+    10 { //NumericArgument } repeat
+    % :;<=>?
+    //BadEsc //semi //BadEsc //BadEsc //BadEsc //BadEsc
+    % @ABC DEFG
+    {//ICH RControl} {//CUU RControl} {//CUD RControl} {//CUF RControl}
+    {//CUB RControl} {//CNL RControl} //BadEsc //BadEsc
+    % HIJK LMNO
+    {//CUP RControl} //BadEsc {//ED RControl} {//EL RControl}
+    {//IL RControl} {//DL RControl} //BadEsc //BadEsc
+    % PQRS TUVW
+    {//DCH RControl} //BadEsc //BadEsc {//SUNRESET RControl}
+    //BadEsc //BadEsc //BadEsc {//CTC RControl}
+    % XYZ[ \]^_
+    {//ECH RControl} //BadEsc //BadEsc //BadEsc
+    //BadEsc //BadEsc //BadEsc //BadEsc
+    % `abc defg
+    //BadEsc {//CUF RControl} //BadEsc //BadEsc
+    //BadEsc {//CUD RControl} {//HVP RControl} {//TBC RControl}
+    % hijk lmno
+    //BadEsc //BadEsc //BadEsc //BadEsc
+    //BadEsc {//SGR RControl} //BadEsc //BadEsc
+    % pq rs tuvw
+    {//SUNBOW RControl} {//SUNWOB RControl}
+    {//SCRL RControl} {//zPSH RControl}
+    {//zPOP RControl} //BadEsc //BadEsc //BadEsc
+    % xyz{ |}~<rub>
+    //BadEsc //BadEsc //BadEsc //BadEsc
+    //BadEsc //BadEsc //BadEsc //BadEsc
+  ] def
+
+classend def
+
+ClassTermCanvas begin
+  /TermulateNormal load 0 TermParseArray put
+  /TermulateEscape load 0 EscapeParseArray put
+  /TermulateANSII load 0 AnsiiParseArray put
+end
+
+end % systemdict
+
+%/demo ClassTermCanvas send
+%/foo dbgbreak

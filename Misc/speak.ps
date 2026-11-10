@@ -1,0 +1,148 @@
+systemdict begin
+
+  {(%socketc8000.localhost) (w) file} stopped {
+    (setenv LD_LIBRARY_PATH /usr/local/lang/SC1.0:$LD_LIBRARY_PATH ;
+     /usr/nmw/sun4/bin/ttserver) runprogram
+    (Starting ttserver ...\n) print flush
+    5 60 div sleep
+    (echo "hello" | speak) runprogram
+    1 60 div sleep
+    (Trying again ...\n) print flush
+    (%socketc8000.localhost) (w) file
+  } if
+  /SpeechFile exch def
+
+  SpeechFile (+newc Ctts\n) writestring
+  SpeechFile flushfile
+
+  /speak {
+    { SpeechFile bytesavailable dup 0 eq { pop exit } if
+      string SpeechFile exch readstring pop
+      console exch writestring
+      console flushfile
+    } loop
+    SpeechFile exch writestring
+    SpeechFile (\n) writestring
+    SpeechFile flushfile
+  } def
+
+end
+
+/pan /Calculated framebuffer /new ClassPanel send def
+/win pan framebuffer /new ClassBaseWindow send def
+
+/it (Hello there) def
+
+/saytext {
+  pop /it 1 index def
+  mumble
+} def
+
+/slideit {
+  pop pop it mumble
+} def
+
+/mumble {
+
+  /value s0 send
+    100 mul round cvi 100 div
+    dup 0 lt { (0.%) sprintf } if
+    (%%) (\\!%% %) sprintf
+
+  /value s1 send
+    (\\!R% %) sprintf
+
+  /value s5 send
+    100 mul round cvi 100 div
+    dup 0 lt { (0.%) sprintf } if
+    (\\!uF% %) sprintf
+
+  /value s6 send
+    100 mul round cvi 100 div
+    dup 0 lt { (0.%) sprintf } if
+    (\\!uB% %) sprintf
+
+  dup ==
+  speak
+} def
+
+/l0
+  (Text To Speech!) framebuffer /new ClassLabel send 2 copy def
+  [ /North { /North PARENT POSITION } ]
+  /addclient pan send
+
+/s0
+  framebuffer /new ClassHSlider send 2 copy def
+  /preferredsize {
+    /minsize super send exch pop 300 exch
+  } /installmethod 3 index send
+  .1 2.5 /setrange 3 index send
+  .1 /setdelta 2 index send
+  1 /setvalue 2 index send
+  /slideit /setnotifier 2 index send
+  userdict /settarget 2 index send
+  [ /North { /South PREVIOUS POSITION } ]
+  /addclient pan send
+
+/s1
+  framebuffer /new ClassHSlider send 2 copy def
+  /preferredsize {
+    /minsize super send exch pop 300 exch
+  } /installmethod 3 index send
+  0 4 /setrange 3 index send
+  {round cvi} /setnormalizer 2 index send
+  2 /setvalue 2 index send
+  /slideit /setnotifier 2 index send
+  userdict /settarget 2 index send
+  [ /North { /South PREVIOUS POSITION } ]
+  /addclient pan send
+
+/s5
+  framebuffer /new ClassHSlider send 2 copy def
+  /preferredsize {
+    /minsize super send exch pop 300 exch
+  } /installmethod 3 index send
+  .01 2.5 /setrange 3 index send
+  .1 /setdelta 2 index send
+  1 /setvalue 2 index send
+  /slideit /setnotifier 2 index send
+  userdict /settarget 2 index send
+  [ /North { /South PREVIOUS POSITION } ]
+  /addclient pan send
+
+/s6
+  framebuffer /new ClassHSlider send 2 copy def
+  /preferredsize {
+    /minsize super send exch pop 300 exch
+  } /installmethod 3 index send
+  .01 2.5 /setrange 3 index send
+  .1 /setdelta 2 index send
+  1 /setvalue 2 index send
+  /slideit /setnotifier 2 index send
+  userdict /settarget 2 index send
+  [ /North { /South PREVIOUS POSITION } ]
+  /addclient pan send
+
+null
+0 1 20 {
+  (t%) sprintf cvn
+    framebuffer /new ClassTextField send 2 copy def
+    /preferredsize {
+      /minsize super send exch pop 300 exch
+    } /installmethod 3 index send
+    /saytext /setnotifier 2 index send
+    userdict /settarget 2 index send
+    () /setvalue 2 index send
+    dup /setnextfocus 5 -1 roll
+    dup null eq { pop pop pop } { send } ifelse
+    dup 3 1 roll
+    [ /North { /South PREVIOUS POSITION } ]
+    /addclient pan send
+} for
+t0 /setnextfocus 3 -1 roll send
+it /setvalue t0 send
+
+
+/mgr /new ClassEventMgr send def
+mgr /activate win send
+/place win send /map win send

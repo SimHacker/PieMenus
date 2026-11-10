@@ -1,0 +1,91 @@
+
+/NicePieMenu PieMenu
+dictbegin
+  /NumbHole false def
+  /MenuLineWidth 3 def
+  /MenuLineCap 1 def
+  /MenuArrowWidth 1 def
+  /MenuArrowCap 1 def
+  /SliceGray false def
+  /MenuFont /Times-Bold findfont 12 scalefont def
+dictend
+classbegin
+    /PaintMenuFrame {
+      MenuGSave
+
+        MenuFillColor fillcanvas
+
+	PieRadius dup translate
+	
+	newpath
+	0 0 PieRadius 0 360 arc closepath
+	0 0 PieRadius Border sub 0 360 arc closepath
+	MenuBorderColor setcolor eofill
+	0 0 NumbRadius 0 360 arc closepath
+	MenuBorderColor setcolor eofill
+      grestore
+    } def
+
+    /PaintMenuItems {
+      MenuGSave
+	false setprintermatch
+        PieRadius dup translate
+
+	  SliceGray {
+	    gsave
+	      0 .1 1 {
+	        /i exch def
+		0 0 LabelRadius dup NumbRadius sub i mul sub 0 360 arc
+		1 i sub setgray
+		closepath fill
+	      } for
+	    grestore
+	  } if
+
+        MenuItems {					% item
+	begin
+	  MenuTextColor setcolor
+	  /Key load X Y ShowThing
+
+% There seems to be a NeWS line clipping bug with lines with one 
+% endpoint the right of the hole in the center of the menu ... 
+
+	  2 setlinequality % Solves SOME of the line glitches ...
+          MenuLineWidth setlinewidth
+	  MenuLineCap setlinecap
+
+	  SliceWedges {
+	    gsave
+	      newpath
+	      ang PieSliceWidth 2 div sub rotate
+	      NumbRadius 0 moveto
+	      LabelRadius Gap sub 0 lineto
+              MenuBorderColor setcolor
+	      stroke
+ 	    grestore
+	  } if
+
+	  SliceArrows {
+	    gsave
+	      MenuArrowWidth setlinewidth
+	      MenuArrowCap setlinecap
+	      newpath
+	      ang rotate
+	      NumbRadius 0 moveto
+	      LabelRadius .5 mul 0 lineto
+	      currentpoint
+	      LabelRadius .4 mul LabelRadius .04 mul lineto
+	      moveto
+	      LabelRadius .4 mul LabelRadius -.04 mul lineto
+              MenuBorderColor setcolor
+	      stroke
+ 	    grestore
+	  } if
+        end
+        } forall
+      grestore
+    } def
+
+classend def
+
+NicePieMenu setdefaultmenu

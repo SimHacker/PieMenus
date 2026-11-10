@@ -1,0 +1,170 @@
+/ClassMouseCanvas ClassBorderBag
+dictbegin
+dictend
+classbegin
+  /NInset 10 def
+  /SInset 10 def
+  /EInset 10 def
+  /WInset 10 def
+  /NGap 10 def
+  /SGap 5 def
+  /Radius 6 def
+
+  /MouseButtons [
+    /LeftMouseButton /MiddleMouseButton /RightMouseButton
+  ] def
+
+  /path { % x y w h => -
+    Radius 5 1 roll rrectpath
+  } def
+
+  /Paint {
+    .5 setgray clippath fill
+  } def
+
+  /NewInit {
+    /NewInit super send
+    /mag framebuffer /new ClassMouseTV send def
+    /Center mag /addclient self send
+    /button framebuffer /new ClassMouseButtons send def
+    /North button /addclient self send
+    /label (Mousee!) framebuffer /new ClassLabel send def
+    /South label /addclient self send
+
+    /size framebuffer send /ScreenH exch def /ScreenW exch def
+    /ButtonStates [ MouseButtons length { false } repeat ] def
+
+    /MouseInterests [
+      null null dictbegin
+	/MouseDragged {
+	  /MouseDragged 1 index /Interest get /ClientData get send
+	} def
+	0
+	MouseButtons {
+	  [ 2 index
+	    {/MouseButton 2 index /Interest get /ClientData get send} aload pop
+	  ] cvx def
+	  1 add
+	} forall
+	pop
+      dictend /new ClassInterest send
+      dup /ClientData self soften put
+      dup /Priority 1000 put
+    ] def
+  } def
+
+  /MouseDragged { % event => -
+    gsave framebuffer setcanvas
+      begin (% %) [ XLocation cvi YLocation cvi] sprintf end
+    grestore
+    /setvalue /South /client self send pop send
+    /PaintTV self send
+  } def
+
+  /MouseButton { % event n => -
+    exch /Action get /DownTransition eq ButtonStates 3 1 roll put
+    /SetButtons self send
+    /PaintTV self send
+  } def
+
+  /PaintTV {
+    /Paint /Center /client self send pop send
+  } def
+
+  /SetButtons {
+    [ 0 1 MouseButtons length 1 sub {
+        ButtonStates 1 index get not { pop } if
+      } for
+    ] /setvalue /North /client self send pop send
+  } def
+
+  /destroy {
+    MouseInterests 0 get /ClientData null put
+    /MouseInterests unpromote
+    /destroy super send
+  } def
+
+  /activate { % mgr => -
+    dup /activate super send
+    MouseInterests /addclients 3 -1 roll send
+  } def
+
+  /deactivate {
+  } def
+
+classend def
+
+/ClassMouseButtons ClassSettings
+dictbegin
+dictend
+classbegin
+  /ChoiceMode /NonExclusive def
+
+  /NewInit {
+    /Calculated exch /NewInit super send
+    [ % XXX: depends on MouseButtons
+      ( ) [/West { /West PARENT POSITION } ]
+      ( ) [/Center { /Center PARENT POSITION } ]
+      ( ) [/East { /East PARENT POSITION } ]
+    ] /setitemlist self send
+  } def
+classend def
+
+/ClassMouseTV ClassCanvas 
+dictbegin
+dictend
+classbegin
+  /Mag 2 def
+
+  /NewInit {
+    /NewInit super send
+    /CameraCanvas framebuffer /new ClassCanvas send def
+    CameraCanvas /Transparent true put
+    /nouse /setcursor CameraCanvas send
+  } def
+
+  /minsize {64 64} def
+
+  /reshape { % x y w h => -
+    /reshape super send
+    gsave
+      framebuffer setcanvas
+      0 0 /size self send
+      Mag div exch Mag div
+      2 copy -.5 mul /DY exch def -.5 mul /DX exch def
+      /reshape CameraCanvas send
+    grestore
+  } def
+
+  /Paint {
+    gsave
+      10 blockinputqueue
+      framebuffer setcanvas
+      currentcursorlocation DX DY xyadd
+      /move CameraCanvas send
+      CameraCanvas canvastotop
+      CameraCanvas /Mapped true put
+      self setcanvas
+      Mag dup scale
+      CameraCanvas imagecanvas
+      CameraCanvas /Mapped false put
+      self setcanvas
+      /size self send scale
+      .5 .5 .25 0 360 arc closepath stroke
+      0 .5 moveto  .25 .5 lineto  1 .5 moveto  .75 .5 lineto
+      .5 0 moveto  .5 .25 lineto  .5 1 moveto  .5 .75 lineto
+      0 setgray stroke
+      unblockinputqueue
+    grestore
+  } def
+classend def
+
+/pan /Absolute framebuffer /new ClassPanel send def
+/mouse framebuffer /new ClassMouseCanvas send def
+/mouse mouse [10 10] /addclient pan send
+/win pan framebuffer /new ClassBaseWindow send def
+/mgr /new ClassEventMgr send def
+mgr /Priority 1000 put
+mgr /activate win send
+/place win send
+/map win send

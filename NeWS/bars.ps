@@ -1,0 +1,335 @@
+%!/usr/NeWS/bin/psh
+newprocessgroup
+systemdict begin
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    /ZoomTime 1.5 60 div def
+
+    /ChompTime .2 60 div def
+
+    /ZoomPaint { % x y w h => - (Draw the zoom shape.)
+      erasepage
+      matrix currentmatrix 5 1 roll
+      4 2 roll translate scale .5 .5 translate
+      0 0 .5 
+      starttime currenttime sub ChompTime div 1 and 0 eq {
+        0 0 moveto
+        ZoomDir 20 add ZoomDir 330 add 
+      } {
+        0 360
+      } ifelse
+      arc
+      closepath
+%        stroke
+       fill
+      setmatrix
+    } store
+
+    /ZoomPaintInit { % - => - (Initialize the zoom painting.)
+	fboverlay setcanvas
+    } def
+
+    /DoZoom { % fx fy fw fh tx ty tw th => - (Perform the zoom animation.)
+    gsave 20 dict begin
+        [/th /tw /ty /tx /fh /fw /fy /fx] { exch def } forall
+	ZoomPaintInit
+	fy fh 2 div add
+	ty th 2 div add sub
+	fx fw 2 div add
+	tx tw 2 div add sub
+	atan 180 add /ZoomDir exch def
+	[fx fy fw fh]
+	[tx ty tw th]
+	ZoomTime {
+	    aload pop ZoomPaint pause
+	} Zoom
+	erasepage
+    end grestore
+    } store
+
+  /Zoom { %  r1 r2 time proc => - (Zoom style animator.)
+    10 dict begin
+	/starttime currenttime def
+	/proc exch def
+	/time exch def
+	/r2 exch def
+	/r1 exch def
+	/rdeltas r2 r1 {sub} arrayop def
+	{   currenttime starttime sub time div /i exch def
+	    i 1 gt { exit } if
+	    r1 rdeltas {i mul add} arrayop proc
+	} loop
+    end
+  } def
+
+/Them null def
+
+/HereIAm {
+  /Rest Them def
+  /Them currentdict store
+} def
+
+/ZoomThem { %  x y w h => -
+  Them
+  {
+    dup null eq { 5 {pop} repeat exit } if
+    begin
+      x y w h DoZoom
+      popup-can begin /Mapped Mapped not def end
+      x y w h
+      Rest
+    end
+  } loop
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/SlicedPieMenu PieMenu
+dictbegin
+% instance variables
+  /StartAng 180 def
+  /EndAng 360 def
+  /Clockwise false def
+  /NumbHole true def
+  /LabelRadiusPerKey 8 def
+  /MapLongDelay 0 def
+dictend
+classbegin
+% class variables
+
+% methods
+    /reshape {
+      MenuGSave
+	framebuffer setcanvas
+	newpath
+	PieRadius dup dup StartAng EndAng arc
+	closepath
+	NumbHole {
+ 	  PieRadius dup NumbRadius 1 sub EndAng StartAng arcn closepath } if
+	SplatFactor { 6 { PieRadius dup add random mul } repeat
+	              curveto } repeat
+	MenuCanvas eoreshapecanvas
+	/beye /beye_m MenuCanvas setstandardcursor
+	% So retained canvases don't have their old image upon popup:
+	RetainCanvas? {
+	    MenuCanvas setcanvas
+            MenuFillColor fillcanvas
+	} if
+      grestore
+    } def
+
+    /layout {
+      gsave MenuFont setfont
+
+	/PieSliceWidth
+	  EndAng StartAng sub
+	  MenuKeys length 1 max div store
+
+        /PieInitialAngle 
+          PieSliceWidth 2 div
+          Clockwise { EndAng exch sub } { StartAng add } ifelse
+        def
+
+	/LabelRadius
+	  LabelMinRadius LabelRadiusPerKey MenuKeys length mul add store
+
+	/ThisAngle PieInitialAngle store
+
+	/PieRadius 0 def
+        MenuItems {
+	  begin
+	    w null eq
+	      {Key ThingSize /h exch def /w exch def} if
+	    /ang ThisAngle def
+	    /x ang cos LabelRadius mul def
+	    /y ang sin LabelRadius mul def
+	    ang cos abs .05 lt { %  top or bottom
+	      /X x w 2 div sub def
+	      /Y y ang 180 gt {h sub} if def
+	      x abs w 2 div add dup mul y abs h add dup mul add
+	    } { %  left or right
+	      /X x ang 90 gt ang 270 lt and {w sub} if def
+	      /Y y h 2 div sub def
+	      x abs w add dup mul y abs h 2 div add dup mul add
+	    } ifelse
+	    PieRadius max /PieRadius exch store
+	    /ThisAngle ThisAngle PieSliceWidth
+	      Clockwise {sub} {add} ifelse
+	      NormalAngle store
+	  end
+	} forall
+	/PieRadius PieRadius sqrt Gap add Border add store
+
+        /MenuWidth
+	  PieRadius dup add store
+        /MenuHeight
+% 	  PieRadius dup add store
+          PieRadius store %  XXX kludge for pull-downs
+
+      grestore
+    } def
+
+    /PaintMenuFrame {
+      MenuGSave
+
+        MenuFillColor fillcanvas
+
+	PieRadius dup translate
+	
+	newpath 0 0 PieRadius Border sub StartAng EndAng arc closepath
+	0 0 PieRadius StartAng EndAng arc closepath
+	MenuBorderColor setcolor eofill
+
+	6 setlinewidth 1 setlinequality
+	gsave
+	  StartAng rotate 
+	  newpath  0 0 moveto  PieRadius 0 lineto  stroke
+	grestore
+	gsave
+	  EndAng rotate 
+	  newpath  0 0 moveto  PieRadius 0 lineto  stroke
+	grestore
+
+        SliceWedges {
+	  newpath 0 0 LabelRadius Gap sub StartAng EndAng arc closepath
+          MenuBorderColor setcolor eofill
+	} if
+
+	newpath 0 0 NumbRadius StartAng EndAng arc closepath
+	SliceWedges {MenuFillColor} {MenuBorderColor} ifelse
+	setcolor fill
+      grestore
+    } def
+
+    /PaintMenuItems {
+      MenuGSave
+	false setprintermatch
+        PieRadius dup translate
+
+        MenuItems {					% item
+	begin
+	  Key X Y ShowThing
+
+% There seems to be a NeWS line clipping bug with lines with one 
+% endpoint the right of the hole in the center of the menu ... 
+
+	2 setlinequality % Solves SOME of the line glitches ...
+        1 setlinewidth
+
+	  SliceWedges {
+	    gsave
+	      newpath
+	      ang PieSliceWidth 2 div sub rotate
+	      NumbRadius 0 moveto
+	      LabelRadius Gap sub 0 lineto
+              MenuFillColor setcolor
+%	      1 setlinequality % Solves SOME of the line glitches ...
+	      stroke
+ 	    grestore
+	  } if
+
+	  SliceArrows {
+	    gsave
+	      newpath
+	      ang rotate
+	      NumbRadius 0 moveto
+	      LabelRadius .5 mul 0 lineto
+	      currentpoint
+	      LabelRadius .4 mul LabelRadius .04 mul lineto
+	      moveto
+	      LabelRadius .4 mul LabelRadius -.04 mul lineto
+              SliceWedges {MenuFillColor} {MenuBorderColor} ifelse
+	      setcolor
+	      stroke
+ 	    grestore
+	  } if
+        end
+        } forall
+      grestore
+    } def
+
+    /SetMenuValue { % x y => - (Sets /MenuValue)
+        /PieDistance
+	  2 index dup mul 2 index dup mul add sqrt store
+	exch atan /PieDirection exch store
+	/MenuValue
+	  PieDistance NumbRadius le
+% It could be that when the cursor is out past the menu radius,
+% nothing is selected. But I don't do it that way, because it wins
+% to be able to get arbitrarily more precision by moving out further.
+%	  PieDistance PieRadius gt or
+	  { null }
+	  { PieInitialAngle PieSliceWidth 2 div
+	    Clockwise { add PieDirection sub } { sub PieDirection add } ifelse
+	    NormalAngle
+	    PieSliceWidth idiv
+	    dup MenuKeys length ge { pop null } if
+	  } ifelse
+	def
+    } def
+
+classend def
+
+end % systemdict
+100 dict begin
+
+/linearmenu
+[ (File) (Save) (Tie) (Insert) (Paste) (Cut) ]
+[ {} ]
+/new LitePullRightMenu send def
+{ /MenuFont /Helvetica-Bold findfont 18 scalefont def
+  /CellVertGap 5 def
+} linearmenu send
+
+/linearwin
+framebuffer /new DefaultWindow send def
+{ /BorderTop 4 def
+  /BorderBottom 4 def
+  /BorderLeft 4 def
+  /BorderRight 4 def
+  /PaintClient {
+    ClientCanvas setcanvas
+    1 fillcanvas
+    0 setgray
+    /Courier-Bold findfont 32 scalefont setfont
+    8 8 moveto
+    (PullDown) show
+  } def
+} linearwin send
+
+{ /ClientMenu linearmenu def } linearwin send
+
+/roundmenu
+[ (File) (Save) (Tie) (Insert) (Paste) (Cut) ]
+[ {} {} {} {} {} {{MenuX MenuY MenuWidth MenuHeight ZoomThem} fork pop} ]
+/new SlicedPieMenu send def
+{ /MenuFont /Helvetica-Bold findfont 18 scalefont def
+  /LabelMinRadius 18 def
+} roundmenu send
+
+/roundwin
+framebuffer /new DefaultWindow send def
+{ /BorderTop 4 def
+  /BorderBottom 4 def
+  /BorderLeft 4 def
+  /BorderRight 4 def
+  /PaintClient {
+    ClientCanvas setcanvas
+    1 fillcanvas
+    0 setgray
+    /Courier-Bold findfont 32 scalefont setfont
+    8 8 moveto
+    (PullRound) show
+  } def
+} roundwin send
+
+{ /ClientMenu roundmenu def } roundwin send
+
+framebuffer setcanvas clippath pathbbox
+/h exch def pop pop pop
+
+64 h 50 sub 200 50 /reshape linearwin send
+264 h 50 sub 200 50 /reshape roundwin send
+/map linearwin send
+/map roundwin send

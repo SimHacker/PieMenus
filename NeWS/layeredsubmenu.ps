@@ -1,0 +1,21 @@
+% {foo,bar}menu{0,1,2,3} are menus...
+
+/foomenuaction {
+  getmenuarg dup null eq {pop {}} {
+    [foomenu0 foomenu1 foomenu2 foomenu3] exch get
+  } ifelse
+} def
+
+/barmenuaction {
+  getmenuarg dup null eq {pop {}} {
+    [barmenu0 barmenu1 barmenu2 barmenu3] exch get
+  } ifelse
+} def
+
+
+/menu
+  [0 1 2 3]
+  [(foo) (bar)]
+  [/foomenuaction cvx  /barmenuaction cvx]
+/new LayeredPieMenu send def
+

@@ -1,0 +1,67 @@
+The window through which the user views text or graphics is under
+control of the user. The window has a size, a scale (coordinate
+system), and viewport. The window manager provides the user with
+commands to resize the window and move the viewport and scale around.
+The window manager must inform the application of a 
+
+* Caching protocol 
+** No caching
+Application always repaints
+** Viewport caching
+Application sends description of viewport, which is cached in the
+window manager, and may be used for redisplay with the same window viewport
+parameters (window size, scale, viewport position). When the viewport
+is changed, the cached viewport description is trashed and a new one
+requested from the application. When the application updates part of
+what is being viewed that is visible in the viewport, it sends a new
+description, or incrementally modifies the cached one.
+This is a generalization of retained windows.
+** Region caching
+The window manager does not trash the old viewport descriptions. The
+application keeps track of which viewports are cached in the server,
+and may send commands specifying regions that have changed, so the
+window server may trash cached descriptions that include that region.
+When the user changes the viewport, the window manager checks the cach
+for descriptions of the same scale that intersects the new viewport,
+and displays them. If there are any leftover parts of the viewport
+that are not covered by the cached description, they are requested
+from the application. It would be nice to have a way to do set
+operations with the region descriptions. How do you efficiently make
+changes to parts of the displayed image? It depends on the
+representation. Are there types of image descriptions that you append
+the instructions to draw the changes to the cached descriptions?
+(display lists?) When you redraw the window, it draws the original
+picture, then draws your changes. When do you want to regenerate a
+fresh description reflecting the changes? It would be nicer to send
+editing commands, to edit the descriptions in the server. (rastops)
+You would need a set of description-dependend editing functions that
+work on the cached region description, and inform the application of
+the changes. You would not have to append incremental changes to the
+cached descriptions, then. How could you do set operations on region
+descriptions? How does string editing theory apply to 2 (n?)
+dimentional image descriptions?
+
+An application may have object descriptions stored in some database, that
+it refers to. The window manager may acquire the objects refered to
+by the application from a local database server (emacs or whatever).
+The application could run remotely, and would not need to send the
+text of the objects, only references to things that the window manager
+may look up locally or have cached. 
+
+If you don't display a pie menu when you already have both endpoints of
+the path, it's easy to implement shortcuts with macros that just
+stuff the right series of events into the queue. 
+
+Mouse clicks in macros should be either absolute or relative. Perhaps
+there should be some magic way (shift key?) of saying "This is an
+absolute location" When a macro that starts with a relative click is
+invoked, it happens relative to the click that invoked it. If it's
+bound to something other than a click, then it could start relative to
+the current cursor position. The first click of menu traversal can be
+used to point, as an argument to the function invoked by the menu. A
+relative mouse macro could start at that point.
+
+I want to be able to make macros that have mouse clicks, key strokes,
+and function invocations, interspersed. I should be able to use this
+macro facility with application programs that don't know anything
+about it. 

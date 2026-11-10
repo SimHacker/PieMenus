@@ -1,0 +1,61 @@
+Menu Design
+
+Impedence mismatchs:
+	Returned values
+	Keymaps
+	Names
+	Regions
+	Drawing: PS vs Bits/Transform being top-to-bottom.
+
+Models/Scenarios:
+	Pop-up Items
+		Pullright sliders & dialogs!
+	Sketches
+	Abstract Superclass:
+	
+
+Issues:
+	* Screen Blocking: SV locks the screen while doing popup
+	  menus.  This may cause problems with past SV usage.
+	  The "bluebook" probably should have a section on this.
+	* Client-side communication/callbacks
+	* How do pullright's get specified (currently uses action==dict).
+	  Do we explicitly specify a node as a pullright?  Can it have
+	  a callback?  (..so that it can't put the pullright in its action)
+	* How allow/control stay-ups.
+	* How formalize the notion of "default" behavior and "state".
+	  For example, what if we want to popup to the last pullright state?
+	* Damage/Window issues:
+		-Do they "lock" the screen?
+		-Do they handle their own damage?
+		-How do they behave if they are modified
+		 while being displayed/tracked.
+	* How specify "controller" so that different
+	  styles of completion can be used:
+	    Adding interests to current process.
+	    	-How can we insure current process uses callbacks!
+	    Tracking Process (forking a tracking process)
+	  	-Returned value: requires menu code to not
+	  	 distroy itself?  [can a process be killed if
+	  	 another process is awaiting its return?]
+	  	-Callback: tracking process should kill itself.
+	
+	
+Notes:
+	* I think the MenuGenProcs can be replaced by instance methods
+	  for /show.
+
+Style:
+	Set/Get: use sends?  ..or get/put & name/def.
+
+Naming convention:
+	Classes			ClassFoo (include "Class")
+	Class/Default variables	
+	Instance variables
+	Methods
+	Local variables
+
+	Global variables
+	Instances
+	Utilities
+

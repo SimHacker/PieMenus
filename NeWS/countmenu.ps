@@ -1,0 +1,28 @@
+/win framebuffer /new DefaultWindow send def
+/reshapefromuser win send
+{
+    /toys /toyland1 findfont def
+
+    /count10 [
+      [(`) toys] [(1) toys] [(2) toys] [(3) toys] [(4) toys] 
+      [(5) toys] [(6) toys] [(7) toys] [(8) toys] [(9) toys] 
+      [(0) toys]
+    ] def
+
+    /ClientMenu [
+      count10				% Up
+      count10				% Right
+      count10				% Down
+      count10				% Left
+    ] [
+      (Up)		{ }
+      (Right)		{ }
+      (Down)		{ }
+      (Left)		{ }
+    ] /new PulloutPieMenu send def
+
+    ClientMenu /LabelMinRadius 30 put
+    ClientMenu /MapShortDelay .5 60 div put
+} win send
+/map win send
+

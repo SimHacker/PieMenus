@@ -1,0 +1,814 @@
+%!
+
+%
+% Pie Menus with Chomps
+% Don Hopkins
+% U of Maryland
+%
+
+100 dict begin
+
+/menudictsize 60 def
+/slicedictsize 20 def
+/chompdictsize 10 def
+
+/pointsize 12 def
+/sympointsize 12 def
+
+/menudefaults [
+    /menuname (Unnamed Menu)
+    /menunamescale 1.6
+    /menuradius 90
+    /slicenamescale 1
+    /chompnamescale 1
+    /drawmenu { (DM ) pf drawpiemenu labelmenu }
+    /drawslice { ( DS ) pf drawpieslice labelslice }
+    /drawchomp { (DC ) pf drawpiechomp labelchomp }
+    /menux 300
+    /menuy 400
+    /labelpad 3
+    /firstangle 90
+    /numbradius 15
+    /slicenamepos .75
+    /chompnamepos .5
+    /sliceoffset .05
+    /slicepad .05
+    /slicegray .5
+    /boxscale 1.2
+    /chompgray .9
+    /chompradiuspad .05
+    /chompanglepad .2
+    /clockwise true
+    /arrowlinewidth 0
+    /arrowheadangle 10
+    /arrowheadlen .1
+    /labelxfudge 0
+    /labelyfudge 0
+    /spearfatness .8
+    /spearsharpness .6
+] def
+
+/slicedefaults [
+    /slicename (Slice)
+    /slicesize 1
+] def
+
+/chompdefaults [
+    /chompname (Chomp)
+    /chompsize 1
+] def
+
+/pf {
+%    print flush
+     pop
+} def
+
+/stringwidthheight {	% string ==> width height
+    stringwidth pop
+    gsave
+	newpath  0 0 moveto
+	(M) true charpath
+%	flattenpath 
+	pathbbox
+        exch pop exch pop exch pop
+    grestore
+} def
+
+/vlist {
+    [ currentdict {pop} forall ] == 
+} def
+
+/bindnames {	% value1 ... valuen [name1 ... namen] ==> ---
+    dup length 1 sub -1 0 {	% valuei names i
+	1 index exch get	% valuei names names[i]
+	3 -1 roll		% names names[i] valuei
+	def			% names
+    } for
+    pop
+} def
+
+/bindpairs {	% bindings ==> ---
+    0  2  2 index length 2 sub {
+	1 index 1 index get
+	exch 1 add 2 index exch get
+	def
+    } for
+    pop
+} def
+
+/defslice {	% slicebindings ==> slicedict
+    slicedictsize dict begin
+	slicedefaults bindpairs
+	bindpairs
+
+	currentdict
+    end
+} def
+
+/defslices {	% slicebindingsarray ==> slicedictarray
+    [ exch { defslice } forall ]
+} def
+
+/defchomp {	% chompbindings ==> chompdict
+    chompdictsize dict begin
+	chompdefaults bindpairs
+	bindpairs
+
+	currentdict
+    end
+} def
+
+/defchomps {	% chompbindingsarray ==> chompdictarray
+    [ exch { defchomp } forall ]
+} def
+
+/defmenu {	% menubindings ==> menudict
+    menudictsize dict begin
+	menudefaults bindpairs
+	bindpairs
+
+	initmenu
+
+	currentdict
+    end
+} def
+
+/initmenu {
+    /slicecount slices length def
+    0 slices { /slicesize get add } forall
+    /slicetotalsize exch def
+
+    /currentangle firstangle def
+    slices { begin initslice end } forall    
+} def
+
+/initslice {
+    /chomps where {
+        pop
+        /chompcount chomps length def
+	0 chomps { /chompsize get add } forall	% sum chomp sizes
+        numbradius menuradius div 1 add mul	% compensate for numbradius
+        /chomptotalsize exch def
+
+        /currentradius numbradius def
+        chomps { begin initchomp end } forall
+    } if
+
+    /slicewidth slicesize slicetotalsize div 360 mul def
+
+    currentangle firstangle eq not { turnhalfangle } if
+
+    /sliceangle currentangle def
+
+    /sliceleftangle currentangle slicewidth 2 div sub def
+    /slicerightangle sliceleftangle slicewidth add def
+
+%    sliceleftangle quadslope
+%    slicerightangle quadslope
+%    [ /leftquad /leftslope /rightquad /rightslope ] bindnames
+
+    turnhalfangle
+} def
+
+/initchomp {
+    /chompwidth chompsize chomptotalsize div menuradius mul def
+
+    /innerradius currentradius def
+    /currentradius currentradius chompwidth add store
+    /outerradius currentradius def
+} def
+
+/turnhalfangle {
+    /currentangle
+    currentangle
+    slicewidth 2 div 
+    clockwise { sub } { add } ifelse
+    store
+} def
+
+/drawpiemenu {
+    slices {
+     	begin
+	  drawslice
+	end
+    } forall
+} def
+
+/drawpieslice {
+    gsave
+        newpath
+	sliceangle rotate
+	sliceoffset menuradius mul 0 translate
+	sliceangle neg rotate
+	0 0 moveto
+	0 0 menuradius dup slicepad mul add
+	sliceangle slicewidth 2 div sub
+	dup slicewidth add
+	arc
+	closepath
+	fillslice
+    grestore
+
+    /chomps where {
+        pop
+    	chomps {
+	    begin
+		drawchomp
+	    end
+	} forall
+    } if
+} def
+
+/drawpiechompdict 2 dict def
+
+/drawpiechomp {
+    drawpiechompdict begin
+    /widthpad chompwidth chompradiuspad mul def
+    /angle slicewidth 2 div dup chompanglepad mul sub def 
+    gsave
+	sliceangle rotate
+
+	newpath
+	0 0 innerradius widthpad add
+	angle neg angle
+	arc
+	0 0 outerradius widthpad sub
+	angle angle neg
+	arcn
+	closepath
+	fillchomp
+    grestore
+    end
+} def
+
+/fillslice {
+    1 setlinewidth
+    gsave
+	slicegray setgray
+	fill
+    grestore
+    0 setgray stroke
+} def
+
+/fillchomp {
+    1 setlinewidth
+    gsave
+	chompgray setgray
+	fill
+    grestore
+    0 setgray stroke
+} def
+
+/pop4 {		% n1 n2 n3 n4 ==> ---
+    pop pop pop pop
+} def
+
+/labelmenu {
+    gsave
+	atmenuname
+	menunamescale dup scale
+	menuname boxlabel
+    grestore
+} def
+
+/labelslice {
+    gsave
+	atslicename
+	slicenamescale dup scale
+	slicename boxlabel
+    grestore
+} def
+
+/labelchomp {
+    gsave
+	atchompname
+	slicenamescale dup scale
+	chompname boxlabel
+    grestore
+} def
+
+/boxlabeldict 4 dict def
+
+/boxlabel {	%  dolabel width height ==> ---
+    boxlabeldict begin
+	/label exch def
+	/curmat matrix currentmatrix def
+        label stringwidthheight			    % w h
+	2 div labelpad add /height exch def	    % w
+	2 div labelpad add /width exch def	    %
+	currentpoint  1 index 1 index translate
+	newpath
+	width 0 moveto
+	width height 0 height labelpad arcto pop4
+	width neg height  width neg 0 labelpad arcto pop4
+	width neg height neg  0 height neg labelpad arcto pop4
+	width height neg width 0 labelpad arcto pop4
+	closepath
+	gsave 1 setgray fill grestore 
+	1 setlinewidth  0 setgray stroke
+	curmat setmatrix
+	moveto
+	labelxfudge labelyfudge rmoveto
+	label centerlabel 
+    end
+} def
+
+/atmenuname {
+    0 0 moveto
+} def
+
+/atslicename {
+    sliceangle rotate
+    menuradius slicenamepos mul 0 moveto
+    sliceangle neg rotate
+} def
+
+/atchompname {
+    sliceangle rotate
+    chompwidth chompnamepos mul
+    innerradius add 0 moveto
+    sliceangle neg rotate
+} def
+
+/centerlabel {	% label ==> ---
+    dup stringwidthheight
+    2 div neg exch
+    2 div neg exch
+    rmoveto
+    0 setgray
+    show
+} def
+
+/domenu {	% menudict ==> ---
+    begin
+% (DoMenu ) print menuname == flush
+	gsave
+	    menux menuy translate
+	    drawmenu
+	    getselection
+	grestore
+% (DidMenu ) print menuname == flush
+    end
+} def
+
+/drawspearslice	% --- ==> ---
+{	newpath
+	sliceangle rotate
+	0 0 moveto
+
+	slicewidth 2 div cos spearfatness menuradius mul mul
+	slicewidth 2 div sin spearfatness menuradius mul mul
+
+	1 index 1 index
+	spearsharpness menuradius mul 0
+	menuradius 0
+	curveto
+
+	spearsharpness menuradius mul 0
+	4 -2 roll neg
+	0 0
+	curveto
+
+	closepath
+	sliceangle neg rotate
+
+	fillslice
+} def
+
+/drawgrayslice {
+    gsave
+        newpath
+	sliceangle rotate
+	sliceoffset menuradius mul 0 translate
+	sliceangle neg rotate
+	0 0 moveto
+	0 0 menuradius dup slicepad mul add
+	sliceangle slicewidth 2 div sub
+	dup slicewidth add
+	arc
+	closepath
+	slicegray setgray
+	fill
+    grestore
+} def
+
+/drawarrowslice {	% --- ==> ---
+    gsave
+    	newpath
+	sliceangle rotate
+	0 0 moveto
+	menuradius arrowlen mul 0 translate
+	0 0 lineto
+	180 arrowheadangle add rotate
+	arrowheadlen menuradius mul
+	dup 0 moveto
+	0 0 lineto
+	arrowheadangle dup add neg rotate
+	0 lineto
+
+	arrowlinewidth setlinewidth
+	0 setgray
+	stroke
+    grestore
+} def
+
+/getselection {
+} def
+
+/tan {		% angle ==> tan
+    dup sin exch sin exch cos div
+} def
+
+/quadslope {	% angle ==> quadrant slope
+    {   dup 0 ge { exit } if
+	360 add
+    } loop
+	
+    dup
+    {	dup 90 lt { exit } if
+	90 sub
+    } loop
+
+    tan
+    exch cvi 90 idiv 4 mod exch 
+} def
+
+/circlemenu {
+    newpath
+    0 0 menuradius 0 360 arc
+    2.5 setlinewidth
+    gsave
+        1 setgray
+	fill
+    grestore
+    0 setgray
+    stroke
+} def
+
+/boxmenu {
+    newpath
+    menuradius boxscale mul	% r
+    dup dup moveto		% moveto(r,r)
+    dup dup neg lineto		% lineto(r,-r)
+    neg				% -r
+    dup dup lineto		% lineto(-r,-r)
+    dup neg lineto		% lineto(-r,r)
+    closepath
+    3 setlinewidth
+    0 setgray
+    stroke
+} def
+
+/drawcursor {
+    gsave
+	1 setlinejoin
+	newpath
+	0 0 moveto
+	-12 7 lineto
+	-8 2 lineto
+	-26 2 lineto
+	-26 -2 lineto
+	-8 -2 lineto
+	-12 -7 lineto
+	closepath
+	gsave
+	2 setlinewidth
+	1 setgray
+	stroke
+	grestore
+	.2 setgray
+	fill
+    grestore
+} def
+
+/normalfont
+    /Helvetica findfont pointsize scalefont def
+
+/symfont
+    /Symbol findfont sympointsize scalefont def
+
+normalfont setfont
+
+/iconctm matrix def
+
+/xsquared {
+    iconctm currentmatrix pop
+    (x) show
+    0 pointsize 2 div rmoveto
+    .5 .5 scale
+    (2) show
+    iconctm setmatrix
+} def
+
+/sqrtx {
+    symfont setfont
+    gsave
+        (\326) show
+    grestore
+    (\140) show
+    normalfont setfont
+    (x) show
+} def
+
+/negx {
+    iconctm currentmatrix pop
+    0 pointsize 3 div rmoveto
+    .7 .7 scale 
+    (+) show
+    iconctm setmatrix
+    0 pointsize 3 div neg rmoveto
+    (\244) show
+    1 .7 scale
+    (-) show
+    iconctm setmatrix
+} def
+
+%/negx {
+%    symfont setfont
+%    0 pointsize 10 div rmoveto
+%    (\261) show
+%    normalfont setfont
+%} def
+
+/oneoverx {
+    iconctm currentmatrix pop
+    0 pointsize 3 div rmoveto
+    .7 .7 scale 
+    (1) show
+    iconctm setmatrix
+    0 pointsize 3 div neg rmoveto
+    (\244) show
+    .7 .7 scale
+    (x) show
+    iconctm setmatrix
+} def
+
+/centericon {	% label ==> ---
+    stringwidthheight
+    2 div neg exch 2 div neg exch rmoveto
+    0 setgray
+    icon
+} def
+% calc menu
+
+/xfuncmenu [
+    /menux 0
+    /menuy 0
+    /menuradius 35
+    /menuname (f(x))
+    /firstangle 90
+    /clockwise true
+    /labelpad 3
+    /slicenamepos .48
+    /arrowlinewidth .25
+    /arrowlen .95
+    /arrowheadangle 17
+    /arrowheadlen .15
+    /getselection {}
+    /drawmenu { 
+        (DM ) pf
+	circlemenu
+        slices { begin drawslice end } forall
+    }
+    /drawslice { drawarrowslice labelslice }
+    /slices [
+        [   /slicename (x!)
+	    /centerlabel { centericon }
+	    /icon { xsquared }
+	]		% x^2
+	[   /slicename (x!)
+	    /centerlabel { centericon }
+	    /labelxfudge -1
+	    /icon { oneoverx }
+	]	% 1/x
+        [   /slicename (xx)
+	    /centerlabel { centericon }
+	    /labelxfudge -2
+	    /labelyfudge -.5
+	    /icon { sqrtx }
+	]	% sqrt(x)
+	[   /slicename (x!)
+	    /centerlabel { centericon }
+	    /labelxfudge -1
+	    /icon { negx }
+	]		% +/-
+    ] defslices
+] defmenu def
+
+/pmtdmenu [
+    /menux 0
+    /menuy 0
+    /menuradius 35
+    /menuname (pmtd)
+    /firstangle 90
+    /clockwise true
+    /labelpad 3
+    /slicenamepos .45
+    /getselection {}
+    /arrowlinewidth .25
+    /arrowlen .95
+    /arrowheadangle 17
+    /arrowheadlen .15
+    /labelyfudge .6
+    /drawmenu { 
+        (DM ) pf
+	circlemenu
+        slices { begin drawslice end } forall
+    }
+    /drawslice { drawarrowslice symfont setfont labelslice normalfont setfont }
+    /slices [
+        [   /slicename (+)
+	]	% +
+	[   /slicename (\264)
+	]	% times
+        [   /slicename (-)
+	]	% -
+	[   /slicename (\270)
+	]	% divide
+    ] defslices
+] defmenu def
+
+/memmenu [
+    /menux 0
+    /menuy 0
+    /menuradius 35
+    /menuname (M)
+    /menunamescale .8
+    /firstangle 90
+    /clockwise true
+    /labelpad 3
+    /slicenamepos .5
+    /arrowlinewidth .25
+    /arrowlen .95
+    /arrowheadangle 17
+    /arrowheadlen .15
+    /labelyfudge .8
+    /getselection {}
+    /drawmenu { 
+        (DM ) pf
+	circlemenu
+        slices { begin drawslice end } forall
+	labelmenu
+    }
+    /drawslice { drawarrowslice symfont setfont labelslice normalfont setfont }
+    /slices [
+        [   /slicename (+)
+	]	% +
+	[   /slicename (\336)
+	    /slicenamepos .45
+	]	% rightdblarrow
+        [   /slicename (-)
+	]	% -
+	[   /slicename (\336)
+	    /slicenamepos .45
+	]	% rightdblarrow
+    ] defslices
+] defmenu def
+
+/ctrlmenu [
+    /menux 0
+    /menuy 0
+    /menuradius 35
+    /menuname (Ctrl)
+    /firstangle 90
+    /clockwise true
+    /labelpad 3
+    /slicenamepos .45
+    /arrowlinewidth .25
+    /arrowlen .95
+    /arrowheadangle 17
+    /arrowheadlen .15
+    /labelyfudge -.4
+    /getselection {}
+    /drawmenu { 
+        (DM ) pf
+	circlemenu
+        slices { begin drawslice end } forall
+    }
+    /drawslice { drawarrowslice labelslice }
+    /slices [
+        [   /slicename (E)
+	]
+	[   /slicename (=)
+	    /labelyfudge 1.6
+	]
+        [   /slicename (.)
+	]
+	[   /slicename (C)
+	]
+    ] defslices
+] defmenu def
+
+/calcmenu [
+    /menuname (Calc)
+    /menuradius 110
+    /menux 375
+    /menuy 250
+    /sliceoffset .03
+    /slicenamepos .65
+    /slicenamescale 1.25
+    /slicegray .9
+    /getselection {
+        slices 3 get begin action end
+    }
+    /action {
+	gsave
+	    sliceangle rotate  
+	    menuradius 1.6 mul 0 translate
+	    sliceangle neg rotate
+	    memopenmenu domenu
+	grestore }
+    /drawslice {
+        drawpieslice
+        gsave
+            sliceangle rotate
+            menuradius slicenamepos mul 0 translate
+            sliceangle neg rotate
+	    slicenamescale dup scale
+	    slicemenu domenu
+        grestore
+    }
+    /slices [
+        [   /slicename (funct)
+	    /slicemenu xfuncmenu
+	]
+        [   /slicename (ctrl)
+	    /slicemenu ctrlmenu
+	]
+        [   /slicename (pmtd)
+	    /slicemenu pmtdmenu
+	]
+        [   /slicename (mem)
+	    /slicemenu memmenu
+	    /slicegray .1
+	]
+    ] defslices
+] defmenu def
+
+/memput {
+    (Put) show
+    symfont setfont
+    (\336) show
+    normalfont setfont
+} def
+
+/memget {
+    symfont setfont
+    (\336) show
+    normalfont setfont
+    (Get) show
+} def
+
+/memopenmenu [
+    /menux 0
+    /menuy 0
+    /menuradius 65
+    /menuname (Memory)
+    /menunamescale 1.15
+    /firstangle 90
+    /clockwise true
+    /labelpad 3
+    /slicenamepos .75
+    /slicegray .9
+    /arrowlinewidth .25
+    /arrowlen .95
+    /arrowheadangle 17
+    /arrowheadlen .15
+    /labelyfudge .8
+    /getselection {
+        slices 0 get begin action end
+    }
+    /action {
+	gsave
+	    sliceangle 10 sub rotate
+	    menuradius .5 mul 0 translate
+	    drawcursor
+%	    menuradius 1.8 mul 0 translate
+%	    sliceangle neg rotate
+%	    registermenu domenu
+	grestore }
+    /drawmenu { 
+        (DM ) pf
+        slices { begin drawslice end } forall
+	labelmenu
+    }
+    /drawslice { drawpieslice labelslice }
+    /slices [
+        [   /slicename (Mem+)
+	    /slicegray .1
+	]	% +
+	[   /slicename (=>Put)
+	    /centerlabel { centericon }
+	    /icon { memget }
+	]	% rightdblarrow
+        [   /slicename (Mem-)
+	]	% -
+	[   /slicename (Put=>)
+	    /centerlabel { centericon }
+	    /icon { memput }
+	]	% rightdblarrow
+    ] defslices
+] defmenu def
+
+calcmenu domenu 
+showpage

@@ -1,0 +1,202 @@
+/NeWS 3 0 findpackage beginpackage
+/TNTCore 3 0 findpackage beginpackage
+/TNT 3 0 findpackage beginpackage
+
+/ClassMouseeCanvas ClassCanvas []
+classbegin
+  /SizeScale .3 def
+
+  /Paint {
+    BackingCanvas imagecanvas
+  } def
+
+  /preferredsize {
+    ScreenW SizeScale mul ScreenH SizeScale mul
+  } def
+
+  /ButtonNames [PointButton AdjustButton MenuButton] def
+
+  /ButtonActions 2 dict def
+  ButtonActions begin
+    /DownTransition {
+      /TrackDown can send
+    } def
+    /UpTransition {
+      /TrackUp can send
+    } def
+  end % ButtonActions
+
+  /MotionName 1 dict def
+  MotionName begin
+    /MouseDragged {
+      /TrackMove can send
+    } def
+  end % MotionName
+
+  /NewInit {
+    /NewInit super send
+
+    /MouseeInterests [
+      null ButtonActions ButtonNames	% canvas action name
+      /new ClassInterest send
+      dup /Priority 20000 put
+
+      null null MotionName
+      /new ClassInterest send
+      dup /Priority 20000 put
+    ] def
+
+    /ButtonStates [ ButtonNames length {false} repeat ] def
+
+    gsave
+      /framebufferof self send setcanvas
+      currentcanvas false getbbox 4 2 roll pop pop
+      /ScreenH exch def /ScreenW exch def
+    grestore
+
+    /BackingCanvas Parent newcanvas def
+    BackingCanvas /Transparent false put
+    BackingCanvas /Retained true put
+  } def
+
+  /reshape {
+    /reshape super send
+    gsave
+      self setcanvas clippath BackingCanvas reshapecanvas
+      BackingCanvas setcanvas
+      .5 setgray clippath fill
+    grestore
+  } def
+
+  /activate { % mgr => -
+    /activate super send
+    EventMgr null ne {
+      MouseeInterests /addclients EventMgr send
+    } if
+  } def
+
+  /deactivate { % - => -
+    EventMgr null ne {
+      MouseeInterests /removeclients EventMgr send
+    } if
+    /deactivate super send
+  } def
+
+  /destroy { % - => -
+    /destroy super send
+  } def
+
+  /TrackUp { % event => -
+    ButtonNames 1 index /Name get arrayindex {
+      ButtonStates exch false put
+    } {pop} ifelse
+    /PaintEvent self send
+  } def
+
+  /TrackDown { % event => -
+    ButtonNames 1 index /Name get arrayindex {
+      ButtonStates exch true put
+    } if
+    /PaintEvent self send
+  } def
+
+  /TrackMove { % event => -
+    /PaintEvent self send
+  } def
+
+  /ButtonAngle 60 def
+  /ButtonSize 45 def
+  /ButtonRadius 120 def
+  /MouseSize 64 def
+
+  /PaintEvent { % event => -
+    gsave
+      /framebufferof self send setcanvas
+      begin /XLoc XLocation /YLoc YLocation end def def
+      /size self send ScreenH div exch ScreenW div exch
+
+      BackingCanvas setcanvas
+      2 copy scale
+
+      ButtonStates
+
+      false 1 index { or } forall {
+	gsave
+	  XLoc YLoc MouseSize 0 360 arc
+	  clip newpath
+	  XLoc YLoc moveto
+	  initmatrix
+	  currentpoint XLoc YLoc xysub translate
+	  10 dict begin
+	    true /inhibitfocus ClassFocus send
+	    /c framebuffer newcanvas def
+	    c /Transparent true put
+	    gsave framebuffer setcanvas
+	      XLoc YLoc MouseSize dup xysub MouseSize dup add dup
+	      rectpath c reshapecanvas
+	      c canvastotop c /Mapped true put
+	    grestore
+	    c imagecanvas
+	    false /inhibitfocus ClassFocus send
+	  end
+	grestore
+	XLoc YLoc MouseSize
+	3 copy 45 225 arc
+	BG0 setcolor stroke
+	225 45 arc
+	BG3 setcolor stroke
+      } if
+
+      XLoc YLoc translate
+
+      dup length  ButtonAngle 2 div mul  90 add  ButtonAngle 2 div sub
+
+      1 index {
+          {
+	    0 0 moveto
+	    dup cos ButtonRadius mul 1 index sin ButtonRadius mul
+	    gsave translate
+	      0 0 lineto 2DFG setcolor stroke
+	      ButtonSize dup -.5 mul dup 3 -1 roll dup true Paint3DBox
+	    grestore
+	  } if
+	  ButtonAngle sub
+      } forall
+      pop
+
+      self setcanvas
+      3 1 roll /Paint self send
+
+      scale
+
+      false 1 index { or } forall not {
+        XLoc YLoc MouseSize 0 360 arc
+	2DFG setcolor stroke
+      } if
+
+      XLoc YLoc translate
+
+      dup length  ButtonAngle 2 div mul  90 add  ButtonAngle 2 div sub
+
+      exch {
+        not {
+	  dup cos ButtonRadius mul 1 index sin ButtonRadius mul
+	  gsave translate
+	    ButtonSize dup -.5 mul dup 3 -1 roll dup false Paint3DBox
+	  grestore
+	} if
+	ButtonAngle sub
+      } forall
+      pop
+
+    grestore
+  } def
+
+classend def
+
+/can framebuffer /new ClassMouseeCanvas send def
+/win can framebuffer /new ClassBaseWindow send def
+/mgr /new ClassEventMgr send def
+mgr /Priority 100 put
+mgr /activate win send
+/place win send /map win send

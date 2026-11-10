@@ -1,0 +1,647 @@
+%
+%		@(#)init.ps 9.10 88/02/10
+%
+%  This file is read by the postscript server when it starts.
+%  It performes several tasks:
+%  	* Defines several unimmplemented primitives.
+%  	* Defines several almost-primitives.
+%	* It performs standard initialization:
+%		- Framebuffer & keyboard/mouse
+%		- Starts server
+%	* Defines several "standard" defaults & constants
+%	* Loads the rest of the .ps files
+%	* Defines the user's rootmenu
+%	* Defines the user's defaults
+%
+
+% Setup framebuffer.  Needs to be here to avoid an obscure input bug.
+%(Initializing framebuffer & keyboard/mouse.\n) print
+{ (FRAMEBUFFER) getenv } stopped { clear (/dev/fb) } if
+/framebuffer exch createdevice def
+framebuffer dup setcanvas
+startkeyboardandmouse
+/?def { systemdict 2 index known { pop pop } { def } ifelse } def
+/Color get /ColorDisplay? exch def
+500 FontDirectory extend pop
+FontDirectory begin
+	clear enumeratefontdicts count
+	{ mark exch { findfilefont dup /FontName get exch def }
+	  stopped cleartomark } repeat
+end
+/Times-Roman findfont 12 scalefont setfont
+/DefaultRootGrayOrColor ColorDisplay? {.55 .5 .7 hsbcolor} {.88} ifelse def
+/PaintRoot {
+    gsave
+%    framebuffer dup setcanvas
+%    /Color get {.55 .5 .7 sethsbcolor} {.88 setgray} ifelse
+    framebuffer setcanvas
+    DefaultRootGrayOrColor dup type /colortype eq {setcolor} {setgray} ifelse
+    clippath fill
+    grestore
+} def
+
+% Define unimmplemented primitives
+/run { (r) file cvx exec } ?def
+/[ systemdict /mark get ?def
+/] { counttomark array astore exch pop } ?def
+/image { buildimage imagecanvas } ?def
+/imagemask { 1 3 1 roll 4 -1 roll
+    { buildimage true exch imagemaskcanvas } 
+    { buildimage false exch imagemaskcanvas } ifelse } ?def
+/pathforall { { 0 0 0 0 } astore pathforallvec } ?def
+
+% Note: dictstack currently must use def rather than ?def because the
+% following is in primitives.h:
+% 	{ 51, "dictstack",                1,  0, 0},
+%#define	       dictstack_primitive 51
+/dictstack { % array => subarray
+    currentprocess /DictionaryStack get exch copy
+} def %?def
+/execstack { % array => subarray
+    currentprocess /ExecutionStack get		% a a'
+    % Now get every other element & skip last entry; it's this proc itself!
+    [ exch 0 2 2 index length 4 sub {		% a [ .. a' i
+        1 index exch get exch			% a [ a0 .. ai a'
+    } for pop ]					% a a''
+    exch copy
+} ?def
+
+%/FontDirectory { 
+%    40 dict begin
+%    mark enumeratefontdicts counttomark
+%    { /MagicFont def } repeat pop
+%    currentdict
+%    systemdict /FontDirectory currentdict put
+%    end } def
+/bind {
+    dup length 0 1 3 2 roll 1 sub {
+	2 copy get
+	dup type /arraytype eq {
+	    bind pop pop
+	} {
+	    dup where {
+		exch get
+		dup type /operatortype eq {
+		    2 index 2 index
+		    3 2 roll put
+		    pop
+		} {
+		    pop pop 
+		} ifelse
+	    } { 
+		pop pop
+	    } ifelse
+	} ifelse
+    } for
+} ?def
+/ExecutiveErrorHandler {
+    (***ERROR*** \n) print
+    $error /message known { $error /message get null ne } { false } ifelse
+	 { $error /message get print (*****\n) print}
+	 { $error { exch (\t%:\t%\n)  printf } forall stack }
+    ifelse
+} def
+/console (/dev/console) (w) file def
+/executive { % - => - (Execute the current file)
+    countdictstack 1 eq {200 dict begin} if % make sure there is a user dict!
+    (Welcome to NeWS Version ) print version print (\n) print
+    currentprocess /ErrorDetailLevel 1 put
+    /bye { quit } def
+    /execfile currentfile dup null eq {pop (%stdin) (r) file} if def
+    {
+        { execfile status not { quit } if
+          { execfile cvx exec } stopped pop
+	  execfile status not { quit } if
+	  ExecutiveErrorHandler } loop
+    } stopped { quit } if
+} def
+/identmatrix { 1 0 0 1 0 0 7 -1 roll astore } ?def
+/matrix { 1 0 0 1 0 0 6 array astore } ?def
+/save { currentstate } ?def
+/restore { setstate } ?def
+/settransfer {pop} ?def 
+/currenttransfer { { } } ?def
+/currentscreen { 0 0 { } } ?def
+/setscreen { pop pop pop } ?def
+/setcachelimit { pop } ?def
+/cachestatus { 0 0 0 0 0 0 0 } ?def
+/rrand { 0 } ?def
+/srand { pop } ?def
+/&kshc 1 string def
+/&kshp { 0 exec } def
+/kshow {	% proc string => -
+	exch
+	//&kshp exch 0 exch put
+	-1 exch
+	 {   //&kshc 0 2 index put
+	     1 index 0 ge //&kshp { pop pop } ifelse
+	     //&kshc show
+	     //&kshc 0 get
+	 } forall
+	 pop
+} def
+/rand { random 2147483648 mul } ?def
+/showpage {  } ?def
+/stack {
+  count dup 0 eq {
+    (Empty stack\n) print pop
+  } {
+    0 exch 1 exch 1 sub { index = } for
+  } ifelse
+} def
+/StandardEncoding [ 256 { /.notdef } repeat ] def
+magic:fontdict begin
+	/FontType 99 def
+	/PaintType 3 def
+	/UniqueID 0 def
+	/Encoding StandardEncoding def
+    end
+
+% needed by server clients:
+/systop 0 def
+(NeWS/systoklst.ps) run
+{ systop setsysinputtoken /systop systop 1 add def } forall
+
+% Oughta-be primitives!
+%/autoload { [ 2 index /run cvx 3 index cvx ] cvx def pop } def
+%/fileexists {{(r) file} stopped {pop pop false} {closefile true} ifelse} def
+/rect {dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto closepath } ?def
+
+%
+% A case/switch statement.  Takes a key for the case and an array.
+% Generally the array is executable to avoid evaluating the array
+% each time case is called:
+%	obj {
+%	    key1	{proc1}
+%	    key2 key3	{proc2}
+%	    key4	{proc3}
+%	    /Default	{proc4}
+%	} case
+%
+/case {			%  v { k {} k k {} .... /Default {} }  CASE  -
+    false exch {				% v bool k|{}
+	exch {					% v k|{}
+	    dup xcheck {exit} {pop true} ifelse	% v bool|{}
+	} {
+	    2 copy eq exch /Default eq or	% v bool
+%	    2 copy eq exch			% v bool k
+%	    dup /Default eq exch true eq or or	% v bool
+	} ifelse
+    } forall					% v bool|{}
+    dup xcheck {exch pop exec} {pop pop} ifelse
+} ?def
+
+/append {	% obj1 obj2  =>  obj3 (concatinates arrays, strings, and dicts)
+		% Dicts: second dict over-rides common keys
+    1 index length 1 index length add	% obj1 obj2 totalsize
+    1 index type dup /dicttype eq {
+        pop dict begin
+            exch {def}forall {def}forall
+            currentdict
+        end
+    } {
+        /arraytype eq {array} {string} ifelse	% a1 a2 A
+	dup 4 -1 roll 1 index copy length	% a2 A A l1
+	4 -1 roll putinterval
+    } ifelse
+} ?def
+
+% Error handling:
+% The list of errors NeWS emits:
+/StandardErrorNames [
+    /dictfull		/dictstackoverflow	/dictstackunderflow
+    /execstackoverflow	/interrupt		/invalidaccess
+    /invalidexit	/invalidfileaccess	/invalidfont
+    /invalidrestore	/ioerror		/limitcheck
+    /nocurrentpoint	/rangecheck		/stackoverflow
+    /stackunderflow	/syntaxerror		/typecheck
+    /undefined		/undefinedfilename	/undefinedresult
+    /unimplemented	/unmatchedmark		/unregistered
+    /VMerror
+] def
+% An errordict that simply stops on all errors.
+/StopOnErrorsDict StandardErrorNames dup length dict begin
+    { {pop stop} def } forall
+    currentdict
+    end
+def
+% A procedure acting like "stopped" even in the presence of an errordict.
+/errored { % proc => bool (executes proc, returning true if error occurred)
+10 dict begin
+    /errordict StopOnErrorsDict def
+    stopped
+end
+} def
+
+% Defaults & Constants:
+% Done here so xxx.ps can use them; also see below for defaults
+/UserProfile 100 dict def
+
+/DefaultFamily		/Times-Roman def
+/DefaultPointSize	14 def
+/DefaultFont		DefaultFamily findfont DefaultPointSize scalefont def
+
+/textcolor		0 0 0 rgbcolor def
+/backgroundcolor	1 1 1 rgbcolor def
+/bordercolor		textcolor def
+
+/LeftMouseButton	dup def
+/MiddleMouseButton	dup def
+/RightMouseButton	dup def
+/MouseDragged		dup def
+/DownTransition		dup def
+/UpTransition		dup def
+
+/PointButton		LeftMouseButton def
+/AdjustButton		MiddleMouseButton def
+/MenuButton		RightMouseButton def
+
+systemdict /verbose? known not {/verbose? false def} if
+/VMstr {
+    10 dict begin vmstatus /break exch def /used exch def /avail exch def
+	used  round (      ) cvs ( Used, )
+	avail round (      ) cvs ( Avail, )
+	break round (      ) cvs ( Break)
+	5 {append} repeat
+    end
+} def
+/LoadFile { % filename => bool (execute file, return false if problems)
+    mark exch
+    
+    % get the file, leaving string & file-or-null on stack
+    dup					% mark s s
+    { (r) file } stopped {
+        pop pop				% mark s [one pop for the (r)!]
+        { (HOME) getenv } stopped {
+            pop null			% mark s null
+        } {				% mark s home
+            (/) append exch append dup	% mark s s (= "home/s")
+            { (r) file } stopped {pop pop null} if
+        } ifelse
+    } if				% mark s file-or-null
+
+    % now got file (or null!); so execute the file.
+    dup null eq {
+        cleartomark false
+    } {
+	verbose? { 1 index print ( loading...\n) print } if
+	{cvx exec} stopped {
+	    counttomark 1 sub index print
+            (: Load failed due to error in file.\n) print
+            cleartomark false
+	} {
+            cleartomark true
+	} ifelse
+    } ifelse
+} def
+/popmsg { 	% cx cy strings =>
+  { 10 dict begin newprocessgroup
+    dup type /arraytype ne { 1 array astore } if
+    /strs exch def
+    /y exch def
+    /x exch def
+    /Times-Roman findfont 24 scalefont setfont
+    0 setgray
+    /width 0 def
+    strs { stringwidth pop width max /width exch def } forall
+    /height strs length 30 mul def
+    /y y height 2 div add 25 sub def
+    /x x width 2 div sub def
+    /x0 x 10 sub def
+    /y0 y 25 add def
+    /x1 x0 width add 20 add def
+    /y1 y0 height 5 add sub def
+    x0 y0 10 sub moveto
+    x0 y1 x1 y1 10 arcto
+    x1 y1 x1 y0 10 arcto
+    x1 y0 x0 y0 10 arcto
+    x0 y0 x0 y1 10 arcto
+    /cv framebuffer newcanvas def
+    closepath
+    cv reshapecanvas cv setcanvas
+    cv /SaveBehind true put
+    cv /Mapped true put
+    clippath 0 setgray fill
+	/x0 x0 2 add def /y0 y0 2 sub def
+	/x1 x1 2 sub def /y1 y1 2 add def
+    x0 y0 10 sub moveto
+    x0 y1 x1 y1 10 arcto
+    x1 y1 x1 y0 10 arcto
+    x1 y0 x0 y0 10 arcto
+    x0 y0 x0 y1 10 arcto clear
+    1 setgray fill
+    ColorDisplay? { 1 .5 .5 sethsbcolor } { 0 setgray } ifelse
+    strs { x y moveto show /y y 30 sub def } forall
+    damagepath newpath
+    createevent begin
+	/Canvas currentcanvas def
+	/Name 4 dict begin /Damaged true def
+		/ExitEvent true def
+		/LeftMouseButton true def currentdict end def
+	currentdict
+    end expressinterest
+    awaitevent
+    cv /Mapped false put
+  } fork pause
+  4 1 roll pop pop pop
+} def
+
+/InitPaintRoot {
+    PaintRoot
+    /ROOTPROC
+	clippath pathbbox .666 mul exch .5 mul exch 4 2 roll pop pop
+	[ (Welcome to NeWS Version ) version append
+	  (Please wait for loading to finish) ]
+	popmsg def
+} def
+
+UserProfile /UIModule /liteUI put
+0 setlinewidth
+1 setlinequality
+(startup.ps) LoadFile pop
+InitPaintRoot
+systemdict /InitPaintRoot undef
+
+/definefont { 	% temp stub
+	pop FontDirectory begin
+		Times-Roman def
+		Times-Roman
+	end
+} ?def
+
+% Add $NEWSHOME/bin to the path if it isn't already there
+mark
+{ (PATH) getenv dup (NEWSHOME) getenv (/bin) append search not
+    { pop dup (.:) anchorsearch { pop pop dup length 1 sub 1 exch getinterval } { pop } ifelse
+      dup (:) anchorsearch { pop pop } { pop pop (:) exch append } ifelse
+      (:) (NEWSHOME) getenv append (/bin) append exch append
+      (PATH) exch putenv } if
+} stopped cleartomark
+
+
+% standard xxx.ps files & user's private initialization code
+(NeWS/statdict.ps) LoadFile pop
+(NeWS/colors.ps) LoadFile pop
+(NeWS/cursor.ps) LoadFile {
+    /setstandardcursor { % /shape /mask canvas => - (set cursor from font)
+	gsave
+	setcanvas			% /shape /mask
+	cursordict begin
+	    cursorfont 3 1 roll		% cursorfont /shape /mask
+	    load exch load exch		% cursorfont shape mask
+	end
+	setcanvascursor
+	grestore
+    } def
+    
+    % Set root window cursor
+    /hourg /hourg_m framebuffer setstandardcursor
+} if
+(NeWS/icon.ps) LoadFile pop
+
+(NeWS/compat.ps) LoadFile pop
+(NeWS/util.ps) LoadFile pop
+
+%	change the keyboard translation as early as possible,
+%	to minimize motions out of a NeWS-on-SunView window
+UserProfile /UIModule get /liteUI eq {
+    %(NeWS/liteUI.ps) LoadFile pop % load extended Input System
+(NeWS/liteUI.ps) run
+} if
+
+(NeWS/class.ps) LoadFile pop
+(NeWS/stroke.ps) LoadFile pop
+
+% filename => -
+% Take a filename and construct the command line
+%	psh $NEWSHOME/demo/filename
+% and then do forkunix on it.  *** This works for psh scripts only. ***
+
+/RunDemoPshScript {			% filename
+    (psh ) (NEWSHOME) getenv append	% filename (psh $NEWSHOME)
+    (/demo/) append			% filename (psh $NEWSHOME/demo/)
+    exch append				% (psh $NEWSHOME/demo/filename)
+    forkunix
+} def
+
+
+% filename => -
+% Take a filename and construct the command line
+%	$NEWSHOME/demo/filename
+% and then do forkunix on it.  This works for binaries and for csh and sh
+% scripts.
+
+/RunDemoProgram {
+    (NEWSHOME) getenv (/demo/) append	% filename ($NEWSHOME/demo/)
+    exch append				% ($NEWSHOME/demo/filename)
+    forkunix
+} def
+
+(NeWS/litemenu.ps) LoadFile { 
+  (NeWS/piemenu.ps) LoadFile pop
+  (NeWS/softmenu.ps) LoadFile pop
+% Default Root Menu; here so user.ps can over-ride & modify.
+    /ntermmenu [
+        % Console gets autolinewrap turned on and 400 lines
+	(VT102 Console)	 { (nterm -C -aw -sl 400) forkunix } 
+	(VT102)		 { (nterm) forkunix } 
+    ] /new DefaultMenu send def
+    /fixedterminalmenu [
+	(Console)	 { (psterm -f -C -t h19) forkunix } 
+	(bitgraph)	 { (psterm -f -t bitgraph) forkunix } 
+	(H19)		 { (psterm -f -t h19) forkunix } 
+	(tvi925)	 { (psterm -f -t tvi925) forkunix } 
+	(sun)		 { (psterm -f -t sun) forkunix } 
+	(aaa)		 { (psterm -f -t aaa) forkunix }
+	(vt100)		 { (psterm -f -t vt100) forkunix } 
+	(wyse)		 { (psterm -f -t wyse) forkunix } 
+    ] /new DefaultMenu send def
+    /terminalmenu [
+	(Fixed =>)	 fixedterminalmenu
+	(Console)	 { (psterm -C -t h19) forkunix } 
+	(H19)		 { (psterm -t h19) forkunix } 
+	(H19 32)	 { (psterm -t h19 -li 32) forkunix }
+	(H19 48)	 { (psterm -t h19 -li 48) forkunix }
+	(Scrolling =>)	 ntermmenu
+	(wyse)		 { (psterm -t wyse) forkunix } 
+	(vt100)		 { (psterm -t vt100) forkunix } 
+	(aaa)		 { (psterm -t aaa) forkunix } 
+	(sun)		 { (psterm -t sun) forkunix } 
+    ] /new DefaultMenu send def
+    /clockmenu [
+	(Plain (seconds)) { (roundclock -s) RunDemoProgram }
+	(Plain)		  { (roundclock) RunDemoProgram }
+	(Fancy (seconds)) { (roundclock -f -s) RunDemoProgram }
+	(Fancy)		  { (roundclock -f) RunDemoProgram }
+    ] /new DefaultMenu send def
+    /applicationsmenu [
+	(Terminals =>)	 terminalmenu
+	(Clocks =>)	 clockmenu
+	(Load Average)	 { (psload) forkunix }
+	(Calculator)	 { (calcul) RunDemoPshScript } 
+	(Journal)	 { (journalling) RunDemoPshScript } 
+    ] /new DefaultMenu send def
+
+    /AllWin { % proc => - (Distributes proc to all windows!!)
+	createevent dup begin
+	    /Name /DoItEvent def
+	    /Action /Window def
+	    /ClientData 2 index def
+	end sendevent pop
+    } def
+
+    /repairmenu [
+	(Repaint All)	{ PaintRoot {/paint self send} AllWin }
+	(Reset Input)	{
+			createevent dup begin
+			    /Name
+			      UserProfile /ViewStop known {
+				UserProfile /ViewStop get
+			      } {
+				16#6f01		%  default to L1
+			      } ifelse def
+			    /Action /DownTransition def
+			end dup sendevent
+			createevent copy dup /Action /UpTransition put
+			sendevent
+			}
+    ] /new DefaultMenu send def
+
+    /exitcleanly {
+	% Destroy all windows that know /destroy
+	{/destroy self send} AllWin
+	% Wait 3 seconds for console to die
+	0.05 sleep
+	% Clear the screen
+	framebuffer setcanvas
+	1 setgray
+	clippath fill
+	% Terminate the server
+	^C
+    } def
+    /exitnewsmenu [
+	(No, not really.) {}
+	(Yes, really!) { exitcleanly }
+    ] /new DefaultMenu send def
+
+    /rootmenu [
+	(Applications =>)	applicationsmenu
+	(Repair =>)		repairmenu
+	(Exit NeWS =>)		exitnewsmenu
+    ] /new DefaultMenu send def
+} if
+(NeWS/litewin.ps) LoadFile {
+    % Demo menus loaded here because of window dependancies.
+    (NeWS/demomenu.ps) LoadFile pop
+} if
+
+% Initialization
+% Main is run by PS as soon as it has processed init.ps
+% The default main starts up the root event mgr and starts
+% an executive if debugging.  If you are using telnet to talk
+% to your PS server, make sure to use the executive:
+%	telnet localhost 144
+%	..
+%	executive
+% Note that the default 144 can by changing NeWS_socket in your user.ps
+/NeWS_socket 
+    { (NEWSSOCKET) getenv } stopped
+    { pop (%socketl144) } if
+def
+
+/DebuggingServer? false def % set true in your user.ps if you're debugging.
+/go! {
+    verbose? { (Starting root eventmgr\n) print } if
+    /rooteventmgr [
+	/rootmenu where { pop
+	    MenuButton
+	    { {newprocessgroup /showat rootmenu send} fork pop }
+	    DownTransition framebuffer eventmgrinterest
+	} if
+	
+	/Damaged {newprocessgroup damagepath clipcanvas PaintRoot newpath clipcanvas}
+	null framebuffer eventmgrinterest
+    ] forkeventmgr def
+} def
+/InteractionLock createmonitor def
+/&main {go! DebuggingServer? {executive} if} def
+
+/RemoteHostRegistry 100 dict def	% list of hosts allowed to connect to server.
+RemoteHostRegistry localhostname true put
+RemoteHostRegistry /localhost true put
+/NetSecurityWanted true def		% false if everyone is allowed to connect
+
+/&server_hook {} def
+
+% The server; note that the dict size is client's userdict!
+/server { { newprocessgroup
+	    { NeWS_socket (r) file } stopped
+	    { clear (%socketl2000) (r) file } if
+	    dup getsocketlocaladdress (NEWSSERVER) exch putenv
+	    (TERM) (PostScript) putenv
+	    { dup mark exch acceptconnection
+	      { 200 dict begin initmatrix newprocessgroup
+		exch pop exch pop dup
+		getsocketpeername /OriginatingHost exch def
+&server_hook
+                % See if OriginatingHost is in the Registry
+                RemoteHostRegistry OriginatingHost known
+                % localhostname returns the name of the machine as set by
+                % hostname().  Problem is that getsocketpeername returns
+                % on some machines a fully qualified hostname.  They DON'T
+                % match.  An example is that zuni != zuni.dspo.gov.
+                % Check for this case here.
+                OriginatingHost localhostname anchorsearch
+                { pop (.) anchorsearch
+                    { pop pop RemoteHostRegistry localhostname known }
+                    { pop false } ifelse }
+                { pop false } ifelse or
+                % Let through if no security wanted
+                NetSecurityWanted not or
+
+		 { cvx exec }
+		 { currentcursorlocation
+		   [ (Network security violation:)
+		     (Rejected connection from ) OriginatingHost append ]
+		   popmsg } ifelse
+		currentprocess killprocessgroup} fork
+	      cleartomark} loop} fork pop } def
+
+% Your user.ps file allows you to over-ride all the standard defaults
+% and to do your own initialization.
+% Make sure to "protect" your defaults via the following:
+%	/Foo where { pop
+%	    Foo begin
+%	        < changes to Foo's defaults here >
+%	    end
+%	} if
+% To change the root menu, use insertitem.  Thus if you had your own
+% menu you wanted to include, then use:
+%	/mymenu [ 
+%	    (Foo =>)		foomenu
+%	    (Test!)		{(test) forkunix}
+%	    (Color Wheel!)	{(colorwheel) forkunix}
+%	] /new DefaultMenu send def
+%	0 (My Menu =>) mymenu /insertitem rootmenu send
+
+(user.ps) LoadFile pop
+
+DebuggingServer? {
+    systemdict /dbgstart known not {(NeWS/debug.ps) LoadFile pop} if
+} if
+(NeWS/AdobeMap.ps) LoadFile pop
+StandardEncoding
+magic:AdobeSequence {
+    dup 256 lt { exch put //StandardEncoding } { pop pop } ifelse
+} forall pop
+
+% start server
+verbose? { (Starting server\n) print } if
+server
+
+
+verbose? { (Initialization files loaded!\n) print } if
+clear
+
+systemdict /cursorfont known {/ptr /ptr_m framebuffer setstandardcursor} if
+systemdict /ROOTPROC known { ROOTPROC killprocess systemdict /ROOTPROC undef } if

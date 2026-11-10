@@ -1,0 +1,8 @@
+#!/bin/csh -f
+if (`hostname` == tumtum) then
+  #screendump -f /dev/bwtwo0 | rsh witsend 'screenload ; getscreen | convraster $1 | qpr -q imagen3'
+  screendump -f /dev/bwtwo0 | rasttopbm | pgmtops > /tmp/screen.ps
+  echo  > /dev/ttyb ; cat </tmp/screen.ps > /dev/ttyb ; echo  > /dev/ttyb &
+else
+  getscreen | convraster $1 | qpr -q imagen3
+endif

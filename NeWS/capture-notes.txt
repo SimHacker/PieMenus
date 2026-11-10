@@ -1,0 +1,52 @@
+PostScript capture issues:
+
+We want to be able to capture PostScript drawing commands and output
+them in several formats:
+
+  0. Bounding box
+     Just determines the bounding box, don't draw anything. 
+     Returns: [llx lly urx ury].
+
+  1. EPS printable PostScript file (for screen dumps)
+     images as hex strings
+
+  2. Tokenized NeWS PostScript file (for fast redisplay)
+     images as "readcanvas <rasterfile>" or names of images on defined
+     on dict stack (what scope?) or usertokens (private to what process?)
+
+  3. Executable array (a PostScript function)
+     images as canvases embeded in code
+
+  4. Selection (in what format?)
+     Possible formats: any of the above, a file name, an executable
+     PostScript array, an executable array "{(filename) run}", an
+     executable string, a canvas (the result of rendering the
+     PostScript code at some resolution), a DisplayItem, etc...
+
+  5. Structured graphic object
+     Capture the drawing commands as a GoodNeWS graphic or some other
+     hierarchical structured graphic. Retain some of the semantic
+     information about the drawing, inferring the structure from the
+     graphics state, grouping paths according to the gsave level and
+     transformation matrix. Is there other structural information that
+     would be useful to infer while capturing the drawing, to embed in
+     the graphic object.
+
+
+Possible bug in /DoImageCanvas: It writes out the raw bytes of the
+canvas via shared memory, and makes a hex string out of that, instead
+of writing out rgb values in terms of the canvas's colormap. How does
+it look when read back in? Should it just convert 24 bit rgb pseudo
+colors to 8 bits of brightness? (lose color) or 24 bit color images?
+The server needs to have 24 bit support -- 24 bit input to image
+doesn't work!
+
+Should the capture methods and dictionaries be stored in ClassCanvas?
+Maybe they should be in systemdict? What happens to ClassDrawable and
+ClassRegion objects when they are told to paint? Do any of the
+overridden operators depend on the ClassCanvas context?
+
+========================================================================
+
+Capture bombs is the painting proc leaves something on the stack.
+How about forking a process to do the drawing?

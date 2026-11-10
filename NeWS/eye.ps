@@ -1,0 +1,168 @@
+%!
+% Date: Tue, 26 Jul 88 21:27:39 EDT
+% To: NeWS-makers@brillig.umd.edu
+% Subject: Big brother
+% From: rutgers!ucbvax.berkeley.edu!eagle!icdoc!Ist!jh  (Jeremy Huxtable)
+% Sender: rutgers!brillig.umd.edu!NeWS-makers-request (Don Hopkins)
+% Return-Path: NeWS-makers-request@brillig.umd.edu (Don Hopkins)
+% Message-Id: <1795@ist.Ist.CO.UK>
+% Status: R
+% 
+% Try this out on your NeWS server.....
+% 
+%!
+% eye.ps
+%
+% Jeremy Huxtable
+%
+% "Big Brother" implementation in PostScript.
+
+% Create an Eyeball class from the Default window class.
+
+/Eyeball DefaultWindow
+dictbegin
+    /EyeX 0 def                 % Current eyeball position
+    /EyeY 0 def
+    /MouseEventMgr null def     % Event manager
+dictend
+classbegin
+    /Transform {
+	initmatrix initclip
+	clippath pathbbox scale pop pop
+	.5 .5 translate
+    } def
+
+    /ShapeFrameCanvas {
+	gsave ParentCanvas setcanvas
+	FrameX FrameY translate
+	FrameWidth FrameHeight scale
+	.5 .5 .5 0 360 arc
+	.5 .5 .2 0 360 arc FrameCanvas setcanvasshape
+	grestore
+    } def
+
+    /PaintFrame { } def
+
+    /DrawFrame {
+	bordercolor setcolor clippath fill
+	0 0 .45 0 360 arc
+	backgroundcolor setcolor fill
+    } def
+
+    /ShapeClientCanvas { } def
+
+    /CreateClientCanvas { /ClientCanvas FrameCanvas newcanvas def } def
+
+    /PaintClient {
+	FrameCanvas setcanvas
+	damagepath clipcanvas
+	Transform DrawFrame clipcanvas
+	EyeX EyeY 0 painteyeball
+    } def
+
+    /PaintFocus { } def
+
+    /activate { % create event manager to watch the mouse.
+	FrameCanvas setcanvas
+	/MouseEventMgr [
+	    MouseDragged
+	    {
+		begin
+		    XLocation YLocation 0 painteyeball
+		    /EyeX XLocation store
+		    /EyeY YLocation store
+		    currentdict
+		end
+		redistributeevent
+	    }
+	    null % Action
+	    null % Canvas
+	    eventmgrinterest
+	] forkeventmgr def
+    } def
+
+    /painteyeball { % x y colour =>
+	setgray
+	exch atan /angle exch def
+	angle cos .2 mul
+	angle sin .2 mul
+	2 copy 2 copy
+	Transform
+	gsave
+	0 0 .45 0 360 arc clip % avoid border
+	% clip around new eye before erasing to avoid flicker
+	.15 0 360 arc
+	.8 0 360 arc eoclip backgroundcolor fillcanvas
+        grestore
+	.15 0 360 arc fill
+    } def
+
+    % /painteyeball { % x y colour =>
+	% setgray
+	% exch atan /angle exch def
+	% angle cos .2 mul
+	% angle sin .2 mul
+	% Transform
+	% .15 0 360 arc fill
+    % } def
+
+classend def
+
+% Now actually create a pair of eyes.
+/eyeball framebuffer /new Eyeball send def
+100 700 16 16 /reshape eyeball send
+/map eyeball send
+/activate eyeball send
+/eyeball framebuffer /new Eyeball send def
+145 705 16 16 /reshape eyeball send
+/map eyeball send
+/activate eyeball send
+
+% Date: Sun, 31 Jul 88 04:12:50 EDT
+% To: NeWS-makers@brillig.umd.edu
+% Subject: smooth motion in Huxtable's eye.ps
+% From: rutgers!ucbvax.berkeley.edu!icsia!fanty  (Mark Fanty)
+% Sender: rutgers!brillig.umd.edu!NeWS-makers-request (Don Hopkins)
+% Return-Path: NeWS-makers-request@brillig.umd.edu (Don Hopkins)
+% Message-Id: <25274@ucbvax.BERKELEY.EDU>
+% Status: RO
+% 
+% NeWS animation which erases the old image before drawing the new one
+% often has an unpleasant flickering.  I liked Jeremy Huxtable's
+% recently posted eye.ps (Re: Big brother) so much I decided to attempt
+% a fix for the eyeballs.  My solution uses clipping to avoid erasing
+% any part of what will be the new eyeball.
+% 
+% The new painteyeball is
+% 
+%     /painteyeball { % x y colour =>
+% 	setgray
+% 	exch atan /angle exch def
+% 	angle cos .2 mul
+% 	angle sin .2 mul
+% 	2 copy 2 copy
+% 	Transform
+% 	gsave
+% 	0 0 .45 0 360 arc clip % avoid border
+% 	% clip around new eye before erasing to avoid flicker
+% 	.15 0 360 arc
+% 	.8 0 360 arc eoclip backgroundcolor fillcanvas
+%         grestore
+% 	.15 0 360 arc fill
+%     } def
+% 
+% Also, remove the line
+% 
+%                     EyeX EyeY 1 painteyeball
+% 
+% in the mouse event manager.
+% 
+% 
+% 	Mark Fanty
+% 	International Computer Science Institute
+% 	1947 Center Street., Suite 600
+% 	Berkeley, CA 94704
+% 
+% 	(415) 643-7294
+% 	fanty@icsi.berkeley.edu
+% 

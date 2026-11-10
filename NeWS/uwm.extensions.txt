@@ -1,0 +1,55 @@
+Date: Mon, 23 Feb 87 18:31:00 EST
+From: Don Hopkins <brillig.umd.edu!don@harvard>
+Message-Id: <8702232331.AA08434@brillig.umd.edu>
+To: cartan!weyl.Berkeley.EDU!rusty@ucbvax.berkeley.edu
+Cc: xpert@athena.mit.edu
+In-Reply-To: cartan!weyl.Berkeley.EDU!rusty@ucbvax.berkeley.edu's message of 23 Feb 87 19:44:43 GMT
+Subject:  Uwm extensions, perhaps?
+
+   Date: 23 Feb 87 19:44:43 GMT
+   From: cartan!weyl.Berkeley.EDU!rusty@ucbvax.berkeley.edu  (Rusty Wright)
+
+   In article <8702211303.AA01735@gjetost.wisc.edu> solomon@GJETOST.WISC.EDU (Marvin Solomon) writes:
+   >...
+   >
+   >What's the solution?  I think it is to get rid of the idea of window
+   >manager as a separate process, and build "window-manager" functions
+   >into all windows.
+
+   That scares me.  Wouldn't we then have the problem that suntools has
+   where the suntool binaries are huge?  On my sun 3/50 the suntools
+   program itself is 728 blocks and the various other tools that run
+   under suntools are 952 blocks.  Yuck.
+
+   How about setting up some sort of standard?  For example, all window
+   managers must use control+shift when the mouse is in a window or an
+   icon, and when it's in the background the control+shift is optional.
+
+   --------------------------------------
+
+	   rusty c. wright
+	   rusty@weyl.berkeley.edu
+	   ucbvax!weyl!rusty
+
+I see just the same problem with XToolKit. I would like to see the
+ToolKit as a client that you would normally run on the same machine as
+the server, for speed. Interactive widgets would be much more
+interactive, you wouldn't have to have a copy of the whole library in
+every client, and there would be just one client to configure. The big
+question is how do your clients communicate with it?  Are the
+facilities in X11 sufficient? Or would it be a good idea to adopt some
+other standard for communication between clients?  At the X
+conference, it was said that the X11 server should be used by clients
+to rendezvous with each other, but not as a primary means of
+communication. Why is that?
+
+Setting a standard on any kind of key or mouse bindings would be evil.
+The window manager should be as transparent as possible. It solves
+lots of problems for it to be able to send any event to the clients.
+For example, how about function to quote an event that the window
+manager would normally intercept, and send it on?
+
+Perhaps the window manager is the place to put the ToolKit? 
+
+	-Don
+

@@ -1,0 +1,578 @@
+	
+	
+				 A PIE MENU COOKBOOK:
+		     Techniques for the Design of Circular Menus
+
+	
+					  By
+				     Don Hopkins
+
+
+				     Written for
+		       Designers of Menu Based User Interfaces
+
+
+				       ABSTRACT
+	
+	Pie menus are used for making selections from items displayed on the
+	computer screen, by pointing and clicking at the desired one with a
+	mouse. The regions of the menu are shaped like the slices of a pie,
+	laid out in a circle around the menu center.
+
+	The click of a mouse button invokes a menu, which pops up on the
+	screen positioned so that the cursor is centered in the small inactive
+	region in the menu center. The active target regions are all adjacent
+	to the cursor, but in different directions.  Pie menus are fast,
+	because it only takes a small amount of cursor movement to point at
+	one of the regions, and they are accurate, because the wedge shaped
+	regions all have large areas.
+	
+	The circular layout of pie menus makes them very appropriate for
+	certain tasks. Complementary items can be placed in opposite
+	directions, and spatially oriented items can be put in their
+	appropriate directions. Experienced users can select from familiar pie
+	menus without looking at the menu, and can even mouse ahead into menus
+	faster than the computer can update the screen.  When the user selects
+	by mousing ahead into a menu, suppressing the menu display can speed
+	up interaction considerably.
+	
+	The cursor distance from the menu center can be increased to get more
+	angular precision, for accurate directional selection. It can also be
+	used as an argument to the selection, as a continuous analog value, or
+	a discrete sub-selection.
+	
+	Users can benefit from commonly used pie menus if they are designed to
+	be easy to learn and use. A window management pie menu with its
+	spatially oriented items in appropriate directions is an example of
+	such a menu. A font selection menu using direction to select font
+	style, and distance to select point size, is an example of how the
+	two-dimensional aspect of pie menus can be exploited.
+	
+	A user should be able to discern the function of a pie menu by looking
+	at it. A simple, intuitive, consistent look for visually representing
+	the meaning and function of a pie menu can help to create an easy to
+	use user interface.  Pie menus can also be designed so that they have
+	a good kinesthetic feel to them, they do not require a lot of wasted
+	mouse movement, and the directions are easier to select, and well
+	matched with the input device.
+
+	
+	
+				  TABLE OF CONTENTS
+	
+	LIST OF ILLUSTRATIONS
+	INTRODUCTION
+	1. CHARACTERISTICS AND DISTINCTIONS OF PIE MENUS
+	1.1. DEFINITION
+	1.2. DIRECTION
+	1.3. DISTANCE
+	2. APPLICATION EXAMPLES
+	2.1. WINDOW MANAGEMENT MENU
+	2.2. FONT SELECTION MENU
+	3. DESIGN PRINCIPLES
+	3.1. VISUAL REPRESENTATION OF FUNCTION
+	3.2. LABEL ARRANGEMENT
+	3.3. MENU SIZE
+	CONCLUSION
+	REFERENCES
+	
+	
+	
+				LIST OF ILLUSTRATIONS
+	
+	Figure	Title
+	1.	Pie Menu Schematic
+	2.	Sun Workstation, with a mouse
+	3.	Default linear frame menu
+	4.	Default frame menu in pie menu form
+	5.	Window management pie menu
+	6.	Stretch submenu
+	7.	Move submenu
+	8.	Zap submenu
+	9.	Times-Roman font style/size submenu
+	10.	Helvetica font style/size submenu
+	
+	
+	
+
+				     INTRODUCTION
+	
+	This report describes the design of efficient and easy to use pie menu
+	selection techniques. Pie menus are a fast, accurate way of using a
+	mouse to select from items displayed on the screen. They have several
+	advantages over traditional linear menus, and many practical
+	applications.
+	
+	This report describes characteristics and distinctions of pie menus
+	and gives examples of pie menu applications that take advantage of
+	these qualities. It suggests general principles and heuristics for
+	effective pie menu design, that can be applied to other applications.
+	
+	
+	1. CHARACTERISTICS AND DISTINCTIONS OF PIE MENUS
+	
+	1.1. DEFINITION
+	Pie menus are a fast, accurate way of selecting commands from a list
+	of items shown on the screen, by using a mouse to point and click at
+	the desired item.
+	
+	Clicking the mouse's menu button pops a pie menu up on the screen,
+	centered on the cursor location. The menu items are positioned in a
+	circle around the cursor, which is initially located in a small round
+	inactive region at the menu center. Each item is adjacent to the
+	cursor, but in a different direction. Moving the cursor in the
+	direction of one of the items and clicking the button again selects
+	it from the menu.
+	
+	The selection is defined by the direction of relative cursor motion
+	between the clicks of the mouse button. Since the target regions of
+	the menu items are shaped like the slices of a pie, the accuracy of
+	selection becomes more precise as the cursor is moved farther away
+	from the menu center.  The distance of movement is independent of the
+	direction, so it may serve to modify the selection.
+	
+	1.2. DIRECTION
+	Menu designers can take advantage of the directional aspect of pie
+	menus in several ways. 
+	
+	CIRCULAR LAYOUT
+	Their circular layout is very appropriate for certain applications.
+	Spatially oriented items can be placed in their corresponding
+	directions, pairs of complementary items can be placed in opposite
+	directions, and orthogonal items can be placed at right angles. Other
+	natural and intuitive arrangements are possible, such as compasses and
+	clock dials. (Hopkins, et all, 1987)
+	
+	SELECTING WITHOUT LOOKING
+	Because pie menus are based on direction of relative mouse
+	movement, they do not require a lot of visual attention to use. An
+	experienced pie menu user can make selections fairly reliably from a
+	familiar, reasonably sized menu, without even looking at the display!
+	
+	MOUSE AHEAD
+	One of the nicest advantages of pie menus is that they work very well
+	with "mouse ahead". Mouse ahead is when the user gives commands to the
+	computer with the mouse more quickly than the computer can process,
+	but instead of ignoring the commands, the computer buffers them, and
+	processes them all in order.  Because it possible to use a pie menu
+	without seeing it, experienced pie menu users are able to mouse ahead
+	through several levels of nested menus without waiting for them to be
+	displayed.
+	
+	DISPLAY SUPPRESSION
+	With mouse ahead display suppression, a menu is not displayed on the
+	screen if the user mouses ahead through it quickly enough. If the user
+	completes the selection before the menu can be displayed, it is no
+	longer necessary for the user to see the menu, if feedback is not
+	required, or if acting on the selection provides feedback.
+	Experienced users can learn to "chunk" multiple selection actions into
+	single gestures that can be performed quickly and automatically
+	(Buxton, 1986), and can utilize mouse ahead display suppression more
+	often than a novice user.  This feature speeds up interaction
+	considerably if the user is fast or the system is unresponsive.
+	
+	1.3. DISTANCE
+	The other important characteristic of a pie menu is the way in which
+	the cursor distance effects the menu selection.
+	
+	SELECTION SPEED
+	To select any item, the cursor has only to move out of radius of the
+	small inactive region in the menu center, where the menu was invoked.
+	An item is selected by moving the cursor into its pie slice shaped
+	active region, outside of the inactive region.  They are all equally
+	distant from the cursor's initial position, but in different
+	directions.  The active regions actually extend past the menu window
+	edge, to the edge of the screen.
+	
+	In an experiment comparing pie menus with traditional linear menus,
+	Jack Callahan has shown that novice users could make selection from
+	eight item pie menus faster, and with fewer errors, than from
+	traditional linear menus. (Callahan, et all, 1988)
+	
+	Fitt's law (Card, 1983) states that positioning time is dependant on
+	the distance and target size.  Pie menus are fast because the distance
+	to each target region is small, and the size of each target area is
+	large.
+	
+	INCREASED ANGULAR PRECISION
+	As the cursor moves farther away from the menu center, to the wider
+	regions of the slices, cursor motion has less effect on the direction
+	from the menu center. The target regions extend out past the edges of
+	the menu window to the screen edge, so the user can move the cursor
+	out as far as needed to get the angular precision desired.
+	
+	DISTANCE AS AN ARGUMENT
+	The cursor's distance from the menu center can also be used as an
+	additional input. It can serve as a continuous numeric argument to the
+	menu selection, or it can select between one of several discrete
+	sub-items of the selected slice.
+	
+	2. APPLICATION EXAMPLES
+	Pie Menus have been implemented for the NeWS window system (Gosling,
+	1985) by Don Hopkins, using an object oriented PostScript programming
+	package (Densmore, 1986). This section will describe two pie menu
+	applications developed with this system, as a result of research into
+	the design of quick, intuitive, reliable, simple to learn, easy to
+	remember interaction techniques. 
+	
+	2.1. WINDOW MANAGEMENT MENU
+	In a graphical environment supporting multiple overlapping windows on
+	the screen, such as the NeWS window system, pie menus can be a very
+	effective interaction technique for window management tasks. They can
+	be used to issue commands to move, resize, and manipulate windows,
+	invoke programs, and control the environment in many ways. 
+	
+	In NeWS, windows generally have a border around them called the
+	frame. When the cursor is in a window's frame, pressing the mouse's
+	menu button pops up a frame menu of window management commands.
+	
+	The standard frame menu, in linear format, is illustrated in figure 3.
+	The items are grouped in more or less logical order.  The "Move"
+	item lets the user reposition the window with the mouse. "Move
+	Constrained" allows user to indicate either the x or y axis with the
+	next mouse click, and then to position the window horizontally or
+	vertically with the following click.  "Top" brings the window to the
+	top of the stack of overlapping windows, and "Bottom" puts it on the
+	bottom.  "Zap" destroys the window. "Resize" prompts the
+	user to specify two corners of a rectangle, to which the window is
+	moved and reshaped.  "Stretch corner" and "Stretch edge" allow the
+	user to indicate either a corner or an edge with the next mouse click,
+	and then to reposition it with the following click. "Close" replaces
+	the window with a small icon representing the window. "Redisplay"
+	erases and redraws the graphics in the window.
+	
+	A pie menu with the same functions in the same order as the standard
+	frame menu is illustrated in figure 4. The pie menu has a larger area
+	than the linear menu, and the logical label grouping does not
+	especially take advantage of the circular layout. 
+	
+	The goal was to design a pie menu with the functionality of the
+	standard frame menu, but with its items labeled and arranged so
+	that the menu would be easy to learn and use.
+	
+	Figure 5 is an illustration of a window management pie menu designed
+	and implemented in object oriented PostScript, for the NeWS window
+	system. The following is an explanation of the rationale behind the
+	choice of functions, labels, and positions.
+	
+	TOP & BOTTOM
+	The up and down arrows correspond to the "Top" and "Bottom" items
+	of the standard frame menu, that bring the window to the top or bottom
+	of the stack. Since they are complementary, they are positioned
+	opposite of one another. They are at the top and bottom pie menu
+	slices because of how frequently they are used, and their obvious
+	spatial orientation.
+	
+	CLOSED EYE
+	The label in the upper left slice of the menu (which many people think
+	is a clam or a hamburger) is actually a closed eye.  It corresponds to
+	the standard frame menu's "Close" item, which closes the window
+	down into an icon. When the window is already in its iconic state, the
+	eye in the menu appears open, and selecting it opens the icon up into
+	a window.  The closed and opened eyes suggest the putting to sleep and
+	waking up of the window, but it actually looks that way for the sake
+	of a visual pun.
+	
+	PAINTING HAND
+	The painting hand icon in the upper right slice corresponds to the
+	standard frame menu's "Redisplay" command. The hand balances with the
+	eye, to give the menu a more symmetric and anthropomorphic look.
+	
+	STRETCH
+	Selecting "Stretch..." pops up a submenu with pictures of the four
+	edges and four corners that may be stretched (figure 6).  Selecting
+	one of these will start the stretching process immediately, allowing
+	the user to position the edge or corner with the next mouse click.
+	This pie menu is easy to remember and fast to use, because selecting a
+	corner or edge is a spatially oriented task that can take advantage of
+	the pie menu's circular layout, and can exploit mouse ahead display
+	suppression well.
+	
+	MOVE
+	The "Move..." submenu has symbols for 4 different ways to move the
+	window (figure 7). To the right is a symbol for unconstrained
+	movement. Since that one is used more often than the others, it is in
+	the same direction as the "Move..." item is in the frame menu, so the
+	user does not have to change the direction of cursor motion to select
+	it.
+	
+	To the left is the symbol for horizontally constrained movement, and
+	the symbol on the top is for vertically constrained movement. Since
+	these two are orthogonal spatially oriented tasks, they are positioned
+	at right angles to each other, each on the appropriate axis.
+	
+	Selecting the closed eye label on the bottom of the menu will close
+	the window to an icon, and then let the user position the icon with
+	the next mouse click. When the window is already an icon, the eye is
+	opened, and its function is to open the icon and let the user position
+	the window.
+	
+	The ellipses after the labels "Stretch..." and "Move..." indicate that
+	those items invoke submenus. The two items are opposite of each other
+	on the horizontal axis, because they both invoke commonly used
+	submenus.
+	
+	RESHAPE
+	The "Reshape!" item to the lower left is the same as the "Resize"
+	item of the standard frame menu. The exclamation point after the
+	label indicated that it is a command, acted upon immediately after
+	being selected. The positions of the next two mouse clicks specify the
+	rectangle to which the window is reshaped.
+	
+	ZAP
+	The "Zap?" item to the lower right pops up a confirmation submenu
+	to make sure the user really means to destroy the window (figure 8).
+	The question mark after the label indicated that the item
+	requires confirmation. To confirm the selection, the user must choose
+	the "nuke" symbol. The positive confirmation is located at the top of
+	the menu, in a different direction than the "Zap?" item is in the
+	frame menu, so that selecting it requires a change in the direction of
+	mouse movement. 
+	
+	2.2. FONT SELECTION MENU
+	The second pie menu application that will be described is a set of
+	nested font selection menus (figures 9 and 10).  They are used to
+	choose between one of four font families, and to select the style and
+	size of the font.  The initial menu is labeled with the font family
+	names, "Helvetica", "Courier", "Times-Roman", and "Hershey", shown in
+	the appropriate fonts.
+	
+	Selecting any one of these pops up a two dimensional submenu to select
+	the style and point size of the font.  The style is selected by the
+	direction, and the point size is controlled by the distance.
+	
+	The style/size submenus are labeled with four different styles in the
+	top, bottom, left, and right slices. labeled in the appropriate font
+	and style. (Normal (the font family name), Italic or Oblique, Bold,
+	and Bold Italic or Bold Oblique.) The style submenus are orthogonal
+	(except for the Hershey family, which has a different set of styles),
+	so they are simpler to remember.
+	
+	When the cursor is moved into one of the slices, a point size label is
+	shown in the inner part of the selected wedge. The label is
+	dynamically displayed in the point size selected by the cursor
+	distance, and in the font style selected by the direction.  As the
+	cursor is moved out farther, the label grows larger.  This animated
+	feedback allows the user to see exactly what she will get, before
+	making a selection.
+	
+	The style/size submenus are designed so that the style is the primary
+	selection, to which the size is an argument.  If the two dimensional
+	style/size submenus were instead arranged as size/style submenus,
+	using direction to select the point size, and distance to select the
+	style, it would be more difficult to change the point size without
+	changing the style.
+	
+	3. DESIGN PRINCIPLES
+	This section will expound some principles of practical, intuitive,
+	efficient menu design. Because user interface design is a balanced
+	science and art, it is up to the menu designer to decide which
+	heuristics are applicable to the task at hand. It is hoped that these
+	will stimulate the imagination, and suggest other ways in which the
+	unique characteristics of pie menus may be exploited.
+	
+	3.1. VISUAL REPRESENTATION OF FUNCTION
+	One challenge is to develop a simple, consistent look for visually
+	representing the meaning and function of a pie menu. The graphics and
+	text of the menu, labels, and feedback should convey useful
+	information about the meaning of the items, and the way in which
+	direction and distance are interpreted.
+	
+	DIRECTION
+	The cursor's direction from the menu center can be interpreted as a
+	discrete or continuous input.
+	
+	DISCRETE DIRECTION
+	Cursor direction can be used to select between several discrete
+	choices. The fewer choices there are, the easier the menu is to select
+	from, because each choice get a bigger slice of the pie. The slices
+	should be delimited to show their bounds, and labeled to show their
+	function. 
+	
+	The labels do not have to be confined within their respective slices,
+	but it is important that no two labels overlap, and that it's obvious
+	which label is associated with which slice.  Textual names or
+	graphical icons can be used as item labels.  Horizontal text labels
+	are better than slanted or vertical text, which is hard to read and
+	can take up a lot of room. Graphical labels can be cryptic and
+	unrecognizable to the inexperienced user, but they can be compact,
+	meaningful, and interesting looking, if well designed.
+	
+	CONTINUOUS DIRECTION
+	Direction can also be used as a continuous analog input, so that the
+	menu behaves like a dial.  A menu should have a scale indicating its
+	range of values, or give dynamic feedback of the currently selected
+	value.
+	
+	DISTANCE
+	Distance can be used as a continuous analog input, or it can select
+	between one of several discrete "layers" of sub-choices within a
+	slice. A scale, delimiters, or interactive feedback should be used to
+	indicate the value selected by the distance.
+	
+	3.2. LABEL ARRANGEMENT
+	For many applications, a well thought out label arrangement can help to
+	make a pie menu intuitive, learnable, and efficient to use.  This
+	effort is mainly worthwhile with menus that will always have the same
+	number of items, however. (Changing the number of choices in a
+	pie menu changes the direction the choices are in, and requires the
+	user to look at the menu to be sure of the selection direction.) By
+	choosing appropriate and convenient directions, the menu designer can
+	strive to make a menu with a mnemonic layout and a good kinesthetic
+	feel.
+	
+	INTUITIVE
+	A pie menu is intuitive if there is an obvious, well known, or natural
+	correspondence between the meaning of the items and their directions,
+	the visual look of the labels and feedback, and the kinesthetic feel
+	of mouse movement and clicks.
+	
+	LEARNABLE
+	The learnability of a pie menu can be enhanced by taking advantage of
+	arrangements that the user is already familiar with, such as the
+	positions of the hours on a clock face. A menu with orthogonal
+	submenus, such as the font menu, is simpler to learn than one without
+	such organization.
+	
+	GOOD KINESTHETIC FEEL
+	There are several ways to design a pie menu to have a good kinesthetic
+	feel. Since these heuristics may not all be compatible with each other
+	when applied to the design of a particular menu, the menu designer is
+	encouraged to try out the feel of several different layouts first
+	hand. Intellectualization and hand waving cannot replace prototyping
+	and the actual evaluation of hands on experience.
+	
+	Some input devices favor certain directions of movement, making them
+	easier to indicate than others (Buxton, 1986). In the experiment
+	comparing pie menus with linear menus (Callahan, et all, 1988), it was
+	found that the top and bottom items of an eight-item pie menu
+	could be chosen faster than the other six, by novices using an
+	optical mouse.  Therefore, putting commonly used items in the top
+	and bottom slices of a pie menu can make it more kinesthetically
+	efficient.
+	
+	Placing a commonly used submenu items in the same direction as the
+	submenu is in its parent menu will enable the user to choose that item
+	without changing the direction of mouse movement. Since the
+	unconstrained movement command in the "Move..." submenu (figure 7) is
+	the most commonly used item, it is placed to the right, in the same
+	direction as the "Move..."  item in the window management pie menu
+	(figure 5).
+	
+	Some commands will require the user to move the mouse to a new point
+	on the screen and click the mouse button after making a menu
+	selection.  Try to place such items in directions corresponding
+	to the way the user would usually want to move the cursor after making
+	the selection. For example, the corner and edge items in the
+	"Stretch..." submenu are placed in the directions corresponding to the
+	actual corners and edges of the window (figure 6). After the selection
+	is made, the user moves the cursor to a new location for the specified
+	corner or edge, and clicks the button. The new location is often 
+	in the same direction as the item, in which case there is less
+	wasted mouse movement.
+	
+	Another such example is that the vertical and horizontal constrained
+	window movement commands in the "Move..." submenu are the top and left
+	items of the menu, on the axis corresponding to types of movement they
+	select (figure 7). To change a window's vertical or horizontal
+	position, the user selects one of the constrained movement items, and
+	points and clicks at a new vertical or horizontal position, which is
+	commonly in the same direction as the selected item.
+	
+	3.3. MENU SIZE
+	Screen space is a valuable resource, and pie menus with long labels or
+	lots of items can take up a lot of space on the screen.
+	
+	MINIMIZING THE SIZE
+	One way to minimize the amount of screen space a menu takes up is to
+	use compact labels.  Wide labels are best placed near the top and
+	bottom of a menu, where they can fit inside a smaller radius.  Wide
+	labels near the left and right sides of a menu tend to make it much
+	larger.
+	
+	SUBMENUS
+	Another way of making menus smaller is to use fewer items in them.
+	Submenus can be used to group together logically related items.  Using
+	a small menu of nested submenus is often better than using one menu
+	with many items.  A set of nested menus is easier to learn and use if
+	the submenus are orthogonal, with similar item arrangements, since
+	there are fewer different sets of directions for the user to remember.
+	
+	EIGHT ITEM MENUS
+
+	Eight is a convenient number of items to have in a pie menu. Four is
+	an even nicer number. Eight and four item menus are reasonably sized,
+	uncrowded, symmetric, and have convenient pairs of opposite
+	directions.  Experienced pie menu users can swiftly and confidently
+	mouse ahead thought such menus, with their eyes closed!  Another
+	advantage designing eight and four item pie menus is that they can be
+	easily used with a numeric or arrow keypad instead of a mouse.
+	
+	
+	
+				      CONCLUSION
+	
+	Pie menus can be a very efficient and accurate selection technique,
+	especially if some thought and experimentation is put into their
+	design. It is hoped that these suggestions will inspire menu designers
+	to apply pie menus to their own applications, and to come up with more
+	techniques to improve efficient interaction.
+	
+	An effective way to evaluate a particular menu design is to actually
+	implement it and try it out for a while. The experimenter can actually
+	learn quite a bit from unsuccessful designs. Powerful prototyping tools
+	like the NeWS window system encourage a experimental approach
+	to menu design, which results in applications based on actual
+	hands-on experience, instead of speculation.
+	
+	
+	
+				      REFERENCES
+	
+	Buxton, William. (1982, May). An Informal Study of
+		Selection-Positioning Tasks. Proc. of Graphics Interface,
+		'82, Toronto, pp. 323-345.
+	
+	Buxton, William. (1983, January). Lexical and Pragmatic
+		Considerations of Input Structures. Computer Graphics,
+		17(1), pp. 31-37.
+	
+	Buxton, William. (1986, September). Chunking and Phrasing and the
+		Design of Human-Computer Dialogues. Proceedings of the IFIP
+		World Computer Congress, Dublin, Ireland.
+	
+	Callahan, Jack, Hopkins, Don, Weiser, Mark, & Shneiderman,
+		Ben. (May 1988). A Comparitive Analysis of Pie Menu
+		Performance. Proc. CHI'88 conference, Washington D.C.:
+		available from ACM, NY.
+	
+	Card, S. K., Moran, T. P., & Newell, A. (1983). The Psychology of
+		Human-Computer Interaction, Lawrence Erlbaum, London, 1983.
+	
+	Densmore, M. Owen (November, 1986), Object-Oriented Programming in
+		  NeWS, in proc. Third Monterey Graphics Workshop,
+		  USENIX, Nov 20-21, 1986. 
+	
+	Foley, J. D., & Wallace, Victor L. (1974, April). The Art of
+		Natural Graphic Man-Machine Communication. Proceedings IEEE,
+		62(4), pp. 462-471.
+	
+	Foley, J. D., & Van Dam, A. (1982). Fundamentals of Interactive
+		Computer Graphics. Reading, MA: Addison-Wesley.
+	
+	Gosling, James. (1985).  SunDew - A Distributed and Extensible
+		Window System In Hopgood, Duce, Fielding, Robinson, Williams
+		(Ed.), Methodology of Window Managment, Proceedings of an
+		Alvey Workshop, Abingdon UK: Springer-Verlag, pp. 47-57. 
+	
+	Hopkins, Don. (1987, September). Directional Selection is Easy as Pie
+		Menus! [Summary of Work-in-Progress talk at Phoenix Usenix
+		Conference.]  Published in ;login: The USENIX Association
+		Newsletter, 12(5), pp. 31-32.
+	
+	Hopkins, Don, Callahan, Jack, & Weiser, Mark. (1987). Pies:
+		Implementation, Evaluation, and Application of Circular Menus.
+		(Paper in preparation. Draft available from authors.)
+
+	Shneiderman, B. (1987). Designing the User Interface: Strategies for 
+		Effective Human-Computer Interaction. Addison-Wesley.

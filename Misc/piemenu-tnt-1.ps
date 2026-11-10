@@ -1,0 +1,717 @@
+%!
+% Pie menu implementation, for tNt.
+% Copyright (C) 1989 by Don Hopkins
+% Nov 27 1989
+
+% ========================================================================
+systemdict begin
+
+/ClassPieMenu ClassMenu 
+dictbegin
+  /LastDragTime 0 def
+  /WasPinned? false def
+dictend
+classbegin
+    /ChoiceMode /Pie def
+
+    /CreateMenuClient { % placementname => -
+      ChoiceMode /Pie eq {
+        self /new ClassPieSlices send
+	/Center exch /addclient self send
+      } {
+        /CreateMenuClient super send
+      } ifelse
+    } def
+
+    % Position the menu correctly, map it, and paint it.
+    /popup { % posname x y => -
+	/valid? self send not {
+	  /unmap self send
+	  /validate self send
+	  0 0 /preferredsize self send /reshape self send
+	} if
+
+	/LastDragTime currenttimems def
+	/WasPinned? /pinned? self send def
+	/framebufferof self send setcanvas
+	dup type /eventtype eq {
+	  begin XLocation YLocation end
+	} if
+	/bbox SendClient 2 div exch 2 div exch xyadd xysub
+	/Y exch def /X exch def
+      grestore
+      /totop self send
+      /SaveBehind Parent /Retained get not def
+      Mapped {
+	dup /TrackMotion self send
+	/stoptimer TrackService send
+      } {
+	/DelayMap self send
+      } ifelse
+
+    } def
+
+% XXX ...
+
+classend def
+
+/ClassPieSlices [ClassItemGroup ClassControl]
+dictbegin
+  /Items null def
+  /PieValue null def
+  /PieDirection null def
+  /PieDistance null def
+  /PaintedValue null def
+  /ThisAngle null def
+  /I null def
+  /NextI null def
+  /PieRadius null def
+  /LabelRadius null def
+  /PieSliceWidth null def
+  /PieWidth null def
+  /PieHeight null def
+dictend
+classbegin
+  /LayoutStyle /Pie def
+  /MapDelay 100 def
+  /Border 1.5 def
+  /Gap 9 def
+  /NumbRadius 14 def
+  /Enabled true def % XXX: ???
+  /LabelMinRadius 25 def
+  /LabelRadiusStep 5 def
+  /LabelRadiusExtra 10 def
+  /Clockwise? true def
+  /PieInitialAngle 90 def % up
+  /Pinned? false def
+  /Pinnable? true def
+
+  /SaveBehind false def
+  /Transparent false def
+  /Mapped false def
+  /Retained false def
+  /CursorImage null def
+
+  /Default null def % XXX: default?
+  /Label null def % XXX: label?
+
+  /TextFont /LucidaSans-Bold findfont 12 scalefont def
+  /LabelFont /LucidaSans-Bold findfont 12 scalefont def
+  /GraphicFont /olglyph findfont 12 scalefont def
+
+  /NewInit { % placementname parent => -
+    /NewInit super send
+    /LayoutStyle exch def
+  } def
+
+  % Insert this item at the given index.
+  /insertitem { %  index string |[di <notify|submenu>* ] => -
+    dictbegin
+      dup type /stringtype eq {				% index string
+	/DisplayItem exch def				% index
+      }{						% index [ di stuff(opt.) ]
+	dup 0 get /DisplayItem exch def
+	dup length 1 eq {pop}{
+	      1 get dup isobject? {
+		/SubMenu exch def
+	      }{
+		/Notifier exch def
+	      } ifelse
+	} ifelse
+      } ifelse					% index
+      /Enabled true def
+    dictend
+    Items 3 1 roll arrayinsert
+    /Items exch def
+    /invalidate self send
+  } def
+
+  % Insert all these items into the list.
+  /setitemlist { % [ string|[di <notify|submenu>*] ... ] => -
+    /Items nullarray def
+    0 1 2 index length  1 sub {				% array index
+      2 copy get /insertitem self send
+    } for						% array
+    pop
+  } def
+
+    % Replace the item at the given position with this one.
+  /replaceitem { %  index string |[di <notify|submenu>* ] => -
+    1 index /deleteitem self send
+    /insertitem self send
+  } def
+
+  % Delete this item from the menu
+  /deleteitem { % location => -
+    Items exch arraydelete
+    /Items exch def
+    /invalidate self send
+  } def
+
+  % Append this item to the menu
+  /appenditem { % string|[di <notify|submenu>*] => -
+    /itemcount self send exch
+    /insertitem self send
+  } def
+
+  % Return the item specification for the given index.
+  /item { % index => string|[di <notify|submenu>*]
+    Items exch get					% dict
+    dup /DisplayItem get type /stringtype ne		% dict bool1
+    1 index /Notifier known				% dict bool1 bool2
+    2 index /SubMenu known				% dict bool1 bool2 bool3
+    2 copy 5 2 roll or or {				% dict bool2 bool3
+      2 copy or {					% dict bool2 bool3
+	pop exch dup 3 -1 roll				% dict dict bool2
+	/Notifier /SubMenu ifelse get			% dict notify|submenu
+	exch /DisplayItem get				% notify|submenu di
+	exch 2 array astore				% [di notify|submenu]
+      }{						% dict false false
+	pop pop /DisplayItem get 1 array astore		% [di]
+      } ifelse
+    }{							% dict bool2 bool3
+      pop pop
+      /DisplayItem get					% string
+    } ifelse
+  } def
+
+  % Return the list of items, just as they could have been inserted with
+  % the /setitemlsit method.
+  /itemlist { % - => [ string | [di <notify|submenu>*] ...]
+    [ 0 1 /itemcount self send 1 sub { /item self send } for ]
+  } def
+
+  % Return the number of items in this menu.
+  /itemcount { % - => count
+    Items length
+  } def
+
+  /Trackable? true def
+
+  /TrackStart { % event => /Default true
+    /popup self send
+    [/TrackTimer /TrackMotion /TrackStop] true
+  } def
+
+  /TrackMotion { % event => -
+    PieGSave
+      TrackPie
+      /LastDragTime currenttimems def
+    grestore
+  } def
+
+  /TrackStop { % event => -
+    PieGSave
+      WasPinned? not {
+        gsave
+	  /framebufferof self send setcanvas
+          X Y /move self send
+	grestore
+      } if
+      dup TrackPie
+      PieValue null eq {
+	Pinned? {
+	  /popdown self send
+	} {
+	  /Pinned? WasPinned? not def
+	  Pinned? {
+	    PieGSave
+	      -1 -3 27 13 rectpath BG setcolor fill
+	      /PaintPieItems self send
+	      /PaintPiePin self send
+	    grestore
+	    /stoptimer TrackService send
+	    /map self send
+	  } {
+	    /popdown self send
+	  } ifelse
+	} ifelse
+      } {
+	Items PieValue get
+	begin
+	  currentdict /SubMenu known {
+	    % XXX: Nested menus don't work yet ...
+	    dup /popup SubMenu send
+	    /popdown self send
+	  } {
+	    PieValue /Notifier load
+	    ExecuteNotifier
+	    /popdown self send
+	  } ifelse
+	end
+      } ifelse
+      pop
+    grestore
+  } def
+
+  /TrackTimer { % event => -
+    currenttimems LastDragTime sub
+    MapDelay .8 mul lt { pop } {
+      gsave
+	/stoptimer TrackService send
+	/framebufferof self send setcanvas
+	X Y /move self send
+        dup begin
+	  /framebufferof self send setcanvas
+	  currentcursorlocation /YLocation exch def /XLocation exch def
+	end
+      grestore
+      /TrackMotion self send
+      /map self send
+      /paint self send
+      /SkipNextDamage? true def
+    } ifelse
+  } def
+
+  /TrackPie { % event => -
+    begin XLocation YLocation end % x y
+    PieValue % x y old
+    3 copy pop SetPieValue % x y old
+    PaintedValue PieValue ne {
+      PaintPieValue
+    } if
+    dup dup null eq exch PieValue eq or { pop } {
+      Items exch get begin
+        null null Track
+      end
+    } ifelse
+    PieValue null eq { pop pop } {
+      Items PieValue get begin % x y
+	Track %
+      end
+    } ifelse %
+  } def
+
+  % Position the menu correctly, map it, and paint it.
+  %
+  /popup { % event | x y => -
+    gsave
+      /LastDragTime currenttimems def
+      /WasPinned? Pinned? def
+      /framebufferof self send setcanvas
+      dup type /eventtype eq {
+	begin XLocation YLocation end
+      } if
+      /valid? self send not {
+	/unmap self send
+	/validate self send
+	0 0 /preferredsize self send /reshape self send
+      } if
+      /PieValue null def
+      PieRadius sub exch PieRadius sub exch
+      /Y exch def /X exch def
+    grestore
+    GlobalEventMgr /activate self send
+    /totop self send
+    /SaveBehind Parent /Retained get not def
+    Mapped {
+      dup /TrackMotion self send
+      /stoptimer TrackService send
+      gsave
+        /framebufferof self send setcanvas
+%        X Y /move self send
+	/Pinned? false def
+	PieGSave
+	  -1 -3 27 13 rectpath BG setcolor fill
+	  /PaintPieItems self send
+	  /PaintPiePin self send
+	  PieValue null ne {
+	    true PieValue /PaintSlice self send
+	  } if
+	grestore
+      grestore
+    } {
+      /DelayMap self send
+    } ifelse
+  } def
+
+  /pin { % - => -
+    /Pinned? true def
+  } def
+
+  /pinned? { % - => boolean
+    Pinned?
+  } def
+
+  /enableitem { % index => --
+    /invalidate self send
+    /item self send
+    /Enabled true put
+  } def
+
+  /disableitem { % index => --
+    /invalidate self send
+    /item self send
+    /Enabled false put
+  } def
+
+  /setpinnable { % boolean => -
+    /invalidate self send
+    /Pinnable? exch def
+  } def
+
+  /pinnable { % - => boolean
+    Pinnable?
+  } def
+
+  /setlabel { % string => -
+    /invalidate self send
+    /Label exch def
+  } def
+
+  /label { % string => -
+    Label
+  } def
+
+  % Set the default from the specified location. If the location is
+  % greater than the number of menu items, the last item is made the default.
+  % The first item in the menu is at location 0. Specifying a location of
+  % null will turn off the default for this menu.
+  %
+  /setdefault { % location|null => -
+    /invalidate self send
+    dup null ne {
+      Items length min
+    } if
+    /Default exch def
+  } def
+
+  % Return the index that represents the current default.
+  %
+  /default { % - => index|null
+    Default
+  } def
+
+  /SkipNextDamage? false def
+
+  /FixAll { % - => -
+    SkipNextDamage? {
+      /SkipNextDamage? unpromote
+      damagepath newpath
+    } {
+      /FixAll super send
+    } ifelse
+  } def
+
+  /Paint { % - -> -
+    PieGSave
+      /PaintPie self send
+    grestore
+  } def
+
+  /minsize { % - => x y
+    /?validate self send
+    PieWidth PieHeight
+  } def
+
+  /validate {
+    /layout self send
+    /validate super send
+  } def
+
+  /layout { % - => -
+    PieGSave
+      self setcanvas
+      /Layout self send
+    grestore
+  } def
+
+  /Layout {
+    /PieRadius 0 def
+    /PieSliceWidth 360 Items length 1 max div store
+
+    /ThisAngle PieInitialAngle store
+    Items {
+      begin
+	/DisplayItem load DisplayItemSize
+	/Height exch def
+	/Width exch def
+	/Angle ThisAngle def
+	/DX Angle cos def
+	/DY Angle sin def
+	DX abs .05 lt { %  top or bottom
+	  /XAnchor Width -.5 mul def
+	  /YAnchor Angle 180 gt {Height neg} {0} ifelse def
+	} { %  left or right
+	  /XAnchor Angle 90 gt Angle 270 lt and {Width neg} {0} ifelse def
+	  /YAnchor Height -.5 mul def
+	} ifelse
+	/ThisAngle ThisAngle PieSliceWidth
+	  Clockwise? {sub} {add} ifelse
+	  NormalAngle store
+      end
+    } forall
+
+    /LabelRadius LabelMinRadius def
+    Items length 1 gt {
+      0 1 Items length 1 sub {
+	/I exch def
+	/NextI I 1 add Items length mod def
+	{ I CalcRect
+	  NextI CalcRect
+	  rectsoverlap not {exit} if
+	  /LabelRadius LabelRadius LabelRadiusStep add def
+	} loop
+      } for
+    } if
+    /LabelRadius LabelRadius LabelRadiusExtra add def
+
+    /PieRadius LabelRadius dup mul def
+    Items {
+      begin
+	/x DX LabelRadius mul def
+	/y DY LabelRadius mul def
+
+	/X x XAnchor add def
+	/Y y YAnchor add def
+
+	DX abs .05 lt { %  top or bottom
+	  x abs Width 2 div add dup mul y abs Height add dup mul add
+	} { %  left or right
+	  x abs Width add dup mul y abs Height 2 div add dup mul add
+	} ifelse
+	PieRadius max /PieRadius exch store
+      end
+    } forall
+    /PieRadius PieRadius sqrt Gap add Border add round store
+    /PieWidth
+      PieRadius dup add store
+    /PieHeight
+      PieWidth store
+  } def
+
+  /CalcRect { % item_number => x y w h
+    Items exch get begin
+      LabelRadius DX mul XAnchor add Border sub
+      LabelRadius DY mul YAnchor add Border sub
+      Width Border dup add add Height Border dup add add
+    end
+  } def
+
+  /NormalAngle { % angle => angle
+    dup 0 lt {
+      dup 360 sub 360 div cvi 360 mul sub
+    } if
+    dup 360 ge {
+      dup 360 div cvi 360 mul sub
+    } if
+  } def
+
+  /PieGSave {
+    gsave
+      self setcanvas
+      PieRadius dup null eq { pop } { dup translate } ifelse
+      TextFont setfont
+  } def
+
+  /PaintPie {
+    /PaintPieFrame self send
+    /PaintPieItems self send
+    /PaintPiePin self send
+    true PieValue PaintSlice
+  } def
+
+  /PaintPieFrame {
+    0 0 PieRadius 1 add 45 225 arc closepath
+    0 0 PieRadius Border sub 45 225 arc closepath
+    BG0 setcolor eofill
+    0 0 PieRadius 1 add 225 45 arc closepath
+    0 0 PieRadius Border sub 225 45 arc closepath
+    BG3 setcolor eofill
+    0 0 PieRadius Border sub 0 360 arc closepath
+    BG setcolor fill
+  } def
+
+  /PaintPiePin {
+    gsave
+      GraphicFont setfont
+      Pinned? {103} {100} ifelse
+      BG0 setcolor -1 10 moveto dup cvis show
+      BG setcolor -1 10 moveto dup 2 add cvis show
+      BG3 setcolor -1 10 moveto 1 add cvis show
+    grestore
+  } def
+
+  /PaintPieItems {
+    FG setcolor
+    Items {
+      begin
+	X Y moveto
+	/DisplayItem load DisplayItemPaint
+	newpath
+	Angle PieSliceWidth 2 div sub
+	dup rotate
+	NumbRadius 0 moveto
+	LabelRadius Gap sub 0 lineto
+	FG setcolor
+	stroke
+	neg rotate
+      end
+    } forall
+  } def
+
+  /PaintPieValue { % - => - (Hilite current item, un-hilite prev one.)
+      false PaintedValue PaintSlice
+      true PieValue PaintSlice
+      /PaintedValue PieValue store
+  } def
+
+% Paint highlighting on a menu slice. If it's null, then do nothing.
+% Draw an arrow, and a box around the key.
+
+  /PaintSlice { % draw key => -
+    dup null ne {	   			% key
+      PieGSave 
+	10 dict begin % localdict
+	  exch /Hilite? exch def
+	  Items exch get begin
+	    % Highlight the key
+	    Hilite? {
+	      -2 X Y Width Height insetrect true Paint3DBox
+	      BG0 setcolor
+	    } {
+	      BG setcolor
+	      -3 X Y Width Height insetrect rectpath fill
+	      FG setcolor
+	    } ifelse
+	    X Y moveto /DisplayItem load
+	  end % keydict
+	end % localdict
+	DisplayItemPaint
+      grestore
+    } {pop pop} ifelse				%
+  } def
+
+  /path { % x y w h => -
+    ovalpath
+  } def
+
+  /DelayMap { % - => -
+    Mapped not {
+      MapDelay dup /starttimer TrackService send
+    } if
+    /LastDragTime currenttimems def
+  } def
+
+  /popdown {
+    /unmap self send
+    /Pinned? false def
+    PieValue null ne {
+      Items PieValue get begin
+	null null Track
+      end
+    } if
+    /PieValue null def
+    PaintedValue PieValue ne {
+      PaintPieValue
+    } if
+    /deactivate self send
+  } def
+
+  /Track { % x y => -
+    pop pop
+  } def
+
+  /SetPieValue { % x y => -
+    /PieDistance
+      2 index cvr dup mul 2 index cvr dup mul add sqrt round cvi def
+    PieDistance 0 eq { pop pop 0 } { neg exch atan } ifelse
+    /PieDirection exch round cvi def
+    /PieValue
+      PieDistance NumbRadius le { null } {
+        PieSliceWidth 2 div  PieInitialAngle
+	Clockwise? { add } { sub } ifelse
+	PieDirection add NormalAngle
+	PieSliceWidth div cvi
+      } ifelse
+    def
+  } def
+
+  /SetupOverlay {
+    currentcursorlocation % x1 y1
+    fboverlay setcanvas
+    currentcursorlocation % x1 y1 x2 y2
+    3 -1 roll sub % x1 x2 y2-y1
+    3 1 roll exch sub % y2-y1 x2-x1
+    exch % dx dy
+    translate
+    erasepage
+  } def
+
+IncludeDemos? {
+  /demo {
+    dictbegin
+      % Create a canvas class whose methods will be called by our menu.
+      /MyCanvas ClassCanvas []
+      classbegin
+	/Trackable? true def
+
+	% XXX: Nested menus don't work yet.
+        /AdjustPie /Pie framebuffer /new ClassPieMenu send def
+	[ (,7J1+3a0) {
+	    [ exch [ exch
+		cvis /ZapfDingbats findfont 42 scalefont
+		random sqrt random sqrt random sqrt rgbcolor
+	    ] ]
+	  } forall
+        ] /setitemlist AdjustPie send
+
+	/PointPie /Pie framebuffer /new ClassPieMenu send def
+	[ [ [(North)   0 0 1 rgbcolor] ]
+	  (NE)
+	  [ [(East)  0 .7 0 rgbcolor] ]
+	  (SE)
+	  [ [(South) 0 0 1 rgbcolor] ]
+	  (SW)
+	  [ [(West) 0 .7 0 rgbcolor] ]
+	  (NW)
+	] /setitemlist PointPie send
+	{ % index menu
+	  exch /item 2 index send			% menu item
+	  /setlabel /sendtarget 4 -1 roll send
+	} /setnotifier PointPie send
+
+	/TrackStart { % event => false | /Default true
+	  dup /Name get PointButton eq { PointPie } { AdjustPie } ifelse
+	  /Pie exch def
+	  Parent /settarget Pie send
+	  dup /Canvas Pie exch put
+	  TrackService /CurrentClient Pie put
+	  /TrackStart Pie send
+	} def 
+
+%	/TrackMotion {
+%	  /TrackMotion Pie send
+%	} def
+
+%	/TrackStop {
+%	  /TrackStop Pie send
+%	} def
+
+%	/TrackTimer {
+%	  /TrackTimer Pie send
+%	} def
+
+      classend def
+
+      % Make one of these canvases and give it a nice big font.
+      /can framebuffer /new MyCanvas send def
+      /preferredsize {270 100} /promote can send
+
+      /win can framebuffer /new ClassBaseWindow send def
+      (Pie Menu Demo) /setlabel win send
+      /place win send
+      /new ClassEventMgr send /activate win send
+      /map win send
+
+      win {[PointPie AdjustPie]} can send
+    dictend pop  % Get rid of local variables.
+  } def
+} if
+
+classend def
+
+% ========================================================================
+
+end % systemdict
+

@@ -1,0 +1,382 @@
+<piemenu
+  id="root"
+  fixedradius="90"
+  middlemargin="50"
+  middlebackground="white"
+  itemnormalbackground="white"
+  itemselectedbackground="gray">
+
+  Punkemon<BR/>
+  Pie Menus
+
+  <item fixedradius="60">
+
+    <B>Rave Caves</B>
+
+    <DIV>
+      <IMG SRC="Punkemon/candibi.gif"/>
+      <IMG SRC="Punkemon/zona.gif"/>
+      <IMG SRC="Punkemon/breakbeak.gif"/>
+    </DIV>
+
+    <piemenu
+      fixedradius="100"
+      middlebackground="white"
+      itemnormalbackground="white"
+      itemselectedbackground="gray">
+
+      <DIV STYLE="width:170;height:170"/>
+
+      <item
+        name="Candibi"
+	url="http://www.gothic.net/~luvcraft/punkemon/rave/candibi.html"
+        ><IMG SRC="Punkemon/candibi.gif"/></item>
+
+      <item
+        name="Zona"
+	url="http://www.gothic.net/~luvcraft/punkemon/rave/zona.html"
+	><IMG SRC="Punkemon/zona.gif"/></item>
+
+      <item
+        name="Breakbeak"
+	url="http://www.gothic.net/~luvcraft/punkemon/rave/breakbeak.html"
+	><IMG SRC="Punkemon/breakbeak.gif"/></item>
+
+    </piemenu>
+
+  </item>
+
+  <item fixedradius="60">
+
+    <B>Daru-Doll Island</B>
+
+    <DIV>
+      <IMG SRC="Punkemon/bokuzoku.gif"/>
+      <IMG SRC="Punkemon/takotaku.gif"/>
+      <IMG SRC="Punkemon/takotaku2.gif"/>
+      <IMG SRC="Punkemon/cospla.gif"/>
+      <IMG SRC="Punkemon/gaymera.gif"/>
+    </DIV>
+
+    <piemenu
+      fixedradius="100"
+      middlebackground="white"
+      itemnormalbackground="white"
+      itemselectedbackground="gray">
+
+      <DIV STYLE="width:170;height:170"/>
+
+      <item
+        name="Bokuzoku"
+	url="http://www.gothic.net/~luvcraft/punkemon/daru/bokuzoku.html"
+	><IMG SRC="Punkemon/bokuzoku.gif"/></item>
+
+      <item
+        name="Takotaku"
+	url="http://www.gothic.net/~luvcraft/punkemon/daru/takotaku.html"
+	><IMG SRC="Punkemon/takotaku.gif"/></item>
+
+      <item
+        name="Otakupus"
+	url="http://www.gothic.net/~luvcraft/punkemon/daru/takotaku2.html"
+	><IMG SRC="Punkemon/takotaku2.gif"/></item>
+
+      <item
+        name="Cospla"
+	url="http://www.gothic.net/~luvcraft/punkemon/daru/cospla.html"
+	><IMG SRC="Punkemon/cospla.gif"/></item>
+
+      <item
+        name="Gaymera"
+	url="http://www.gothic.net/~luvcraft/punkemon/daru/gaymera.html"
+	><IMG SRC="Punkemon/gaymera.gif"/></item>
+
+    </piemenu>
+
+  </item>
+
+  <item fixedradius="90">
+
+    <B>PunkeTown</B>
+
+    <DIV>
+      <IMG SRC="Punkemon/tweaker.gif"/>
+      <IMG SRC="Punkemon/punkachu.gif"/>
+      <IMG SRC="Punkemon/gbunny.gif"/>
+      <IMG SRC="Punkemon/tutone.gif"/>
+      <BR/>
+      <IMG SRC="Punkemon/madgear.gif"/>
+      <IMG SRC="Punkemon/brashibark.gif"/>
+      <IMG SRC="Punkemon/junkybastard.gif"/>
+    </DIV>
+
+    <piemenu
+      fixedradius="100"
+      middlebackground="white"
+      itemnormalbackground="white"
+      itemselectedbackground="gray">
+
+      <DIV STYLE="width:170;height:170"/>
+
+      <item
+        name="Tweakablink"
+	url="http://www.gothic.net/~luvcraft/punkemon/ptown/tweaker.html"
+	><IMG SRC="Punkemon/tweaker.gif"/></item>
+
+      <item
+        name="Punkachu"
+	url="http://www.gothic.net/~luvcraft/punkemon/ptown/punkachu.html"
+	><IMG SRC="Punkemon/punkachu.gif"/></item>
+
+      <item
+        name="G-Bunny"
+	url="http://www.gothic.net/~luvcraft/punkemon/ptown/gbunny.html"
+	><IMG SRC="Punkemon/gbunny.gif"/></item>
+
+      <item
+        name="Tutone"
+	url="http://www.gothic.net/~luvcraft/punkemon/ptown/tutone.html"
+	><IMG SRC="Punkemon/tutone.gif"/></item>
+
+      <item
+        name="Madgear"
+	url="http://www.gothic.net/~luvcraft/punkemon/ptown/madgear.html"
+	><IMG SRC="Punkemon/madgear.gif"/></item>
+
+      <item
+        name="Brashibark"
+	url="http://www.gothic.net/~luvcraft/punkemon/ptown/brashibark.html"
+	><IMG SRC="Punkemon/brashibark.gif"/></item>
+
+      <item
+        name="Junkybastard"
+	url="http://www.gothic.net/~luvcraft/punkemon/ptown/Junkybastard.html"
+	><IMG SRC="Punkemon/junkybastard.gif"/></item>
+
+    </piemenu>
+
+  </item>
+
+  <item fixedradius="60">
+
+    <B>Monokrometropolis</B>
+
+    <DIV>
+      <IMG SRC="Punkemon/pmindusg.gif"/>
+      <IMG SRC="Punkemon/pmjunkyg.gif"/>
+      <IMG SRC="Punkemon/pmlazyg.gif"/>
+      <IMG SRC="Punkemon/pmmopeyg.gif"/>
+      <BR/>
+      <IMG SRC="Punkemon/pmmurphg.gif"/>
+      <IMG SRC="Punkemon/pmperkyg.gif"/>
+      <IMG SRC="Punkemon/pmpunkyg.gif"/>
+      <IMG SRC="Punkemon/pmromang.gif"/>
+      <BR/>
+      <IMG SRC="Punkemon/pmteenyg.gif"/>
+      <IMG SRC="Punkemon/pmvisig.gif"/>
+      <IMG SRC="Punkemon/hugga.gif"/>
+      <IMG SRC="Punkemon/giiga.gif"/>
+      <BR/>
+      <IMG SRC="Punkemon/ponitail.gif"/>
+      <IMG SRC="Punkemon/leatherdude.gif"/>
+      <IMG SRC="Punkemon/hollyjig.gif"/>
+    </DIV>
+
+    <piemenu
+      fixedradius="100"
+      middlebackground="white"
+      itemnormalbackground="white"
+      itemselectedbackground="gray">
+
+      <DIV STYLE="width:170;height:170"/>
+
+      <item
+        name="Industrogothi"
+	url="http://www.gothic.net/~luvcraft/punkemon/mono/pmindusg.html"
+	><IMG SRC="Punkemon/pmindusg.gif"/></item>
+
+      <item
+        name="Junkygothi"
+	url="http://www.gothic.net/~luvcraft/punkemon/mono/pmjunkyg.html"
+	><IMG SRC="Punkemon/pmjunkyg.gif"/></item>
+
+      <item
+        name="Lazygothi"
+	url="http://www.gothic.net/~luvcraft/punkemon/mono/pmlazyg.html"
+	><IMG SRC="Punkemon/pmlazyg.gif"/></item>
+
+      <item
+        name="Mopeygothi"
+	url="http://www.gothic.net/~luvcraft/punkemon/mono/pmmopeyg.html"
+	><IMG SRC="Punkemon/pmmopeyg.gif"/></item>
+
+      <item
+        name="Murphygothi"
+	url="http://www.gothic.net/~luvcraft/punkemon/mono/pmmurphg.html"
+	><IMG SRC="Punkemon/pmmurphg.gif"/></item>
+
+      <item
+        name="Perkygothi"
+	url="http://www.gothic.net/~luvcraft/punkemon/mono/pmperkyg.html"
+	><IMG SRC="Punkemon/pmperkyg.gif"/></item>
+
+      <item
+        name="Punkygothi"
+	url="http://www.gothic.net/~luvcraft/punkemon/mono/pmpunkyg.html"
+	><IMG SRC="Punkemon/pmpunkyg.gif"/></item>
+
+      <item
+        name="Romangothi"
+	url="http://www.gothic.net/~luvcraft/punkemon/mono/pmromang.html"
+	><IMG SRC="Punkemon/pmromang.gif"/></item>
+
+      <item
+        name="Teenygothi"
+	url="http://www.gothic.net/~luvcraft/punkemon/mono/pmteenyg.html"
+	><IMG SRC="Punkemon/pmteenyg.gif"/></item>
+
+      <item
+        name="Visigothi"
+	url="http://www.gothic.net/~luvcraft/punkemon/mono/pmvisig.html"
+	><IMG SRC="Punkemon/pmvisig.gif"/></item>
+
+      <item
+        name="Hugga"
+	url="http://www.gothic.net/~luvcraft/punkemon/mono/hugga.html"
+	><IMG SRC="Punkemon/hugga.gif"/></item>
+
+      <item
+        name="Giiga"
+	url="http://www.gothic.net/~luvcraft/punkemon/mono/giiga.html"
+	><IMG SRC="Punkemon/giiga.gif"/></item>
+
+      <item
+        name="Ponitail"
+	url="http://www.gothic.net/~luvcraft/punkemon/mono/ponitail.html"
+	><IMG SRC="Punkemon/ponitail.gif"/></item>
+
+      <item
+        name="Leatherdude"
+	url="http://www.gothic.net/~luvcraft/punkemon/mono/leatherdude.html"
+	><IMG SRC="Punkemon/leatherdude.gif"/></item>
+
+      <item
+        name="Hollyjig"
+	url="http://www.gothic.net/~luvcraft/punkemon/mono/hollyjig.html"
+	><IMG SRC="Punkemon/hollyjig.gif"/></item>
+
+    </piemenu>
+
+  </item>
+
+  <item fixedradius="90">
+
+    <B>Western Lands</B>
+
+    <DIV>
+      <IMG SRC="Punkemon/hogrod.gif"/>
+      <IMG SRC="Punkemon/thrasher.gif"/>
+      <IMG SRC="Punkemon/cannibou.gif"/>
+      <IMG SRC="Punkemon/theman.gif"/>
+      <BR/>
+      <IMG SRC="Punkemon/xian.gif"/>
+      <IMG SRC="Punkemon/satanicky.gif"/>
+      <IMG SRC="Punkemon/ridnig.gif"/>
+      <IMG SRC="Punkemon/josh.gif"/>
+    </DIV>
+
+    <piemenu
+      fixedradius="100"
+      middlebackground="white"
+      itemnormalbackground="white"
+      itemselectedbackground="gray">
+
+      <DIV STYLE="width:170;height:170"></DIV>
+
+      <item
+        name="Hogrod"
+	url="http://www.gothic.net/~luvcraft/punkemon/west/hogrod.html"
+	><IMG SRC="Punkemon/hogrod.gif"/></item>
+
+      <item
+        name="ThreshThrash"
+	url="http://www.gothic.net/~luvcraft/punkemon/west/thrasher.html"
+	><IMG SRC="Punkemon/thrasher.gif"/></item>
+
+      <item
+        name="Cannibou"
+	url="http://www.gothic.net/~luvcraft/punkemon/west/cannibou.html"
+	><IMG SRC="Punkemon/cannibou.gif"/></item>
+
+      <item
+        name="The Man"
+	url="http://www.gothic.net/~luvcraft/punkemon/west/theman.html"
+	><IMG SRC="Punkemon/theman.gif"/></item>
+
+      <item
+        name="Xian"
+	url="http://www.gothic.net/~luvcraft/punkemon/west/xian.html"
+	><IMG SRC="Punkemon/xian.gif"/></item>
+
+      <item
+        name="Satanicky"
+	url="http://www.gothic.net/~luvcraft/punkemon/west/satanicky.html"
+	><IMG SRC="Punkemon/satanicky.gif"/></item>
+
+      <item
+        name="Ridnig"
+	url="http://www.gothic.net/~luvcraft/punkemon/west/ridnig.html"
+	><IMG SRC="Punkemon/ridnig.gif"/></item>
+
+      <item
+        name="Joshimoshi"
+	url="http://www.gothic.net/~luvcraft/punkemon/west/josh.html"
+	><IMG SRC="Punkemon/josh.gif"/></item>
+
+    </piemenu>
+  </item>
+
+  <item fixedradius="60">
+
+    <B>Kupakoffe Cape</B>
+
+    <DIV>
+      <IMG SRC="Punkemon/coffish.gif"/>
+      <IMG SRC="Punkemon/botnik.gif"/>
+      <IMG SRC="Punkemon/dobbit.gif"/>
+      <IMG SRC="Punkemon/javaswayd.gif"/>
+    </DIV>
+
+    <piemenu 
+      fixedradius="100"
+      middlebackground="white"
+      itemnormalbackground="white"
+      itemselectedbackground="gray">
+
+      <DIV STYLE="width:170;height:170"/>
+
+      <item
+        name="Coffish"
+	url="http://www.gothic.net/~luvcraft/punkemon/cafe/coffish.html"
+        ><IMG SRC="Punkemon/coffish.gif"/></item>
+
+      <item
+        name="Botnik"
+	url="http://www.gothic.net/~luvcraft/punkemon/cafe/botnik.html"
+	><IMG SRC="Punkemon/botnik.gif"/></item>
+
+      <item
+        name="Dobbit"
+	url="http://www.gothic.net/~luvcraft/punkemon/cafe/dobbit.html"
+	><IMG SRC="Punkemon/dobbit.gif"/></item>
+
+      <item
+        name="Javaswayd"
+        url="http://www.gothic.net/~luvcraft/punkemon/cafe/javaswayd.html"
+	><IMG SRC="Punkemon/javaswayd.gif"/></item>
+
+    </piemenu>
+
+  </item>
+
+</piemenu>

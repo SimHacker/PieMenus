@@ -1,0 +1,102 @@
+To: rms@prep.ai.mit.edu
+Cc: don@brillig.umd.edu
+In-reply-to: rms@prep.ai.mit.edu's message of Mon, 15 Dec 86 20:40:37 EST
+Subject: So whadda ya thinka NeWS?
+--text follows this line--
+   Date: Mon, 15 Dec 86 20:40:37 EST
+   From: rms@prep.ai.mit.edu (Richard M. Stallman)
+
+   I don't know whether the NeWS protocol is technically better than X,
+   but if we don't limit ourselves artificially to technical advantages
+   alone, X is better than NeWS because X is free and NeWS is not.  I
+   urge people who support the GNU system to do everything they can to
+   encourage the use of X rather than NeWS--unless they would rather
+   write a free implementation of NeWS.
+
+Please take the time to read this, as its length is due to the fact
+that I am trying to be helpful, rather than mindlessly flaming at you. 
+
+From what I know of X, PostScript, and NeWS, the technical advantage
+that NeWS has got over X is a very real one that is profoundly
+important and useful. I'm sure you fully realize the importance of
+extensibility. This advantage alone makes a NeWS server a much more
+useful and powerful machine than an X server. The fact that you can
+load a library into a NeWS server than emulates an X server, without
+even having to modify the X clients, demonstrates this point.
+PostScript is a beautiful, powerful, complete language; It's not just
+another set of drawing commands, as the term "page description
+language" seems to imply to some people.
+
+On top of that, the whole thing is incredibly portable. I have seen it
+running on an Atari ST! It is not dependent upon any operating system,
+like X is. It will eventually be running on many different machines,
+low and high end, from the Mac to the Iris. On the outside, the user
+interfaces of other window systems can be emulated. On the other
+outside, the programmer interfaces to window systems and graphics
+packages can be emulated, so that programs written for other systems
+can be relinked to use NeWS. On the inside, modules of each interface
+can be modified or replaced by the user. Think about what it would
+mean to software developers for a system like this to become widely
+used. 
+
+A free implementation of NeWS would be quite a lot of work, but
+absolutely worthwhile, and very important. The idea of writing a
+PostScript engine on top of X is upside-down thinking, though. In
+expressing all of your imaging operations in terms of the X protocol,
+you could not take advantage of hardware that performs operations
+other than those that X describes. NeWS is designed to take advantage
+of special hardware, which speeds things up considerably, without
+requiring the PostScript code to have any knowledge of what's going on
+behind the scenes. It's wrong that high level PostScript graphics
+operations that the hardware can directly support should have to be
+broken down into lower level operations that X supports.  And if the
+PostScript engine were an X client, instead of being built into the X
+server, you can say goodbye to all the bandwidth and context switches
+you would otherwise have saved by sending the server postscript
+programs, instead of individual commands. It is clear which can do a
+more elegant and efficient job at emulating the other.
+
+I see X as a very powerful system, that's got a lot of advantages over
+many other window systems. I got disgusted with SunStools some time
+ago, and installed X. I've been very happy with it, and have been
+maintaining, using, and programming with it ever since. It's much more
+flexible, a lot easier to program, and does many things that SunStools
+can't approach. But NeWS is even more so. In many ways, NeWS is to X
+like Unix is to MS-DOS: it's extensible, portable, multitasking, has
+modular components, and allows for a much wider range of user and
+programmer interfaces.
+
+X may be free, but DEC certainly has a lot of money invested in it. I
+don't know at this point exactly how Sun is going to distribute NeWS,
+except that they are going to handle it similar to how they're
+handling NFS. They would like for it to become an industry standard.
+It will be distributed "free" with version 4.0 of Sun Unix. I'm sure
+that in your opinion, this method of distribution is not politically
+correct, but I think the ideas upon which NeWS is based are very
+sound, and that it represents the cutting edge of window system
+technology. It will take some time for many of the wrinkles to be
+ironed out, but once people have gotten some idea of what the
+capabilities and limitations of this amazing machine are, it will be
+time to start thinking about writing a public domain version.
+
+I don't think that discouraging people from using NeWS is a productive
+thing to do at all. I am sure there will be a lot of top quality free
+software written for NeWS, before there is ever a free version of NeWS
+itself. And when a free version finally comes out, all that free
+software will work with it just peachy keen. Gnu Emacs takes advantage
+of programs written in MockLisp with a compatibility package. But the
+NeWS "protocol" specification is on the public domain, and PostScript
+is a rich, stable language, that is becoming increasingly popular. A
+public domain NeWS server should be completely compatible with the
+commercial one. If you had a public domain MS-DOS right now, would you
+tell people to write free programs for that, instead of Unix? You
+certainly wouldn't want to discouraging people from writing programs
+for Gnu, under commercial versions of Unix, instead of waiting for Gnu
+to be finished. By the same token, it makes good sense not to
+discourage people from supporting NeWS just because a free version
+does not exist yet.  Writing a NeWS implementation would be a hell of
+a lot of work, but discouraging its support just because that work has
+not yet been done, in spite of NeWS's technical superiority, would
+only discourage the work from ever getting done.
+
+	-Don

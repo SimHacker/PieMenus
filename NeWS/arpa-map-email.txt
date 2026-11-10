@@ -1,0 +1,83 @@
+From brescia@bbnccv.arpa Fri May 30 16:09:39 1986
+To: Don Hopkins <don@brillig.umd.edu>
+Cc: brescia@bbnccv.arpa, ron@brl.arpa
+Subject: Re: network maps
+Date: 30 May 86 14:15:56 EDT (Fri)
+From: Mike Brescia <brescia@bbnccv.arpa>
+
+
+Don, here is a 'map' of the arpanet.  It lists the line number (arbitrary
+identifier) and then the imp at each end, along with the modem port number at
+each imp.
+
+I hope you can mail me a bitmap from your mac or sun?
+
+Mike
+
+----
+
+address         endpoints (node, modem)     medium    speed
+--------------- --------------------------- --------- ----- 
+net 10 line   1 RCC5(5,5)     BBN63(63,1)   land       50
+net 10 line   2 MIT6(6,0)     CCA(31,1)     land       50
+net 10 line   3 UCLA(1,4)     ISI27(27,4)   land       50
+net 10 line   4 SRI12(12,0)   SR107(107,3)  land       50
+net 10 line   5 USC(23,2)     CIT(54,0)     land       50
+net 10 line   7 UCLA(1,0)     CIT(54,1)     land       50
+net 10 line   8 SRI2(2,2)     XEROX(32,1)   land       50
+net 10 line  10 SAC2(3,0)     SAC(80,0)     land       56
+net 10 line  11 DCEC(20,1)    NSA2(126,0)   land       50
+net 10 line  12 STAN(11,1)    ISI22(22,2)   land       50
+net 10 line  13 HARV(9,0)     BBN82(82,4)   land       50
+net 10 line  14 BERK(78,0)    WASH(91,0)    land       56
+net 10 line  15 LINC(10,4)    MTR2(111,1)   land       50
+net 10 line  16 LINC(10,1)    ARADC(119,0)  land       50
+net 10 line  18 DCEC(20,0)    ARPA(28,4)    land       56
+net 10 line  19 CSS(25,0)     MTR2(111,0)   land       50
+net 10 line  20 BBN82(82,0)   COLUM(89,0)   land       56
+net 10 line  21 CSS(25,2)     ARPA(28,1)    land       50
+net 10 line  22 CMU(14,2)     COLUM(89,2)   land       50
+net 10 line  28 COLNS(46,3)   TEXAS(62,3)   land       56
+net 10 line  29 COLNS(46,5)   SAC(80,4)     land       50
+net 10 line  30 UTAH(4,3)     WASH(91,3)    land       56
+net 10 line  31 RCC5(5,2)     CCA(31,2)     land       50
+net 10 line  35 XEROX(32,0)   SUMEX(56,2)   land       50
+net 10 line  36 RAND(7,0)     ISI52(52,2)   land       50
+net 10 line  37 XEROX(32,2)   BERK(78,3)    land       50
+net 10 line  42 UROCH(15,1)   WISC(94,3)    land       50
+net 10 line  45 LINC(10,2)    MIT77(77,1)   land       50
+net 10 line  47 SRI2(2,6)     BERK(78,4)    land       50
+net 10 line  48 STAN(11,3)    SRI51(51,0)   land       50
+net 10 line  50 CSS(25,1)     UDEL(96,1)    land       56
+net 10 line  61 HARV(9,1)     DEC(79,1)     land       50
+net 10 line  65 RAND(7,1)     USC(23,1)     land       50
+net 10 line  67 STAN(11,2)    SUMEX(56,1)   land       50
+net 10 line  71 LBL2(68,1)    BERK(78,2)    land       50
+net 10 line  72 CCA(31,0)     UDEL(96,2)    land       56
+net 10 line  74 LINC(10,3)    DEC(79,0)     land       50
+net 10 line  76 UTAH(4,0)     LBL2(68,0)    land       56
+net 10 line  77 SRI2(2,5)     COLNS(46,4)   land       56
+net 10 line  78 ISI22(22,0)   ISI27(27,2)   in-house   50
+net 10 line  79 USC(23,4)     US121(121,4)  land       19.2
+net 10 line  87 USC(23,0)     ARPA(28,2)    land       56
+net 10 line  90 UCLA(1,3)     XEROX(32,3)   land       56
+net 10 line 100 DCEC(20,4)    BRAGG(38,3)   land       56
+net 10 line 102 ISI22(22,1)   ISI52(52,0)   in-house   50
+net 10 line 107 SRI2(2,3)     SRI51(51,3)   in-house   50
+net 10 line 109 MIT6(6,1)     MIT44(44,0)   in-house   50
+net 10 line 110 ISI27(27,1)   ISI52(52,1)   in-house   50
+net 10 line 114 MIT44(44,1)   MIT77(77,0)   in-house   50
+net 10 line 115 MIT6(6,2)     MIT77(77,2)   in-house   50
+net 10 line 120 SRI51(51,2)   SR107(107,2)  land       50
+net 10 line 123 SRI2(2,4)     SR107(107,1)  land       50
+net 10 line 124 SAC(80,2)     WISC(94,1)    land       56
+net 10 line 128 UROCH(15,0)   ARADC(119,1)  land       50
+net 10 line 130 BBN63(63,5)   BBN82(82,1)   in-house   50
+net 10 line 137 RCC5(5,0)     UROCH(15,2)   land       50
+net 10 line 144 UCLA(1,2)     TEXAS(62,5)   land       50
+net 10 line 145 CMU(14,4)     DCEC(20,3)    land       56
+net 10 line 146 CMU(14,3)     PURDU(37,5)   land       56
+net 10 line 151 RCC5(5,3)     BBN82(82,3)   in-house   50
+net 10 line 152 BRAGG(38,2)   TEXAS(62,4)   land       56
+net 10 line 154 BBN63(63,3)   BRX25(99,0)   in-house   50
+net 10 line 156 UTAH(4,2)     SAC(80,3)     land       56

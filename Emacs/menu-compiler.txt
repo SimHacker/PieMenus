@@ -1,0 +1,55 @@
+Node: magic,  Up: top, Last: (don)dumb terminal menus
+
+This is a collection of magic nodes, which exists to document the 
+stuff that works.
+
+* menu:
+
+
+Magic command button nodes:
+
+  These are buttons that do things to the current menu node.
+  They can be put into a menu description node's "control panel",
+  above the line of dashes.
+
+* CompileMenu::		Compile the current menu into PS and MLisp.
+* LoadMenu::		Load the current menu into NeWS and Emacs.
+* ShowMenu::		Show the current menu.
+* CompileTree::		Compile the current menu tree.
+* LoadTree::		Load the current menu tree.
+* MakeModeMenu::	Make the the current menu be the mode menu
+			of the current frame.
+
+
+Magic menu action pseudo-nodes:
+
+  The following actions are supported by the menu compiler.
+  These nodes just describe the menu actions.
+  A real menu is delimited by lines of dashes above and below.
+  *Note Submenu action:(don):.
+
+* Key0:		menu:		<name>
+	Pop up a (sub)menu.
+
+* Key1:		bind:		<function>
+	Bind the menu key to the MLisp <function>.
+
+* Key2:		bindpoint:	<function>
+	Bind the menu key to the MLisp <function>, executed with
+	the cursor where the menu was invoked.
+
+* Key3:		type:		<keystrokes>
+	Type the <keystrokes> into current frame.
+
+* Key4:		popmsg:		<string>
+	Display the <string> in a popup message window.
+
+* Key5:		literal:	<action>
+	Execute the literal PostScript <action>.
+
+* Key6:		call:		<function>
+	Call the PostScript <function>.
+
+* Key7:		indirect:	<name>
+	Execute the PostScript <name> to determine the action.
+

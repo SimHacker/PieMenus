@@ -1,0 +1,66 @@
+To: silvlis!mdb@Sun.COM
+CC: linus!philabs!lamont!rbd@husc6.harvard.edu, xpert@athena.mit.edu
+In-reply-to: Mark D. Baushke's message of Sun, 24 Jan 88 00:47:13 PST <8801240847.AA06394@silvlis.com>
+Subject: xterm/uwm/toolkit questions
+--text follows this line--
+   Date: Sun, 24 Jan 88 00:47:13 PST
+   From: Mark D. Baushke <silvlis!mdb@Sun.COM>
+
+   >  (2) I like the functionality and flexibility of uwm, but as an
+   >  applications programmer am concerned with the possibility of users
+   >  causing events which a particular program may look for to be
+   >  intercepted by uwm and interpreted according to their .uwmrc file.
+   >  It seems a great pity to (a) waste the programmabilty of uwm by
+   >  distributing a site-wide .uwmrc file and forbidding all of our
+   >  users to change it and (b) proscribe the use of certain
+   >  mouse/keyboard combinations by applications -- what I would like to
+   >  see is a uwm that only grabs events occurring within a namestripe
+   >  or border and leaves everything else alone. Is there a window
+   >  manager similar to uwm out there that does this now? Does anyone
+   >  know if Sun is planning to distribute such a product with their X
+   >  release?
+
+   There is at least one other window manager, try 'wm'.  I am fairly certain
+   that more will be released with X11R2.
+
+   If an application really needs some of the event combinations being
+   masked by uwm in order to work properly, just let folks know what it
+   needs and tell them that if they write a .uwmrc that intercepts these
+   special combinations that the application will not work properly.  If
+   this is a large problem, I would suggest sending a .uwmrc that is
+   guarenteed to work with the application.  Another (probably the best)
+   solution would be to write your own window manager (or adapt an
+   existing one) that does its thing in the way that you want.
+
+This /is/ a large problem, and banning the use of certian mouse events
+in .uwmrc files is the WRONG way to go about solving it.  Do you
+really want to be forced to assign all your window manager functions
+to events that no other clients use, that you have to hold 2 or 3
+shift keys down at once to generate?
+
+It would be nice to see a "quote next event" function (f.quote) in
+uwm, analogous to ^Q in emacs or ^V in the tty driver. It would read
+the next mouse event, and send it through to the client, unmodified.
+You could put it in a menu or bind it to some action, in your ".uwmrc"
+file.
+
+If a window manager is going to be eating a whole class of mouse
+events over the entire screen, there had better be a way to make it
+spit them back out again! (Granted, this was not possible in X10.) You
+shouldn't have to kill or anesthetize the window manager to be able to
+send certian events on to clients.
+
+   As far as I know, Sun is not planning on an "X Window System Release".
+   I think that they are planning on a NeWS release followed by a merged
+   NeWS/X11 release. I have no idea what window managers they plan to
+   provide.
+
+   Mark Baushke
+   silvlis!mdb@sun.com
+
+Sun has already released NeWS 1.0. They will be releasing the NeWS/X
+merge around August 1988, according to Steve Evans, at his talk at the
+last Sun Users Group meeting. The X11/NeWS merge will be part of the
+AT&T Unix distribution. 
+
+	-Don

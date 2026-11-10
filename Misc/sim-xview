@@ -1,0 +1,24 @@
+To: Carol.Adams@Corp, siegel
+In-reply-to: Carol Adams's message of Thu, 25 Jul 91 09:55:03 PDT <9107251655.AA02018@spirits.Corp.Sun.COM>
+Subject: simcity for suns
+--text follows this line--
+XView is a dead toolkit. It was designed for porting SunView applications
+to X, and is only interesting if your program already runs on SunView. Sun
+is trying very hard to dump XView (euphemistically putting it into
+"methadone" maintance mode), and fatal bugs are not being fixed because
+fixing them would require a total redesign of the code, and that's not
+going to happen.  It's a very bad idea porting Sim City to XView. To get an
+feeling for the state of XView look at the astounding number of bugs in
+/net/elmer.eng/export/bugtraq/bugs/grepfiles/xview, and run "xbugtool,"
+which is the bug reporting tool written in xview, that itself is a showcase
+of xview bugs, mis-features, and cases of pathetic behavior that xbugtool
+implementors and users are resigned to live with, because they will never
+be fixed.
+
+We will do anything we can to help port SimCity to TNT. It will take a lot
+less time than porting to XView, result in a much higher quality user
+interface, and we will be a lot more responsive fixing any bugs you
+encounter using the toolkit. If you ask Scott McNealy, he will tell you
+that NeWS is the future at Sun. 
+
+	-Don

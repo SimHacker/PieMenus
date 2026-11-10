@@ -1,0 +1,494 @@
+
+		  UNIVERSITY OF MARYLAND LETTERHEAD
+
+		       DISCLOSING AN INVENTION
+
+
+The business of a university is the creation and dissemination of
+knowledge. Making an invention and putting it to use in the service of
+the public is a thoroughly valid mode of accomplishing this objective.
+
+Accordingly, the University encourages the inventive process and
+within the limits of financial practicality, can often provide advice
+and assistance in bringing inventions to the point of public use. The
+University's Patent Policy sets forth the University's position in
+detail. A copy may be obtained on request to the Technology Liaison
+Office (TLO).
+
+In the sense used here, an "invention" has a presumed commercial use
+and value. From this certain caveats follow as a consequence:
+
+1. Disclose first, publish later.  Disclosing your invention by no
+means proscribes publication; on the other hand, premature publication
+can have both legal and tactical effects on the University's efforts
+to commercialize it.
+
+2. Disclose your idea verbally to the TLO as soon as the invention is
+clearly conceptualized.  It is not wise to wait for reduction to
+practice, and the TLO can assist you in determining the timing for
+completing the disclosure form.
+
+3. Leave procedural questions to the specialists.  For example,
+federal funding does not usually impede commercialization. What
+sometimes constitutes a patentable invention is a complex legal
+question.
+
+If you think you have made an invention, but you are not sure, consult
+the TLO before completing the formal disclosure form. We will find out
+for you.
+
+If you think, but are uncertain, that your invention has commercial
+merit, say so. Perhaps we can encourage you, or save a lot of wasted
+effort.
+
+Since the majority, if not all of the disclosures we receive are in
+the very early stages, it is critical that we have your total
+cooperation and assistance during the patenting and marketing process
+of your invention. This is very important, and by placement of your
+signature on the Disclosure of Invention Form, we will accept the
+fact that you are in agreement, and will work with us to the best of
+your ability.
+
+The form attached is offered as a guide to help in getting your
+invention down in writing.
+
+						Disclosure No.____________
+
+			UNIVERSITY OF MARYLAND
+
+		 INVENTION DISCLOSURE APPROVAL SHEET
+
+
+   The following questions should be answered by the Department
+Chairman or Dean, as applicable. The questions are designed to verify
+the source of the invention and to obtain the viewpoint of other
+technically qualified scientists as to the uniqueness and efficacy of
+the invention. This approval MUST be completed before submission of
+the Invention Disclosure Form to the Office of Technology Liaison.
+
+1. Title Of Invention
+
+
+
+2. List of Inventor(s)
+
+	Name				Position
+
+A.	_Don Hopkins____________	University of Maryland Computer
+					Science Department staff
+
+B.	_Mike Gallaher__________	Unipress Software, Vice President,
+					Software Development
+
+3. Ownership
+
+	In my opinion, this invention is:
+
+	____ A. Owned by the University in accordance with the 
+		Patent Policy.
+
+	____ B. Was developed by the inventor(s) without use of
+		University time, facilities or materials and belongs 
+		to the inventor(s). 
+
+	_X__ C. Is subject to special waiver in accordance with
+		Paragraph F of the University Patent Policy.
+
+4. Advisor approval for student submissions (if applicable):
+
+
+
+	________________________________	________________
+	    Advisor				    Date
+
+
+	Reviewed for University ownership:
+
+
+
+	________________________________	________________
+	    Name				    Date
+
+
+	________________________________
+	    Title
+
+						Disclosure No.____________
+
+		  UNIVERSITY OF MARYLAND LETTERHEAD
+
+		       DISCLOSURE OF INVENTION
+
+
+   Submit this disclosure to the Technology Liaison Officer (TLO) or
+contact the TLO for assistance. Disclosure must contain the following
+items: (1) title of invention, (2) a complete statement of invention
+and suggested scope, (3) results demonstrating the concept is valid,
+(4) variations and alternate forms of the invention, (5) a statement
+of the novel features of the invention and how these features
+distinguish your invention from the state of the art as known to you,
+(6) applications of the technology, and (7) supporting information.
+
+
+(1) Technical Title:
+
+	Directionally based circular menus
+
+    Layman's Title:
+
+	Pie Menus
+
+Inventor(s):
+
+1. Signature________________________Revenue Share____% Date________________
+
+
+
+Printed Name In Full__Donald Edward Hopkins___________Citizenship_USA______
+			First	Middle	Last
+
+
+Home Address_5819 Ruatan St_______City_Berwyn Hgts_____State_Md___Zip_20740
+
+
+
+Location_U of Md Computer Science Department____Phone Extension_454-1516___
+
+
+
+2. Signature________________________Revenue Share____% Date________________
+
+
+
+Printed Name In Full_Michael Gallaher_________________Citizenship_USA______
+			First	Middle	Last
+
+
+Home Address______________________City_________________State______Zip______
+
+
+
+Location_Unipress Software, Inc._____________Phone Extension_(201) 985-3773
+
+
+			    Page 1 of ____
+
+						Disclosure No.____________
+
+			 (Continuation Page)
+		       DISCLOSURE OF INVENTION
+
+(2) Statement of Invention and Suggested Scope:
+
+    Give a complete description of the invention. If necessary, use
+additional pages, drawings, diagrams, etc. Description may be by
+reference to a separate document (copy of a report, a preprint, grant
+application, or the like) attached hereto. If so, identify the
+document positively.
+
+	Pies: Implementation and Evaluation of Circular Menus
+	  By Don Hopkins, Jack Callahan, and Mark Weiser
+	  (Paper in preparation. Draft available from authors.)
+
+	  Introduces Pie Menus, a new type of menu whose choices are
+	  positioned a circle around the cursor, like the slices of a
+	  pie.  They are compared and contrasted with pull down menus,
+	  and ideas about their usage and applications are discussed.
+
+	A Comparitive Ananysis of Pie Menu Performance
+	  By Jack Callahan, Don Hopkins, Mark Weiser, and Ben Schneiderman
+	  (Paper in preparation. Draft available from authors.)
+
+	  Details the design, procedures, and results of an experiment
+	  comparing Pie Menus with pull down menus. The experiment
+	  compared the selection time and error rate for choices from
+	  Pie and pull down menus of eight items. Menus tasks were
+	  classified by the type of their selections, as Pie type
+	  tasks, linear type tasks, and unclassified type tasks.  Pie
+	  menus were shown to be significantly faster and more
+	  reliable than pull down menus for all three types of tasks.
+
+
+Inventor(s)________________Date________Witness________Date________
+
+	   ________________Date________Witness________Date________
+
+	   ________________Date________Witness________Date________
+
+				 -2-
+
+						Disclosure No.____________
+
+			 (Continuation Page)
+		       DISCLOSURE OF INVENTION
+
+3. Results demonstrating the concept is valid.
+
+   Cite specific results to date. Indicate whether you have completed
+preliminary research studies, laboratory model, or prototype testing.
+
+
+Results are described in "A Comparitive Ananysis of Pie Menu
+Performance". They have been implemented under the X window system,
+the SunView window system, and the NeWS window system. 
+
+
+4. Variations and alternative forms of the Invention.
+
+   State all of the alternate forms envisioned to be within the full
+scope of the Invention. List all potential applications and forms of
+the Invention, whether currently proven or not. (For example, chemical
+inventions should consider all derivatives, analogues, etc.)
+
+
+Pie menus may be used with many types of input devices, including:
+
+    Mouse, track ball, mole (foot mouse), Left/right up/down Atari
+    joystick, arrow keys on key pad, touch pad, touch screen, graphics
+    tablet, joystick, lightpen, eye motion sensors.
+
+Pie Menus input two dimensional data (direction, distance). Each
+dimension can be continuous or discrete.  There are many ways in which
+the data may be interpreted. A Pie Menu may be used as a metaphore for
+many types of input devices:
+
+    Light switch (2 slices), compass (8, or continuous direction),
+    clock hands (setting the time), sliders (direction chooses between
+    several, and distance sets it), knobs (continuous direction), 2
+    dimensional vector input, 3 dimensional unit vector input (surface
+    orientation, 3-d rotation).
+
+
+Inventor(s)________________Date________Witness________Date________
+
+	   ________________Date________Witness________Date________
+
+	   ________________Date________Witness________Date________
+
+				 -3-
+
+						Disclosure No.____________
+
+			 (Continuation Page)
+		       DISCLOSURE OF INVENTION
+
+5. Novel Features.
+
+   a. Specify the novel features of your invention. How does the
+invention differ from present technology?
+
+The novel feature of Pie Menus is that selection is based on the
+direction specified by the user, allowing for the menu items to be
+equidistant from and near to the starting location, thus equally easy
+to choose. So the distance of movement required to make a selection is
+constant.  This definition of selection allows for the distance,
+independant of the direction, to be used a further argument to the
+menu selection. The greater the distance, the more precision the user
+has in specifying the direction. 
+
+Selection from linear menus is based on the rectangular area of the
+screen pointed to by the user. To point to each different area, the
+user must move a different distance, usually in the same direction.
+The distance of movement required to make a selection depends on the
+selection, while the direction of movement is constant.
+
+
+   b. What is the deficiency in the present technology which your
+invention improves upon, or the limitations it overcomes?
+
+Pie menus make selection faster and more reliable. Visual feedback is
+not required when the user is familiar with a Pie menu, allowing
+selections to be made reliably without looking at the menu.  The
+spatial relationships between the selections in a pie menu may be
+exploited to make the selection directions intuitive and easy to
+remember. The directions of the choices in a Pie menu are much easier
+to learn and remember than the order of the choices in a linear menu.
+
+Because it does not effect the selection made from the menu, the
+distance of movement is a natural way of providing input to the menu
+selection.
+
+6. Applications of the technology.
+
+   List all products you envision resulting from this invention, and
+whether these products could be developed in the near term (less than
+2 years) or long term (more than 2 years).
+
+User interface toolkits.
+Window systems, text editors, CAD systems, games... Any application
+that uses pull down menus. It would be ridiculous to list all of them.
+
+
+
+Inventor(s)________________Date________Witness________Date________
+
+	   ________________Date________Witness________Date________
+
+	   ________________Date________Witness________Date________
+
+				 -4-
+
+						Disclosure No.____________
+
+			 (Continuation Page)
+		       DISCLOSURE OF INVENTION
+			SUPPORTING INFORMATION
+
+   1. Are there publications -- theses, reports, preprints, reprints,
+etc. pertaining to the invention? Please list with publication dates.
+Include manuscripts for publication (submitted or not), news releases,
+feature articles and items from internal publications.
+
+Expected date of publication
+
+	Pies: Implementation and Evaluation of Circular Menus
+	  By Don Hopkins, Jack Callahan, and Mark Weiser
+	  (Paper in preparation. Draft available from authors.)
+
+	  Introduces Pie Menus, a new type of menu whose choices are
+	  positioned a circle around the cursor, like the slices of a
+	  pie.  They are compared and contrasted with pull down menus,
+	  and ideas about their usage and applications are discussed.
+
+	A Comparitive Ananysis of Pie Menu Performance
+	  By Jack Callahan, Don Hopkins, Mark Weiser, and Ben Schneiderman
+	  (Paper in preparation. Draft available from authors.)
+
+	  Details the design, procedures, and results of an experiment
+	  comparing Pie Menus with pull down menus. The experiment
+	  compared the selection time and error rate for choices from
+	  Pie and pull down menus of eight items. Menus tasks were
+	  classified by the type of their selections, as Pie type
+	  tasks, linear type tasks, and unclassified type tasks.  Pie
+	  menus were shown to be significantly faster and more
+	  reliable than pull down menus for all three types of tasks.
+
+	Directional Selection is Easy as Pie Menus
+	  By Don Hopkins
+	  (Paper in preparation.)
+
+	  Covers some problems encountered and tricks learned in the
+	  implementation and testing of Pie Menus, proposed
+	  interaction techniques and applications, as well as
+	  philosophical discourse on choice grouping and placement,
+	  display style, and input asthetics.
+
+
+   2. What was the date the invention was first conceived?_April 13 1986____
+Is this date documented?_No_____ Where?________________ Are laboratory
+records and data available? Give reference numbers and physical
+location, but do not enclose.
+
+Based on the time stamp on a file containing notes written about the
+idea when it was first conceived by Don Hopkins and Mike Gallaher.
+
+
+   3. A literature search should be done by the Inventor to determine
+publications relevant to the Invention. Please list these publications
+and any related patents known to you.
+
+Apple Pull Down Menu patent.
+PIXIE
+
+   4. Date, place, and circumstances of any disclosure. If disclosed
+to specific individuals, give names and dates.
+
+Disclosed to some people from MIT and DEC at the X window system
+conference at MIT by Don Hopkins.
+
+Disclosed to some people at the DC Usenix conference by Don Hopkins.
+
+Disclosed to some people at Apple Computer by Ben Schneiderman.
+
+
+   5. Was the work that led to the invention sponsored? If yes, check
+the appropriate blank(s). Government agency____, industrial company____,
+university____, other____.
+
+No.
+
+	Sponsor				Contract No.
+
+
+
+6. What firms do you think may be, or are interested in the invention.
+Why? Name companies and specific persons if possible.
+
+Unipress Software, Inc.
+
+Interested in putting Pie Menus into the Emacs text
+editor. Mike Gallaher, Vice President in charge of Software
+Development.
+
+Sun Microsystems
+
+Interested in putting Pie Menus into the CADroid circuit design
+system. Gudrun Polack, CAD manager.
+
+
+				 -5-
+
+						Disclosure No.____________
+
+			 (Continuation Page)
+		       DISCLOSURE OF INVENTION
+			SUPPORTING INFORMATION
+
+   7. Being for the moment the Devil's Advocate, what do you see the
+greatest obstacle to the adoption of your invention?
+
+The fall of civilization as we know it.
+
+
+   8. Alternate Technology and Competition
+
+   a. Describe alternate technologies of which you are aware that
+accomplish the purpose of the invention.
+
+Pull down (linear) menus. 
+
+
+   b. List the companies and their products currently on the market
+which make use of these alternate technologies.
+
+Apple Computer
+  Macintosh, and applications running on it.
+  
+Sun Microsystems
+  SunView window system, and applications running under it.
+  NeWS window system, ditto.
+
+Lots and lots of others. Flip through BYTE magazine.
+
+
+   c. List any research groups currently engaged in research and
+development in this area.
+
+Unipress Software, Sun Microsystems, Apple Computer, Microsoft, MIT,
+CMU, etc, etc, etc. 
+
+
+   9. Future Research Plans
+
+   a. What additional research is needed to complete development and
+testing of the invention? What are the timeframes and estimated budget
+needed for completion of each step?
+
+There are many aspects of Pie Menus that could be experimented with
+and tested.
+
+
+   b. Is this research presently being undertaken? Yes_X__No____
+Actively pursued? Yes_X__No____ If yes, under whose 
+sponsorship?_U of Md_______ If no, should corporate sponsorship be
+pursued? Yes_X__No____
+
+
+
+   10. Attach, sign, and date additional sheets if necessary. Enclose
+sketches, drawings, photographs and other materials that help
+illustrate the description. (Rough artwork, flow sheets, Polaroid
+photographs and penciled graphs are satisfactory as long as they tell
+a clear and understandable story.)
+
+				 -6-

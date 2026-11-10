@@ -1,0 +1,75 @@
+Synchronize when I say "Ok", at time 00:00.
+========
+00:00 - Mousee
+	Virtual mouse
+	Displays mouse movement and button presses in a window
+01:00 - Go board menu selection with mousee
+	Linear menu and pie menu
+	Mousee displays menu outlines
+01:35 - Cut
+========
+02:22 - Flag waving applications
+	Mousee
+	Short and long linear menus
+	Small and large pie menus
+	Scrolling spiral 8-item pie menu
+05:43 - Cut
+========
+06:30 - Pie menu window manager
+	Mousee
+11:50 - Mouse ahead
+14:42 - Cut
+========
+15:03 - Browsing nested pie menus
+	Mousee
+	NeWS root menu
+18:30 - Cut
+========
+18:15 - Pull-out color wheel pie menus
+	UniPress Emacs
+	Mousee
+21:22 - Cut
+========
+22:35 - HyperTIES embeded menus
+	Textual and graphical hypertext links
+24:50 - Cut
+========
+27:05 - Font selection pie menus
+	Pull-out point size
+	X11/NeWS outline fonts
+30:20 - Cut
+========
+32:06 - PSIBER Space Deck
+	Direct stack manipulation
+	PostScript data types
+	Data structure editors
+38:18 - Cut
+========
+38:35 - Tab windows in UniPress Emacs
+	HyperTIES authoring tool
+	Pie menu window manager
+39:30 - Mouse ahead with pie menu window manager on window tabs
+40:10 - Cut
+========
+42:20 - PSIBER Space Deck
+	ARPANET map made of PostScript dictionaries
+44:00 - Pseudo Scientific Visualizer
+	ARPANET map
+	X-ray view of mouse sensative nodes
+	Pop-up pointing hand annotations
+46:40 - PSIBER Space Deck
+	Root menu dictionary
+48:40 - Pseudo Scientific Visualizer
+	Root menu dictionary
+	Pop-up pointing hands
+	X-ray
+52:22 - Cut
+========
+53:25 - Precision pie menu
+	Exaggerated angular precision
+55:10 - Cut
+========
+55:35 - Handy pie menus
+	Pointing hand cursor
+56:15 - Cut
+========

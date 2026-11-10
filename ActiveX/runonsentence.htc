@@ -1,0 +1,465 @@
+<?XML version="1.0"?>
+
+<PACKAGE>
+
+  <?COMPONENT ERROR="TRUE" DEBUG="TRUE"?>
+
+  <COMMENT>
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Run On Sentence Dynamic HTML Behavior for Internet Explorer 5.0 JScript.
+// Copyright (C) 2001 by Don Hopkins.
+// All rights reserved. 
+// Designed and implemented by Don Hopkins. 
+//
+// mailto:xardox@mindspring.com
+// http://www.piemenu.com
+// http://www.catalog.com/hopkins
+//
+// Please contact Don Hopkins for permission to license this design and code.
+//
+////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////
+//
+// This is a form of dynamic interactive art. 
+// It was as fun to write as it is to use!
+//
+////////////////////////////////////////////////////////////////////////
+
+
+  </COMMENT>
+
+  <COMPONENT ID="runonsentence">
+
+    <IMPLEMENTS ID="runonsentence" TYPE="Behavior" DEFAULT="">
+      <ATTACH EVENT="onmouseenter" handler="HandleOnMouseEnter"/>
+      <ATTACH EVENT="onmouseleave" handler="HandleOnMouseLeave"/>
+      <PUBLIC>
+        <EVENT NAME="OnTick" ID="evTick"/>
+      </PUBLIC>
+    </IMPLEMENTS>
+
+    <IMPLEMENTS TYPE="Automation">
+      <PUBLIC>
+        <METHOD NAME="OnTimer"/>
+        <METHOD NAME="OnPointerEnter"/>
+        <METHOD NAME="OnPointerLeave"/>
+
+        <PROPERTY NAME="minsize" INTERNALNAME="gMinSize"/>
+        <PROPERTY NAME="maxsize" INTERNALNAME="gMaxSize"/>
+        <PROPERTY NAME="sequencedelay" INTERNALNAME="gSequenceDelay"/>
+        <PROPERTY NAME="changing" INTERNALNAME="gChanging"/>
+        <PROPERTY NAME="shrinking" INTERNALNAME="gShrinking"/>
+        <PROPERTY NAME="endshrink" INTERNALNAME="gEndShrink"/>
+        <PROPERTY NAME="mouseentersizedelta" INTERNALNAME="gMouseEnterSizeDelta"/>
+        <PROPERTY NAME="mouseleavesizedelta" INTERNALNAME="gMouseLeaveSizeDelta"/>
+        <PROPERTY NAME="sequenceentersizedelta" INTERNALNAME="gSequenceEnterSizeDelta"/>
+        <PROPERTY NAME="sequenceleavesizedelta" INTERNALNAME="gSequenceLeaveSizeDelta"/>
+        <PROPERTY NAME="timeout" INTERNALNAME="gTimeout"/>
+        <PROPERTY NAME="sequencenumber" INTERNALNAME="gSequenceNumber"/>
+        <PROPERTY NAME="diminishcutoff" INTERNALNAME="gDiminishCutoff"/>
+        <PROPERTY NAME="fontfamily" INTERNALNAME="gFontFamily"/>
+        <PROPERTY NAME="separator" INTERNALNAME="gSeparator"/>
+      </PUBLIC>
+    </IMPLEMENTS>
+
+    <SCRIPT LANGUAGE="JScript">
+
+
+////////////////////////////////////////////////////////////////////////
+
+
+var gDiv = null;
+
+var gFontFamily = "Comic Sans MS";
+var gSeparator = "|";
+
+var gLines = new Array();
+var gLineSizes = new Array();
+var gLineSizesNew = new Array();
+var gLineSizeDeltas = new Array();
+
+var gLineID = 0;
+
+var gMinSize = 0;
+var gMaxSize = 2000;
+var gMouseEnterSizeDelta = 200;
+var gMouseLeaveSizeDelta = -500;
+var gSequenceEnterSizeDelta = 300;
+var gSequenceLeaveSizeDelta = -150;
+var gTimeout = 10;
+var gCurLine = null;
+var gCurLineIndex = -1;
+var gLastLineIndex = -1;
+var gChanging = 0;
+var gShrinking = 1.1;
+var gSequenceNumber = -1;
+var gSequenceDelay = 1000;
+var gSequenceStartTime = 0;
+var gEndShrink = -8;
+var gDiminishCutoff = 100.0;
+
+
+function MakeLineID(id)
+{
+  return "line_" + uniqueID + "_" + id;
+}
+
+
+function GetLineAtts()
+{
+  return (
+    " STYLE=\"font-family:" + gFontFamily + "\"" +
+    " ONMOUSEENTER=\"" + uniqueID + ".OnPointerEnter(this);\"" +
+    " ONMOUSELEAVE=\"" + uniqueID + ".OnPointerLeave(this);\"");
+}
+
+
+function OldProcessChildren(child)
+{
+  var out = "";
+
+  var lineAtts = GetLineAtts();
+
+  out +=
+    "<DIV ID=\"" + MakeLineID(gLineID++) + "\" " + lineAtts + ">";
+
+  while (child != null) {
+
+    if (child.nodeType == 1) {
+
+      out += child.outerHTML;
+//Barf.innerText += " [[[ " + child.outerHTML + " ]]] ";
+    } else if (child.nodeType == 3) {
+
+      var txt = child.nodeValue;
+      var lines = txt.split(gSeparator);
+
+      if (lines.length == 0) {
+	// WTF?
+      } else if (lines.length == 1) {
+	out += txt;
+      } else {
+	var j;
+	for (j = 0; j < lines.length; j++) {
+//Barf.innerText += "Fart[" + lines[j] + "] ";
+	  out +=
+ 	    lines[j] +
+	    "</DIV>" +
+	    "<DIV ID=\"" + MakeLineID(gLineID++) + "\" " + lineAtts + ">";
+	} // for
+      } // if
+      out += "</DIV>";
+
+    } else {
+
+      out += child.outerHTML;
+
+    } // if
+
+    child = child.nextSibling;
+  } // while
+
+  return out;
+}
+
+
+function ProcessChildren(el)
+{
+  var child
+  var out = "";
+
+if (0) {
+  while (child != null) {
+    if (child.nodeType == 1) {
+      out += child.outerHTML;
+    } else {
+      out += child.nodeValue;
+    } // if
+    child = child.nextSibling;
+  } // while
+} else {
+  out = el.innerHTML;
+}
+
+  var lines = out.split(gSeparator);
+
+  out = "";
+
+  var lineAtts = GetLineAtts();
+  var n = lines.length;
+  var i;
+  for (i = 0; i < n; i++) {
+    var l = lines[i];
+    out +=
+      "<DIV" +
+      " ID=\"" + MakeLineID(gLineID++) + "\"" +
+      lineAtts + ">" +
+      l +
+      "</DIV>";
+  } // for i
+
+  return out;
+}
+
+
+function InitRunOnSentence()
+{
+  gLineID = 0;
+  gLines = new Array();
+  gLineSizes = new Array();
+  gLineSizesNew = new Array();
+  gLineSizeDeltas = new Array();
+
+  var txt =
+    ProcessChildren(gDiv);
+
+  gDiv.innerHTML = "<CENTER>" + txt + "</CENTER>";
+
+  var i;
+  for (i = 0; i < gLineID; i++) {
+    var line = eval(MakeLineID(i));
+    gLines.push(line);
+    gLineSizes.push(100);
+    gLineSizesNew.push(100);
+    gLineSizeDeltas.push(0);
+  } // for i
+
+  window.setTimeout(uniqueID + ".OnTimer();", parseInt(gTimeout));
+
+}
+
+
+function OnTimer()
+{
+  if (gCurLine != null) {
+    gLineSizeDeltas[gCurLineIndex] += parseFloat(gMouseEnterSizeDelta);
+  } // if
+
+  DiffuseSize();
+
+  window.setTimeout(uniqueID + ".OnTimer();", parseInt(gTimeout));
+}
+
+
+function OnPointerEnter(line)
+{
+  gSequenceNumber = -1;
+  SetCurLine(line);
+}
+
+
+function SetCurLine(line)
+{
+  gLastLineIndex = gCurLineIndex;
+
+  if (line != null) {
+    var lines = gLines.length;
+
+    for (i = 0; i < lines; i++) {
+      if (gLines[i] == line) {
+	gCurLine = gLines[i];
+	gCurLineIndex = i;
+	return;
+      } // if
+    } // for
+  } // if
+
+  gCurLine = null;
+  gCurLineIndex = -1;
+}
+
+
+function OnPointerLeave(line)
+{
+  if (gCurLine == line) {
+    var d = new Date();
+//    gSequenceNumber =
+//      gCurLineIndex;
+//    gSequenceStartTime =
+//	d.getTime() -
+//	(gSequenceNumber * 1000);
+    gLineSizeDeltas[gCurLineIndex] += gMouseLeaveSizeDelta;
+    SetCurLine(null);
+  } // if
+}
+
+
+function HandleOnMouseEnter()
+{
+}
+
+
+function HandleOnMouseLeave()
+{
+}
+
+
+function DiffuseSize()
+{
+  var lineCount = gLines.length;
+  var lastLine = lineCount - 1;
+  var minSize = parseFloat(gMinSize);
+  var maxSize = parseFloat(gMaxSize);
+  var endShrink = parseFloat(gEndShrink);
+  var sequenceDelay = parseFloat(gSequenceDelay);
+  var changing = parseFloat(gChanging);
+  var shrinking = parseFloat(gShrinking);
+  var diminishCutoff = parseFloat(gDiminishCutoff);
+
+  if (lineCount <= 1) {
+    return;
+  } // if
+
+  var prevSize, thisSize, nextSize, newSize;
+
+//  thisSize = gLineSizes[0] + (gLineSizes[0] - gLineSizes[1]);
+  thisSize = gLineSizes[0];
+  if ((gSequenceNumber != 0) &&
+      (gCurLineIndex != 0)) {
+    thisSize *= endShrink;
+  } // if
+  if (thisSize < 0) {
+    thisSize = 0;
+  } // if
+  nextSize = gLineSizes[0];
+  var total = 0.0;
+  var i;
+  for (i = 0; i < lineCount; i++) {
+    prevSize = thisSize;
+    thisSize = nextSize;
+    if (i == lastLine) {
+//      nextSize = gLineSizes[i] + (gLineSizes[i] - gLineSizes[i - 1]);
+      nextSize = gLineSizes[i];
+      if ((gSequenceNumber != lastLine) &&
+	  (gCurLineIndex != lastLine)) {
+	nextSize *= endShrink;
+      } // if
+      if (nextSize < 0) {
+	nextSize = 0;
+      } // if
+    } else {
+      nextSize = gLineSizes[i + 1];
+    } // if
+    newSize = 
+      changing +
+      (shrinking *
+       (((prevSize + thisSize + nextSize) / 3.0) +
+        gLineSizeDeltas[i]));
+
+//       (((prevSize + prevSize + thisSize + nextSize + nextSize) / 5.0) +
+//       (((prevSize + thisSize + thisSize + nextSize) / 4.0) +
+//       (((prevSize + nextSize) / 2.0) +
+
+    if (newSize < minSize) {
+      newSize = minSize;
+    } else if (newSize > maxSize) {
+      newSize = maxSize;
+    } // if
+    if (newSize < diminishCutoff) {
+      newSize /= diminishCutoff;
+      newSize *= newSize;
+      newSize *= diminishCutoff;
+    } // if
+    gLineSizesNew[i] = newSize;
+    gLineSizeDeltas[i] = 0;
+    total += newSize;
+  } // for i
+
+  if (total == 0) {
+    total = 100.0;
+  } // if
+
+  var scale =
+    (lineCount * 100.0) /
+    (total);
+
+  var mins = 1.0e+6;
+  var maxs = -1.0e+6;
+  for (i = 0; i < lineCount; i++) {
+    var newSize = gLineSizesNew[i];
+    newSize *= scale;
+    gLineSizes[i] = newSize;
+    if (newSize < mins) {
+      mins = newSize;
+    } // if
+    if (newSize > maxs) {
+      maxs = newSize;
+    } // if
+    var s = Math.round(newSize) + "%";
+    var s = newSize + "%";
+    var st = gLines[i].style;
+    st.fontSize = s;
+    if ((i == gCurLineIndex) ||
+	(i == gSequenceNumber)) {
+      st.fontWeight = "bold";
+    } else {
+      st.fontWeight = "normal";
+    } // if
+  } // for i
+
+  var minToMax =
+    maxs - mins;
+
+  var d = new Date();
+
+  if ((gCurLine == null) &&
+      (gSequenceNumber < 0)) {
+    gSequenceNumber =
+      (gLastLineIndex == -1) ? 0 : gLastLineIndex;
+    gSequenceStartTime =
+	d.getTime() -
+	(gSequenceNumber * 1000);
+  } // if
+
+  if (gSequenceNumber >= 0) {
+    var elapsed =
+      d.getTime() - gSequenceStartTime;
+    gSequenceNumber =
+      Math.floor(elapsed / sequenceDelay);
+    if (gSequenceNumber >= lineCount) {
+      gSequenceNumber = 0;
+      gSequenceStartTime = d;
+    } // if
+
+    gLineSizeDeltas[gSequenceNumber] +=
+	gSequenceEnterSizeDelta;
+
+    if (gSequenceNumber > 0) {
+      gLineSizeDeltas[gSequenceNumber - 1] +=
+	gSequenceLeaveSizeDelta;
+      if (gSequenceNumber > 1) {
+	gLineSizeDeltas[gSequenceNumber - 2] +=
+	  gSequenceLeaveSizeDelta;
+	if (gSequenceNumber > 3) {
+	  gLineSizeDeltas[gSequenceNumber - 3] +=
+	    gSequenceLeaveSizeDelta;
+	} // if
+      } // if
+    } // if
+  } // if
+  
+}
+
+
+////////////////////////////////////////////////////////////////////////
+// Construction
+
+
+if (id == "") {
+  id = uniqueID;
+} // if
+var gDiv = eval(id);
+
+InitRunOnSentence();
+
+
+////////////////////////////////////////////////////////////////////////
+
+
+</SCRIPT>
+
+</HTML>

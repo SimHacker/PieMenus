@@ -1,0 +1,164 @@
+%!
+% drip.ps
+% Copyright (C) 1989 by Don Hopkins
+% 
+
+/binfont 50 dict def
+binfont begin
+
+/FontType 3 def
+/FontMatrix [1 8 div 0 0 1 0 0] def
+/FontBBox [0 0 1 8 div 1] def
+/FontName /bin def
+/IsFixedPitch true def
+
+/BuildChar {
+  10 dict begin
+    /char exch def
+    /font exch def
+    /y 0 def
+    1 0
+    0 0 1 8 setcachedevice
+    newpath
+    char
+    8 {
+      dup 1 and 0 ne {
+        0 y 1 1 rectpath
+        0 setgray
+        fill
+      } if
+      2 div floor
+      /y y 1 add def
+    } repeat
+    pop
+  end
+} def
+
+end % binfont
+
+/bin binfont definefont pop
+
+/histfont 50 dict def
+histfont begin
+
+/FontType 3 def
+/FontMatrix [1 0 0 1 0 0] def
+/FontBBox [0 0 1 16 div 1] def
+/FontName /hist def
+/IsFixedPitch true def
+
+/BuildChar {
+  10 dict begin
+    /char exch def
+    /font exch def
+    1 16 div 0
+    0 0 1 16 div 1 setcachedevice
+    newpath
+    0 0 1 16 div char 256 div rectpath
+    0 setgray
+    stroke
+  end
+} def
+
+end % histfont
+
+/hist histfont definefont pop
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/drip-listen-socket (%socketl2002) def
+/drip-server-socket (%socketc2000) def
+
+/drip-server-proc null def
+
+/start-dripper { % file => -
+%  100 dict begin
+    /client exch def
+    /server drip-server-socket (r) file def
+    /clientbuf 1 string def
+    /clientlog 512 string def
+    /clientsublog clientlog 1 1 index length 1 sub getinterval def
+    /clientendlog clientlog dup length 1 sub 1 getinterval def
+    /serverbuf 1 string def
+    /serverlog 128 string def
+    /serversublog serverlog 1 1 index length 1 sub getinterval def
+    /serverendlog serverlog dup length 1 sub 1 getinterval def
+    /clientcount 0 def
+    /servercount 0 def
+    /clientin 0 def
+    /serverin 0 def
+    /win framebuffer /new DefaultWindow send def
+    0 0 600 200 /reshape win send
+    /map win send
+    /can /ClientCanvas win send def
+    can setcanvas
+    %/bin findfont 32 scalefont setfont
+    /hist findfont 32 scalefont setfont
+    %/Screen findfont 12 scalefont setfont
+    0 setgray
+    /border 5 def
+    (foobar) stringbbox points2rect
+    border add /h exch def
+    6 div /w exch def
+    /display {
+      can setcanvas
+      erasepage
+      0 setgray
+      /x border def  /y border def
+      x y moveto
+      clientlog show
+      /x border def /y y h add def
+      x y moveto
+      serverlog show
+    } def
+    /clientproc {
+     {
+      client clientbuf readstring not { exit } if
+      pop
+      /clientcount clientcount 1 add def
+      clientsublog clientlog copy pop
+      clientbuf clientendlog copy pop
+      server clientbuf writestring
+      client bytesavailable 0 eq { server flushfile display } if
+     } loop
+/foo dbgbreak
+    } fork def
+    /serverproc {
+     {
+      server serverbuf readstring not { exit } if
+      pop
+      /servercount servercount 1 add def
+      serversublog serverlog copy pop
+      serverbuf serverendlog copy pop
+      client serverbuf writestring
+      server bytesavailable 0 eq { client flushfile display } if
+     } loop
+/bar dbgbreak
+    } fork def
+    createevent begin
+      /Name /ProcessDied def
+      /Action [clientproc serverproc] def
+    currentdict end expressinterest
+    awaitevent pop
+(Client % Server %\n) [clientproc serverproc] dbgprintf
+%    clientproc killprocess
+%    serverproc killprocess
+    client status { client closefile } if
+    server status { server closefile } if
+    /client null def
+    /server null def
+(Plop!\n) [] dbgprintf
+%  end
+} def
+
+/drip-server {
+  /drip-server-proc {
+    clear
+    drip-listen-socket (w) file
+    /listener exch def
+    listener acceptconnection { start-dripper } fork pop pop
+    listener closefile
+  } fork def
+} def
+
+drip-server

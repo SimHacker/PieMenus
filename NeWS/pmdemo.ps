@@ -1,0 +1,121 @@
+%!
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  @(#)pmdemo.ps
+%  Pie Menu Demo
+%  Copyright (C) 1987.
+%  By Don Hopkins.
+%  All rights reserved.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+systemdict /PieMenu known not {
+  (NeWS/piemenu.ps) run
+} if
+
+systemdict begin
+
+/yukyukyuk
+  [ (Take) (and feel) (free!) (a look) ]
+  [ {} ]
+/new PieMenu send def
+yukyukyuk /MenuFont /Helvetica findfont 25 scalefont put
+
+yukyukyuk /MenuButton PointButton put
+yukyukyuk /PointButton MenuButton put
+
+/foobarpm
+  [ /boy1 /boy2 /boy3 /boy4 ] 
+  [ yukyukyuk {} {} {} ]
+/new PieMenu send def
+
+foobarpm /MenuButton PointButton put
+foobarpm /PointButton MenuButton put
+
+% These are Things ...
+
+/wedges { % true => (draw) / false => width height
+  {
+  /paint
+    { gsave
+      currentpoint translate
+      24 24 translate
+      22.5 rotate
+      8 { 
+	newpath
+	2 0 moveto
+        2 0 22 0 45 arc
+    	closepath
+	fill
+	45 rotate
+      } repeat
+      grestore }
+  /size
+    {48 48}
+  } case
+} def
+
+/arrows { % true => (draw) / false => width height
+  {  
+  /paint
+    { gsave
+      currentpoint translate
+      24 24 translate
+      8 { 
+	newpath
+	0 0 moveto
+        22 0 lineto
+	18 4 lineto
+	22 0 moveto
+	18 -4 lineto
+    	closepath
+	stroke
+	45 rotate
+      } repeat
+      grestore }
+  /size
+    {48 48}
+  } case
+} def
+
+/pm [
+  /eye
+    { /PieInitialAngle PieInitialAngle PieSliceWidth add NormalAngle store
+      /MenuWidth null def }
+  /baseball
+    foobarpm
+  {{wedges}}
+    { /SliceWedges SliceWedges not def
+      /MenuWidth null def }
+  /cuffs
+    { /NumbRadius PieDistance LabelRadius Gap sub mod 1 max def
+      /MenuWidth null def }
+  /eye4
+    { /PieInitialAngle PieInitialAngle PieSliceWidth sub NormalAngle def
+      /MenuWidth null def }
+  /nuke
+    { /SplatFactor PieDistance NumbRadius sub 10 div def
+      /MenuWidth null def }
+  {{arrows}}
+    { /SliceArrows SliceArrows not def
+      /MenuWidth null def }
+  /gern
+    { /LabelMinRadius PieDistance NumbRadius sub NumbRadius Gap add max store
+      /MenuWidth null def }
+] /new PieMenu send def
+
+pm /MenuButton PointButton put
+pm /PointButton MenuButton put
+pm /LabelRadiusPerKey 1 put
+pm /LabelMinRadius 70 put
+
+systemdict /pmmgr known {
+  pmmgr killprocess
+} if
+
+/pmmgr [
+  PointButton {CurrentEvent /showat pm send}
+  DownTransition framebuffer eventmgrinterest
+] forkeventmgr def
+
+end

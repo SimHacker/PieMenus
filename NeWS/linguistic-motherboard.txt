@@ -1,0 +1,98 @@
+Linguistic motherboard metaphore
+
+hardware/software metaphore
+
+A motherboard is a nicer metaphore than a ball of wax.
+
+PostScript as a linguistic motherboard
+
+We need non-proprietary bus in order for this idea to succeed
+
+Vendor supplied cards - software modules.
+Motherboard extends over the net.
+PCR allows tightly coupled modules on the same card (or compatible,
+closely linked cards) to communicate in one address space, through
+local procedure calls. 
+PostScript allows cards to communicate in memory through PCR and over
+the net through remote procedure calls.
+Polylith is a software bus.
+Generalization of client-server model: both ways. send code, not just data.
+
+PCR is like the data, address, and control lines.
+PostScript is like Mitch Bradley's Forth for the S-Bus.
+Allows device independant bootstrapping (binding of hardware on cards
+to software on the net). Device drivers.
+Jack Callahan's paper describes how once you are bootstrapped and
+communicating with your virtual hardware modules, you can generate and
+put into place optimized device specific drivers (automatic dynamic
+stub generation).
+
+Many of the ideas originated at adobe, and have made the rounds
+throughout the industry and academia.
+
+Adobe has proven PostScript's applicability to page description.
+Sun has proven PostScript's applicability to network extensibility.
+
+Adobe and Sun have demonstrated that these concepts work for
+particular applications, using a propriatary bus, like DEC's BI bus,
+i.e. a proprietary language implementation. They are not nearly as
+useful as they could be were they based on an open bus -- a public
+domain language implementation. PCR is a tightly coupled open bus, we
+need a public domain PostScript (and Scheme, and other languages)
+interpreter to go along with PCR.
+
+Witness all the people complaining about problems with NeWS (like
+non-availability, not running on particular pieces of hardware, server
+core dumps), and Adobe PostScript (like the 9600 baud 7 bit printable
+ascii data bottleneck), because of problems that would be easy to fix
+if they had sources. The failure of NeWS as a window system has
+demonstrated that it can fail simply because it's controled by Sun.
+The failure of PostScript as a ?? general purpose programming language
+?? some people might argue is due to poor design, but I don't think
+most people I have heard criticize PostScript know what they're
+talking about, because they have attacked the cosmetic problems of
+"backward" syntax, but not addressed the real problems of dynamic
+binding.  PostScript is very well designed, and very powerful. Postfix
+notation is as backward as prefix (cf big/little endian battles), both
+of which are simpler than infix.  PostScript's main problem is dynamic
+binding.  Reverse polish notation is a cosmetic problem, which is
+addressed by LispScript.  There are extensions to PostScript that
+would make it a lot more useful, and the dynamic binding problem might
+even be solvable. PIX and NetScript come very close, and are (or will
+be) in the public domain.
+
+Right now, Scheme addresses this issue beautifully, and I think it may
+be quite applicable to the problem, given a good enough implementation
+(designed for the task). ELK comes close.
+
+Scheme and PostScript in combination (in different address spaces, in
+the same address space, or a synthesis of the two) might be an
+interesting approach. Scheme with PostScript data types and NeWS
+extensions. Scheme on a PostScript virtual machine (the byte code that
+Scheme compiles into -- so you can device independant compiled scheme
+code).
+
+Try to pinpoint what it is about PostScript that makes it better than
+Scheme for this problem. First of all, I think it's easier to
+interpret. Less overhead. Easier for machines to generate? Or is that
+BS? The data types. Magic dictionaries as an interface to data
+structures (like memory mapping device registers instead of having i/o
+instructions). Dynamic binding is simpler, but you could implement
+closures on top of that, I think (by making it extremely easy to
+switch dictionary stacks, the way class.ps does) and even
+continuations (by switching execution stack).
+
+Disadvantages of PostScript: Dynamic binding, addressed above.
+Polymorphic operators, so built-in operators have to do type checking.
+Provide type specific operators as primatives that the polymorphic
+ones are built in terms of, not unlike Crispin Goswell's PostScript
+interpreter.
+
+Advantages of NeWS, PIX, NetScript: light weight processes, event
+queue, interprocess communication, magic dictionaries, garbage
+collection, ...
+
+PCR would be an excellent base. PostScript would be a good first step,
+and would be extended towards scheme in an upward compatible manner. 
+Proprietary vendor supplied (or public domain) cards could plug right
+in (Cedar graphics, Folio fonts, Andrew editor, X protocol, etc...) 

@@ -1,0 +1,288 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+systemdict begin
+
+/PieSliderMenu PieMenu
+dictbegin
+  /MenuArg null def
+  /LastMenuArg null def
+  /ArgDistance null def
+  /ArgDivisions 5 def
+  /HiLiteWithArrow? false def
+dictend
+classbegin
+
+    /DragProc {
+	ChildMenu null eq {
+          MenuGSave
+	    PieRadius dup translate
+	    CurrentEvent begin XLocation YLocation end		% x y
+	    SetMenuValue
+
+	    MenuValue PaintedValue ne {
+	        PaintMenuValue
+	    } {
+              MenuArg LastMenuArg ne {
+	        LastMenuArg PaintArg
+		MenuArg PaintArg
+	        /LastMenuArg MenuArg store
+	      } if
+	    } ifelse
+
+          grestore
+	} if
+    } def
+
+    /popdown {
+      gsave fboverlay setcanvas erasepage grestore
+      /popdown super send
+    } def
+
+    /PaintMenuValue { % - => - (Hilite current item, un-hilite prev one.)
+	PaintedValue	 PaintSlice
+	MenuValue        PaintSlice
+	/PaintedValue	 MenuValue store
+    } def
+
+    /PaintMenuArg {
+      MenuArg null ne {
+        MenuItems MenuValue get dup type /dicttype eq {
+          self
+          /track 2 index /Key get send
+        } { pop } ifelse
+      } if
+    } def
+
+    /PaintMenuValue { % - => - (Hilite current item, un-hilite prev one.)
+	MenuArg LastMenuArg ne   MenuValue PaintedValue ne  or
+	LastMenuArg null ne  PaintedValue null ne  and  and {
+          gsave
+            0 setgray
+            5 setrasteropcode
+	    PieRadius dup translate
+	    MenuItems PaintedValue get dup type /dicttype eq {
+	      LastMenuArg /track 2 index /Key get send
+	    } { pop } ifelse
+	  grestore
+	} if
+
+	  LastMenuArg PaintArg } if
+	MenuValue PaintedValue ne { 
+	  PaintedValue PaintSlice
+	  MenuValue PaintSlice } if
+	  
+	MenuArg		 PaintArg
+	/PaintedValue	 MenuValue store
+	/LastMenuArg	 MenuArg store
+    } def
+
+    /SetMenuValue { %  x y => -
+      /SetMenuValue super send
+      /MenuArg 
+        MenuValue dup null ne {
+          MenuItems exch get type /dicttype eq {
+            PieDistance NumbRadius sub ArgDistance div floor
+	    ArgDivisions 1 sub min
+	  } { 
+	    pop null
+	  } ifelse
+        } if
+      def
+    } def
+
+    /layout {
+      /layout super send
+      /ArgDistance LabelRadius Gap sub NumbRadius sub ArgDivisions div def
+    } def
+
+    /PaintMenuItems {
+      MenuGSave
+	false setprintermatch
+        PieRadius dup translate
+
+        MenuItems {					% item
+	begin
+	  Key X Y ShowThing
+
+% There seems to be a NeWS line clipping bug with lines with one 
+% endpoint the right of the hole in the center of the menu ... 
+
+	1 setlinequality % Solves SOME of the line glitches ...
+
+	  SliceWedges {
+	    gsave
+	      newpath
+	      ang PieSliceWidth 2 div sub rotate
+	      NumbRadius 1 sub 0 moveto
+	      LabelRadius Gap sub 0 lineto
+              MenuTextColor setcolor
+	      0 setlinecap
+	      4 setlinewidth
+	      stroke
+	      1 setlinecap
+	      3 setlinewidth
+	      NumbRadius 0 translate
+	      ArgDivisions 1 add {
+	        0 -5 moveto
+		0 5 lineto
+		stroke
+	        ArgDistance 0 translate
+	      } repeat
+ 	    grestore
+	  } if
+        end
+        } forall
+      grestore
+    } def
+
+classend def
+
+/FontTrackThing Object
+dictbegin
+  /TrackFontName null def
+  /TrackFontSizes null def
+  /TrackFonts null def
+  /LabelFontSize 18 def
+  /LabelFont null def
+  /Label null def
+dictend
+classbegin
+  /paint {
+    gsave
+      LabelFont setfont
+      false setprintermatch
+      0 setgray
+      Label show
+    grestore
+  } def
+
+  /size { % - => w h
+    gsave
+      LabelFont setfont
+      false setprintermatch
+      Label stringwidth pop currentfont fontheight
+    grestore
+  } def
+
+  /new { %  Label FontName [Font Sizes]
+    /new super send begin
+      /TrackFontSizes exch def
+      /TrackFontName exch def
+      /Label exch def
+      /TrackFonts [
+        TrackFontSizes { TrackFontName findfont exch scalefont } forall 
+      ] def
+      /LabelFont TrackFontName findfont LabelFontSize scalefont def
+    currentdict end
+  } def
+
+  /track { % MenuItem arg => -
+    gsave
+    exch begin
+      0 setgray
+      5 setrasteropcode
+      TrackFonts 1 index get setfont
+      TrackFontSizes exch get (% point) sprintf
+      false setprintermatch
+      dup stringbbox points2rect
+      x .55 mul  y .55 mul  moveto
+      -.35 mul exch -.5 mul exch rmoveto
+      pop pop
+      show
+    end
+    grestore
+  } def
+classend def
+
+/myHelvetica
+  (Helvetica) /Helvetica
+  [10 12 14 18 24]
+  /new FontTrackThing send def
+/myHelvetica-Bold
+  (Bold) /Helvetica-Bold
+  [10 12 14 18 24]
+  /new FontTrackThing send def
+/myHelvetica-Oblique
+  (Oblique) /Helvetica-Oblique
+  [10 12 14 18 24]
+  /new FontTrackThing send def
+/myHelvetica-BoldOblique
+  (BoldOblique) /Helvetica-BoldOblique
+  [10 12 14 18 24]
+  /new FontTrackThing send def
+
+/funkyhelveticamenu
+  [ myHelvetica myHelvetica-Oblique myHelvetica-BoldOblique myHelvetica-Bold ]
+  [ { currentkey begin TrackFontName TrackFontSizes end 
+      MenuArg get
+      setfont-name-size } ]
+  /new PieSliderMenu send def
+funkyhelveticamenu /LabelMinRadius 117 put
+funkyhelveticamenu /LabelRadiusPerKey 0 put
+
+/myTimes
+  (Times-Roman) /Times-Roman
+  [10 12 14 18 24]
+  /new FontTrackThing send def
+/myTimes-Bold
+  (Bold) /Times-Bold
+  [10 12 14 18 24]
+  /new FontTrackThing send def
+/myTimes-Italic
+  (Italic) /Times-Italic
+  [10 12 14 18 24]
+  /new FontTrackThing send def
+/myTimes-BoldItalic
+  (BoldItalic) /Times-BoldItalic
+  [10 12 14 18 24]
+  /new FontTrackThing send def
+
+/funkytimesmenu
+  [ myTimes myTimes-Italic myTimes-BoldItalic myTimes-Bold ]
+  [ { currentkey begin TrackFontName TrackFontSizes end 
+      MenuArg get
+      setfont-name-size } ]
+  /new PieSliderMenu send def
+funkytimesmenu /LabelMinRadius 107 put
+funkytimesmenu /LabelRadiusPerKey 0 put
+
+/myCourier
+  (Courier) /Courier
+  [10 12 14 16 18 24]
+  /new FontTrackThing send def
+/myCourier-Bold
+  (Bold) /Courier-Bold
+  [10 12 14 16 18 24]
+  /new FontTrackThing send def
+/myCourier-Oblique
+  (Oblique) /Courier-Oblique
+  [10 12 14 16 18 24]
+  /new FontTrackThing send def
+/myCourier-BoldOblique
+  (BoldOblique) /Courier-BoldOblique
+  [10 12 14 16 18 24]
+  /new FontTrackThing send def
+
+/funkycouriermenu
+  [ myCourier myCourier-Oblique myCourier-BoldOblique myCourier-Bold ]
+  [ { currentkey begin TrackFontName TrackFontSizes end 
+      MenuArg get
+      setfont-name-size } ]
+  /new PieSliderMenu send def
+funkycouriermenu /LabelMinRadius 142 put
+funkycouriermenu /ArgDivisions 6 put
+
+/funkyfontmenu
+  [ 
+    [(Helvetica) /Helvetica findfont 24 scalefont]
+    [(Courier) /Courier findfont 24 scalefont]
+    [[(Times-Roman) -3 0] /Times-Roman findfont 24 scalefont]
+    /eye
+  ]
+  [
+    funkyhelveticamenu
+    funkycouriermenu
+    funkytimesmenu
+    { /Icon 1 setfont-style-size }
+  ]
+  /new PieMenu send def
+

@@ -1,0 +1,268 @@
+Problems Found with the NetScape Plug-in API.
+By Don Hopkins, Kaleida Labs.
+
+These are the problems I've found with the NetScape 2.0b3 Plug-in SDK,
+on the Mac. NetScape 2.0b4 has been released, but unfortunatly the
+2.0b4 Plug-in SDK is nowhere to be found. I've written two plug-ins
+on the Mac: a cellular automata engine that does algorythmic animation
+and lets you drag bouncing automata filters around and draw into the
+cells, and a ScriptX plug-out -- a NetScape plug-in that communicates 
+with a ScriptX plug-in via Apple Events and system memory, displays a 
+live ScriptX window embeded in a NetScape page, and sends mouse events 
+from NetScape back to ScriptX, so that from NetScape you can interact 
+with ScriptX running in a different process. I made this plug-in 
+"extension cord" so ScriptX can run in its own process, because the
+plug-in interface is not compatible with programs like ScriptX that 
+need to handle their own clocks and event loop. ScriptX has clocks, 
+timing, threads, synchronization and events at its heart, while NetScape 
+would only let it run in idle time time slices, without any provision
+for setting up the timer based callbacks that drive ScriptX. 
+
+* Fat plug-ins:
+
+NetScape 2.0b3 on Mac does not execute PowerPC code in fat plug-ins. 
+Only calls 68k part of fat plug-ins. That's why you can't set 
+breakpoints in the PowerPC code -- it's emulating the 68k code 
+instead. 
+
+* LiveScript:
+
+No way to access and change properties of plugin from LiveScript.
+It would be nice to have a call-in that would get and set the value
+of named properties, and enumerate property names. So LiveScript
+programs could dynamically change and query the properties of plug-ins. 
+It would be nice if livescript could send messages with arguments and
+return values to plug-ins. 
+
+Also need a way for a plug-in to query livescript properties, 
+like the document, url, forms, other plug-ins, and other things 
+that livescript can access. Plug-ins should be able to send messages 
+and events to livescript, and execute strings of livescript code.
+
+* Plug-in callbacks:
+
+** NP_HandleEvent
+
+Not all keyboard events are getting through on the Mac. 
+The event handler never gets mouse motion or mouse up events, so I
+had to track the mouse motion and button release manually by checking
+the button status in the idle callback. 
+
+I hope it's not supposed to be this way, because it encourages people
+with bad Mac programming habits to poll the mouse in their mouse down
+subroutine, which doesn't return until the button is released. That
+would halt all network processing in NetScape during mouse tracking. 
+All mouse tracking should be callback based -- the interface should
+not encourage polling style mouse tracking.
+
+** NP_SetWindow
+
+Is the NP_Window *window valid after the call returns? 
+Should I make a copy of it?
+
+* NetScape callbacks
+
+On the Mac, NetScape does not provice and glue functions to wrap around
+the callback pointers into NetScape. 
+
+I wrote some myself, but I got argument type checking errors with 
+CallNPN_DestroyStreamProc, CallNPN_MemAllocProc, CallNPN_MemFreeProc,
+and CallNPN_MemFlushProc.  (see "npupp.h" below).
+
+If the NetScape Plug-in SDK would simply provide handy utility functions
+like wrappers around their callback functions, not only would NetScape
+save developers time writing such trivialities, but they would also 
+discover syntax errors in their untested code, as well as semantic 
+errors in their plug-in interface (like the fact that there are pairs 
+of functions who have the same name but take different arguments and
+perform different functions -- see "Architecture" below). 
+
+Need a way for a plug-in to register to handle a protocol, 
+and do all the other stuff available in the spyglass web browser api,
+like echo url, progress notification, etc. 
+
+The current plug-in API does not seem to support plug-ins that are not 
+mime file type viewers. What about plug-in "applets" that are configured
+through html properties or url ars? Need a way to embed a plug-in without
+refering to a file, and configure it through the html properties alone.
+For example, if I have a plug-in cd player "applet", why should I have to 
+make a special dummy file of a certain mime type and unique extension to 
+point the embeded cd player's url at, just to trick NetScape into invoking 
+my plug-in? 
+
+Need support for background plug-ins that stay around after the page
+viewing them goes away. 
+
+Need a way to load and start up background plug-ins when NetScape 
+starts up, so it's possible to implement things like protocol handlers,
+speech recognition navigation controllers, format translators, etc. 
+
+Need a way to dynamically load new plug-ins (retrieved over the
+net) after NetScape has started up, instead of re-starting NetScape.
+Unloading and reloading plug-ins would be great for development, 
+and for large plug-ins on small systems. Some plug-ins can be downloaded
+and dynamically loaded, but other plug-ins will require complicated 
+installation (like installing DirectX), and possibly rebooting. All 
+plug-ins will require trust on the part of the user. (But they trusted 
+NetScape enough to download the Navigator, so who knows how far their 
+trust will go?) 
+
+I haven't been able to relocate the url I was at or reproduce it without
+simply crashing, but with NetScape 2.0b4 on Windows, I opened a url that 
+tried to embed a plug-in that I didn't have, and NetScape went off to 
+some CGI script at netscape.com, which reported that something bad had
+happened on the server. Is this the beginning of a centralized plug-in
+detection and distribution mechanism? Forgive me if this whole incident
+was just a bad dream, but it's beginning to look pretty scarry: 
+NetScape Navigator reporting back to the mother ship who's viewing what
+file of what mime-type from where without which plug-in installed.
+
+Are NetScape plug-in developers going to be asked to register their 
+plug-ins with a central authority, or port them to all platforms that
+NetScape supports? Adobe doesn't impose such constraints on Photoshop 
+plug-in developers. Will people be able to reconfigure their browsers 
+to automatically download plug-ins from some other server than netscape.com? 
+Will this scheme scale up with the proliferation of special-purpose mime 
+types, or plug-in applets rather than mime viewers? What happens when 
+two plug-in developers want to use the same three letter file extension, 
+or when all the good three letter extensions are used up? Is all this 
+just an elaborate excuse not to put a tag into html so it's possible 
+to write a web page that can tell if the browser can embed a particular 
+mime type, and substitute an alternative instead? Anyway...
+
+Need a callback from the plug-in to NetScape that lets NetScape handle
+events and ongoing file transfers, so if the plug-in needs to put up a 
+modal dialog, or do something that takes a long time, it can give time 
+slices back to NetScape so at least it does not freeze all network and 
+formatting activity. All NetScape modal dialogs should be so polite. It
+should never freeze when you're holding down the mouse on a menu or 
+button. The current NP_HandleEvent interface (which does not report
+mouse move and up events) tempts people into using the horrible mac
+input tracking technique of a subroutine that gobbles all motion
+and only returns on mouse up. This should be *highly* discouraged. 
+
+Need a way for a plug-in viewer to request a certain size from the
+formatter, in case it knows how big it wants to be. Need to be able
+to do this after reading enough of the stream, like the jpeg viewer,
+blocking the formatter until the size is known. Also it would be nice
+to be able to change to a new size and reformat the page around them
+whenever they need to (not often, hopefully). For example, quicktime
+movies can change size in the middle of the movie, or a viewer might 
+implement a user-selectable zoom feature. It would be great if the
+formatter was optimized to handle size changes of plug-ins quickly
+and efficiently, by scrolling the image on the screen, so you could
+implement an outliner plug-in that changed height when you opened and
+closed the outline, and the screen would efficiently update without
+blinking, fast enough that it was pleasant to use. 
+
+** NP_OpenURL
+
+What does it mean for the third window arg to be NULL? 
+It just crashes on me when I do that. What other strings
+besides window names and "_current" can I pass? Why the
+bizarre string with underscore convention?
+
+If I give it a URL to open with window "_current", the url is not
+interpreted relative to the current window's URL, like I would expect 
+it to be. It's interpreted as an absolute url, instead. How can I 
+relativize a URL to the current window? Or at least know the URL of 
+the current window, and relativize it myself. 
+
+Sometimes my draw routine is being called with the wrong graphics 
+translation, so it draws in the upper left corner instead of where 
+it's supposed to. This happens when I do an N_OpenURL from the mouse
+down event handler, and update is called while it's thinking. 
+
+How do I get a stream back from opening a URL? 
+The doc is vague on this. It says a new stream will be created,
+but how do I get a handle on that stream? 
+Will my NP_NewStream handler be called some time later on? 
+Will I be notified in the case of failure?
+Can I decide to time out and cancel the OpenURL? 
+When NP_NewStream is eventually called, how can I find out which
+of my OpenURL requests the stream it's passing me corresponds to
+(or if it was from the original <embed src=XXX> invocation of the
+plug-in)? What do I have to do, string compare the URL of the stream 
+I get in NP_NewStream with the URL I passed to NP_OpenURL? 
+
+If, when I call OpenURL, I have some internal state that I want to
+pick up again when the stream is opened, I don't want to store that
+state in a global, since I might be opening several URLs at once, 
+I need a way to associate the state I have during NP_OpenURL (i.e.
+why it was I wanted to open this url, and what I'm going to do
+with it once I get it) with the stream that eventually gets opened. 
+So it would be nice to have a "(void *)clientData" that I pass into
+NP_OpenURL, that's passed back to me in NP_NewStream, so I can pick 
+up where I left off, without having to do some hokey string lookup 
+table to map pending urls to state. 
+
+** NP_Status
+
+This needs to be called in just the right graphics context. 
+If I've called "StartDraw", then the text string is drawn in the wrong
+place, translated to where my plug-in is drawing. NP_Status should 
+probably take pains to save the graphics context, set up the right
+one, and restore it. 
+
+** npupp.h
+
+Bad definitions. Untested code cut-and-paste errors. 
+Here are the fixed definitions:
+
+#define CallNPN_MemAllocProc(FUNC, ARG1)		\
+		(void *)CallUniversalProc((UniversalProcPtr)(FUNC), uppNPN_MemAllocProcInfo, (ARG1))	
+
+#define CallNPN_MemFlushProc(FUNC, ARG1)		\
+		(uint32)CallUniversalProc((UniversalProcPtr)(FUNC), uppNPN_MemFlushProcInfo, ARG1)	
+
+* Documentation and Demos
+
+The documentation and demos are terrible. 
+NetScape needs to provide much better plug-in demos -- not to impress
+people, but rather to subject themselves to the same plug-in development 
+process that they're putting developers through. 
+
+* Architecture
+
+Some of the call-ins have the same names as call-outs, and different
+arguments, even: NP_Write, NP_NewStream, NP_DestroyStream. 
+For example, the arguments of NP_Write are different, depending on if
+it's NetScape calling the plug-in, or the plug-in calling NetScape:
+
+Netscape calls plug-in:
+  NP_Write(NPP instance, NPStream *stream, int32 offset, int32 len, void *buf);
+    Writes len bytes of data in buf to the stream. Offset is the logical 
+    position of buff in an idealized file URL. 
+
+Plug-in calls netscape:
+  NP_Write(NPP instance, NPStream *stream, int32 len, void *buffer);
+    Writes len bytes of data in buf to the Netscape stream.
+
+This is a major design flaw, that shows how little the plug-in interface
+has been thought out and tested. 
+
+The plug-in interface is totally mime viewer oriented, which is very
+limiting, and too narrowly focused. There's no way to do background 
+plug-ins (even though the documentation claims they're supported, 
+there's no way to express them through the api), protocol handlers
+(like you can already do through the Spyglass Browser Remote Control
+interface, but only in another process), or embeded plug-ins that 
+aren't viewing a file (like a QuickCam viewer plug-in that doesn't need
+to read a file since it gets its input from hardware, or my cellular 
+automata plug-in which can be configured from the html embed properties,
+and generates animation algorythmically). 
+
+I hope NetScape can come up with a plug-in interface that is good enough 
+that they can implement their own navigator components with it (like the 
+mail reader, outliner, progressive jpeg viewer, etc). The only way it's
+going to go anywhere is if they work closely with developers, and use the
+plug-in interface for non-trivial things themselves. Microsoft already has 
+a VRML plug-in for their navigator, so presumably they have a plug-in 
+interface, and from what I've seen on their web site, it may not be 
+"good enough", but it's probably going to do a lot more that you can do
+with NetScape right now, since they're exposing a lot of their navigator's 
+functionality through OLE. They seem to understand that there's a much 
+bigger picture, and that the problems aren't trivial. Java isn't going 
+to magically solve all those problems, folks. 
+
+	-Don

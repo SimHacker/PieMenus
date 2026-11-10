@@ -1,0 +1,2262 @@
+%!
+%%Pages: (atend)
+%%DocumentFonts: (atend)
+%%EndComments
+%
+% Frame Maker PostScript Prolog 1.2, for use with Maker 1.2
+% Copyright (c) 1986,87 by Frame Technology, Inc.  All rights reserved.
+%
+% Known Problems:
+%	Due to bugs in Transcript, the 'PS-Adobe-' is omitted from line 1
+/FMversion (1.2) def 
+/FrameDict 120 dict def 
+% The readline in 23.0 doesn't recognize cr's as nl's on AppleTalk
+FrameDict /tmprangecheck errordict /rangecheck get put 
+errordict /rangecheck {FrameDict /bug true put} put 
+FrameDict /bug false put 
+mark 
+% Some PS machines read past the CR, so keep the following 3 lines together!
+currentfile 5 string readline
+00
+0000000000
+cleartomark 
+errordict /rangecheck FrameDict /tmprangecheck get put 
+FrameDict /bug get { 
+	/readline {
+		/gstring exch def
+		/gfile exch def
+		/gindex 0 def
+		{
+			gfile read pop 
+			dup 10 eq {exit} if 
+			dup 13 eq {exit} if 
+			gstring exch gindex exch put 
+			/gindex gindex 1 add def 
+		} loop
+		pop 
+		gstring 0 gindex getinterval true 
+		} def
+	} if
+/FMVERSION {
+	FMversion ne {
+		/Times-Roman findfont 18 scalefont setfont
+		100 100 moveto
+		(Maker version does not match postscript_prolog!)
+		dup =
+		show showpage
+		} if
+	} def 
+/FMLOCAL {
+	FrameDict begin
+	0 def 
+	end 
+	} def 
+	/landscape FMLOCAL
+	/docheight FMLOCAL
+	/docwidth FMLOCAL
+	/yscale FMLOCAL
+	/xscale FMLOCAL
+	/orgxfer FMLOCAL
+	/orgproc FMLOCAL
+	/organgle FMLOCAL
+	/orgfreq FMLOCAL
+/FMDOCUMENT {
+	array /FMfonts exch def
+	/#copies exch def
+	FrameDict begin
+	0 ne /landscape exch def 
+	/docheight exch def
+	/docwidth exch def
+	/yscale exch def
+	/xscale exch def
+	currenttransfer cvlit /orgxfer exch def
+	currentscreen cvlit /orgproc exch def
+		/organgle exch def /orgfreq exch def
+	end 
+	} def 
+	/pagesave FMLOCAL
+	/orgmatrix FMLOCAL
+/FMBEGINPAGE {
+	FrameDict begin 
+	/pagesave save def
+	
+	2 setlinecap
+	xscale yscale scale
+	landscape {
+		90 rotate
+		0 docheight neg translate
+		} if
+	/orgmatrix matrix def
+	gsave 
+	} def 
+/FMENDPAGE {
+	grestore 
+	pagesave restore
+	end 
+	showpage
+	} def 
+	/fontname FMLOCAL
+	/fontscale FMLOCAL
+	/fontnum FMLOCAL
+	/fontdict FMLOCAL
+/FMDEFINEFONT {
+	FrameDict begin
+	/fontname exch def
+	/fontscale exch def
+	/fontnum exch def
+	/fontdict fontname findfont fontscale scalefont def
+	fontdict /Encoding get StandardEncoding eq
+	{
+		fontdict DiacriticEncode 
+		/fontdict exch def
+	} {
+		fontdict NonDiacriticEncode
+		/fontdict exch def
+	} ifelse
+	FMfonts fontnum
+		fontnum fontdict definefont
+	put
+	end 
+	} def 
+/FMLINEWIDTHS { 
+	FrameDict begin
+	dup array /FMlinewidths exch def 
+	1 sub -1 0 {exch FMlinewidths 3 1 roll lnormalize put} for
+	end 
+	} def 
+/FMBEGINEPSF {
+	end 
+	/FMEPSF save def
+	/showpage {} def 
+	[/fy /fx /fh /fw /ury /urx /lly /llx] {exch def} forall 
+	fx fy translate 
+	fw urx llx sub div fh ury lly sub div scale 
+	llx neg lly neg translate 
+	} bind def
+ 
+/FMENDEPSF {
+	FMEPSF restore
+	FrameDict begin 
+	} bind def
+ 
+FrameDict begin 
+/savematrix {
+	orgmatrix currentmatrix pop
+	} bind def
+/restorematrix {
+	orgmatrix setmatrix
+	} bind def
+/dmatrix matrix def
+/dpi	72 0 dmatrix defaultmatrix dtransform
+	dup mul exch   dup mul add   sqrt
+def
+/max	{2 copy lt {exch} if pop} bind def
+/min	{2 copy gt {exch} if pop} bind def
+/DiacriticEncoding [
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /space /exclam /quotedbl
+/numbersign /dollar /percent /ampersand /quotesingle /parenleft
+/parenright /asterisk /plus /comma /hyphen /period /slash /zero /one
+/two /three /four /five /six /seven /eight /nine /colon /semicolon
+/less /equal /greater /question /at /A /B /C /D /E /F /G /H /I /J /K
+/L /M /N /O /P /Q /R /S /T /U /V /W /X /Y /Z /bracketleft /backslash
+/bracketright /asciicircum /underscore /grave /a /b /c /d /e /f /g /h
+/i /j /k /l /m /n /o /p /q /r /s /t /u /v /w /x /y /z /braceleft /bar
+/braceright /asciitilde /.notdef /Adieresis /Aring /Ccedilla /Eacute
+/Ntilde /Odieresis /Udieresis /aacute /agrave /acircumflex /adieresis
+/atilde /aring /ccedilla /eacute /egrave /ecircumflex /edieresis
+/iacute /igrave /icircumflex /idieresis /ntilde /oacute /ograve
+/ocircumflex /odieresis /otilde /uacute /ugrave /ucircumflex
+/udieresis /dagger /.notdef /cent /sterling /section /bullet
+/paragraph /germandbls /registered /copyright /trademark /acute
+/dieresis /.notdef /AE /Oslash /.notdef /.notdef /.notdef /.notdef
+/yen /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/ordfeminine /ordmasculine /.notdef /ae /oslash /questiondown
+/exclamdown /logicalnot /.notdef /florin /.notdef /.notdef
+/guillemotleft /guillemotright /ellipsis /.notdef /Agrave /Atilde
+/Otilde /OE /oe /endash /emdash /quotedblleft /quotedblright
+/quoteleft /quoteright /.notdef /.notdef /ydieresis /Ydieresis
+/fraction /currency /guilsinglleft /guilsinglright /fi /fl /daggerdbl
+/periodcentered /quotesinglbase /quotedblbase /perthousand
+/Acircumflex /Ecircumflex /Aacute /Edieresis /Egrave /Iacute
+/Icircumflex /Idieresis /Igrave /Oacute /Ocircumflex /.notdef /Ograve
+/Uacute /Ucircumflex /Ugrave /dotlessi /circumflex /tilde /macron
+/breve /dotaccent /ring /cedilla /hungarumlaut /ogonek /caron
+] def
+	/basefontdict FMLOCAL
+	/newfontdict FMLOCAL
+/DiacriticEncode {
+	/basefontdict exch def
+	/newfontdict basefontdict maxlength dict def
+	basefontdict
+	{exch dup /FID ne
+		{dup /Encoding eq
+			{exch pop DiacriticEncoding}
+			{exch}
+			ifelse
+			newfontdict 3 1 roll put
+			}
+		{pop pop}
+		ifelse
+		} forall
+	newfontdict
+	} bind def
+/NonDiacriticEncode {
+	/basefontdict exch def
+	/newfontdict basefontdict maxlength dict def
+	basefontdict
+	{exch dup /FID ne
+		{exch newfontdict 3 1 roll put}
+		{pop pop}
+		ifelse
+		} forall
+	newfontdict
+	} bind def
+	/freq FMLOCAL
+	/bwidth FMLOCAL
+	/bpside FMLOCAL
+	/bstring FMLOCAL
+	/onbits FMLOCAL
+	/offbits FMLOCAL
+	/xindex FMLOCAL
+	/yindex FMLOCAL
+	/x FMLOCAL
+	/y FMLOCAL
+/setpattern {
+	 /freq    exch def
+	 /bwidth  exch def
+	 /bpside  exch def
+	 /bstring exch def
+	 /onbits 0 def  /offbits 0 def
+	 freq 0 {/y exch def
+		 /x exch def
+		 /xindex x 1 add 2 div bpside mul cvi def
+		 /yindex y 1 add 2 div bpside mul cvi def
+		 bstring yindex bwidth mul xindex 8 idiv add get
+		 1 7 xindex 8 mod sub bitshift and 0 ne
+		 {/onbits  onbits  1 add def 1}
+		 {/offbits offbits 1 add def 0}
+		 ifelse
+		}
+		setscreen
+	 {} settransfer
+	 offbits offbits onbits add div setgray
+	} bind def
+/grayness {
+	setgray
+	orgxfer cvx settransfer
+	orgfreq organgle orgproc cvx setscreen
+	} bind def
+/normalize {
+	transform cvi exch cvi exch itransform
+	} bind def
+/dnormalize {
+	dtransform cvi exch cvi exch idtransform
+	} bind def
+/lnormalize { 
+	0 dtransform exch cvi 2 idiv 2 mul 1 add exch idtransform pop
+	} bind def
+/fillprocs
+	[{0.00 grayness}
+	 {0.10 grayness}
+	 {0.30 grayness}
+	 {0.50 grayness} 
+	 {0.70 grayness}
+	 {0.90 grayness}
+	 {0.97 grayness} 
+	 {1.00 grayness} 
+	 {<0F1E3C78F0E1C387> 8 1 dpi 16 div setpattern} 
+	 {<0F87C3E1F0783C1E> 8 1 dpi 16 div setpattern} 
+	 {<CCCCCCCCCCCCCCCC> 8 1 dpi 16 div setpattern} 
+	 {<FFFF0000FFFF0000> 8 1 dpi 16 div setpattern} 
+	 {<8142241818244281> 8 1 dpi 16 div setpattern} 
+	 {<03060C183060C081> 8 1 dpi 16 div setpattern} 
+	 {<8040201008040201> 8 1 dpi 16 div setpattern} 
+	 {}
+	 {1.00 grayness}
+	 {0.90 grayness}
+	 {0.70 grayness}
+	 {0.50 grayness} 
+	 {0.30 grayness}
+	 {0.10 grayness}
+	 {0.03 grayness} 
+	 {0.00 grayness} 
+	 {<F0E1C3870F1E3C78> 8 1 dpi 16 div setpattern} 
+	 {<F0783C1E0F87C3E1> 8 1 dpi 16 div setpattern} 
+	 {<3333333333333333> 8 1 dpi 16 div setpattern} 
+	 {<0000FFFF0000FFFF> 8 1 dpi 16 div setpattern} 
+	 {<7EBDDBE7E7DBBD7E> 8 1 dpi 16 div setpattern} 
+	 {<FCF9F3E7CF9F3F7E> 8 1 dpi 16 div setpattern} 
+	 {<7FBFDFEFF7FBFDFE> 8 1 dpi 16 div setpattern} 
+	 {}
+	] def
+/H { 
+	FMlinewidths exch get setlinewidth
+	} bind def
+/X { 
+	fillprocs exch get exec
+	} bind def
+/V { 
+	gsave eofill grestore
+	} bind def
+/N { 
+	gsave stroke grestore 
+	} bind def
+/M {newpath moveto} bind def
+/E {lineto} bind def
+/D {curveto} bind def
+/O {closepath} bind def
+	/n FMLOCAL
+/L { 
+ 	/n exch def
+	newpath
+	normalize
+	moveto 
+	2 1 n {pop normalize lineto} for
+	} bind def
+/Y { 
+	L 
+	closepath
+	} bind def
+/K { 
+ 	/n exch def
+	newpath
+	moveto 
+	3 1 n {pop curveto} for
+	} bind def
+/J { 
+ 	/n exch def
+	newpath
+	moveto 
+	1 1 n {pop curveto} for
+	} bind def
+	/x1 FMLOCAL
+	/x2 FMLOCAL
+	/y1 FMLOCAL
+	/y2 FMLOCAL
+/R { 
+	/y2 exch def
+	/x2 exch def
+	/y1 exch def
+	/x1 exch def
+	x1 y1
+	x2 y1
+	x2 y2
+	x1 y2
+	4 Y 
+	} bind def
+/C { 
+	grestore
+	gsave
+	R 
+	clip
+	} bind def
+/U { 
+	grestore
+	gsave
+	} bind def
+/F { 
+	FMfonts exch get
+	setfont
+	} bind def
+/T { 
+	moveto show
+	} bind def
+/P { 
+	moveto
+	0 32 3 2 roll widthshow
+	} bind def
+/S { 
+	moveto
+	0 exch ashow
+	} bind def
+/B { 
+	moveto
+	0 32 4 2 roll 0 exch awidthshow
+	} bind def
+/Q { 
+	moveto
+	gsave show grestore
+	} bind def
+	/x FMLOCAL
+	/y FMLOCAL
+	/dx FMLOCAL
+	/dy FMLOCAL
+	/dl FMLOCAL
+	/t FMLOCAL
+	/t2 FMLOCAL
+	/Cos FMLOCAL
+	/Sin FMLOCAL
+	/r FMLOCAL
+/W { 
+	dnormalize
+	/dy exch def
+	/dx exch def
+	normalize
+	/y  exch def
+	/x  exch def
+	/dl dx dx mul dy dy mul add sqrt def
+	dl 0.0 gt {
+		/t currentlinewidth def
+		savematrix
+		/Cos dx dl div def
+		/Sin dy dl div def
+		/r [Cos Sin Sin neg Cos 0.0 0.0] def
+		/t2 t 2.5 mul 3.5 max def
+		newpath
+		x y translate
+		r concat
+		0.0 0.0 moveto
+		dl t 2.7 mul sub 0.0 rlineto
+		stroke
+		restorematrix
+		x dx add y dy add translate
+		r concat
+		t 0.67 mul setlinewidth
+		t 1.61 mul neg  0.0 translate
+		0.0 0.0 moveto
+		t2 1.7 mul neg  t2 2.0 div     moveto
+		0.0 0.0 lineto
+		t2 1.7 mul neg  t2 2.0 div neg lineto
+		stroke
+		t setlinewidth
+		restorematrix
+		} if
+	} bind def
+/G { 
+	gsave
+	newpath
+	normalize translate 0.0 0.0 moveto 
+	dnormalize scale 
+	0.0 0.0 1.0 5 3 roll arc 
+	closepath eofill
+	grestore
+	} bind def
+	/x FMLOCAL
+	/y FMLOCAL
+	/w FMLOCAL
+	/h FMLOCAL
+	/xx FMLOCAL
+	/yy FMLOCAL
+	/ww FMLOCAL
+	/hh FMLOCAL
+/A { 
+	/y exch def
+	/x exch def
+	/h exch def
+	/w exch def
+	x y normalize /yy exch def /xx exch def
+	w h dnormalize /hh exch def /ww exch def
+	ww abs hh abs xx ww add yy hh sub
+	gsave
+	savematrix
+	newpath
+	translate
+	scale
+	0.0 0.0 1.0 5 3 roll arc
+	0 setlinecap
+	restorematrix
+	stroke
+	grestore
+	} bind def
+	/FMsaveobject FMLOCAL
+	/FMoptop FMLOCAL
+	/FMdicttop FMLOCAL
+/BEGINPRINTCODE {
+	/FMdicttop countdictstack 1 add def 
+	/FMoptop count 6 sub def 
+	/FMsaveobject save def
+	userdict begin 
+	/showpage {} def 
+	newpath
+	translate
+	0.0 0.0 moveto
+	} bind def
+/ENDPRINTCODE {
+	count -1 FMoptop {pop pop} for 
+	countdictstack -1 FMdicttop {pop end} for 
+	FMsaveobject restore 
+	} bind def
+/gn { 
+	0 
+	{	46 mul 
+		cf read pop 
+		32 sub 
+		dup 46 lt {exit} if 
+		46 sub add 
+		} loop
+	add 
+	} bind def
+	/str FMLOCAL
+/cfs { 
+	/str sl string def 
+	0 1 sl 1 sub {str exch val put} for 
+	str def 
+	} bind def
+/ic [ 
+	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0223
+	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0223
+	0
+	{0 hx} {1 hx} {2 hx} {3 hx} {4 hx} {5 hx} {6 hx} {7 hx} {8 hx} {9 hx}
+	{10 hx} {11 hx} {12 hx} {13 hx} {14 hx} {15 hx} {16 hx} {17 hx} {18 hx}
+	{19 hx} {gn hx} {0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12}
+	{13} {14} {15} {16} {17} {18} {19} {gn} {0 wh} {1 wh} {2 wh} {3 wh}
+	{4 wh} {5 wh} {6 wh} {7 wh} {8 wh} {9 wh} {10 wh} {11 wh} {12 wh}
+	{13 wh} {14 wh} {gn wh} {0 bl} {1 bl} {2 bl} {3 bl} {4 bl} {5 bl} {6 bl}
+	{7 bl} {8 bl} {9 bl} {10 bl} {11 bl} {12 bl} {13 bl} {14 bl} {gn bl}
+	{0 fl} {1 fl} {2 fl} {3 fl} {4 fl} {5 fl} {6 fl} {7 fl} {8 fl} {9 fl}
+	{10 fl} {11 fl} {12 fl} {13 fl} {14 fl} {gn fl}
+	] def
+	/sl FMLOCAL
+	/val FMLOCAL
+	/ws FMLOCAL
+	/im FMLOCAL
+	/bs FMLOCAL
+	/cs FMLOCAL
+	/len FMLOCAL
+	/pos FMLOCAL
+/ms { 
+	/sl exch def 
+	/val 255 def 
+	/ws cfs 
+	/im cfs 
+	/val 0 def 
+	/bs cfs 
+	/cs cfs 
+	} bind def
+400 ms 
+/ip { 
+	is 
+	0 
+	cf cs readline pop 
+	{	ic exch get exec 
+		add 
+		} forall 
+	pop 
+	
+	} bind def
+/wh { 
+	/len exch def 
+	/pos exch def 
+	ws 0 len getinterval im pos len getinterval copy pop
+	pos len 
+	} bind def
+/bl { 
+	/len exch def 
+	/pos exch def 
+	bs 0 len getinterval im pos len getinterval copy pop
+	pos len 
+	} bind def
+/s1 1 string def
+/fl { 
+	/len exch def 
+	/pos exch def 
+	/val cf s1 readhexstring pop 0 get def
+	pos 1 pos len add 1 sub {im exch val put} for
+	pos len 
+	} bind def
+/hx { 
+	3 copy getinterval 
+	cf exch readhexstring pop pop 
+	} bind def
+	/h FMLOCAL
+	/w FMLOCAL
+	/lb FMLOCAL
+	/bitmapsave FMLOCAL
+	/is FMLOCAL
+	/cf FMLOCAL
+/BEGINBITMAP { 
+	gsave
+	translate scale /h exch def /w exch def
+	/lb w 7 add 8 idiv def 
+	sl lb lt {lb ms} if 
+	/bitmapsave save def 
+	/is im 0 lb getinterval def 
+	ws 0 lb getinterval is copy pop 
+	/cf currentfile def 
+	w h 1 [w 0 0 h neg 0 h] 
+	{ip} image 
+	bitmapsave restore 
+	grestore
+	} bind def
+/ENDBITMAP {
+	} bind def
+end 
+%%EndProlog
+%%BeginSetup
+(1.2) FMVERSION
+1. 1. 594. 840. 0 1 9 FMDOCUMENT
+0 12. /Times-Roman  FMDEFINEFONT
+1 12. /Times-Bold  FMDEFINEFONT
+2 10. /Times-Roman  FMDEFINEFONT
+3 12. /Times-Italic  FMDEFINEFONT
+4 9. /Times-Roman  FMDEFINEFONT
+5 10. /Times-Bold  FMDEFINEFONT
+6 14. /Times-Bold  FMDEFINEFONT
+7 12. /Symbol  FMDEFINEFONT
+8 14. /Times-Roman  FMDEFINEFONT
+0.5 1. 3. 4. 4 FMLINEWIDTHS
+%%EndSetup
+%%Page: "5" 5
+FMBEGINPAGE
+0 F
+0 X
+(5) 516. 36. T
+1 F
+(References) 72. 759. T
+0 F
+([Adobe85a]) 72. 736. T
+3.68 (Adobe Systems, Inc., PostScript Language Reference Manual, Adobe) 162. 736. P
+(Systems, Inc., Addison-Wesley, 1985 ) 162. 723. T
+([Adobe85b]) 72. 700. T
+5.29 (Adobe Systems, Inc., PostScript Language Tutorial and Cookbook,) 162. 700. P
+(Adobe Systems, Inc., Addison-Wesley, 1985 ) 162. 687. T
+([Barstow84]) 72. 664. T
+2.08 (Barstow, D. R., Shrobe, H. E., Sandewall, E., Interactive Programming) 162. 664. P
+(Environments, McGraw-Hill, 1984) 162. 651. T
+([Goldberg83]) 72. 628. T
+7.34 (Goldberg, A., Robson, D., Smalltalk-80: The Language and its) 162. 628. P
+(Implementation, Addison-Wesley, May 1983 ) 162. 615. T
+([Gosling89]) 72. 592. T
+1.61 (Gosling, J., Rosenthal, D. S. H., Arden, M., The NeWS Book, Springer) 162. 592. P
+(Verlag, 1989 ) 162. 579. T
+([M2CS89]) 72. 556. T
+3.93 (\257deg\214rd, F. L., PEM - A Programming Environment for Modula-2,) 162. 556. P
+(Modula-2 CASE Systems A.S, 1989 ) 162. 543. T
+([Scheifler86]) 72. 520. T
+1.47 (Scheifler, R. W., Gettys, J., The X Window System. ACM Transactions) 162. 520. P
+(on Graphics, 5\0502\051, April 1986 ) 162. 507. T
+([Sun87a]) 72. 484. T
+3.59 (Sun Microsystems, Inc., NeWS 1.1 Manual, Sun Microsystems, Inc.,) 162. 484. P
+(PN 800-2146-10, 1987 ) 162. 471. T
+([Sun87b]) 72. 448. T
+13.9 (Sun Microsystems, Inc., NeWS Technical Overview, Sun) 162. 448. P
+(Microsystems, Inc., PN 800-1498-05, 1987 ) 162. 435. T
+([Wirth88]) 72. 412. T
+1.38 (Wirth, N., Programming in Modula-2, 4th edition, Springer-Verlag, July) 163. 412. P
+(1988) 162. 399. T
+2 F
+2.53 (Sun Workstations, NeWS are registered trademarks of Sun Microsystems, Inc. PostScript is a registered) 73. 122. P
+2.43 (trademark of Adobe Systems, Inc. Smalltalk is a registered trademark of ParcPlace Systems, Inc. Interl-) 73. 110. P
+2.11 (isp-D is a  registered trademark of Xerox Corporation. Our thanks to Don Hopkins, Stan Switzer, Bruce) 73. 98. P
+(V. Schwartz and many others for posting valuable NeWS utilities on USENET.) 73. 86. T
+FMENDPAGE
+%%Page: "4" 4
+FMBEGINPAGE
+0 F
+0 X
+(4) 516. 36. T
+3 F
+10.18 (EventListener) 72. 759. P
+0 F
+10.18 ( to have relevant event) 138.66 759. P
+2.21 (information delivered to their own internal) 72. 746. P
+(handler.) 72. 733. T
+3 F
+3.94 (EventListener) 72. 709. P
+0 F
+3.94 ( talks to NeWS via another) 138.66 709. P
+6.76 (module called ) 72. 696. P
+3 F
+6.76 (DisplayServer) 156.17 696. P
+0 F
+6.76 (. A gadget) 224.83 696. P
+5.41 (module uses a direct stream connection) 72. 683. P
+3.51 (obtained from ) 72. 670. P
+3 F
+3.51 (DisplayServer) 149.67 670. P
+0 F
+3.51 ( to download) 218.32 670. P
+3.33 (its PostScript code at startup \050provided it) 72. 657. P
+(isn\325t already resident\051.) 72. 644. T
+72. 66. 288. 768. C
+U
+0 F
+0 X
+3.67 (New tools and modules can use a direct) 72. 444. P
+7.01 (stream connection as an alternative to) 72. 431. P
+6.53 (using existing toolkit modules. This is) 72. 418. P
+5.19 (provided as an option to be used only) 72. 405. P
+1.9 (when reusability must be sacrificed for the) 72. 392. P
+(greatest flexibility.) 72. 379. T
+1 F
+(6. Gadgets) 72. 356. T
+0 F
+5.81 (Gadget modules usually have the same) 72. 333. P
+11.4 (name as the PostScript class they) 72. 320. P
+2.95 (interface to. The module body will verify) 72. 307. P
+6.61 (that the necessary PostScript class has) 72. 294. P
+(been downloaded) 72. 281. T
+7.27 (Most gadget modules will allow their) 72. 258. P
+5.29 (clients to simply await an event as an) 72. 245. P
+14.51 (alternative to installing a handler) 72. 232. P
+(procedure for simple events.) 72. 219. T
+4.61 (Gadgets are easily added by subclassing) 72. 196. P
+7.83 (existing PostScript classes and writing) 72. 183. P
+8.84 (Modula-2 modules which interface to) 72. 170. P
+(them.) 72. 157. T
+6.61 (More and more high-level gadgets are) 72. 134. P
+2.27 (being written. A ) 72. 121. P
+3 F
+2.27 (ChessBoard) 160.13 121. P
+0 F
+2.27 ( gadget could) 218.8 121. P
+3.84 (look like a new type of stream to PEM) 72. 108. P
+5.81 (programmers; a stream on which chess) 72. 95. P
+4.24 (moves are read and written in a textual) 72. 82. P
+11.14 (manner. Given such a gadget, the) 72. 69. P
+72. 465. 524. 641. C
+72. 465. 524. 641. R
+7 X
+V
+0 F
+0 X
+1.05 (Fig. 3: architecture of the PEM user interface toolkit) 168. 470. P
+127. 634. 120. 637. 114. 639. 108. 639. 108. 633. 102. 631. 96. 633.
+ 96. 627. 92. 623. 90. 617. 90. 611. 84. 607. 86. 601. 88. 595. 82. 589.
+ 80. 583. 82. 577. 88. 575. 80. 567. 82. 559. 86. 555. 92. 551. 98. 551.
+ 108. 553. 114. 555. 120. 549. 130. 545. 128. 553. 128. 561. 134. 567. 140. 569.
+ 144. 575. 146. 583. 150. 591. 154. 597. 152. 603. 146. 607. 144. 617. 142. 623.
+ 136. 625. 132. 629. 127. 634. 42 L
+1 H
+4 X
+N
+4 F
+0 X
+(downloaded) 94. 619. T
+(PostScript) 94. 610. T
+(classes) 94. 601. T
+(\050Window,) 94. 591. T
+-0.13 (  Button,) 94. 582. P
+-0.5 (  Scrollbar... ) 94. 573. P
+85. 544. 87. 535. 91. 531. 102. 525. 110. 525. 116. 525. 127. 525.
+ 133. 527. 139. 529. 147. 533. 158. 535. 164. 537. 168. 533. 170. 527. 172. 517.
+ 172. 509. 170. 503. 166. 499. 162. 495. 155. 493. 147. 493. 137. 493. 131. 493.
+ 124. 491. 116. 491. 110. 489. 104. 489. 95. 493. 89. 499. 85. 505. 83. 511.
+ 81. 517. 83. 525. 81. 531. 85. 537. 35 L
+4 X
+N
+0 X
+(NeWS event manager) 88. 513. T
+186. 636. 186. 493. 2 L
+0 H
+11 X
+N
+5 F
+0 X
+(Socket) 175. 620. T
+(Stream) 193. 583. T
+(DisplayServer) 195. 547. T
+(EventListener) 301. 520. T
+(Window) 381. 624. T
+(Button) 453. 548. T
+(Scrollbar) 454. 563. T
+(TextView) 452. 518. T
+(RadioButton) 453. 533. T
+0.58 (      \245) 452. 507. P
+0.58 (      ) 452. 493. P
+0.58 (\245) 470.5 499. P
+0.58 (      ) 452. 483. P
+0.58 (\245) 470.5 491. P
+191. 616. 14. -23. W
+212. 578. 15. -21. W
+232. 543. 61. -21. W
+336. 530. 61. 89. W
+370. 525. 79. 44. W
+371. 524. 77. 29. W
+371. 523. 77. 14. W
+370. 523. 78. -0. W
+402. 619. 47. -51. W
+402. 619. 46. -66. W
+402. 619. 46. -82. W
+402. 620. 46. -97. W
+U
+0 F
+0 X
+5.67 (programmer can easily build a window) 306. 759. P
+9.2 (with a ) 306. 746. P
+3 F
+9.2 (ChessBoard) 357.07 746. P
+0 F
+9.2 ( gadget, a \322quit\323) 415.74 746. P
+2.54 (button, a \322help\323 button, etc. Implementing) 306. 733. P
+6.34 (PEM\325s graphics components as gadgets) 306. 720. P
+10.84 (instead of specialized windows thus) 306. 707. P
+2.24 (results in a higher degree of reusability as) 306. 694. P
+(well as increased flexibility.) 306. 681. T
+1 F
+(7. Implementation Issues) 306. 419. T
+0 F
+2.11 (PEM includes a set of modules supporting) 306. 393. P
+3 F
+2.94 (streams) 306. 380. P
+0 F
+2.94 (. A stream object supports device-) 343.33 380. P
+8.43 (independent I/O operations. There are) 306. 367. P
+3.94 (multiple ) 306. 354. P
+3 F
+3.94 (driver modules) 352.95 354. P
+0 F
+3.94 ( for streams \050e.g.) 429.21 354. P
+3 F
+4.1 (File) 306. 341. P
+0 F
+4.1 (, ) 325.33 341. P
+3 F
+4.1 (MemoryStream) 335.43 341. P
+0 F
+4.1 (, ) 409.41 341. P
+3 F
+4.1 (Socket) 419.51 341. P
+0 F
+4.1 (\051. The ) 450.83 341. P
+3 F
+4.1 (Socket) 490.68 341. P
+0 F
+9.22 (module is used to obtain a stream) 306. 328. P
+7.74 (connection to the NeWS server. This) 306. 315. P
+5.09 (driver supports asynchronous I/O, which) 306. 302. P
+8.07 (is closely coupled with PEM\325s light-) 306. 289. P
+(weight process library.) 306. 276. T
+6.74 (An ) 306. 250. P
+3 F
+6.74 (EventListener) 330.41 250. P
+0 F
+6.74 ( object executes as a) 397.07 250. P
+8.18 (separate light-weight process which is) 306. 237. P
+5.28 (activated when NeWS sends data. It is) 306. 224. P
+6.59 (possible to start several ) 306. 211. P
+3 F
+6.59 (EventListeners) 447.67 211. P
+0 F
+6.59 (,) 519. 211. P
+2.25 (by default a separate listener is started for) 306. 198. P
+(each display server used.) 306. 185. T
+8.22 (The toolkit allows the user to open) 306. 160. P
+4.68 (windows on several display servers. We) 306. 147. P
+1.89 (are also studying the possibility of moving) 306. 134. P
+6.67 (a window from one display server to) 306. 121. P
+6.17 (another. This would allow the user to) 306. 108. P
+1.89 (move from one workstation to another and) 306. 95. P
+9.5 (have running applications move with) 306. 82. P
+(him/her.) 306. 69. T
+FMENDPAGE
+%%Page: "3" 3
+FMBEGINPAGE
+0 F
+0 X
+(3) 516. 36. T
+10.73 (Starting on the PostScript side we) 72. 759. P
+4.67 (implemented a class ) 72. 746. P
+3 F
+4.67 (EventProducer) 186.34 746. P
+0 F
+4.67 ( with) 258.99 746. P
+9.14 (a method to send event information) 72. 733. P
+19.24 (\050represented in a dynamic-length) 72. 720. P
+6.39 (PostScript array\051 to the client side. A) 72. 707. P
+5.78 (scanner was then written on the client) 72. 694. P
+4.67 (side to read event information from the) 72. 681. P
+(server.) 72. 668. T
+72. 66. 288. 768. C
+U
+0 F
+0 X
+6.68 (An ) 72. 479. P
+3 F
+6.68 (event packet) 96.34 479. P
+0 F
+6.68 ( sent from the server) 162.66 479. P
+3. (consists of a two numbers identifying the) 72. 466. P
+6.92 (PostScript object responsible \050a button,) 72. 453. P
+1.72 (for example\051 and a list of additional items.) 72. 440. P
+5.58 (When the event packet is read on the) 72. 427. P
+5.18 (client side, a handler procedure for the) 72. 414. P
+5. (event is found \050typically in the module) 72. 401. P
+3 F
+(Button) 72. 388. T
+0 F
+( in this example\051 and called.) 104. 388. T
+5.14 (Since the module reading event packets) 72. 364. P
+11.34 (cannot make assumptions about the) 72. 351. P
+4.93 (optional items, the ) 72. 338. P
+3 F
+4.93 (stream connection) 178.81 338. P
+0 F
+4.93 ( is) 272.06 338. P
+2.08 (propagated to the handler procedure which) 72. 325. P
+6.01 (subsequently reads any remaining items) 72. 312. P
+8.34 (in the event packet as well as the) 72. 299. P
+(termination symbol.) 72. 286. T
+5.01 (The handler then determines whether to) 72. 262. P
+4.23 (update data structures and/or call a ) 72. 249. P
+3 F
+4.23 (user) 267.34 249. P
+5. (handler) 72. 236. P
+0 F
+5. ( \050provided by the module which) 109.33 236. P
+(imports from the toolkit\051.) 72. 223. T
+2.73 (To summarize, events can occur on many) 72. 199. P
+(different levels of abstraction:) 72. 186. T
+( \245) 72. 162. T
+4.34 (a primitive mouse or keyboard event) 90. 162. P
+10.51 (which activates the NeWS event) 90. 149. P
+(handling code) 90. 136. T
+( \245) 72. 122. T
+3.45 (a \322mouse clicked in your area\323 event) 90. 122. P
+8.84 (propagated to a higher-level Post-) 90. 109. P
+(Script object \050such as a button\051) 90. 96. T
+( \245) 72. 82. T
+3.45 (an event packet sent to the Modula-2) 90. 82. P
+(side) 89. 69. T
+72. 500. 524. 665. C
+72. 500. 524. 665. R
+7 X
+V
+0 F
+0 X
+0.56 (Fig. 2: different levels of event handling) 198. 503. P
+83. 565. 83. 565. 83. 610. 197. 565. 197. 565. 140. 565. 197. 655. 197. 655. 197. 610. 83. 655. 83. 655. 140. 655. 83. 610. 4 J
+4 X
+V
+1 H
+0 X
+N
+97. 607. 146. 641. R
+7 X
+V
+0 H
+0 X
+N
+97. 633. 146. 641. R
+2 X
+V
+0 X
+N
+130. 585. 179. 619. R
+7 X
+V
+0 X
+N
+130. 611. 179. 619. R
+2 X
+V
+0 X
+N
+104. 627. 138. 627. 2 L
+N
+105. 623. 134. 623. 2 L
+N
+105. 619. 128. 619. 2 L
+N
+110. 615. 127. 615. 2 L
+N
+134. 606. 163. 606. 2 L
+N
+135. 598. 157. 598. 2 L
+N
+142. 601. 171. 601. 2 L
+N
+5 X
+90. 450. 8.5 4. 163.5 592. G
+0 X
+90. 90.1 -8.5 4. 172. 596. A
+90. 180.1 8.5 4. 155. 596. A
+180. 270.1 8.5 -4. 155. 588. A
+270. 0.1 -8.5 -4. 172. 588. A
+0. 90. -8.5 4. 172. 596. A
+7 X
+90. 450. 53.5 20. 142.5 534. G
+0 X
+90. 90.1 -53.5 20. 196. 554. A
+90. 180.1 53.5 20. 89. 554. A
+180. 270.1 53.5 -20. 89. 514. A
+270. 0.1 -53.5 -20. 196. 514. A
+0. 90. -53.5 20. 196. 554. A
+4.69 (NeWS Low-Level) 97. 533. P
+(event) 127. 520. T
+1 H
+164. 592. -11. -39. W
+217. 566. 306. 654. R
+7 X
+V
+0 H
+0 X
+N
+1 F
+2.34 (Button object) 226. 634. P
+0 F
+(message:) 236. 617. T
+1.72 ("the user ) 231. 601. P
+-0.22 (  clicked on) 231. 589. P
+-0.28 (  me!") 231. 577. P
+1 H
+196. 534. 21. 79. W
+385. 625. 514. 653. R
+7 X
+V
+0 H
+0 X
+N
+6 F
+4.05 (NeWS side) 269. 519. P
+1 F
+(EventListener) 411. 635. T
+348. 658. 348. 518. 2 L
+11 X
+N
+1 H
+0 X
+306. 638. 79. -0. W
+386. 579. 514. 606. R
+7 X
+V
+0 H
+0 X
+N
+0.66 (Button module) 412. 588. P
+1 H
+449. 625. 0. -19. W
+7 X
+90. 450. 63.5 14. 449.5 550. G
+0 H
+0 X
+90. 90.1 -63.5 14. 513. 564. A
+90. 180.1 63.5 14. 386. 564. A
+180. 270.1 63.5 -14. 386. 536. A
+270. 0.1 -63.5 -14. 513. 536. A
+0. 90. -63.5 14. 513. 564. A
+(Application) 422. 547. T
+1 H
+449. 579. 0. -15. W
+1.99 (Modula-2 side) 360. 519. P
+315. 632. 375. 642. R
+5 X
+V
+2 F
+0 X
+(\050event packet\051) 315. 635. T
+U
+0 F
+0 X
+( \245) 306. 759. T
+1.19 (a handler in the client module called by) 324. 759. P
+(the ) 324. 746. T
+3 F
+(EventListener) 341.66 746. T
+0 F
+( \245) 306. 733. T
+11.8 (a handler installed by a PEM) 324. 733. P
+5.68 (applications programmer called by a) 324. 720. P
+(gadget module) 324. 707. T
+5.51 (For each level of abstraction, an event) 306. 684. P
+2. (may or may not be propagated to the next) 306. 671. P
+1.88 (level. Given E) 306. 479. P
+1.88 (n) 378.75 474. P
+1.88 ( as the set of events which) 384.75 479. P
+4.23 (may be propagated to a level n+1 from) 306. 461. P
+(level n, we have) 306. 448. T
+1 F
+(card) 360.16 422. T
+0 F
+( E) 383.49 422. T
+(n) 393.82 417. T
+( ) 399.82 422. T
+7 F
+(\263) 402.82 422. T
+1 F
+( card) 409.41 422. T
+0 F
+( E) 435.74 422. T
+(n+1) 446.07 417. T
+(.) 464.84 422. T
+(Since we usually have) 306. 393. T
+1 F
+(card) 361.57 370. T
+0 F
+( E) 384.9 370. T
+(n) 395.23 365. T
+( > ) 401.23 370. T
+1 F
+(card) 414. 370. T
+0 F
+( E) 437.33 370. T
+(n+1) 447.66 365. T
+( ) 466.43 370. T
+(or even ) 306. 342. T
+1 F
+(card) 356.69 319. T
+0 F
+( E) 380.02 319. T
+(n) 390.35 314. T
+( >> ) 396.35 319. T
+1 F
+(card) 415.88 319. T
+0 F
+( E) 439.21 319. T
+(n+1) 449.54 314. T
+(, ) 468.31 319. T
+3.78 (we use the term ) 306. 291. P
+3 F
+3.78 (event projection) 399.78 291. P
+0 F
+3.78 ( instead) 481.22 291. P
+4.67 (of ) 306. 278. P
+3 F
+4.67 (event propagation) 323.66 278. P
+0 F
+4.67 (. The most obvious) 415.99 278. P
+10.74 (example is when a complex event) 306. 265. P
+6.01 (handlers reside on the server side and) 306. 252. P
+(don\325t need to inform the client side at all.) 306. 239. T
+1 F
+(5. General Architecture) 306. 216. T
+0 F
+1.95 (PEM users view the toolkit as a collection) 306. 193. P
+5.8 (of Modula-2 modules for building user) 306. 180. P
+5.88 (interfaces. There is a common window) 306. 167. P
+(module and multiple ) 306. 154. T
+3 F
+(gadget) 408.34 154. T
+0 F
+( modules.) 441. 154. T
+2.76 (A gadget is an item which can be placed) 306. 131. P
+3.6 (inside a window. Gadget modules import) 306. 118. P
+(from the common window module.) 306. 105. T
+9.27 (The window module and all gadget) 306. 82. P
+18.56 (modules register themselves with) 306. 69. P
+FMENDPAGE
+%%Page: "2" 2
+FMBEGINPAGE
+0 F
+0 X
+(2) 516. 36. T
+(browser and a powerful, visual debugger.) 71. 760. T
+9.14 (NeWS clients can also be compiled) 71. 734. P
+4.67 (programs communicating with the server) 71. 721. P
+5.06 (on a suitable level of abstraction. Such) 71. 708. P
+4.51 (clients will typically transfer application-) 71. 695. P
+12.68 (specific PostScript code \050procedures,) 71. 682. P
+5.73 (classes\051 to the server at startup. When) 71. 669. P
+2.43 (the client wants to do a complex graphics) 71. 656. P
+2.95 (operation, it sends PostScript code to call) 71. 643. P
+5.08 (a downloaded procedure. When a client) 71. 630. P
+3.42 (downloads PostScript code, NeWS allows) 71. 617. P
+2.09 (the client to decide whether the code is to) 71. 604. P
+3.28 (be kept for further sessions. This permits) 71. 591. P
+7.84 (reusable components \050such as window) 71. 578. P
+3.38 (classes\051 to be ) 71. 565. P
+3 F
+3.38 (filed in) 148.13 565. P
+0 F
+3.38 ( in a Smalltalk-like) 185.18 565. P
+(manner.) 71. 552. T
+71. 66. 287. 769. C
+U
+0 F
+0 X
+2.81 (PostScript code can handle events locally.) 71. 237. P
+14.68 (For application-specific code, event) 71. 224. P
+3.24 (information can be sent to the client. An) 71. 211. P
+2.62 (example would be a client which opens a) 71. 198. P
+14. (window with two buttons labeled) 71. 185. P
+6.59 (\322Modula\323 and \322Pascal\323. The PostScript) 71. 172. P
+5.14 (code would handle the low-level events) 71. 159. P
+2.34 (like depressing a mouse button and would) 71. 146. P
+3.57 (send the string \322Modula\323 to the client if) 71. 133. P
+4.34 (the corresponding button was clicked on) 71. 120. P
+(by the user.) 71. 107. T
+14.17 (Reusability is easily achieved for) 71. 82. P
+7.76 (PostScript code, since NeWS provides) 71. 69. P
+71. 259. 523. 549. C
+71. 259. 523. 549. R
+7 X
+V
+71. 261. 523. 549. C
+71. 261. 523. 549. R
+7 X
+V
+0 F
+0 X
+2.13 (Fig. 1: a sample NeWS/PEM session) 203. 266. P
+71. 259. 523. 549. C
+U
+0 F
+0 X
+18.35 (object-oriented extensions. However,) 306. 759. P
+10.2 (dealing with events in a consistent) 306. 746. P
+2.78 (manner is almost impossible on the client) 306. 733. P
+15.27 (side without a set of reusable) 306. 720. P
+3.61 (components. If events are not propagated) 306. 707. P
+7.61 (to the client in a consistent manner,) 306. 694. P
+3.67 (reusability on the PostScript side will be) 306. 681. P
+(limited in large projects.) 306. 668. T
+1 F
+(4. Event Projection) 306. 643. T
+0 F
+3.39 (When designing the toolkit, the first step) 306. 618. P
+8.07 (was finding a flexible and consistent) 306. 605. P
+8.14 (scheme for event handling. We soon) 306. 592. P
+5.67 (realized that there would be events on) 306. 579. P
+13.09 (different levels of abstraction. For) 306. 566. P
+3.73 (example, a PostScript button class would) 306. 553. P
+3.76 (want to tell the client about each button) 306. 239. P
+3.84 (click, while an icon editor could operate) 306. 224. P
+1.67 (entirely on the server side and only inform) 306. 209. P
+3.96 (the client when the user wanted to save) 306. 195. P
+6.56 (the bitmap \050after having clicked on a) 306. 181. P
+6.74 (button\051. Furthermore, it was clear that) 306. 167. P
+15.34 (different amounts \050and types\051 of) 306. 153. P
+1.41 (information would be supplied for different) 306. 139. P
+5.62 (types of events. For the icon editor it) 306. 125. P
+6.34 (would be desirable to send the whole) 306. 111. P
+4.42 (bitmap to the client side as part of the) 306. 97. P
+2.45 (event information when the user clicks on) 306. 83. P
+(the \322save\323 button.) 306. 69. T
+70. 285. 522. 540. R
+7 X
+V
+0 X
+1152 900 340. 266. 127. 280. 
+
+%%BeginBinary:  64142    
+BEGINBITMAP
+z
+Q&AAz
+Q&55z
+Q&AAz
+Q&55z
+Q&AAz
+Q&55z
+Q&AAz
+Q&55z
+Q&AAz
+Q&55z
+Q&AA$j"z
+555540P'15I55%Z"z
+AAAAAF07P&CAIAA%J"z
+55554E03P&D5I55&J'8"J"z
+AAAAACF97FICE38888BE29F07O!CAIAA%J'8"J"z
+555549FCJEF7DDD77DDDFBBO!D5I55$J$J"z
+AAAAA3M9B77BDO%CAIAA%J.J"z
+55554BF8JD6CD9BBFBFB9463F7273368CD3KD5I55&J-J"z
+AAAAAFFFFFJB557DF7FB6B5BF05EDB66B6FKCAIAA$J.J"z
+55554FKDA6D57EF7FAEDEFF79DDB5B6EFKD5I55%J$8)J"z
+AAAAA0FEJB91CCE6DEF7EFBDDA5D1DFKCAIAA&J#8*J#j
+555541FE7FIBD74774D35BEF3DB93675FKD550H&J.J#Z
+AAAAA1FCFFI1D8DDD1F8FB28C7C0BE7B718DFKCAABH%JXJ#
+555544F9JKD553%J'
+AAAAAE03P&CAABFFF80007%J'
+55554F07P&D553FFFBFFF7$j'j"8'g
+AAAAA0P'0AAA001BFFF6/7F8FFFF1FFC0FF$J'Z(X
+555540P'1553FFFBFFF70BFFFCFFFF9FFE4$Z$Z$Z$Z)j#=g
+AAAAA76F7EFE76F7EFE76F7EFE76F7EFCAAA001BFFF6/7F3F$J"J"J"J(Z(8W
+5555477D78D78D78D7D553FFFBFFF7/FE10E1CC3E1838$J"J"J"J(j*g
+AAAAA77BB8BB8BB8BBCAAA001BFFF6/7F264CC9BCD99664FF$J"J"J"J(Z8%8W
+55554777D87D87D87DD553FFFBFFF70C8FC7986$J#;"G#J#J)j"8%8g
+AAAAA76F6FE01F6FE7F6FE7F6FECAAA001BFFF6/7FCC7E3980$J$:"G$J$J)Z8&X
+5555476F5FF67BDF5FF676F5FF676F5FF5553FFFBFFF70CE3F1987E4$J$8$8"D$J$J)j*g
+AAAAA76F3FFA77FFFBFFEF3FFA76F3FFA76F3FF8AAA001BFFF6/7F064CCB31998364FF%9"G-C&8#F$8"8%9#>)Z)W
+555547FDF8F7FFC7E32618D1BB11C49C3FF7FFC7F0A7E38FF7FFC7EFDFFFF80F1F1FF7FFD553FFFBFFF7090E180703180C07F$:"G-C&8#F$=#9#>)j"Sg
+AAAAA7FDF07E07DD93776783BBBA4EFFF07E07E737F3DFF07E07FDEF9F3FF07E0AAA001BFFF6/7F%:"I)G#8"J&8"8$@'Z>W
+555547FADFC1BB706FBBBB82EEEFB7F55FEFFFFFDFFFFF7AEBF1553FFFBFFF70,D+E-C4<%
+AAAAA7FAF423111D863247F77E67DFBB77EFBFD7BEF77E67DFB78F1C74DC648F8FF77E67E3C40E23181E393DD88E24E1AEBC347FF77E4AAB,J"J)F1>'
+555547F779CE6BBDDDD9135BD5F736DB76D9B22777CD9AEF766DDC9C9C1DDDD277A4B979FF5553FFF80007,G(J(F0?'
+AAAAA7F77BDFCBBDDC1BBBCEBB73AFBDEF9C4E679F65F377707F9BEEF77CDDDDDDDDDDC1777B5BBBB4AABFFFFFFFF%8%H*H(F"8#9$8"@$j
+555547F02D7DDDFBE111984701EFC0473F973CF75CB7777FE5AF2DFEBDF7B9555380G(I#TD)G$8#9"9$>%Z
+AAAAA7EFBBDEED00670067CFB7779E775B0067DDAEEDEEB1BC7B004AABBFG$9%F"J)8"D2>$
+5555476EFDDCEB8088067E77736DB77993B8067CD9CEFDE6DDC9DDDEF7CE777BBBDFB805553,D$J-C3=%
+AAAAA7C7118F14F8E61111F000076F00007F0E38A38E39C422387F00007E2C307DF160E38880F7E02391B1C31F0000AAB,D$J$TC$X#=%
+555547FFFFFFFDFFFFFFFFF7FFF76F2AAA7F7FFF7FBDFF7FFD553$9"J$J#?#
+AAAAA7F5KF7FFF7FF99FCAAB$9"J$J#?#
+555547F3KF2AAA7FFC7FD553$9"J$J#?#
+AAAAA7FFKF7FFF7FFFFFCAAB$J$J#8%
+555547O!F2AAA7O#D553FE07BC7F$J#H$J#8$
+AAAAA7;7F01F7FFF7O#CAABFF77FF$J"H$J#9%
+555547<BDF2AAA7O#D553563F7C7F$J#8"E$J#9%
+AAAAA7;F7BFFEF7FFF7O#CAAB1FBF7BBF%J)D%;&F"8$F#9%
+555547C08E31061BB88C64C3FF2AAA7C7E38FFF80FBEFDFFFF8D5535FBF783F&J)D%;&J"F#9%
+AAAAA7EE7F7DDBB7783DDBB26FFF7FFF7EFF7DFFFEE7B5FDCAAB7FBF7BFF(J(E$8"9(C&9"8"A#<"
+555547EF7FF77F5C1C777BBDD8376F2AAA7F7F39FFFEF7FFF7FFEFFFFFDFFDFFDD553BF)J'F1B/@#8&
+AAAAA7EE666018C94DFEF77BFEBBFF7FFF7EC9E218C9F1C7BBF146FB3C61FE3C40E23181E393D938628C78863CAABFE1E0C0C7F)J$H1B/@#8P
+555547E0F77772645C777BDF2AAA7EE4DB7364E6BBBBE69EFBB9B7FCD9AEF766DDC9C9DC9DDD3BB6DDBD553)J#8#F-8"C/@#
+AAAAA7EE7777776E4CEBBF79DF7FFF7EEECF7E6EEF8393FCBBFF9BEEF77CDDDDDDDDDDC17833DCFCAAB%J)D-F"8#:&@#
+555547EF8E1103901F7C2233FF2AAA7EEEE7796EEFBFD7F2BE5AF2DDDF7BF9DE7D553$JSD(8&D"8#=#@#
+AAAAA79F7FFF7EEEF3776FC7EEBEF7BDDAEEDCDF3CAAB(J0C(8&@#
+555547EE727772KF2AAA7EEEDB736EE71DEFE6BEE7B9DCD9CEFDE6DDC9DDCE79D6DDBD553*J1B/@#
+AAAAA7C0F93998C47FIF7FFF7C4447988470C3EFF1180F1C39FE2C307DF160E388888E603C31E47CAAB$QF$J$XBY>%
+555547F2AAA76F2AAA7F2AA9553$J$J$J%;%
+AAAAA76F555576F7FFF7O!F5554AABF01FFFEF$J$J$J%;#
+5555476F2AAA76F2AAA7O!F2AA9553F6DF$J$J$J%<$
+AAAAA76F555576F7FFF7O!F5554AABD8C441$J$J$J%;%
+5555476F2AAA76F2AAA7O!F2AA9553FEF775EF$J%J$J%<#
+AAAAA76F55557E25F7FFF7O!F5554AABF07B$J%J$J%<#
+5555476F2AAA7CE5F2AAA7O!F2AA9553F7F5$J%J$J%=#
+AAAAA76F55557DF5F7FFF7O!F5554AAB6EEE%:"F'I%;&E&F%;%
+555547C0E3F2AAA780C47FF2AAA7C7E38FFFC07F3FFFFE3E7FF2AA9553F838CE71&9"F'I%;%F%G%;%
+AAAAA7EE7FF7F55557DEEEFFF7FFF7EFF7DFFFEFBFFFFF7FF5554AABFFFFFFFF(8"E&J$8"9#8#J%
+555547EF7FF77F7FF2AAA7DEF14F2AAA7F7F39FFFEFCF2AA9553-C&J1B&G%
+AAAAA7EE666018C9F618C91FF55557DEFB4F7FFF7EC9E218C9F1C7BBF146EE20118E3BC71C778F5554AAB-C&J2A&G%
+555547E0F7777264F777644FF2AAA7DEF14F2AAA7EE4DB7364E6BBBBE69E0F76E737FCDB9ADB773F2AA9553-C&J1B&G%
+AAAAA7EE7777776EF7706EEFF55557DEEE4F7FFF7EEECF7E6EEF8393FCBEEF8EEFEDFBF279F77F5554AAB%;#D'I1C$H%
+555547EF77EEF2AAA784447FF2AAA7EEEE7796EEFBFD7F2BEFFDEEF9BCB3CFF2AA9553$J'I(8(C$H%
+AAAAA76F55557FFFFFFF7FFF7EEEF3776FC7EEBEF78EEF7BBB9E7F5554AAB(8#D$J1B&G%>#
+555547EE72777273AEF2AAA76F2AAA7EEEDB736EE71DEFE6BEF776EF3CEB9ADB772F2AA9553E38F-C$J2A'F%>#
+AAAAA7C0F93998C463984447F555576F7FFF7C4447988470C3EFF11C0623078BFE11C438E38BFF5554AABDDEF$TC$J$YAQF%@$
+555547F2AAA76F2AAA7F2AA95530F1E3F$J$J$J%>&
+AAAAA76F555576F7FFF7O!F5554AABDFEFF6EDDF$J$J$J%@$
+5555476F2AAA76F2AAA7O!F2AA9553871E3F$J$J$J%>&
+AAAAA76F555576F7FFF7O!F5554AABDDEF77EFDF$J$J$J%@#
+5555476F2AAA76F2AAA7O!F2AA955376ED$J$8"8"8"C$J%>&
+AAAAA76F55557E7C0DFF7FFF7O!F5554AABE3818B1E3F$J$8"8#E$J%>P
+5555476F2AAA7F7EE7FF2AAA7O!F2AA9553$J$:#8"C$J%
+AAAAA76F55557FDEFFFF7FFF7O!F5554AAB&8#F.B%;#G";"9#@%
+555547F0A73F1FF2AAA7E1E38787186E78F0993FF2AAA7C7E38FF980F1F1F2AA9553&8#F.B%;#G";"9#@%
+AAAAA7E737BFBFF55557CBCD372EEDE0F765DC9FF7FFF7EFF7DFFDDEF9F3F5554AAB&9"F.B$8"9#J"8$@%
+555547EFB7BBF2AAA7DDF977760DEE706EDDDFF2AAA7F7F39F7DFFEFAEBF2AA9553,D,D.E/>%
+AAAAA7DFB4F8E3B3B0C648F55557CDE57736FDEF77E6F7FFF7EC9E218C9F1C7BBF1463E1E248F8E1E3DD88C64C3AEBC28FF5554AAB-C(9"D.E/>%
+555547DFF2774DB7BBBB227FF2AAA7E3DD778EF1F2AAA7EE4DB7364E6BBBBE69DBCDCD22734BDDC1DDBB26FA4B973FF2AA9553,D,D.E/>%>"8#
+AAAAA7DFF7705F8FBB8377F55557EFCD27BE75EE73B7F7FFF7EEECF7E6EEF8393FCBCFDDF9777E5DC1DDDD8376FB5BBB7FF5554AABE1BFFD$8&E.B.F)9"?%>"8"
+55554777DFAFBBBFF2AAA7E1E28B870E40F870888FF2AAA7EEEE7796EEFBFD7F2BE7E577794DDFDFEBBF9BF2AA9553DDFF&8"G.B(8%F':#?%>'
+AAAAA7CFB7B7F55557DEFFFF7BFFFFFFEF7FFFF7FFF7EEEF3776FC7EEBF3DD777763DFDE1BC7F5554AABDFC7463A383F+E%8"9"D.E*8#?%>'
+555547E777738EB3BB9DF2AAA7CC33E6F2AAA7EEEDB736EE71DEFE6BDBC9CD77736FCEDEF79DBBDFF2AA9553C7BBBFBDDDFF-C%8"9#C.E/>%>#
+AAAAA7F0E23861191CC2223FF55557E38FF1FFF7FFF7C4447988470C3EFF11C7E2E22238A1E180F7C22331B1C23FF5554AABF1BF$TC%8"9"D$UE&R#>%>"
+555547F2AAA7FFFFFFF2AAA7FFFFFFFFDEBDFFF2AA9553FD$J$J$J"="?%>#9"
+AAAAA76F555576F7FFF7=CC99F5554AABDDBBDF$J$J$J"="?%>'
+5555476F2AAA76F2AAA7=E3C7F2AA9553C3C70E0C3E3F$J$J$J"="?%>'
+AAAAA76F555576F7FFF7=FFFFF5554AABFFFFFFFDFFFF$J$J$J%
+5555476F2AAA76F2AAA7O!F2AA9553$J$8"8$D$J%A"
+AAAAA76F55557E7C07FFCF7FFF7O!F5554AABF8$J$8"8$D$J%A"
+5555476F2AAA7F7EF7FFEF2AAA7O!F2AA9553FF$J$:$E$J%
+AAAAA76F55557FDEFFFF7FFF7O!F5554AAB)G,D%9&F";"E%
+555547F0BFFF9FF8F2AAA7E1E38787186EC9F0F2AAA7C1FE03EFFFFDF98FF2AA9553)G,D%9#I";"E%
+AAAAA7E73FFFDFFDF55557CBCD372EEDE0E4E6F7FFF7ECFFB9FDDFF5554AAB&9"F,D%9&J"9"@%>"9%
+555547EFBFDFF2AAA7DDF977760DEEEEEEF2AAA7EEF7BDFFFDFA7FBBFF2AA955388F01FFFEF,D*F1B.?%>"9#
+AAAAA7DFA238DE3D863247F55557CDE57736FDEFF7FFF7EEE3463261BECF187AF423188FE1E248F8E1E3D930C68C780E3FF5554AABDDF6DF,D(8"E1B.?%?(
+555547DFF7735DDDDDD913F2AAA7E3DD778E6EF2AAA7ECCD9DD937BEEE6DF779CE6DDFCDCD22734BDDDC9BBB3BB6BDBFF2AA9553108F1D16D8C441$8'D)8"D)8&C.?%>)
+AAAAA777DC1DDC1BBBF55557EFCD27BE75E4F7FFF7E1F9BC1BB7FDF77BDFCDDDF9777E5DC1DDDB837833BCFFF5554AABC1BB76EEFEF775EF+E-C(:"8#C&8&?%>"8%
+555547DFFAF7DDFDDDFBF2AAA7E1E28B870E4044717FF2AAA7EFE5BDFBF02EBFE577794DDFBF7BF9BE7FF2AA9553DD0EFEF07B&J(PC&9"8%D%;$?%?'
+AAAAA7CFBA4F55557DEFFFF7BF7FFF7EFDDBDEFBBDEEEDD777763FCBF3FF5554AABD776FEFEF7F5+E%8"H,9#B'8&?%?$8#
+555547E77DF39CEDDCEBF2AAA7CC33F2AAA7EFCDBCEBB7B9EE756F7FC9CD77736FCE9D79D6BDBFF2AA9553C776EE6EEE,D%8"H0C.?%>)
+AAAAA7F0F9F80E18E61111F55557E38FF7FFF7C7E21E111803C70E47118F16E2E22238A1E1888CC23C31CC7FF5554AAB88EF0F1C3838CE71&QD%8"H$V#B&S?%>$P
+555547FFFBF2AAA7FFFFF2AAA7FEFFFFFFFFFFDEF2AA9553FFEF7F&J$J$A"G"G%
+AAAAA7FFEB4F555576F7FFF7FACCF5554AAB&J$J$A"G"G%?#
+555547FFE74F2AAA76F2AAA7F9E3F2AA95539E3F&J$J$A"G"G%?#
+AAAAA7FFFF4F555576F7FFF7FFFFF5554AABFFFF$J$J$J%
+5555476F2AAA76F2AAA7O!F2AA9553$J$8"8$D$J%
+AAAAA76F55557E7C1FFF3F7FFF7O!F5554AAB$J$8"8$D$J%
+5555476F2AAA7F7ECFFFBF2AAA7O!F2AA9553$J$:%D$J%>#
+AAAAA76F55557FDEEFFBBF7FFF7O!F5554AAB83C3&8%D-C)J"F%>#
+555547C07FF83FFFF9F2AAA7E1E38787186EE30A7FF2AAA7E2FF9FE14F91FF2AA9553D9BB%9%D-C)J#F%>#
+AAAAA7EFFD9FFFFDF55557CBCD372EEDECCDB93FF7FFF7CCFFDFCE6F8FEEFF5554AABDDBF&8#F-C%8"J"H%>#
+555547EFFFBDDFF2AAA7DDF977760DE1F9BBBFF2AAA7DEDF8FDF2AA9553D98F0@+E-F&G%>#
+AAAAA7EEC471270DD463E133C71A3FF55557CDE57736FDEFE5F7FFF7CF99D3BF6F8E38E3C7E3118C9863F5554AABC3E30@(8"E-F'F%>#
+555547E0EEEE93BD99C9CDBB9AECFFF2AAA7E3DD778EDDF2AAA7E3DDC9BFEF35B6DDB7DDBB764DDBDFF2AA9553DFFB/A+E'8%F'F%?"
+AAAAA7EEEEE0BBBC3BDDDDBBBE0DF55557EFCD27BE75EFCDF7FFF7F9DDDDE4F3C19FC1BB06EDCFBFF5554AABBB*:"A-C%:%F&G%>#
+555547EFF5EFBBBDFBFDF2AAA7E1E28B870E47E2C11FF2AAA7FE9679DFCFDFD77EEDE7F2AA95538787&J(PC%8'J#F%>#
+AAAAA7EF754F55557DEFFFF7BF7FFF7DE9F6F773CDFE74F3FFF5554AABFFFF(8&A%8"H-F'F%
+555547EF7BE73BC9C9939C75F2AAA7CC33F2AAA7CCC9D9CEEF35B6CEB7CEEF3AEDDBBFF2AA9553/A%8"H-F&G%
+AAAAA7C07BF011C8F1E3E2C9C308F55557E38FF7FFF7D1E4C3E1C78871E18FE1EF844647F5554AAB$VA%8"H$TFQF%
+555547F2AAA7FFFFF2AAA7F2AA9553$J$J$J%
+AAAAA76F555576F7FFF7O!F5554AAB$J$J$J%
+5555476F2AAA76F2AAA7O!F2AA9553$j$J$J%
+AAAAA061555576F7FFF7O!F5554AAB$J$J$J%8%
+555540612AAA76F2AAA7O!F2AA9553FE0FFF1F$J%:"8#B$J%8%
+AAAAA06155557DFFE8F8FF55557O!F5554AABFF77FEFF$J$>#B$J%:#
+555540612AAA7CF9FF2AAA7O!F2AA95531C1F$J&9"8#B$J%9$
+AAAAA06155557FFFDEFD75FF55557O!F5554AAB0EEEFF'I,8$?$:#J"8#E%9#
+5555400F400312AAA79938628C78C0C471188E3FF2AAA7E07F5E7F0BFF2AA95536E0E'I1?$:#J"8#E%9#
+AAAAA018C001155557DC9DDD39B36EEEEED25E4DDDDFF55557F73F5F7E73FF5554AAB76FE&9"F1?$;$J$E%:"
+55554010404012AAA7DDDDC17F37EEEEE0DADEEDDC1FF2AAA7BFFBBF5FDEFBFF2AA9553EE*F$8'8$?.E,A%8%
+AAAAA020438F0F1CF0155557DF7CB7EEF5EFEEBDFFF55557923E24E67733300C727FE1E38787185FB8C988E38FF5554AABFE331C3F*F$9":"C.E,A%8%
+5555402006591A224012AAA77BD8F2AAA7C89DD277707BBBB9393FCBCD372EEDDFF364DDCD6FF2AA9553FFFFFFFF)G$8,?.E,A%
+AAAAA021E0D1113E155557CE79B3AEFBE75DDE4F7CEFF55557DDDC1777773BBBBBBBBFDDF977760DDFFE6EDDF93FF5554AAB)G1?'8"I,A%
+555540204351192012AAA7888E603C58707BF08D8F1F7E1FF2AAA7DDDDF7BBCDE57736FDDFF96EEBE59FF2AA9553(H$X?$J(8#A%
+AAAAA03044510E155557F555579E3DD778EFDCFB7DDCFF5554AAB)G$J-F,A%
+55554018C65B083112AAA76F2AAA7DDDCE77277393BB93BEFCD27BE75E7736EF7CD6FF2AA9553*F$J.E,A%
+AAAAA00F83AE8F1E301555576F55557888E0239207C9CCC711FE1E28B870E70F88477E21FF5554AAB*F$J$UE%RA%
+55554000000010800012AAA76F2AAA7DEFFFF7BF2AA9553$9"H$J$J"8"H%8%
+AAAAA0191555576F555579CC33F5554AABFE0FFFF8$9#G$J$J"8"H%8%
+5555400E0012AAA76F2AAA79E38FF2AA9553FF77FFFE$Z$J$J"8"H%:&
+AAAAA76F555576F555579FFFFF5554AAB1E3EF8E1A3$J$J$J%9'
+5555476F2AAA76F2AAA7O!F2AA95530EEDDEF77ECD$J(9#C$J%9"8$
+AAAAA76F555579FD99C078F8FF55557O!F5554AAB76F070DD$J(9#C$J%<#
+5555476F2AAA7DFDDDEF7CF9FF2AAA7O!F2AA9553F7EE$J(8$C$J%="
+AAAAA76F55557DFFDDEFFFBD75FF55557O!F5554AAB6E%J/A$:#J"8#E%8(
+555547C75F2AAA7D99DDEEC471270D75E1A31F2AAA7E07F5E7C63FF2AA9553FE0F1E3818F10C%J/A$:#J"8#E%8R
+AAAAA7EF5F55557DBDDDE0EEEE93BD25CBCEDF55557F73F5F7EF7FF5554AAB%J%8)A$;$J"G%
+555547EE5F2AAA7C7EEEE0BBBDADDDDE7F2AAA7BFFBBF5FDF2AA9553(H%8$8$A.E'F%
+AAAAA7EC31923FF55557D7FF5EFBDCDDF3F55557923E311C7733300C727FE1E38787186FF5554AAB(H%8"9%A.E'F%
+555547EEEEC89FF2AAA7DBF7D8DE3DF9F2AAA7C89C9BBBB07BBBB9393FCBCD372EEDE0F2AA9553(H%9(A.E'F%
+AAAAA7EEE0DDDFF55557D9BE73BBDDDEFDEDF55557DDDDDBB8373BBBBBBBBFDDF977760DEFF5554AAB&J/A$8%I&G%
+555547EEEF4F2AAA78C888C07BF011C8D8E18E3F2AAA7DD7BF7BBCDE57736FDF2AA9553$J$S$A$J%H%
+AAAAA76F7FFF7FDEFFFF555579E3DD778EF5554AAB'I$>#B-F&G%9#
+555547EEE75DF2AAA7FCCFF2AAA7DDDC9EF9D7393BB93BEFCD27BE75F2AA955307FE(H$>#B.E(E%9"
+AAAAA7C730888FF7FFF7FE3FF55557888E3EFC207C9CCC711FE1E28B870E463FF5554AABDF(H$j$UE(E%9'
+555547FFFFFFFFF2AAA0612AAA7DEFFFF7BFFFFFFF2AA9553DD1C1C78B1D1$J$J$J"8"H%9'
+AAAAA76F7FFF061555579CC33F5554AABDE6EFBB76EEF$J$J$J"8"H%:%
+5555476F2AAA0612AAA79E38FF2AA9553EEF83760$J$J$J"8"H%;$
+AAAAA76F7FFF061555579FFFFF5554AABFBF76F$J$J$J%;$
+5555476F2AAA0612AAA7O!F2AA9553EBB76E$J$8$8$8"?$J%9'
+AAAAA76F7FFF018000280000138155557O!F5554AAB04671C7871C3$J$8"?"?$J%9'
+5555476F2AAA0081012AAA7O!F2AA9553FFFFFFFF7FFF$J$:'9"9":$J%
+AAAAA76F7FFF00500080000200210155557O!F5554AAB.B59$8$J"8"F%<#
+555547C7FF9FFE7FFCF0BFFE7F6F2AAA06DC1C98705039F9DC77B0E6C13679CB9C3BCE012AAA7BFFF816E7C1F2AA9553F8FF-C59$:"J"8"F%<"
+AAAAA7EFFFDFFF7FFEE73FFF6F7FFF037632908888648888CA11B3611B22262249120155557DC6F7ECF5554AABFF$<#9"@59$8&J#9"B%
+555547EFBFBF6F2AAA022206E0F8884088881A1112211123E43E6118012AAA7FFFBDEFFDE6FDEEF7F2AA95530@)8#;&9-F+B%
+AAAAA7EFF1D3C778F0DFBC7870F10FF7FFF02221AA080F850620420310C015555793E33270DCCC843193E1E38787186EE3463261F5554AAB0@*8"=$9-F+B%
+555547EFE6C9BB7766DFF9B365EEBFF2AAA02222290810440801906012AAA7C9C9B93BC1EEDEE4C9CBCD372EEDECCD9DD937F2AA9553/A/9&9)8#F+B%9$
+AAAAA7EFFCDD83706EDE1F376EE0F7FFF02223298C504628820CA11B3143149120155557DDDDBBBBDCEEDDDDF977760DE1F9BC1BB7F5554AAB877FFE/A59$:"J*C%9$
+555547EFF2DDBF77EEDFBCB766EF6F2AAA07771DCC7B8E3C7C2075B8E773BB99EE1E70DC012AAA7DE4CDE57736FDEFE5BDFBF2AA9553777FFF&:%B$j9$J%8"E%9'
+AAAAA7EFEECFBBB771F7FFF031555579E3DD778EDDF5554AAB7E0D18E8F17F0@$J&8%G*C%9'
+555547EF66D99D73A4E739B277E73FF2AAA0612AAA7C9C9DCE4DEE4EFCD27BE75EFCDBCEBF2AA95531F7EFEF36EFF0@$J-F+B%9"8"
+AAAAA7C07143C23871707C58B0F0CFF7FFF06155557D3E3111C81F2673188E1E28B870E47E21E1119F5554AABC7F7$T$@$Z%SF%QB%9"
+555547EF7FFFF2AAA76F2AAA7DFDEFFFF7BF2AA9553F7$?"B$J$J"8"H%9#
+AAAAA7E6F7FFF76F555579CC33F5554AAB7776$?#A$J%J"8"H%9&
+555547F1FFF2AAA76F2AAA78F8E38FF2AA95530F8C382330$?"B$J%J"8"H%9&
+AAAAA7FFF7FFF76F55557FF8FFFFF5554AABFFFFFFFFFE$J$J$J%
+5555476F2AAA76F2AAA7O!F2AA9553$J$8$;"A$J%="
+AAAAA76F7FFF7E7FF80F1F55557O!F5554AABF1$J$8%:"A$J%="
+5555476F2AAA7F7FFEE7FFBF7FFE7O!F2AA9553FF$J$:"="8">"J%
+AAAAA76F7FFF7EFBFFBF7O!F5554AAB+E5="9'9%A"8$D%
+555547C7FF9FFE7FFCC74F2AAA7923E3678EFBC648F8E1E3B270C68C710C7E7F87FF8C7FF01DFDFFFF8E78E3FCFF2AA9553+E5="9'<#@"8$D%
+AAAAA7EFFFDFFF7FFEEF4F7FFF7C89CD6F76FB9B22734BDDB93BBB3BADBB7F7F33FFDEFFF6DF77FF7DF7FEFF5554AAB$J5='=#E#F%9%
+55554764F2AAA7DDDF91F06FBF3777E5DC1BBBB837827B9FE7FF7FFFF7BFFDFFFDCEF2AA95538FFEFFF1.B5=2?+B%9"8"
+AAAAA7EFF1D3C778F0EF1E327F4F7FFF7DDDE55F7EFBCB77794DDFBBBBBF7BF3BCFF7E218E4EFD93DEE4FEF4624F8981E393FE1E38787186EFC6E671FF5554AAB77FD.B'8"8#;#=3>+B%9'
+555547EFE6C9BB7766EE6C993FF2AAA7DDDDD67B763D9BE7E7DB72726FDC9DEF27EF9CD276DDDC9C9EFFCBCD372EEDEEF9AF76EFF2AA9553761C187DF1E2.B*8*=2?+B%9'
+AAAAA7EFFCDD83706EEEFDDBBFF7FFF7DDDCD673AE7936FCEBBBB9D79CDBB7F7CF77776FDDDDEF77EFBF9773DDDDDDDDDDF977760DE4FF2F760FF5554AAB7FEEFFBDEEDD*F5=#>$C+B%:$
+555547EFF2DDBF77EE4F2AAA7888E233800FC42238A1E1111CC23C23C8FE7E7BE5779CDE57736FDF5FCAF76FFF2AA95530EFC3D&J$S#R=#8#:$9"?(E%9%
+AAAAA7EFEE4F7FFF7FDEFF7F377BDBDD77CDFE3DD778EFDF1FBF5554AAB76EEFBBD-C$>#D2?+B%;"
+555547EF66D99D73A4EE749BF2AAA7FCCFE7DB7272733DDCCF27EFBCD776DDDC9DDDEFCD27BE75FBF9AF2677F2AA9553EB.B$>#D2?+B%9'
+AAAAA7C07143C23871470E311FF7FFF7FE3FF7C798F4F8788E1F4FC71E22318E0E388DE1E28B870E7BFC47930FF5554AAB8F171C5031E1$UB$>#D*S?%QB%9P"
+555547F2AAA7FFFFE7FFFFF7FFFFFFFF7FDEFFFF7BF2AA9553FD$J$J"J"8"H%
+AAAAA76F7FFF78F79CC33F5554AAB$J$J"8"9#G"8"H%>"
+5555476F2AAA78E7E3FE3FE38FF2AA9553E3$J$J"8"9#G"8"H%>"
+AAAAA76F7FFF78F7FFFFFFFFFFF5554AABFF$J$J"J%
+5555476F2AAA78E7O!F2AA9553$J$8(8"B"J%
+AAAAA76F7FFF7E7FFC07FFFF9FB8FF7O!F5554AAB$J$8$8"9"@$J%
+5555476F2AAA7F7FFDBFDDFF2AAA7O!F2AA9553$J$>"9"9";$J%;#8%
+AAAAA76F7FFF7FFFBBFF55557O!F5554AABFC71FE0FBFFD+E5:$J"8#E%;#8$
+555547C7FF9FFE7FFCC75F2AAA7923E3678FBE8C71D9393C3D930C68C780E3FF2AAA7;E78C63F2AA9553FBBDFF77FF+E5:$J"8#E%=(
+AAAAA7EFFFDFFF7FFEEF5F7FFF7C89CD6F77BF39A6DBBC997DC9BBB3BB6BDBFF55557;F7DEF7F5554AABE1E3C7763E383F$<"E5:$J$E%<)
+555547EE5F2AAA7DDDF91F07BF7F2FC7BDDBBDDDB837833BCFFF2AAA7=FDCEE7F2AA9553FDFEDDBB77BDDDFF.B,8"8&:$J(E%=$8"
+AAAAA7EFF1D3C778F0EC31923FF7FFF7DDDE55F7FBF7CAFD9BBF7BF9BE7FF555579E1E38787186EEFF5554AABF0E3C7FD.B'9&:$:$J'F%<%
+555547EFE6C9BB7766EEEEC89FF2AAA7DDDDD6BAFDBBDDC7FCBF3FF2AAA79CBCD372EEDEEF2AA9553BDEEFDFB.B/8&:$J(E%>#8#
+AAAAA7EFFCDD83706EEEE0DDDFF7FFF7DDDCD673BBF79A759BDDDF9D79D6BDBFF555579DDF977760DE54FF5554AABDDBBDDDF,D5:$J(E%;*
+555547EFF2DDBF77EEEEEF5F2AAA7888E233871E3C508C188C3888CC23C31CC7FF2AAA79CDE57736FDF55FF2AA9553FC703163C60E0E3E3F&J$U"R:$J(E%;T
+AAAAA7EFEE4F7FFF7BDF555579E3DD778EFDF11FF5554AAB-C$@"A$J(E%
+555547EF66D99D73A4EEE75DF2AAA799F2AAA79EFCD27BE75FBBFF2AA9553.B$@"A$J'F%
+AAAAA7C07143C238714730888FF7FFF7C7F555579E1E28B870E7BF5554AAB$UB$@"A$J(E%
+555547F2AAA7FFF2AAA79DEFFFF7BFFFFFFF2AA9553$J$J$J"8"H%
+AAAAA76F7FFF76F555579CC33F5554AAB$J$J$J"8"H%
+5555476F2AAA76F2AAA79E38FF2AA9553$J$J$J"8"H%
+AAAAA76F7FFF76F555579FFFFF5554AAB$J$J$J%;%
+5555476F2AAA76F2AAA7O!F2AA9553F01FFFC7$J$J$J%;%
+AAAAA76F7FFF76F55557O!F5554AABF6DFFFF7$J$J$J%<#
+5555476F2AAA76F2AAA7O!F2AA9553D8F1$J$J$J%;$
+AAAAA76F7FFF76F55557O!F5554AABFEF76E)G'I$J"8#E%
+555547C7EFFFC7C7F2AAA7923E24F2AAA7;E7C63FF2AA9553%8#G(H$J"8#E%
+AAAAA7EFE7CFF7FFF7C89CD27FF55557;F7EF7FF5554AAB)G'I$J$E%
+555547EFFEFFEBAFF2AAA7DDDF97F2AAA7=FDF6FFF2AA9553'8$D'I$J'F%;%
+AAAAA7EFCC3819399FF7FFF7DDDE57F555579E1E387871876F5554AABF838F1C0,D'I$J'F%;%
+555547EFEEF7692EEC9DDFF2AAA7DDDDD7F2AAA79CBCD372EEDF9F2AA9553FFFFFFFF$8&E'I$J&G%
+AAAAA7F06D6E0DDDF7FFF7DDDCD2F555579DDF977760DF5554AAB$8%F(H$J'F%
+555547F7ED6EFDF2AAA7888E24FFF2AAA79CDE57736FDF6F2AA9553$9"H'I$J(E%
+AAAAA7ECF7FFF7FFFFF7F555579E3DD778EFDEF7FF5554AAB,D$J$J(E%
+555547EF6EF3AEEE75DC9FF2AAA76F2AAA79EFCD27BE75CF3FF2AA9553,D$8"I$J(E%
+AAAAA7C0473846C7088E4FF7FFF7E3F555579E1E28B870E061FF5554AAB$SD$8"I$J(E%
+555547F2AAA7FFF2AAA79DEFFFF7BFFFFFFF2AA9553$J$J$J"8"H%>&
+AAAAA76F7FFF76F555579CC33F5554AABE13FFE3C7F$J$J$J"8"H%>%
+5555476F2AAA76F2AAA79E38FF2AA9553DDBFFFBF$J$J$J"8"H%>$
+AAAAA76F7FFF76F555579FFFFF5554AABDFA78F$J$J$J%>$
+5555476F2AAA76F2AAA7O!F2AA9553C79B77$J$:#F$J%>$
+AAAAA76F7FFF7E03FF55557O!F7FFCAABF1BB07$J$:#F$J%>$
+5555476F2AAA7F7BFF2AAA7O!F2AA9553FDBB7F$J$;"8"C$J%>$
+AAAAA76F7FFF7FFDFF7FFF7O!F7FFCAABDDBB770@-C$J"8#E%>&
+555547C7EFFFC1FF9981F7FE7FF1F1F2AAA7923E24E6776238C987F2AAA7;E78E3FF2AA9553C3118E040F%8*@-C$J"8#E%>P
+AAAAA7EFECFFDDECF7FF7FF9F3F7FFF7C89DD27770777764DFF7FFF7;F7DF7FF7FFCAAB(8#8#@,D$J$E%
+555547EFFEFFEEEEFF7AEBF2AAA7DDDC17777777706EF2AAA7=FDEEFFF2AA9553)8)='8$D$J'F%
+AAAAA7EFCC38EECCE7C34E1AEBC64CCFF7FFF7DDDDF7FAF7EEF7FFF79E1E38787186EF7FFCAAB3=$;"F$J'F%
+555547EFEEF76CEEDDECF797277A4BBB26EFF2AAA7BAF2AAA79CBCD372EEDF5F2AA9553$8#8)>,D$J'F%
+AAAAA7F061E1F7BB777B5B8376F7FFF7DDDCE77277BDF3AEF7FFF79DDF977760DFBF7FFCAAB$8#8$9"?-C$J&G%
+555547F7EFEDF79BBFF2AAA7888E0239203DF84467F2AAA79CDE57736FDF2AA9553$<$8"@$TC$J%H%
+AAAAA7EEF7C71BF7FFF7F7FFF79E3DD778EF7FFCAAB)8#8%=$J$J&G%>"8$
+555547EF6EF3AFE477DFBB9D764FF2AAA76F2AAA79EFCD27BE75F2AA95538FBFF07F3=$J$J'F%>"8$
+AAAAA7C0473847F2088723C22391B1C22327F7FFF76F7FFF79E1E28B870E71F7FFCAABDFFFFB3F$S"Q=$J$J'F%?+
+555547BDF2AAA76F2AAA79DEFFFF7BFFFFF2AA9553C78A3A3BB471E2A30C5F$>"C$J$J"8"H%?+
+AAAAA799F7FFF76F7FFF79CC33F7FFCAABBB77BCDB3BEEDDDFF6AF$>"C$J$J"8"H%A$9"
+555547C7F2AAA76F2AAA79E38FF2AA9553BDD87B86$>"C$J$J"8"H%>"9#9"
+AAAAA7FFF7FFF76F7FFF79FFFFF7FFCAABDDDBFB76$J$J$J%
+5555476F2AAA76F2AAA7O!F2AA9553$J$J$J%>,
+AAAAA76F7FFF76F7FFF7O!F7FFCAAB81C78608C0F0F1E18788A7$J$J$J%>,
+5555476F2AAA76F2AAA7O!F2AA9553FFFFF7FFFFFFFFFDFFFFFF$J$J$J%
+AAAAA76F7FFF76F7FFF7O!F7FFCAAB)G)G$J(E%@":"
+555547C7EFFFC07FF2AAA7923E311C7FF2AAA79DFFDFDFF31C7F9F2AA95538FE3%8"H)G$J$E%@":"
+AAAAA7EFDBF7FFF7C89C9BBBBFF7FFF7=BBEFFDF7FFCAABFFFF&:"E)G$J'F%
+555547EFFEBFF2AAA7DDDDDBB83FF2AAA79FFFFDFFFB9CFF2AA9553+E$8$G$J*C%
+AAAAA7EFCC38FBF1880FF7FFF7DD7BFFF7FFF79993981E3BDDF8DCCE3F7FFCAAB+E$J$J%8$C%
+555547EFEEF77BEEDDBFF2AAA76F2AAA79DC9DDDCD35EEDDF2AA9553$8%F)G$J*C%<$:"
+AAAAA7F07BE0E3F7FFF7DDDC9EF9DFF7FFF79DDDDDDF9BC9FE5EEC1F7FFCAABFBFFC1FB$8%F)G$J'C'<"
+555547F7FBEFF7F2AAA7888E3EFC3FF2AAA7<E5BEBF95EEDFF2AA9553BFEFF7$;"F$PG$J%E4
+AAAAA7E3F7FFF7F7FFF7<DDBE3F75F7FFCAABBFF7FFFE8E3C707FF7478D1E3C707F*F$J$J'C4
+555547EF6EF3BBE75DF2AAA76F2AAA7<CDBF7F35E4CEF2AA9553BFFBFFFF7DDBBBFFF79B76EDDBBBFB+E$J$J*C'='
+AAAAA7C0473871F088CFF7FFF76F7FFF798888E0E21F7F88F261F7FFCAABBFFDBB8EEC1BFBFF$RE$J$JTC'>$
+555547F2AAA76F2AAA79F2AA9553BFFBF6EDFB$J$J$J';"8&
+AAAAA76F7FFF76F7FFF7O!F7FFCAABBFF7BF76EDDBBBBB$J$J$J4
+5555476F2AAA76F2AAA7O!F2AA9553BFEFFFFE1E3C7C7FC1198E1E3C7C7B$J$J$J&T&
+AAAAA76F7FFF76F7FFF7O!F7FFCAABBFFEFFFFFFF7$J$J$J%D"
+5555476F2AAA76F2AAA7O!F2AA9553FF$J$J$J%@#
+AAAAA76F7FFF76F7FFF7O!F7FFCAABFC7F$J$J$J%@#
+5555476F2AAA76F2AAA7O!F2AA9553FFFF$J$J$J%
+AAAAA76F7FFF76F7FFF7O!F7FFCAAB,D(H$J"8#G%
+555547C7EFFF8C637FFE7FF2AAA793E2223FF2AAA79DF1F3FF2AA9553%8%E(H$J#G%
+AAAAA7EFDEF77FFFF7FFF7C9DD777FF7FFF7<BFBFF7FFCAAB*F&J$J$I'
+555547EFFEFFCEE7FFF2AAA7DDC14F2AAA79FFFFF7F2AA9553BFC7.B(H$J&G'
+AAAAA7EFCC38EEEE64F871C447F7FFF7DDDFB6FFF7FFF79993E21BC3FF7FFCAABBFF7.B$8"I$J&G,
+555547EFEEF76EEF727364EEEFF2AAA788F2AAA79DC9DB7B9BFF2AA9553B1F7878F1E3C7F$8'D'I$J%H,
+AAAAA7F0654F77776EF7FFF7DDCEDDF7FFF79DDDCF7BBF7FFCAABAEF7FB76EDDBBF$8$9#B&J$J#I,
+555547F7F55FF6DFF2AAA788E14F2AAA7:DE77F2AA9553AFF7C38F1C1C7F$9#9#B'I$J#I%8&
+AAAAA7F11FF11FF7FFF7FFFFFFF7FFF7:DF37F7FFCAABBBF7EDFFBF.B$J$J%G&8$
+555547EF6EF3BBBF777264FBBFF2AAA76F2AAA7:DDB7B93FF2AA9553AE76EDDB,D$J$J&G,
+AAAAA7C047387BBE2238B1F7FFF76F7FFF79888C791C5FF7FFCAABB1C0C58F1E3C7F$UB$J$JPG&Q
+555547F2AAA76F2AAA79F2AA9553BF$J$J$J%
+AAAAA76F7FFF76F7FFF7O!F7FFCAAB$J$J$J%
+5555476F2AAA76F2AAA7O!F2AA9553$J$J$J%
+AAAAA76F7FFF76F7FFF7O!F7FFCAAB$J$J$J%
+5555476F2AAA76F2AAA7O!F2AA9553$J$8"I$J%
+AAAAA76F7FFF77FF7FFF7O!F7FFCAAB$J$J$J%
+5555476F2AAA76F2AAA7O!F2AA9553$J$8#H$J%8%
+AAAAA76F7FFF7FFF7F7FFF7O!F7FFCAABDE7FFF9F&:#D(H$J%8"8"
+555547C7C7FC7FF2AAA793E264E1F2AAA7O!F2AA9553DFDF&:#D(H$J,
+AAAAA7E7CFFEFFF7FFF7C9CD7277F7FFF7O!F7FFCAAB85E3834F1E1C7F&;"D'I$J,
+555547EBAFEFF2AAA7DDF977F2AAA7O!F2AA9553AADDDF36EDDBBF$8)B&J$J&G,
+AAAAA71E38E3878EC38923F7FFF7DDE54F7FFF79923E24E67FF7FFCAABAAC1DF76EDDC7F.B&J$J(H'9#
+555547E92EEDB6CD2F76EF7489F00007DDDD4F000076F00007C89DD277F0001553AADFDFBF.B&J$J'I(8"
+AAAAA7ED6E0CF3F97706EF05DDF78067C9CD4F780676F78067DDDC17F7804AABAADDDDDB$8(D'I"J"8#J+
+555547FE79E5377EEF7D0067D3E2223900800DDF740055538A63E2231E2C7F*G'I"J"J%Q
+AAAAA7EC6EFF3CDD8F7E67DFFFFFFF7E87E87E4AABBF-J$J#
+555547EEEE75B6CDBF3AEF39O5DCE77245553.E"J&I#
+AAAAA7C6C70C71E287847380888FO#888E02393F4AAB$P&E"JPI#
+5555477BFFFFFFFFFFO#5553$;"F$J$J$J%
+AAAAA733F07E076F07E076F07E076F07E0AAB$;"J#
+5555478FP!1553$;"F$J$J$J%
+AAAAA7FFF7FFC76F7FFC76F7FFC76F7FFCAAB$J$J$J$J&
+5555476F3FFA76F3FFA76F3FFA76F3FF9553B7$J$8&E$J$J%
+AAAAA76F5FF677FFFC2FFF3F5FF676F5FF676F5FF4AAB$J$:$E$J$J(
+5555476F6FEE79CFFFBF6FEE76F6FEE76F6FED553A08B47$J#9$9"C#J#J(
+AAAAA76F77DFFF7BEFEF77D7F77D7F77DCAABB7D5BB,8+9-C"J";%E$
+555547C7C7FCFEFFCFFE2FF1FFCFFF9FFE7C2FFF3FBBE793E264E17EF1C3C38C3FBB8BBCFCFFC7FBBD553'8$8+9-C"J";%E$
+AAAAA7E7CFFEEFFCCFFBFFEFFFDFFF79CFFFBFD7E7C9CD72777FE69B9776FFD78D7EFEFFBBFD7CAAB(8%<#9.D"J"J&
+555547EBAFFEEFFDEDFFBF7BEFEFF7EFE7DDF97777787CBBBB06EF8EF8EFD553B755$j&
+AAAAA0P'0AABB89487$Z(
+555547P%F7EFD553BFFFBF$J$
+AAAAA7P&D7CAAB$J$8"
+555547P&BBD5531F$J$8"
+AAAAA7P&7DCAABFF$J%
+555547P%F6FED553$J%
+AAAAA7P%F5FF4AAB$J%
+555547P%F3FF9553.8&8"8";"J%
+AAAAA7C7C60301C63C3C07FFD79FFFF7FFFDF71FD7O6F7FFCAAB,:"?"J%
+555547E7CF7B6DEF799F73DFBFO<F07E1553'8$<$8"9"9"J&
+AAAAA7EBAF7F7BDF7BEBFFDF7FF77FO90AABB188C7$85J(
+555547;77EFEF77EF7DFFFE48F1D9E3EBF18188E207C64FB2618D18F01C7FO6F77E5553AEDDBB):4J&
+AAAAA7E92F07EFE0FF2266DBDDDDE6DDDDCD779327B93776776D7BO94AABB1DDC7);'8,J&
+555547ED6F77EFEF777CC7C1DDEFF977BB77BBB706F06779FFO85553BEEBFB$8">%8#;%J&
+AAAAA77F72D7DFC1EBE57EF7F37CO94AABAEE3BB'8$9%9"=$J'
+555547EC6F7B7BDF7B6EDBDFBEDDF97E7FO7005553B1F7C7&9$9+9%J'
+AAAAA7EEEF799F7366D9CEBEE75DF7CD77933AF3AD7BO8804AABBFF7FF5J%
+@555547C6C603C7C63C3C07FFFE22310CE11C70E0F7E283C623111984786398FFO6F0001553$ZJ'
+AAAAA7<O7F7FFCAABBFCF$J%
+555547P'D553BFFF$J#
+AAAAA7P'CAAB$J#
+555547P'D553$J#
+AAAAA7P'CAAB$J#
+555547P'D553$J#
+AAAAA7P'CAAB$J'
+555547P'D5538CE3C747%9"8$<"8"8#:%;$9$9#9#8#;"8#A"G'
+AAAAA7F9DFBFFFF1F9F7B17FFDFFFC0F7FFFF7E17FFCFC03F80FFEFEE7F0BFFDCAABAEDDBBBF%>"<";"=#A$9#9#?"8#J&
+555547F7FBFDA6FEE7CE7FFEFDB9FB6FF7E73F=D553AEE383$9&9"8":"8%8'8):$=#=$>"8$8"B&
+AAAAA7FDFFFFFBFF7FFBFF6F77FFEFFFFFDEF7FEF7FEFFFF7FFFFDFFDF7FFBBDFFEFFDEFBFDFFFFFDFFDCAABAEFDBF$85A&
+555547OHC718188E303C64FB261C518F10C7FD3E38664FFF67E18A03FC9F199386E664218C9FFEE3C606238863BF78F0E1E21FFBBEF188827F7A3127C4C0F1C9FFE1C7870F185FB89388C78FFC6238938123E14193863463887FD553AEDDBB$8585A'
+AAAAA7O!9A6DDDDCDBB9327B937BA776DBB7FC9DD2F727FF71F734EFFE4E4DC9DE0F76F7264FFECD9B777735DDBFF366CBDD7FEE4DDD93F7CE693B6EEE4E4FFCB9B365EEDDFF349DD9B6FFBB77749DC89CB9DC9DDD9DD6DFFCAABB163C70F58&8&85B'
+<555547EFFFF2FDDDDF9BBBB77BBB782F067B9FFDDC177777FEFCF7E5EEEDDDDEE776EFFDF9BFO E5C1BC3E6EDDC17FF7BEEEDDDBBF7DFCBB9EEEEEEEFFDDF376EE0DDFFE5DDDF33FF837705DDDDDDDBDDDDC1BC13DD553BFFFFFFF+:)9$<";"8):#8$:08"8%B#
+AAAAA7DFFFCAFDDEBE5B7BEF7F3BCFFDDDF3FF7795F7E5AF95DFBF796ECDDFEDBBF2BBCECDCB766EFDDFF95DEBCB9FFBFAF7DDCDDDFBDF9DCAAB'8#=#8#8$B"9'9%8$:(8#<";"B#
+555547EFFFBABDDB9BE7F8F7EF7775DD75DF9F776EE3BDEEE23BEEBBE6E3BB771EFDCFB7BBCFE3CDD553-8)8%8#858&808"8%B#
+AAAAA7F7FF9A75DF7CDBB93779CF3ADBB7FD9CEBFDE677354E4D7E726F726EFFBCD9D77DF35CECE7364EFCE7FEFB9E4F77BE6BBB6EEE4EF9B277E75E7735DF79B6FF9DDF39DEFDCEBCE6DCAAB$85A#
+555547OHC50E0F7E2C1C6231119C07863C8FFC3E186223FDE8F988F3FE9F1888E40F93398C47FBE2C383DF8A61E0F8B161E19FEE03F1F7711E38F1118C7071C47FE1C58B0F0E70F888F7C51FFC3DF808E088E11888E611E11E7FD553$8Z#Q"Z"Z%X"RA#
+AAAAA70F7BFFE3DE0DEFFFEF7DECAAB$H#J"F"8"C"H#
+555547F33F:CCCC67CCD553%G#<#H"F%C"H#8"
+AAAAA7F9F8FFFC7FE3E3FFFF1FE3CAAB07%G"=#H"F"8"C"H#8"
+555547FFFFFFFFFFFFFFFFD553BB$J*
+AAAAA7P'CAAB91E3BB8C5E3C7F$J*
+555547P'D553AEDDBB76ADDBBF$J*
+AAAAA7P'CAABAEE3BB06ADDC7F$J*
+555547P'D553AEFDBB7EADDFBF$8'=#:":":#9#8#;"8#A"<'=#D)
+AAAAA7F3FF1FFD1F1FF03FFD80FC03F80FFEFEE7F0BFFDF9FF8FFE8F8FF81FCAABAEDDBB76ADDB$8'=#?":#9#?"8#H'=#D*
+555547FBFE7FFD9F3FFB9FDEFDB9FB6FF7E73FFDFF3FFECF9FFDCFD553A1E3078CA63C7F$:%>$8":"9$=#=$>"8$8"9%>$B$Q
+AAAAA7FFFBAEBFDFFBBFFBDF7FFBBDFFEFFDEFBFDFFFFFDFFD7FFDD75FEFFDDFCAABAF$8$858/@#
+555547C3C41FO4BC64CCFF923E32667B99900C727FFA48F89399DDC463261FFBBEF188827F7A3193C4C0F1C9FFE1C78787185FB8C988E38FFE2238938123E14193863463887FE1C60F5E388C7FC91F188E3DCCC806393FD553$8585@$
+AAAAA7=9BBAFFFBA4BBB26EFFC89DD937783DDBB9393FFB227749DDC1EEDD937FO*E4DDD93F7CE6C9B6EEE4E4FFCB9B372EEDDFF364DDCD6FFDD77749DC89CB9DC9DDD9DD6DFFCDBB7FFDD25C9DDBBFE44E4DDDDC1EEDDC9C9FCAAB87$8(85@$
+555547BB82FFF7B5B837O@DDDC1BB77B9DDBBBBBBFF777705DDDDDEEC1BB7FF7BEEEDDDBBF7DFCDD9EEEEEEEFFDDF377760DDFFE6EDDF93FFC17705DDDDDDDBDDDDC1BC13DFFDD837FFBDADDDDD83FEEEEEDDC1DCEEDDDDDDFD553BF$9"9#9#8"<';#8$:08"8%8":$8%D#
+AAAAA7BEBBF7DDFBDD77DDDDDFF5DFEDBBF2DDCECDCB7736FDDFF96EEBE59FFDFAF7DDCDDDFBDF9DBFDEBBFFEEBDFDEECAAB$<"I";%8$:(8#<";";"J#
+555547B1DEBDEEE23BEEDDE6E3BB778EFDCFB7DDCFE3CDD88D553$8)828&8&808"8/8(A#
+AAAAA7939CFFEFBBB9D764DCEBB27B9C9BB93BBFEF77739DC9DEFBCEEFB9E4F77BE6DDB6EEE4EF9B27BE75E7736EF7CD6FFCEDF39DEFDCEBCE6DFFC99D7FF7DDDC9F79DF4F7CEDCE4DDC9DCAAB$85@#8%
+555547OIC5C03FEF1B1C22327F888E1119303E4CCC711FEE223808E480FBE1119FEE03F1F7711E38F1088C7071C47FE1C58B870E70F88477E21FFE1DF808E088E11888E611E11E7FE2C21FF78D8E3F7C3FC4471F7E181F2666388FD55301FFFC7F$8Z%X"Z@#8$
+AAAAA7KDEFFFF7BDE:CAAB6DFFFF$J"8"C"J*
+555547MCC33CCDD55391E36D8F1F7C7F$J"8"C"J*
+AAAAA7ME38FE3DCAABAEDDEF76EF7BBF$J"8"C"J%9#
+555547MFFFFFFDD553AEE37C7F$J%9#
+AAAAA7P'CAABAEFD7FBF$J%9"
+555547P'D553AEDD7B$J*
+AAAAA7P'CAABA1E3838F1C0C7F$J$Q
+555547P'D553AF$8";%:#9"9#:"8#B"<&8#9"8#9$J#
+AAAAA7EBDFFFF1F1807F01DFDFFCFE17BF3FF1FFDF9EF80FF3CFF9E7FFE15CAAB$@#:#9"?"8#I#8"8#9"8#9$J$
+555547F9F3B73F6DFEFCE7BFE7DEFDEFFBEFFDF7FFCC5D55387$8$8&:#=#=#>"9#9"8%8$@$J$
+AAAAA7DFFFBFFDFFFFFAEB77BFFDFFBDF7FBFFFBBFEFFFBFDFBDFFFD77FFDE5CAABBF$8.859#H#
+555547D3270C68C718188E3AEBE311C7O-DE31104FEF463278981E393FFC38F0F0E30BF719311C71FFC4471270247C283270C68C710FFC38C1FFB8DCF1270DD9386347FBC7C70FFDF127C21493E3D553$8.858#H#
+AAAAA7DB93BBB39A6DDDDDDA4BC9BBBBO.DC9BBB27EF9CD936DDDC9C9FF97366E5DDBBFE6C9BB9ADFFBAEEE93B913973B93BBB3BADBFF9B76FFFB35EEE93BC1C9DDD9FFB939A6FFDEE9397727FC9DDCAAB$85839#H#
+555547O(BBBBB837F2FDDDDC1B5BDDBB83FEF7DDDBBB77EFBF9BB3DDDDDDDFFBBE6EEEC1BBFFCDDBBF27FF82EE0BBBBBBBB7BBBB837827BFFBB077DEE0BBBDDDDDC1BFFBBBF2EFFDE0BBBB77DDC1D553$:(8#9#8$:&8)8"9$8#9"8$9"8$;"H#
+AAAAA7BBF7CAFDDEBDFBD7BFDDB7BE5BB9F9B96EE6DF2DDD7CB3FFBF5EFBB9BF7BF3B7EFEFFDDDDFCAEFBB9BDFCAAB$<":";$8$:,<#:"@";":"J#
+555547BA1BBDDC47BDDBBCFC776EF1DFB9F6EDDD7BB9BC77F9EDBAC78D553$83858#8-9"8(8"8"H%
+AAAAA77BBBB9D79A75DF7CEBBBC9EF9DFDF73C9EEF6BCDBB6DDDC9DDFFDF364F7CEBCEE6DDEF9ADFF9DBE73BDF79D79CDBFF933AFFEF39EE73BCE939A4FFDE73BDFCCCECAAB91E3$85H%
+555547OA7111CC23C50E0F7E11B1E3EFC3FDC07E3EEE23C71E21118E0E388FFC38B170E1CE1F108EFC43FFC3BF011C111C23111CC23C23CFFC5843FEF80C7011C8088E611FF1C7C517F8F011C3823FE1FF88E1D553AEDD$8Z&W#Z"QH%
+AAAAA7;FBDFFFEF7FFBDF:BDCAABAEE3$J%C#J"J%
+555547=F99FFFE6F99F:998D553AEFD$J&B#J"J%
+AAAAA7=FC7FFFF1FFFC7F:C78CAABAEDD$J%C#J"J%
+555547=FFFFFFFFFFFF:FF8D553A1E3$J%
+AAAAA7P'CAABAFFF$J#
+555547P'D553$J$
+AAAAA7P'CAAB87$J$
+555547P'D553BF$8%9#9":"9#<*9"8"B"<%J#
+AAAAA7F3FFD01FFD0180FBF80FFCFFFC3FFEFFF1FFE39F85F7CFFE3FCF=CAAB$8%:"9">#<*9"8"I%J#
+555547EFFFDBDFBDDEFDEFFEFFF99FF8FFE4FFFBDF39EFFCFFF7=D553$:$8'8&8"8";&=#>"9#9"8"J#
+AAAAA7BBFFFBFBBFFFBFFFDFFEFFF7FFFBFFF7FBDFFEFFEEEF7DFEFFFEF7FD?CAAB$;5:"95J$8"
+555547<B270C51FFBBB270C68DD88C64C3FF71930E28DD88E24E1FE48F1A2CFFE<0F1E1C3C42FDC64E231E3FF188C64C248F0D064C38A31E21FF0F183F>D553B71F$:5:"85J#9"
+AAAAA7=B8393BBA7FFB8393BBB3C1DDBB26FFF6EC9BDD3C1DDDD277FF2266CEDFFC=FE5E6CD97BAEFF9B27766DBFEEDDBB26F2265E7726F74EEDB7FE6EEDFF>CAABDF$858%:"95J(
+5555479DFFF7BBBBB82FFF7BBBBB837DDDD8376FFEE0DDBC17DDDDC17777CDE3FFD=EFCDDBB82EFFF37777CCFFE0DD8376F776EEF776F05E0CF7FEEE0DFFFB=D553A0E3C7DF1F$8"8$8(9(9$:"9/9"8%8$J(
+AAAAA7BFFBBBBEBFBBBBF7DFEBBFFDDBDF7DFEBDF772DEBFFB6F2DD9BBEEFFCB77AF2E7FEFEBBF6EF7DEFE77FDFFFD=CAABB7DDBBDEEF$8"8":"9"?";$:"8-;#:#:"J#9#
+555547DFDBBDDEEE6EDEDFF7FF1EEDDC7BEE7DBB77AEEF3F771EFF37FB=D553DF1F$8$8$8&8)9&8#8/9"8*J#:"
+AAAAA7EFFEFB9CFFEFB9D7DEF79DDE75DBCE7DEF7CE766DECFF99FE77F7E6C9DF9CF3B9B77DE6DBFE7779D7EF39E75B7FE4E75FFF7=CAABEF$:595J'
+555547BF0111CC07FEF0111CC2380F7C2233FDF088CE0380F7E0239FE22310C67FC3FF83FE0<0F162C3C3387C423DF147FF0F7C22322230C6223380F0C79FF17087F>D553B75DBBDE$9Z'W#UJ(
+AAAAA7DFBFEF7FFFBDFFEF7>CAABB8E3C7031F$J%C"J(
+555547I67FFF99F67HD553BFFFFFFFFF$8"J'B#@"J#
+AAAAA7F3DE3FF1FFFFC7FFF1FCF=CAAB$8"JQC"@"J#
+555547FFDFFFF=D553$J#
+AAAAA7P'CAAB$J#
+555547P'D553$J#
+AAAAA7P'CAAB$J#
+555547P'D553$818%J#9"
+AAAAA7BC7FF7E7BFFFFE03FF7FFE7FFFF9FF3FFCFFFC3FO=CAABBF$8%8#8"8$8%J#
+555547B9FFF7F7FF7BFFFDFFBFFEFFF99FO=D553$8+>%J'
+AAAAA7FBFFEFF7FFFFEF7FFFF7EEFFFBDFO=CAABA8E3C707$858#J'
+5555474307FEE373C49C3762261FF78F1E1FFBC64F0C29FF278O;D553B7DDBBBF$858$J#
+AAAAA74BBFFECD7BBA4EF077777FF7266CDFFBBB265EE4FF9377FO:CAAB$:(8*8#J#
+555547DDF7B82EEF778F777CDDFFB8376EEEEFFBB0O;D553$<&9"8$;#J#9"
+AAAAA7BBEEEF7FDF72BBF766B7FFO:CAABBB$?#9":"J'
+5555477B8F6E71OAD553A1E3C7C7$:%8"8(8&J'
+AAAAA7BCE7B9CE777266C9FFB9D777F99FFBB3BFO:CAABBFFFFFFF$85J#
+555547910FFBE031C0472022239FE38F162FF1C2230F047FC3FF1187FO:D553$8Z#QJ#
+AAAAA71EF7FO:CAAB$I"J#
+555547E6OAD553$I#J#
+AAAAA7F1FFO@CAAB$I"J#
+555547FFOAD553$J#
+AAAAA7P'CAAB$J#;%8#8"<&
+555547P'D553F01FFFC7FC7F8381EF1FFC1F$J%9%8"9"<&
+AAAAA7P'CAABBFEFF6DFFFF7FFDDDDFFDFFF7F$J5
+555547P'>D553BFF7FFFD1E36D8F1F7C7FF1F7878F1DDA38C463C747FD58FDF1F747F$8-9&=)9"8#A"<%J5
+AAAAA7F3FFD01FFBFFFD80FFBFC07FFDFFFDFE033FFF0FFFBFFC7FF8CFE17FFBF3FF1FF3@>CAABBFFBFFFEEDDEF76EF7BBFEEF7FB76EC3DF76EDDBBBFFC7EFDEEF79BD$8%9"8"=#=)9"8"I%J%8#9(8&8$
+555547EFFFDBDFDEEFFF7BBFFE67FE3FF93FFEEFCEFBFE7FFD@D553BFFDEE3EC7FEFF7C38F1DDAE383BFFD70F7BBF$:+8'8"<&<#?"8$8"9"J%8#9"8$9&8"
+AAAAA7BBFFFFBFFBDFFFFBEFFF7FFBFFFFEF7FFDF7FFBFFBBFFBDFBFFFFFBFFBFFACAABBFFBEFDEFB7BBF7EAFDBFBFFDFFF$;5:"95J%8":'8%:$
+5555479B1130FFBDD8830EEC463261FFB8C41C3762319387F247C68B3FF<C3C70F0E30BF719311C71FFC4471270247C283930C68C710FFC38C1FAD553BFF7EDBBFEEF7BB76E775DDBBBEF7BBD$:5;"85J%85
+AAAAA7:B83BBBBFFBC1DDBBE0EEDD937FFB76EDEF0776EC9DFF9139B3B73F<979A6E5DDBBFE6C9BB9ADFFBAEEE93B913973BC9BBB3BADBFF9B76FFACAABBFEF81E3838F1C0C7BF1C0C58F183878F5E3C70FF8783031C119D$85;"85J%8Z"
+555547<DFFF7BBC7BBFF7DDE3BBEEEEC1BB7FF7071DEF77760DDDFFBBBF378F7F=BBF2EEEC1BBFFCDDBBF27FF82EE0BBBBBBBB7BDDB837827BFFBB06FFFE@D553BFFF7FB$8"8#8'9'9$:#8/9"8%8%J#J"
+AAAAA7BFFEFBDFF7BBEFF5DF7FBDEF7FAEFDBCB7AFFEFF9BCAEE6DFBBFF2DDD7CB3FFBF5EF9BBBF7BF3B7EFFFF7F?CAAB;FF$8"8#8#8";$;$:"9(8#;"j"9#
+555547DFDC7BDEE3751DEF7BBBB7B7FDC7BAEF1DFB9F6EBB9FB0M03FC7F$8*8#8$8#9&8#82Z"9#
+AAAAA7EFFEFBDBBBBFEFDEDD7BCEEF3AEDDE75B9B7B3FE67F9DFDF9A4F7CEBCEE6DDEF9ADFF9DBE73BBBB7MFBFFFF$:582
+555547@F01111CFEF80881CC07BE1119FEF8440F203DF088E7F111C4319FF0FFE0FF81FC3C5170E1CE1F108EFC43FFC3BF011C117$9Z8%W&
+AAAAA7ABDFFFEF7F7FFF0000F$J"8"D$
+555547F9967F7FFEF$8"J'B&j$<#;#8+
+AAAAA7F3AF8FFC7FFFF1FF40037FFECF0FC07FF07FFDFBFE07BC78FFC0F78FFE0F$8"J$8"B&Z#8"9#?+
+555547FFAFFFFFFFFF7FFF7FFEFGE63FEFFBBFFF77FF7EFFEEFFEFFFBF$J&j#938'
+AAAAA7O(F40037FFECF0FE7F7FFFD1E3BB8C5E3C7FD1C383071D147563FEAC7EF8FBA3F$J&Z58'
+555547O(F7FFF7FFEFG6E730E3BFFBFFFEEDDBB76ADDBBFEEFDDFBEEEF9B1FBFE3F7EF77BCDE$J&j'8$8*9"8$
+AAAAA7O(F40037FFECF0FE7264BBFFDEE3BB0C7FEEE1DFBE0EFBB5FEB07BDDF$J&Z&8,8"9"8"
+555547O(F7FFF7FFEFGE06643BFFBEFDBB7EADDFBFEEDDDFBEF7FEF7F$8#8$J&j'8"8$9#?$
+AAAAA7BC7FE7FE7FMF40037FFECF0FE7E663BFF7ED6ADDBBDBAE77BDDE$8#8$J&Z8$85
+555547B9FFF7FFBFMF7FFF7FFEFG73BFEF71E3078CA63C7BE1E2E3C71C3181E0C081FC3C1818E08CE$8"J&j"8$8Q"Z"
+AAAAA7FBO%F40037FFECF0F5BBFFFFE/FD$8&J&Z$J"
+555547307FE24F87O!F7FFF7FFEFGC3F0C3:FF$8&J&j%9#;#
+AAAAA7BBFFDD2737O!F40037FFECF0FFFFFFBFC7FFC7F$:&J&Z<#;#
+555547C17777FFDFMF7FFF7FFEFGFFFFFFFF$:"9"
+AAAAA7DFEF$>"J$
+555547DFO!F0000F$:&J$
+AAAAA7CE7727FFBFO!FFFFFF$8&Jj";#=)
+55554710FFE0238BO"M03F07FE3FFFE07BC7FF07F$8PJ"X"Z$9#=)
+AAAAA7O"7F33>FBBFEFFBBFFBFFFF77FF7FFDFF$J5
+555547P*5F7FFFD1E3BB8C5E3C7FD1998307BE3FF563F7C7DD1$=#J5
+AAAAA7FE7FP!6FBFFFEEDDBB76ADDBBFEEDDB76FBDDFF1FBF7BBDE6F7$=#J"8$8"8,
+555547FFFFP!FDEE3BB0C7DEFDFBC1FF5FBF783DEEFF$J"8'8*
+AAAAA7P*FBEFDBB7EADDFBDDFBFBDFFF7FBF7BFD$J"8"8$8%:$
+555547P*F7ED6ADDBBDBB77BDDBDEEF7$J"84
+AAAAA7P*EF1E3078CA63C7BE1E28306063FE1E0C0C704677$J"8Q"V"
+555547P*FFFEEF$J"
+AAAAA7P?FF$J#;#
+555547P,FC7FFC7F$J#;#
+AAAAA7P,FFFFFFFF$
+555547$
+AAAAA7$J#
+555547P,FC07$
+AAAAA7$J"
+555547P*EF$J"
+AAAAA7P*F7$=(J"
+555547FBFBFDF7FFDFFDOJFB$=*J"
+AAAAA7F9FFDDFFEFFFEFF7B7OHFD$=*J"
+555547F8BEFDBEFEFDFFDFF7OHFB$>)J"
+AAAAA7FFF6FFEFFFFFDEE7OHF7$>)J"
+555547777EF7FFFFFBC7C7OHEF$>$8$J"
+AAAAA77FDEFF7FF007OHFF$=*
+555547FA3FFF7F86EFFEFF97$=*
+AAAAA7F83DDF7E7BFFF7FF07$>(
+5555471FF7B9FDFFFF5E$=*
+AAAAA7F91FFFF7BEFB7FFC17$=*
+555547F80FFEEFFEFFFEF887$>)J#
+AAAAA74F779FFF5FFFE007OJFFFF$=)
+555547FC07D71BB77EF7C9$=*
+AAAAA7F807FE1FFFBFFF8017$?(
+555547FC4F7FBDFE0007$>)
+AAAAA743780FFFCF9C7C47$>#8%J"j
+55554703F8F0718317OG80G$=*JZ
+AAAAA7F903F007FBFFE08087OGH$=)
+555547F801E087FEFF8020$>)
+AAAAA721C407BFBF080047$=*J"j
+555547FC818003F7FE00084FOFF8H$=*J"jJ"Z
+AAAAA7F8020023FFF8008027LFCH57F2$>(J"J"
+555547040801BFF23C00MF0O/1F$=*J"S"Z"
+AAAAA7F9188209FDE0420217LF3F9O&9F$=*J">"J"
+555547F8604840FFC081000FLE7F3O&CF$=*
+AAAAA7FF804000EF80992007$=*
+555547F80420007700990217$=*J#J$
+AAAAA7FA0022207F08810007MFE67>F80007$=(J#J$
+555547F80020003E0042O#FCE7<FBFFFF$=*J"
+AAAAA7F91010083C003C2487O 7F$=*J(J$
+555547F80210801C91000007MF0671800784F87KCFBE79$>&J(J&8"?$
+AAAAA70010020800O"E4660CE6782713:870FFFF03F27BE3D7E$>(J)J5
+55554708100008022220O CE64CCE7327333F994DBB7193BB4C72F6F1CF4FF0FFE3D34E393BF7AFE$=)J"9#J5
+AAAAA7F90011001D020001O"FC03F094C78EED78FB3B576EFB7B7FFFFFDEDB7DDB7F76FD$=*J$J5
+555547F80010113E0E400027O#B6733F:4BB76EDF7F7BB56DF3077FE1FFC1DF7C1DBBEF17E$=*J$8"J"80
+AAAAA7FC0020803FF8048007O!CCE786F9;DAB6AEDDB7F7FFFFFBBDF7BBD77EFDFD$=)J)J+8(
+555547F820280077010004O E4660CA5CE2713FF9060F3263E3CEAF3C78E3FC58E3C5CF7879$>)J(JU8)
+AAAAA70422086F00040047MF2671E73CE0F87:FFFFFFFFDFBFFFF3$=*J(J%
+555547FF804000FF80200007MFFFFFFFFCE7FFFJ3FFFFFFF$=*J"J"
+AAAAA7F8604081FDC400410FO#9ELFF$=*J"J#
+555547FA188021FFE0400017O#1E;F80F$=*J#J#
+AAAAA7F8040201DFF0001027O#FFFF:FBFF$>(J"
+555547022003F7788A04O@F3$>)J#9":#
+AAAAA7018043FFEE000047OBFE7F7EFC3F$>(J"J$8"<#
+55554749C027FFFF0040MF3A0FFFFF0FFDFF$=*J"c"J-
+AAAAA7FA016027FDFF840487LF0038B79E8C79E8B79E1C39CBFF0F$=)J"J/
+555547F843F2076FFFE000MFCA8F6F7B76F78F6F7EF6D5FFFFFC7F$=*JT"J"8$;$
+AAAAA7F913B80FFBF0718307L338B771F7B70FFFBF$=*J#8#8"
+555547F803E84BFFCF9C7C17OC77776ED6FF$=*J+8#
+AAAAA7FA26FC0FFFBFFE0087O@0F9E1CB8E10F9F9F39D4FC7F$=*JU8#
+555547F807FE1F7FBF7F8007O@FFFF$=)
+AAAAA7F907FF1BFB7FFDC2$=*
+555547F847B79FFF7BFFE0A7$>)J#
+AAAAA70DFFEFFEFFBFF807O?F00F$=*J#
+555547FA0FFDF7DEFFF0FC47O?F3FF$=*
+AAAAA7F84FFFB9FDEDEF5E07$>)J#9"9"
+5555471FB76E7BFFDFBF17OBFE7F9E0F$=*J$8$9"
+AAAAA7FC3FFF7F87BFD9BF87O@0FFFFF1FFF7E7F$=*J+
+555547F83AFEFEFFFBD9BBC7O@B79E8C79E8BF9E1C3FE1$>(J-
+AAAAA77F5EF7FDFFDFBFOA8F6F7B76F7BF6F7EFFFFFF1F$>)J"8"8"8$
+555547F7FEFFDFFFEF7EE7O@B7711FE1FFEF$>)J(
+AAAAA7FFFDBFFF77F0EFF7OC7777B7777EDFFF$=*J*8"
+555547F9B76DFDF7FFFFFD77O@0F9E1CB8E1078E1F3F1F$=*JT8"
+AAAAA7FBFFFDFFFFFF7F7FFFO@FF$=$9#
+555547FFFFFFFFFF$
+AAAAA7$J#
+555547P!F00F$J#
+AAAAA7P!F3FF$
+555547$J#8$8#
+AAAAA7P$FE7FDFF9FBFE1F$J$8$:"
+555547P"0FFFFF0FFFFDFF$J,
+AAAAA7P"B79E8C79E8B79F2C70FFC3$J/
+555547P!E38F6F7B76F7B7DEDDBBFFFFFE3F$J"8$:$
+AAAAA7P"B771F78FC3FFDF$J$9#
+555547P%7777B77FFF$J.
+AAAAA7P"0F9E1CB8E11B07189CFFFFFE3F$B"j"JR#8#
+555547FCK01EDFFFFFFF$B"Z"J#
+AAAAA7FDKFDKFE3F$J#
+555547P(FFFF$D$J$J#
+AAAAA7FC0003CFE0001FE00F$D$J#J#
+555547FDFFFBDFFFDFE3FF$C#8i$8#i"8#
+AAAAA7000D07E03F1FFF06800D$C#8Z#8"Z&J#<#
+555547FFFD/F31F9F/FEFC7DFFFDGFE7FE7DF$C#8i$:i&J$8":#
+AAAAA7000D07F39F06F93D800DE0FFFFF07DB1F$C#8Z'Y"8#J-
+555547FFFD/F38220409C7FFEFFFDEB79E8C79E8579D3FF0FFFBDF$C#8i(i&J,
+AAAAA7000D07F3932C589B3F06FF3D800DE8F6F7B76F7DF6EDFFFFFF7$C#8Z'Y&J"8":$
+555547FFFD/F0333CF9933FFEFE7DFFFDEB771F0FFEF$C#8i(i&J#9$
+AAAAA7000D07F3F339F3903F06FCFD800DH7777FFFFDF$C#8Z8$Z"8#J)8#
+555547FFFD/336693/FEFFFDE0F9E1CB8E18F9E3FC30F$C#8i"8%i&JQ#8#
+AAAAA7000D07234691BF06FFFD800DEFEFFFFFF$C#8Z'Y&J#
+555547FFFD/E1F88040087FFEFCFDFFFDKFC7F$C#8i"Qi"8#J#
+AAAAA7000D0706800DKFFFF$C#8Z<Y&J#
+555547FFFD/FEFFFDFFFDDE00F$J#
+AAAAA7P!E3FF$D$J#
+555547FC0003D0001$D$J$J'A$
+AAAAA7FFFFFFCFFFFFFI9E7FFFFBFFDF39FBCF$C"j"J*?%
+55554740J15EE3FFDF70FFFFFFBC3FFEF6E3F7$C"z"J5
+AAAAA75DJDDD5E5DB8FBEFB71E74E0EDA71F1C7FC3FF1E9D31C9EFEF7$C"ZJ#83
+5555475FJFBFF77EF7B7BEDDAEEDBFFFFFFEF6EDEEDDFDF7EF$Dz"J5
+AAAAA7J7F55F507BEF4E0EF777D3BEEDFCFF87FE0EFDE0EDEF3EFF7$DZ"J5
+555547JD5E6BAEF7DF7DDEF6F6DFBEDDB6FFFFFDDEFDDDEBDEFEFEF$C"zJ.8(
+AAAAA75DJDDEC3C7141063E2862798F1F3E71FE2C78E2E7DC187$C"ZJW8)
+5555475FJFFFFFFFFEFEFFFF9F$D5J#8"
+AAAAA7IF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7O*F9FFFF$DZJ"
+555547IO*FF$C"zJ#
+AAAAA75DJDDEC00F$C"ZJ#
+5555475FJEC3FF$Dz"
+AAAAA7J7F55$DZ"J"A$
+555547JD5F9FFEFFF3$C"zJ#8";'
+AAAAA75DJDDFCFDFC9E7FFF11FFFFB$C"ZJ3
+5555475FJFB7DF3C78EDCE5F3FF0FFDA4E8BBCD3E3CD4F$J3
+AAAAA7P"BFDFDBF7E5F6AEDFFFFFDB6F7ABEEDDBB55F$J(
+555547P$1CF9E9C6AE3FF0$C"zJ*9#8#
+AAAAA75DJDDFB7DEDF7EEDB6AEEFFF7D7EB6BF$C"Z)VJ)8(
+5555475F7FAAAAAAAAAAAAA57FCF0728F1CDCAA71FE7961D7804E5CE$Dz"`#v"JS8S
+AAAAA777F7801037F55E$DR"Z)V"
+5555478B/FAAAAAAAAA52504BD5$C*z)v
+AAAAA75DDDDDDDDDDDDDDE42/DDD800000000090A21DD$C"Q#Z)VJ#
+5555475FF928/FAAAAAAA95402107EC00F$D5J#
+AAAAA7IF7FFF7FFF7FFF88477FFF7FFF7FFF7FFF7FFF7FFF7FFF7F8000000400A8853FFF7FFF7FFF7FFF7FFF7FC3FF$DQ$Y)U
+555547F46B3FFAAAAAA90AA02203$C5vJ+<)
+AAAAA7@5DDDDDDDDDDDDDC2009DDDDDDD800102040110211DDDDDDDD800000440090891DDG9FBFFFF7FFDF3E7FFFE73FFFFEF7FFDFFEF7$C"Q5VJ$8'<)
+5555475F9F5545FFFFFFFB6A8B162D88B14BFFFFFFFFAAAA52114A4444BFCFDFFF07FFBF79FFF7BFFFFDC7FF1FF8FB$D5v"J5
+AAAAA7?7F7F7F7F7F7F61123F7F7F7F088A0892446082BF7F7F7F78001084420122037F55E8B7DF3CE9E1B79FBF76F3F79E8FF87FE7CFBE7A3DF7FFDFFE$DQ5V"J5:"
+5555479F4899FFFFFFFC2494A19230A683FFFFFFFFA920420105408ABD5E4BFDFBB76F78FDFBF77EDF76F7FFFFFDBB7BDBDFBFD$C5vJ%=$
+AAAAA7@5DDDDDDDDDDDDDC2445DDDDDDDA844214494A10A9DDDDDDDD848A1128500A201DDHB8F6F7AFF87FDF$C"Q5VJ'8":$
+5555475F9E9243FFFFFFF852294524014A13FFFFFFFFA021448204A014BFB7DFBBB6F6BF76FFFFDB$J$9)9)J.8+
+AAAAA74F492BFA4914209154214BFF94881028A212823O#CF060C62791F060C19F3C19E1FE7CE0E787DC3DF0EF87B$J$9)9)E"j
+5555474F2497FA0442AA04128887FF82220282088828BF0OB$C5u:"
+AAAAA7A5DDDDDDDDEC48409245DDDDDDD9522910B3485451DDDDDDDDA088A808A041005E4DDC0$C5T:"S"Z
+555547B5FFFFFFFFD1252A4928A2405FF809048A4043020BFFFFFFFF940200A20A14953803FCFE7O9$D5t"9">"
+AAAAA7A7F7F7F7C29085048A292A17F540A0421528A947F7F7F7F782484A0841424022A2F7F559FCF$D5T"
+555547AFFFFFFFD04A50526284895FF85415294482042BFFFFFFFFA922204124100908117D5$C5t
+AAAAA7B5DDDDDDDDCA210A491052445DDD02808422515121DDDDDDDD80890908110AA4A1485DD$C5T;#J$I$
+555547B5FFFFFFFFE114A2244D08521FF85054511014048BFFFFFFFFA400844544A00204057F99F=C0003FF0000F$D5>#J$I$
+AAAAA7IF7FFF7FC948111122A302BFF80512094A815247FF7FFF7F914A212010095151503FFF7FFF7FFF7FFF7F39F;DFFFFFF7FFFF$D,85S="J$:"
+555547FFFFFFFE4254944881050940814820AC002BFFFFFFFF8420880A454408040A9FFO%EFFE7FCF$C5t;(J*
+AAAAA7B5DDDDDDDDD1002422254A4A3DD85C54250A215501ECDDDDDDA20422A110114551401DDC19C6001E13E1FO!C7618C1F03F8EC3183$C5T;(J"J+
+555547B5FFFFFFFFC4AA82949121211FF9FFC100A90800AB22DFFFFF915288084284200414B91983399E09C4F8BF5DFBB5EF6DFFFF76BDEDB$g5t":)J*
+AAAAA0C015F7F7F7F7D2085042489494B7F3F7F4AA04A554031027F7F788002245104115514217F553993339CC9CCCFE7O 7F40C6FF03EFE818DFz5T"<"9#J+
+055B5FFFFFFFFE84415292442421FFFFFF001500005548A97FFFFC4A9092045288004109D5F30FC3MBFBF5FB2FFFFF7EBF65Fz5t>%J*
+/AACA95DDDDDDDDC2A280A41229289DDDDDDAA80AAAA0024449DDDDA204401510044A914A1DD9ED9CCFFO!C220807FFFF844100Fz5T=$8"JT
+055B5FFFFFFFFF0102A128904025FFFFFF805422015512227FFFF9091254045522044203339E19E7O z":)94D)J"
+/AAA9FEA890948A562A91C50510A81089113FFFF8A44101510008A228A391983297389C4FFFM7Fz;(94D(J#
+05504444241010243C0514A2544A4949FFFFA0110940452A2110207C99C79CF383E1FO 701Fz5t;(J$
+/AACA95DDDDDDDDD2212292C54B009DDDDDDC10421101212445DDDD8A8480121080888A92DDDFFFFFFFF39FFFFMFEEFFFz5T>#J"J"8#8#
+055B5FFFFFFFFE1F810481120AA1FFFFFFC052888A8141223FFFFA05055494448227049FFE79:7F6F7FDBFFBEFz5u"="J.
+/AABA95F7F7F7F781F74A05489A00B7F7F7F400024425428929F7F7890500001204883507F55FCO"FDDF863F03E186188460FC7687z5V"=#J,
+055@5FFFFFFFF54FE01502440A41FFFFFFC15512280106485FFFFA44052AA88A2227D5FFFFO#75DFFFDDB97779BBCDB67Bz5vJ%8"8$
+/AAAA95DDDDDDDC025DD40A922A111DDDDDD8000C902A850251DDDD812A081DC211091DDO,BF73FF036FEDB603z5VJ+8"
+055@5FFFFFFFD501FC140490948BFFFFFF801424A80505117FFFFA800A17FE148407O+FBBF75FFFFDDB8F779BA7Fz5;"J-
+/AAKA95FF7FFF78055FE42A04C4241FFF7FF0002820150A1487FF7F852A087FF4022A3FFF7FFF7FFF7FFF7FFF7CFO'7F861FFFE1843805BDC5B883z/81U;"c"J)P
+0555FFFFFFF55007E1014222829FFFF0851540A29257FFFF908085FFF151013C00FKF77FFFFFFFFFFBDFz5v:"J#:#
+/AAAA95DDDDDDD00555C4A92928285DD9DDC00051442A08411DDDDDC42A51DDDC08A89DDF0O&F6FFFC3Fz5R:TJ#J$9#
+055D5FFFFFFF2A40FF0088085011FF9FF80000812814328BFFFFF910007FFF884063FFFFFD5F6FEFF4EEF01FFFFFz5r"J$<#
+/AAEA95F7F7F7F81147E2A45450A457F07600002540542BCAF7F7F784AAA7F7F452A137F7F71177F55O*EDEFFFFE7Cz5R"J"<$
+055D5FFFFFFF54427F012024A101FF800000000550287FFFFFFFFD20017FFFE0814BFFFFCCC7D5O,F7FD877Fz/95rJ,
+/AAA95DDDDDDD01115C5495100855DD41DD02A851DDDDDDDD805545DDDD42805DDDDC22BDDO+DBDF8631F81F8C100DBD7Bz.95RJ,
+0555FFFFFFFD448FD0000854201FF47FEA81203FFFFFFFFAA4017FFFC28553FFFFD492O,BF75CEFFFFF6DB75B37B9Fz":)9'9)8#J-
+/AAA98225FC1554A1289101FFF028957FF81154FFFFD42047C249O2B7BF73DFF81FC6FBC67DE77Fz:);%9)8$J+
+055D101FC4044140445FA8A513FFA84027FFF8295132A547FO27F75EFFFFFB2FBB27D9Fz/95J%8'
+/AAA95DD28AA108A9D90522915111DD;DDDA41089DDDDDDDDA52A81DDDE84091DDDDA9135DDDDDDDDDDDDDO+6F7F86108071827E00FFz.85QJ"J%8&
+0555FF02014A420502090880405FF607FFFD28A43FFFFFFFF908029FFF05144BFFFF05487FCFD56EFFFFFFFFFFFEFFFFz085J"="
+/AAA95F7A9542128A04140A4541417F20<7F7C8A0B3F7F7F7F78A2A84F7EA042237F7FD156FF7F7F7F7F7F7F55O*5DF9z/8&X$Q"J%;"
+0555FF0441088410082A1202825FF80FFFC4940BF54417FD5O)FEDDF01FFFz/8'x#rJ$
+/AAA95DD5228A42002220140A8511DD05DDDE442A9DDD8B34DDO+BBEFFFz.8'X#RJ%8%
+0555FF090A12824800921402041FF07FFFE22803FE492O*FDB7DFF7FDBFFFFEz095J,
+/AAA95FFA0A14848008048D2A950BFF849F5106ABFF7FFF7FFF7FFF7FFF7FFF7FFF7D24BFFF7FFF7FFF7O,77DF843F03E18610883083z5U&QJ-
+05555FF149422200214401800041FFA00003FFF89508BFFA0124C92BO+FB6FBF73DFFFDDB96F36EF5Bz5u-J'8%
+/AA6A95DD8202890120002A1E95225DD800001DDDA40445DDDD000122525524145DDDDDDDDO*FAEF7F701F036036E05Fz.9&U-J"J,
+0555FFA8A844A40002901C40881FFFFF12A523FF901491092482817FFFFFFFFCFB5DEFF73FFFFDDB8EFB6AFDFz.z.J-
+/AAA95F704022210004049170822937F7404054D492505477F7F7F7F55O)F5BDFF841FFFE1843037700Fz-Z.J"P&
+0555FFA2A929400208245E248033F000A0422491500FFFFFFFFFD5O*BBFBDFFFFFFFz.z-J#;#
+/AAA95DD280080009000801D022913DDD20016292A490A25DDDDDDDDO*EB7BFC3Fz-Z-J%9#
+0555FF0554550A0140523EA08013F00291449124A10FFFFFFFFFO*EAF7F01FFFFFz.I)J%
+/AAA95FF500201005415097E12095F1004422495208A7O.D6EFEFFFz-I)J%8&
+0555FF029094910042A00908441F80112A925114407O.D5DFDFF5FDBFF7EE79z.z-J,
+/AAA95DD9044408425110400A100B3DDD0144A24928852ADDDDDDDDDO*CDBF3F85BF03E18616FF7Dz-P"X-J"J+
+0555FF44121440800450420422113F000211248AD0807FFFFFFFFCF74ABBEFF757FFFDDB975CFz4x.J'8#
+/AAA95F7124042000090C200100897F7F7F7F7E817F700288A924A165577F7F7F7F55O)977DFF74FF0373EFz4W.J*
+0555FF00020042251220002801FFFFFFFFFF8003FF0002A849614110FFFFFFFFFD5O)56FBFF757FFFDDB8F5z5w-J,
+/AA4A95DD82489229108909000205DDDDDDDDDD0001DDDD00A005241A34AA5DDDDDDDDO*2DF7FF85BFFFE18436C638z4W-J$P%
+0555FF280048808A44A0001141FFFFFFFFFF0003FF20155153498282FFFFFFFFFO)FE9BEFFBDFFFFFz5J#;#
+/AAKA95FF012400044052000040117FFF7FFF7E0820FF7FFF7FFF7FFF7FFF7FFF7FFF004109084458507F7FFF7O+579FFC3Fz4V8+J%9#
+0555FF800104522A48A4000841FFFFFFFFFE0080F014A8A529050A7FFFFFFO+377FE01FFFFFz5t"a)J&
+/AA4A95DD0880110102220090010ADDDDDDDDDC4001DDDD0804A4A2D89DDDDDDO)FCAEFF9FFFz4T0J"J&8&8"
+0555FF20208000A908A0000001FFFFFFFFFE0004FFAAAA55556B55A56212106207FFFFFCEF45DFE7FF66FF5FFCF7FDDF7z5t1J2
+/AA4A95F78408012884A204000010F7F7F7F7F60000F7F70001000008442110814A5003F7F7F55O(F8BBF9FF8761F81F84386FF804300636C7z28T1J1
+0555FF01001482221140000009FFFFFFFFFE0F555452AA8221148028210001FFFFFD5O)67E7FF776EFFFF75D5EE77DDDB7BD5BFz5t0J$9#8#8$
+/AA4A95DD00090000914820002084DDDDDDDDDD1101DDDD000108005114925401081200DDDDDO)F15F9FF81FEF790313CFz4T0J$9,
+0555FF24A04090482400000020FFFFFFFFFF0001FF494842AA4882480104008040FFFFFO)F2BE7FFFFF75D3EF7ED5DB7EC5F7z/9$?.J'8*
+/AAA95FF8000040224814000550AF07F8003FF2425280104512340100001007O+F179FFFF86218430C631EC3182068Fz4?-J#8#8$Q
+0555FF00042089021110000020950FE900400047FF128002A8520808004520040O,E2E7FFFFFFEF7Fz5r0J#=#
+/AA6A95DD2A40820090084040248A8045C00404820800000DDD0029500509454200108000005DDDDO)E59FF0FFz48R+8$J"8":&:):"
+0555FF000208420801020092205227E0001010000FA4840AA4A121290140007FFFFCDFE7FCFBFFDFBF9E7CF9C27FFF001FFFz3:r1J$:#8":)
+/AAA95F702000100A1044820088A0911E0104007F7121140100814248400004490F7F7F55CFC3FF7FEFFFFBDBB7DC9FE00FFFFz48R1J28&8%
+0555FF901040020040001502214445E0420000804F40442A8545411020100010007FFFFD5CFEDCF1C9E5FE1FF8F3E7873E74F3D127BF8401FFFFF7FDBFFFBFz58r0J58*
+/AA4A95DD0100005C0801200051142101C0000080010DDD121108502000028140080480DDDDDE4DB76EDDBFFFFF6FBDBDFBDBB7DEFB7BE7B7D83FF85EF03E186178C3007z5R&8)J#8#8"9"8%9*
+05555FF040411FFA020805508929428E40000080404000F4944A20A80042822A200FFFFFED8F6FE1FDF71BFBB7D81752FFFDDB974B3DB7Bz58(J#8#8#8"8"8#:"9$
+/AABA95FF804107FF62000000A4484102600040001000000F7FFF7FFF7FFF7F001012A0001145005020FF7FDBB6FFFFDBDB6DBDC61F03B01B03z5R/J&8/8*
+05555FF200007FFE000042A12251090E00208004000800FA48548080800000020950A81FFFEFC3C61F2E3F960E7E60E7132C3CFBE7CFDC1E176DFFFDDB8FB33FB7Fz5r'8(J&8S*8'
+/AA6A95DD001085DDD080100881008A41C00020410000000DDD1DD0028000100A00E801DDDDDDFFFFFFFFFBDFBFFFFDE27E1FFF86E1843B341183z48R0J":"@(P&
+0555FF04000FFFF801002254AA4008E2000004001F7FFD48008000004000887207FFFFFCBFC73F9FFFF9E5BFE1FBDFFFFFFFz58r&8*J"@):#
+/AA4A95F7100427F7F004001102022A44E04100000007F777F4250000000225F097F7F7F55GFFFFFFFFFFF2CFFE1FFC3Fz18"8T#8+J&9#
+0555FF40000FFFF9000048A8A88111E000008E8000801000127FFFFFFFFD5O(F377FFE01FFFFFz08$85J&
+/AAA95DD00410DDDD8400024048A2845C2200006DDDDDDDDDD22458C94A88D2200000800048DDDDDDDDDO)F1B9FFFFFFz/8":P(8)J&8#8"
+0555FF02080FFFF8000012A2410503E00A930504A04409900200247FFFFFFFFO)F8DE7FFFF7FDBF7Bz"8#8/<)8$J,
+/AAA9800000002281128A057E008200010008848D052155540480020137O.EFBFFF83DF03E186107BE0z'809)8$J-
+0555FF400026FFE005488A150FE42080004000000F03F2221548C0245521000008FO-FC77CFFF75BFFFDDB96F367Bz5:&J'8#
+/AACA95DD0088041D900020212441501DC08000120004000C00DDDDDDDA9144242D92848C0A5DDDDDDDDO*BBF7FF767F03604Fz59'J"I-
+055B5FF020002000108001412283FFFE000004000000008007FFFFFF2482293200850401020FFFFFFFFFC7FFE3DF9FF75BFFFDDB8EFB77Az08$8.9(J,
+/AAA95F74802002010000042892577F7E00000240037F7F7F12528488AA50A28001477F7F7F7F55O)5EFE7F83DFFFE184307A3Dz/:19(J,
+0555FFFFFFFE0088A094284490482004002000001FFFFFF89125242210A28000057FFFFFFFFD5O)9F7FBFFFFFFFFFFBDFFFFFz/9%9,9'J%:#
+/AAA95DDDDDDDD0004144285224A00020000010DDDDDD4089092914A10680030DDDDDDDDDO)FF2FBFCFFC3Fz/8"8"9,9'J%9#
+0555FFFFFFFE00529328509121020920000FFFFFF2A60A488824CA00000A7FFFFFFFFO*57DFF01FFFFFz280:&J%
+/AAA95FF7FFF7E040088850A09144880040010100400000F7FFF7841482445922150417F7FFF7O+97EFFFFFz58,9&J#
+05555FFFFFFFC00164450A0A4832021000000040240400FFFFFF534250524491411002CFFFFFFFO+ABF7z18$95J,
+/AAA95DDDDDDDC2080524A4A125000882020900104DDDDDD40140A29124928810004000105DDDDDDDDO*CDFBFF83C1C7C0FC2F063Fz595J#J,
+05545FFFFFFFC005512292289140A0000000020000404FFFFFF2AA2A284892404100006002857FFFFFFFFBFEFF4D5FDFF799EBBFFFBD679DFz38"95J,
+/AAA95F7F7F7F50800890490A092200400010000057F7F7F80289052449152C94807017F7F7F7F7F7F55O)D6FEFF02407FC0F81903FFz59.R"J+
+05545FFFFFFFC025649A20A14C900500000000400004FFFFFF2FC44A48220808040007D5O)EAFF7F7D9FBFFFFBF67Dz085rJ,
+/AAA95DDDDDDDC40092428A284040200440104A410400001DDDDDD9DD22222A94AA5514105DDO*EB7FBF83C0C3FFFC0F021Fz/8&8.RJ$S
+0555FFFFFFFC12A491251862A2100100000008200FFFFFF7FFD1112112201042407O*F5BFDFz":+8"8"8"9*J"
+/AAA9C4012449085122880040100003FFFE89494889542100O4EFz:+8":#;)J%E$
+055D0A81224A514944000000080074424044111285047O1FADFF01FF80003z&R#<2rJ$E+
+/AAA95DDDDDDDE0100800C00DDDDDDDDDDD2291522884850205DDO+EFFFFF87E7FFE37F8FFCEFF6E3z%9'8"8&P)RJ"J#F,
+0555FFFFFFFD0000200000001044220F03F9044092452509027BFD5FB6FFC7FDBFFED18D2AEFE3C2Cz,;'r)r"J#F,
+/AAA95F7F7F7F7F7F7F4021000000204100807F4A11A492494C49077F55O)FD77E3FFD3E1ED66D516CDE6E2z"Q$=%R)R"J"B)9%
+0555FC90410FE001000A2A8124924A28417D5O*B7FE7E7FFE1FFFCBFF36EDF6ECz.8(r0J#:$;-
+/AAA95DDDDDDDDDDDDDC000010002400001DD204400DD90854104121450805DDDDDDDDDDDDDO*FEBBF7FFF7FD87BFF1FFFFDBE1ED68D516z"Q8$8(R*QJ28*
+0555F040000000007FFC902008A2094A148D204001FO+DDFF83C1C6018E36F81F8C100EDD7BBF8FE7FFE31E852EEE3722z,<5J38*
+/AAA95FF7FFF7FFF7FFE00100:0FF7C01000F7FFF7FFF7FFF7C91422142209510007F7FFF7FFF7O+FF5DFF799EB9F7F5D5FFFFF6DB76D37BC87FFFFFFFF1FFBFFFFFFFz"Q#9*R*PJ58$
+0555FC000080002001FFFE04100C49291428945445007O,46EFF02407E77C3F3F81FC6FBC73DE7A000000007FFFFFFz*8,r0J5
+/AAA95DDDDDDDDDDDDDC40200000008005DDDD90880DD224848284430210001DDDDDDDDDDDDO+<6F7F7D9FBFB5B1F5FFFFB2FBB33D9FB87FFFFFF7FFE37F9FD87FFE77z"Q%9(R*QJ"J)8(8*
+0555FC020820000100FFFF0000091252505310D940003BFB6B77F83C0C07B82168071833E027F8FE7FFED186983BA61A1z,;5J"Q8(8*
+/AAA95F7F7F7F7F7F7F410408=420F7F7448407F7F7F7F7F7F7E549090A0097F7E00017F7F7F7F7F7F55O+BFFFFFFF7FFFFFF1F7E1ED6676D8D59EF7z"Q$:(P,Q"J"A#8#8"8&
+0555FC0000080001FFFF005007FFD0A444A2AA47FFE0011D5O*DBFCFFFE1FFF41DBEC5F77z):"85J"@"9#8)
+/AAA95DDDDDDDDDDDDD80=02002DDDD22000DDDDDDDDDD9DDCA113090812DDDC0101DDDDDDDDDDDDO,DFFFFFE3E1ED6867DBD5DDB6z"Q&8(P,QJ#E,
+0555FE00120000008020FFFF880204FD01488A4A2887FFE0401O+EDEFFC7FE3FFE31E98E03A2279z"=$:#8$;+J'P
+/AAA9C004002008E0090028459244120842FFFE00OCFF87FFFFFFF1z=$8&8"<+J$E&
+055C92008100000002F00A524483FA14A287FFE20O2EEF01FF80003FFFFz,8"85J$E$
+/AAA95DDDDDDDDDDDDDC0000100<4105DDC94490DDDDDDDDDD109225DD8841055DDD8001DDDDDDDDDDDDO+F6FFFFFFFFFFz"Q$9)P,QJ"J&9$
+0555FC0028080000007FFA41000444111FFE528A17FFF0003BF76F77FFEFFFDDFFFBFz08"t3J,
+/AAA95F7F7F7F7F7F7F51280002400200BF7F12294B7F720A54008001177F7F7F7F7F7F55O*FB7FC023C5BF03F80478B7z"Q+T3J+
+0555FC000080800000010047FA92427FFF94012A224080000001FFFFFFFD5O+BFBEFDB97FFFF7DFB72Fz)8#9#u2J,
+/AAA95DDDDDDDDDDDDD40001821DD84928DDDD42A880800404108001DDDDDDDO+FDBFCEF17CFF03F9DE2F9Fz"Q$:#U2J+
+0555FC202001E0752484FFFF982450001010842221FFFFFFFO,DFF6ACBD7FFFFED597AFz+8"85J*
+/AAA95FF7FFF54FF7FFC88810<1FF7FFF7FFF7FFF7FFF7FFF701052FF7F8505081241000210807FFF7O.8F60C1BFFFF1EC1837z.8V1J#T
+0555FFFFFF457FFFFE02001000040A8A48FFFFD150A4400404488009FFFFFO,FEEFz1v2
+/AAA95DDDDDD241DDDDC00008008000001DDD94225DDDDA82410000011000801DDDDDDDz0V2J"J$
+0555FFFFFC110FFFFC10100000010001F42910FFFF851280048100002041FFFFFFFBEF6FF701Fz+9"8v3J#=$
+/AAA95F7F7F548A7F7F4804007F294C477F7508950102404490100F7F7F7F55O+7FFFF3FF9Fz,:V3J#=$
+0555FFFFF82413FFFC0904090042257FFF0A4420000041200411FFFFFFFD5O+BFDFEF70EFz.85J+
+/AAA95DDDDDD1285DDDC200080010=1DDDDDDDDDDDDDD85DDDDDDDB12101DDCA12290020010002041DDDDDDDO-05A187C0FC700076EE77z-8"Q5J,
+0555FFFFF88A23FFFC8420002421F6E007FFFFFF4494A9FFE2890100000048A8001FFFFFFFO-DDAE7BFFFFBB5BB69F70F3z"9*?#9Q#8%J-
+/AAA9C608BFFFC0084008008013E0810000110FO/DFDE6E7BC0FE3BDE39EF7F6Fz9)A"@(J"8(
+055D1423FFFE50004800B0000044400801FO0D6FFFD9BDD99EF6Fz-9*t"8)J-
+/AAA95DDDDD89505DDDC04210001DDDDDDDDDDDDD0001DDC0001080109DDDDDDDO,EFEE6187FFFC118C19F2309Fz+:"P$T"9(J"J#P%
+0555FFFFFC4097FFFE010801FFE0016E04224021FFFFFFFBDF8FEEFFBFFFFFFz-:)t"8*J#<"
+/AAA95F7F7F52A47F7F4A4200047F7F7F7F7F7E00007F60010000880F7F7F7F55O+F7F9E7z-8"P$T-J#D$9$;"
+0555FFFFFE091FFFFC1100880809FFE0005E1F822041002005FFFFFFFD5CC07FF80007F0000FFFz.8*t,J#D$9$
+/AAA95800115645DDDDE400A202001DDDDDDDDDDDDC0000DDC5DC88204500011DDDDDDDDDFFFFBFFFFFFF9F9z)W$T,J"E#;#
+055580249011011482BFE0004EFFF00800010481FFFFFFFDBFF7CFF71Ez585J)
+/AA5A9580024A88044A503FFF7FFF7FFF7FFF7FFF7FFF7402F7FFF7FFF7FFF7FFF7FFF7800228000007FFF7O(B7E07E304036F6FEz8'X#V)J*
+0558204421210AB0001C8288102001FFFFFO(7BFFFFDB6DD6CD1F3Fz"8'x#v*J"E+
+/AAA928A208014401DD0003DDE28000084A1DDDDDDDD7FEF7BE07F1BEF19F4EEFFz8'U$8V*J"H(
+055021120141283E00000E8004840001FFFFFFFBBFB7FFFECBEEC9F6z"8'u#8%s+J#8&
+/AAA92944000348537F68800120804F7F604A0000000F7F7F7F55O%DFCF01C609F919z8'U#8%S+JP$
+055802000102203E0000014552FE5000204409FFFFFFFD5O&FBFFFFz"8'u#8%s*J#J"
+/AAA90A9A000A8915DDC0040142049DDDD040A841081DDDDDDDCFEFF5E7z8'U#8%S*J#:"
+055204100402083F2400011520FE1100000001FFFFFFFO&B80FFFz"8'@#9$>'J#;#
+/AAA90214012A8A23E0008800AFF4040020000FO)BBFFF9F9z8'@":$>'J"F#;#
+05510828000208BF022520FC0400484491FFFDB7EFF7DEz"8'u#9$s*J*
+/AAA9445028908A01DDCA4009084DDDC112A000005DDDDDDDO&77CFE07E304036F79Ez8'U#9$S*J"G+
+055010A84040043E10080422FD4080402021FFFFFFFB7F6FEFFFFFDB6DD6CE5F3Fz"8'u#9$s+J"H)
+/AAA910004010552B7F702422211F7F00801048280F7F7F7F55BFBE07F1BEF19F40EFFz8'U#9$Q-J+
+0550A0200810083E90010944FEFFF00054220815FFFFFFFD5O$FEDFEFFFFECBEEC9F7DEz+t#95J"8&
+/AAA9585C015010005401C8DDC420442010DDDDDDDDDDDDDC1DC12400000001DDDDDDDO'C701C609F989z+S#9$Q,J#P$
+05559FF880A84050253807FF10008482FE1F900001100101FFFFFFFO%FDDFFBFFFFz594J"F";"
+/AA5A95BF7E2A0509051020007FFF7FFF7FFF7FFF7E440202087FFF7FFF7FFF7E000002040094407FFF7DF7BFE7z)9R#9$Q9(J#:"
+0555FFFF01504051408F11002020F0A0820011FFFFFO'B80FFFz,s#95J$;#
+/AAA95DDDD940909081224005DDC840408885DDDDDDDDDDDDDC00022000200005DDDDDDDO%FB77FFF9F9z+S#9$Q,J$G";#
+0555FFFF82A020054000003E50040200FE00000002004481FFFFFFFAFEFFEF87F7DEz)9s#9+8*J*
+/AAA95F7F7A08002A017F717A00021F277F7F7F7F7F60848011000F7F7F7F55O%6F7BE07E304036F79Ez+S#9+8*J,
+0555FFFFCA2888044400001EFFF24888E027FFFFFFFFFE0100900051FFFFFFFD5O$F6EF7BFFFFDB6DD6CE5F3Fz*8s$85J"F+
+/AAA95DDDDC0842122010DDCDDD804002219291DDDDDDDDDC00004412408509DDDDDDDCDFDFE7E07F1BEF19F40EFFz+U"94J+
+0555FFFFC22284090011001C00088001FFFFFFFFFE000000400A2003FFFFFFFO%F5DF9FFFFECBEEC9F7DEz"9'A"8&:"8&J$8&
+/AAA9890514020400E0240821488FE40002002A8FO(EDBF0301C609F989z9&E&:"9%J#P$
+05504A0410880012100042FF04812801FO(EBBFFBFFFFz*8u"8+9(J"E#;"
+/AAA95DDDDC1295084000DDD00000089205DDDDDDDDC00080129DDDDDDDCBFDB7FE7z(8"U"8+:'J"H#:"<$
+0555FFFF80044420003F00108A2008FFFFFFFFFE000005FFFFFFFAFD780FFF80007Fz(:u"8+:(J$A$
+/AAA95F7F780531107F7010200048277F7F7F7F6028900F7F7F7F55O$D6F7FF7CFFFFz(8"U"8+8*J"E"C&
+0555FFFF00084412207F00001110087FFFFFFFFE1020480049FFFFFFFD5B7FB67B7FFF131Fz,u"8+8)J#A'
+/AAA959DDC00222080820000DDDD00904042405DDDDDDDDC8000000003DDDDDDDO%ADEFFEFA7C3EECFFz+U"8&ZJ&
+05559FFC00090800003001FF00000408027/O3F97FFEED3Fz(8.:2J#E#A'
+/AAA9587600000A20C0F7FFF7FFF7FFF7FFF7FFF7E0102007FFF7FFF7FFF7FFF7FFF7FFF7FFF7CFEFF5BDFFDFB7C3EEDDFz#8#8W:%YJ"A'
+0555800A0014000081FO'BFFBFCFFFF123Fz"9&w"8&zJ#C"8#
+/AAA901D0040001DDC0110444029D/DDO$FED7FFFFFFz9&W9&ZJ#F#A#
+0550FFC000003000111201F/AFBFDB77FF780z#8#9w"9$z"J#A#8"
+/AAA95A1F7F7F0020080007F55O$AEFFEF7EFBz"8#9U#9%Z"J#B#8#
+055583FFFE7FE08000C120D5O#FD6EEEFC1EBFz"9&u#9%zJ"B'
+/AAA91DDD800001DDD1D800044D010DDO%5DDEFEFC3EF25Fz9&U#:#ZJ"E#B'
+0557FFFC00003E444000F1BFBFCDDDDFEFFFF3ADFz"H(J#B&
+/AAA9F2000007E00021O6FABBBBFEFC3FDAzH)J"B&
+055E920001FF804804FO6B777FC7FFE3Az"9#8"u)zJ"E#CP
+/AAA95DDD01DDC080005DDC00000D1DDBF7F977z9#8"U)ZJ"F#A$
+0557FFF83F412007FFE00082F1AF7F56FFEEF80z":%u#8%z"J#B#8"
+/AAA97F4402037F62807E04210F17F55O#F2EFDF7C7Fz9&U/V"J"E#A(
+0553FFFD04003F00001FFFF00001FFFFFFFFFFE07D5AEFEADFFDBEFB7FFE12BFz*u/vJ#A(
+/AAA95810001DDD810009DDCA4001DDDD02004DDDDDDDDDD801DDO$E9BFFBBDFF7C3F7C5Fz)U/VJ"C'
+0555800001FFF000023E10001FFFF00920FFFFFFFFFE000O$E57BFCFFFF70DFz"958+J#A'
+/AAA9;07FE880003FFF7FFF7FFF7FFF7FFF7F42081F7FF040817FFF7FFF77FF7FFF7FFF7FFF7FFF7O%D37FF6F7FBFC3F6Cz"Z/8TJ"E#A'
+0555F081E00801FFFF00814FFFFFFFFFC0CDFCAFFEDEFF87FFF94z#z1uJ"C"P
+/AAA95D0DD00C20001DDDD00000DDDDDDDDD80001DDDO$C6DFz"Z(8&8"UJ"F"B$
+0555F/FC00308000FFFE2FFFFFFFFF3FAEF95DBBF80z#z08u"J"E"B$:"
+/AAA95F/7F7C002200007F7E00020F7F7F7F7F007F55ABF8DD77E7CDFz"Z$9*8U"J"B)
+0555F/F80008FC00481FFFFFFFFF80D5O#8BAEFDFB7FFF2B11F5z#z$v8"uJ"B)
+/AAA95D/DDD8001DDD1DDDO$176DFBFEFC3FC4EF92z"P#S$V8"UJ"J)
+0555FF43FF0000F3FB7F<5BE7FF7FFF0EF3D6z"<#J$J#A)
+/AAA9C24F6C0007FO-FE2FFEB7DFFB7C3ECEFDz<#J(
+0551117P&6FBFFCFFFF4F03z*s$v8vJ#E"A%8$
+/AAA95DDDDDDDDDDD4849DDD0000DDDDDAEEFF5FFD6E7FFFFFFFFFz)S$S&VJ"E#A%
+0555FFFFFFFFFFE0503F0000FF810000001ADEFC3FFADDFF00z*s"8s#8%s"J"A%
+/AAA95F7F7F7F7F7C40557F707F7840000000037F55O#BFF9BBFCFEz)S$S#<S"J"A%8$
+0555FFFFFFFFFFD1501F8001FFA00D5O#7FF367F3FC2B1198z*s$s#;"sJ"E"B*
+/AAA95DDDDDDDDDDC0049DDD8001DDDD80411DDADDF9F2DFCFFAFC3FC4EF67z)Q&S#;"SJ#A*
+0555FFFFFFFFFFC8825484000003FF82003O#F8FFE5BE3FF87FFF0EEF69z28-:)J"B*
+/AAA95FF7FFF7FFF44281FFF7FFF7FFF70000000000F7FFF7FFF7FFF2008083F7FFF7FFF7FFF7O$F9CA79FFFEFC3ECEEF6Ez)Q#:+:"RJ"E"B#8&
+0555FFFFFFFFFFE28250401127FFFFFFFFFFDF8000003BDBF1D5E7FFFF4F1191z2:*;"sJ"B%8$
+/AAA95DDDDDDDDDDD0281DDDDDDDDDDDD1090005DDDDDDDDDDCD92005DDO#F38B9FFFFFFFFFFFz)Q#;);"SJ"E"?(
+0555FFFFFFFFFFE282B40007FFFFFFFFFFC7C0003ABBE7F9FFCF047FFC00z2<'=s"J":#=#:";)8"
+/AAA95F7F7F7F7F7F82877F7F7F7F7F7F04087F7F7F7F7C387F55@B7FBCF3C3C87F7BEF713FE03F87FF7z)Q#8"9(:#S"J%=$93
+0555FFFFFD02402102F014008FFFFFFFFFC1A240843D5CFDDFFBEF7DBEEF7BE07E304036F73CF60F81FFFBFFFF2B0195z28"8):#sJ/93
+/AAA95DDDDDC20000401004001DDDDDDD4400005DDDDDDDDDDC08800001DDDFC9CF0E3FF0FFE7468E7277FBECFC7FFFFDB6DD6CFBEF8007FFFF8FC3FC4F7E2z1;);"SJ/93
+0555FFFFFC000100A40104A1FFFFFFF20097FFFFFFFFFFC3C0003DFD5F7BEDFFFFFFBBF7FBB77F7EDFFBE07F1BEF19F7BEF43FFFFFFF7FFF0EF786z":(9#@%:"J"9"9&9"9'8+
+/AAA90140200441005F12A0FD98000213IAF5C0FFE3BF7E3CF7BFFFECBEEC9F6007FFFFB7C3ECEF766z:(9#@%:"J.9"80
+0554802810104011F4000FF98800083MDB7B6DFFFFFDBBF7DBB77EFEEF8701C609F91C4E0F81FFFCFFFF4F19A6z49):#sJ%8&8"9P)8$
+/AAA95DDDDDC90000042410201DDDDDDD090800025DDDDDDDDDDDCA004801DDDFC9CBCC4FE50E1E5CFE7FBFFFFFF13FE03FFFFFFFFz39"P#:$RJ"8%8'@"9%
+0555FFFFFC00010100000801FFFFFFF24A220007FCC7E0003C0A5FFFFFFFFFFFFFFFFFDF7FE7047FFC00z59);*J%>"9%8"
+/AA4A95F7F7F400000000082001F7F7F7F00008020107F7F7F7F7F657F40403F7F7F7F7F7F7F55M3F3FFCF3FF8B9FFFFCF7z%8.8Q$:$Q"J%B%8#
+0555FFFFFC0811210111FFFFFFFA912000000E7FFE092000FD5MFFFFFFF1D5E7FFFB212Bz2;*:*J"E"B)
+/AAA95DDDDDC01084004000005DDDDDDD04805DDDDDDDDDDDF3DDD0000205DDDDDDDDDDDDA3FF9CA79FFF8FC3FD7C5z1;#Q"9%QJ"B)
+0555FFFFFC28200000088881FFFFFFFAFD0783FF004001017O#F8E5BE3FFB7FFF170Dz2;(;*J#A)
+/AAA95FF7FFC80000040222021FF7FFF77FFA4007F7FFF7FFF710004043F7FFF7FFF7O$F97FF2DFCFFB7C3ED6CDz%8,:#Q"9%PE"D%F"B)
+0555FFFFFE0201000205FFFFFFFFFF8900203F800120103E78F1FCF8FFCF367F3FCFFFF594Dz3:*:*D"9';&F"A%8#
+/AAA95DDDDDC00010008080801DDDDDDDDDDC004811DDDDDDDDDDDDDC800403DDDDDDDDDDDDDBFE7DFFFBFF7FBEEFB7EF7FBFF9BBFCFFFFFFz39#Q"9%QD"9#9"=#G"A%
+0555FFFFFC02001020824001FFFFFFFFFFE00020041FC02000001BDFF7FFF7BEE3FFADDFF00z49*9,G-I#A&
+/AAA95F7F7F408084102200021F7F7F7F7F7F000001047F7F7F7F7F7F7C100040017F7F7F7F7F7F55F171FC507C7C323E1CCC63BFFE5FFD6E7FF87Fz2:#Q"9%Q"E08"F"A%8#
+0555FFFFFC3F200008020081FFFFFFFFFFE400010FC00020041D5C07FEE7DFB9BFF7BD9DDEEB6F7BFDFFF2FFE6FBFFF2EBFz59):*F-8"J(
+/AA4A95DDDDDCDDC00420104405DDDDDDDDDDD001020005DDDDDDDDDDDDC082905DDDDDDDDDDDDFFFFDF7DF7DBFF77EBDFEE7EBF@B7DFFEFC3ED45Fz,P$9"Q"9%QF#9"9'H#A)
+0555FFFFFFFFF01081410001F00000002FC02000011C07FFBDE0EFF6FBF7FFF17FF5BE7FEFFFE3ADFz";%>":#;"9%J#=#8#8"J(
+/AAA9C400400002087FF8104100036FFFFDDEEBEFF7F=6DFBFDFC3EF45Fz;%=%8"@%J"9/H"B(
+055800100800400000200000010834DBEE7DFBDBBF7BDBDDCEFF9FBEEFB78BAEFDFDFFFF0EBFz59(:*D"91F"B$8#
+/AA5A95DDDDDDDDDC0000200891DDDDDDDDDDD001000005DDDDDDDDDDDD0084205DDDDDDDDDDDDE7F1307C3C7C1C318E243FDFBE0FCFEF3F8DD77E7FFEFFz,P#;(9%QD"9U%H"B$8"
+0555FFFFFFFFFC0901000001F40007FFFFFFFFBFFE00423000FFFBFBFFFFF95DBBF80FFz4<'9,J"8#F"B$8"
+/AAA95F7F7F7F7F60004004009F7F7F7F7F7F00807F7F7F797F400083001F7F7F7F7F7F7F55<8F8F1FC6EDDFFC3Fz39*:#R"J$8#F"C&
+0555FFFFFFFFFE0010000081FFFFFFFFFFE02000102FFFFFFFFF87E0003E4D5:FE1FFFFF5FCAEFFB7FFFABz)8):);"sJ#:"F#A'
+/AAA95DDDDDDDDDC808201DDDDDDDDDDC000001DDDDDDDDD80001DD;FFFF4FD37FF6F7FCFC3FA5z3:'8&SJ#A'
+0555FFFFFFFFFE0800001025FFFFFFFFFFA100203FFFFFFFFF801F8000803O$E5BFFB7BFB7FFFADz49(8-J"F"C%
+/AAA95FF7FFF7FFE2000090001FF7FFF77FF880004027F7FFF7FFF007F6000003F7FFF7FFF7FFF7B67E9BDFB7C3Fz29)8#8"RJ#A&
+0555FFFFFFFFFE0009200101FFFFFFF4FE00020781FFFFFFFFFF81FFF83O%EADFFDBEFCFFFFz2:)8&sJ"F#A$8"
+/AAA95DDDDDDDDDC0240002021DDDDDDD2A84005DDDDDDDDDDDD81DDD800409DDAA7F2EFFEDF7FFFz1;"P)SJ"F#B#
+0555FFFFFFFFFC0800010001FFFFFFF00117FF810003FFF800003AB3F56FEF80z2:.8s"J#A$8"
+/AAA95F7F7F7F7F20004101005F7F7F7FAA80017F7F7F7F7F7F7880007F7F407F55O#F977FF77FC3Fz38#P'8S"J"F#C&
+0555FFFFFDFFF08040400111FFFFFFF00480010047FFA00407FFFC0D5@B9FAB7FB7FFFB31Fz58"sJ"B'
+/AAAA95DDDDDCDDD00001010001DDDDDDD550108000002405DDDDDDDDDDDD802005DDD01DDO%BBBBFB7C3FACDFz5P&8"SJ"F#B%
+05565FFFFFC3F800420000801FFFFFFF005420820008007FF800007FFF43ABAFCDDDDFC7FFFz"9(:'C#J"F#B'
+/AAA9C0000408400414AA00000000200103IBCFD5DDEFF7C3FAD1Fz;&:#9"C"J#F"B'
+055100FC0000001400004J9D7F6EEEFCFFFFB3DFz2;/sJ"F#B#8#
+/AAA95DDDDDC080801DD020025DDDDDDD542A5DDDDDDDDDDDD848001DDD800001DDADDFEAEEF7FFE3Fz19$P&8"SJ#F#A#8#
+0555FFFFFE41000FFF900901FFFFFFF110001227FF802203FFF03ADEBFB77FF780FFFFz5s"J#A$9"
+/AADA95F7F7F4000007F7C00011F7F7F7F449084000904087F7F7F7F7F7F7800001F7F00004B7F55O$D7BFFBFEE7BFz5P&8"S"J#E#C'
+05565FFFFFC00001FFFC00041FFFFFFF224410204020007FF921000FFE03D5@DF5FFF5BFCDBFFF14B0Fz5zJ"A(
+/AA7A95DDDDDC08801DDDC01101DDDDDDD901000000080405D5DDO&DFFDFED3C3EE85BFz5ZJ#A'
+05565FFFFFC40207FFFE00001FFFFFFF4A8200041202007F5O%ADEFFEFECBFFF2CFz*95J"J%
+/AAA95FF7FFC02013FFF6?F7FFF70050000080101277FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7CAF?DBC3FC8Fz)9ZJ"G#A(
+0555FFFFFE00083FFFE?BCFB6F7FF7C67FFE34FCFz-zJ#F"C'
+/AAA95DDDDDC10201DDDC00021D@DDAEFB7D67FFFFFFFDFFFz,ZJ"F$A&
+0555FFFFFC01003FFFE40201F@BD7DB780F80007FFFFFz-z"J"G#;#:$
+/AAA95F7F7F4800017F7C04001F@7F55ADB7FFFF9F9FFFFFFz%8$8Z"J"F$;#
+0555FFFFFC0FFFC10@D5AEBEBBFF7F61Ez%8'zJ"F+
+/AAA95DDDDD80DDDA01245D@DDBEDEDBFE7E07E304036F5EEz,ZJ,
+0555FFFFFC922247FF000001F@O%F5DF97FFFFDB6DD6CDEF3Fz"9SJ#F,
+/AAA9O3E7F6F6DF03E07F1BEF19F79EFFzJ*
+055P#EFF7FFFECBEEC9F67Ez#z"J"G$8&
+/AAA95DJDDC1@F7FB6FE301C609F809z"ZJ#F"P$
+0555FJBFB7F77FBFFFFz#z"J"
+/AAA95FJ7F41O+E7z"Z"J#E$:"
+0555FJC1AFDBFFDB80FFFz#zJ#;#
+/AAA95DJDDO&BFFFF9F9z"Z"J"F#;#
+0555FJC3BDFDF87F61Ez5J#F+
+/AAMA95FF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFC1@F3FEFEDFBFE07E304036F5EEz"ZJ"G*
+0555FIDEF87FFFFDB6DD6CF1F3Fz#zJ"G,
+/AAA95DJDDAFBFF6FFBE07F1BEF19F7EEFFz"j#J#G(
+05540I2023AFF777BFFFECBEEC9F5z#Z#J#8&
+/AAA97FI8001O%778701C609F819zjJ"F"P$
+055KCBBB7FBFFFFz"Z"J";"
+/AAA9J80O&BBE7z"j#J"H#:"
+/5554J2223@F9B80FFFz$J"F#;#
+O+AAA77FFFBDDDFFFF9F9z"J";#
+O+5557O(C7F7BEz"J$G)
+O+AAA7BFDFFDEBFE07E304036F73Ez"J"F+
+O+5557DEEEF47FFFFDB6DD6CFBF3Fz"J#F*
+O+AAA7DEF7F3BE07F1BEF19F7BEFFz"J"F(
+O+5557DF7F7BBFFFECBEEC9z"J"F"8&
+O+AAA7EBFC701C609F919z"J"IP$
+O+5557BFCFBFFFFz"J#E";"
+O+AAA7DFBDFFBE7z"J#D$9"
+O+5557EC07FF80007FFz"J"8#D$
+O+AAA7BFEFFFFFFFFFFz"J"
+O+5557DFDz"J":&9%
+O+AAA7HCFF9F7FF7F7FFE7EFDE7z"J&:#8":$
+O+5557DFEFC9FFFEFFDFFFFFCF9F7
+ENDBITMAP
+
+%%EndBinary
+127. 280. 467. 546. R
+0 H
+N
+FMENDPAGE
+%%Page: "1" 1
+FMBEGINPAGE
+0 F
+0 X
+(1) 516. 36. T
+1 F
+(1. Introduction) 72. 642. T
+0 F
+5.75 (With ) 72. 619. P
+3 F
+5.75 (PEM) 104.75 619. P
+0 F
+5.75 ( [M2CS89], Modula-2 CASE) 129.41 619. P
+5.34 (Systems \050M2CS\051 provides an interactive) 72. 606. P
+11.46 (software engineering environment for) 72. 593. P
+6.24 (large-scale ) 72. 580. P
+3 F
+6.24 (Modula-2) 133.21 580. P
+0 F
+6.24 ( [Wirth88] projects.) 180.54 580. P
+2.05 (PEM tries to bring the benefits of systems) 72. 567. P
+10.34 (such as ) 72. 554. P
+3 F
+10.34 (Interlisp-D) 130.67 554. P
+0 F
+10.34 ( [Barstow84] and) 184. 554. P
+3 F
+5.51 (Smalltalk) 72. 541. P
+0 F
+5.51 ( [Goldberg83] to the Modula-2) 117.34 541. P
+8.09 (user. PEM includes an object-oriented) 72. 528. P
+17.35 (database, an object-oriented script) 72. 515. P
+5.68 (language, a program synthesizer \050editor,) 72. 502. P
+11.46 (interpreter, debugger\051, an incremental) 72. 489. P
+8.25 (compilation system, support for meta-) 72. 476. P
+9.57 (programming, version and dependency) 72. 463. P
+(management and a hypertext system.) 72. 450. T
+7.86 (PEM is unique in the sense that it) 72. 427. P
+9.45 (supports exploratory programming and) 72. 414. P
+11. (rapid prototyping as well as cross) 72. 401. P
+10.9 (development \050for embedded systems\051.) 72. 388. P
+10.78 (The PEM system runs on a Sun) 72. 375. P
+7.54 (workstation and offers a window and) 72. 362. P
+(mouse-oriented user interface.) 72. 349. T
+8.61 (We have chosen the NeWS window) 72. 326. P
+2.67 (system from Sun Microsystems as a basis) 72. 313. P
+3.95 (for our user interface toolkit. This paper) 72. 300. P
+7.07 (explains why. It also introduces ) 72. 287. P
+3 F
+7.07 (event) 262.68 287. P
+10.61 (projection) 72. 274. P
+0 F
+10.61 ( as a technique we have) 121.33 274. P
+5.54 (employed with great success in dealing) 72. 261. P
+(with an extensible display server.) 72. 248. T
+1 F
+(2. Primary Goals ) 72. 225. T
+0 F
+5. (Since the modules were to be used by) 72. 202. P
+6.07 (outside programmers as well as M2CS) 72. 189. P
+4.06 (developers, they had to satisfy the usual) 72. 176. P
+3.34 (demands for reusable components \050simple) 72. 163. P
+6.01 (and clear semantics, ease of use, high) 72. 150. P
+(implementation quality\051.) 72. 137. T
+4.81 (The toolkit also had to be flexible and) 72. 114. P
+(easy to extend.) 72. 101. T
+1 F
+(3. NeWS: an Extensible Display Server) 306. 642. T
+3 F
+4.84 (NeWS) 306. 618. P
+0 F
+4.84 ( [Gosling89, Sun87a, Sun87b] was) 335.33 618. P
+2.67 (developed by James Gosling et al. at Sun) 306. 605. P
+4.74 (Microsystems and introduces a new and) 306. 592. P
+4.74 (very exciting approach to display server) 306. 579. P
+5.62 (design. NeWS is an interpreter for the) 306. 566. P
+3 F
+25.67 (PostScript) 306. 553. P
+0 F
+25.67 ( programming language) 356. 553. P
+8.23 ([Adobe85a, Adobe85b] with extensions) 306. 540. P
+17.23 (for light-weight processes, events,) 306. 527. P
+10.79 (display operations and object-oriented) 306. 514. P
+(programming.) 306. 501. T
+8.09 (PostScript is a general-purpose, stack-) 306. 477. P
+14.84 (oriented language with a device-) 306. 464. P
+8.84 (independent graphics model; in many) 306. 451. P
+4.19 (ways it is a high-level variant of Forth.) 306. 438. P
+8.5 (Pointers are not supported \050PostScript) 306. 425. P
+9.68 (has dictionaries instead\051 and garbage) 306. 412. P
+9.4 (collection is built into the language) 306. 399. P
+(interpreter.) 306. 386. T
+9.68 (Non-extensible display servers employ) 306. 362. P
+8.75 (fixed, low-level protocols resulting in) 306. 349. P
+11.59 (complex client-side toolkits. The X) 306. 336. P
+5.67 ([Scheifler86] window system is a good) 306. 323. P
+9.42 (example. Another problem with non-) 306. 310. P
+8.21 (extensible display servers can be the) 306. 297. P
+2.61 (amount of packets exchanged between the) 306. 284. P
+(server and its clients.) 306. 271. T
+7.54 (NeWS was designed as an extensible) 306. 248. P
+3.28 (display server to solve these problems. It) 306. 235. P
+4.78 (has a real programming language as its) 306. 222. P
+1.86 (protocol and can work well over a modem) 306. 209. P
+(connection for some applications.) 306. 196. T
+4.45 (NeWS clients can be written entirely in) 306. 173. P
+3.87 (PostScript and downloaded to the server.) 306. 160. P
+3.34 (NeWS programs can open files and even) 306. 147. P
+5.21 (communicate over the network. On this) 306. 134. P
+14.09 (level, clients are usually machine) 306. 121. P
+3.67 (independent and are distributed in source) 306. 108. P
+7.87 (form. There are many public domain) 306. 95. P
+13.11 (utilities available, including multiple) 306. 82. P
+8.09 (window classes, a Smalltalk-like class) 306. 69. P
+6 F
+(An Extensible User Interface Toolkit in the PEM Environment) 109.56 779. T
+(Frode L. \257deg\214rd & Tomas Felner) 192.01 747. T
+(Modula-2 CASE Systems A/S) 208.91 717. T
+(Maridalsveien 139, N-0461 Oslo, Norway) 174.51 702. T
+8 F
+(e-mail: frode@m2cs.uu.no & tomas@m2cs.uu.no) 157.53 673. T
+FMENDPAGE
+%%Trailer
+%%Pages: 5 -1
+%%DocumentFonts: Times-Roman
+%%+ Times-Bold
+%%+ Times-Italic
+%%+ Symbol

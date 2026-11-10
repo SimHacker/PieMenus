@@ -1,0 +1,204 @@
+/NumberPieMenu PieMenu
+dictbegin
+  /CursorDistance null def
+  /CursorDirection null def
+  /PieNumber null def
+  /PieScale null def
+dictend
+classbegin
+    /PieRange 4 def
+    /PieMul 5 def
+    /HiLiteWithArrow? false def
+%    /TrackFont /Courier-Bold findfont 16 scalefont def
+    /TrackFont /Courier-Bold findfont 12 scalefont def
+
+    /ln2 2 ln def
+
+    /DragProc {
+	ChildMenu null eq {
+          MenuGSave
+	    PieRadius dup translate
+	    CurrentEvent begin
+	      XLocation DeltaX add
+	      YLocation DeltaY add
+	    end
+	    SetMenuValue
+
+	    MenuValue PaintedValue ne {
+	        PaintMenuValue
+            } if
+
+	    fboverlay setcanvas
+	    overlayerase
+	    erasepage
+	    MenuX PieRadius add MouseXDelta sub
+	    MenuY PieRadius add MouseYDelta sub translate
+	    PieDistance NumbRadius gt {
+	      gsave
+		TrackFont setfont
+		0 TrackFont fontheight 2 div neg moveto
+		PieNumber (xxxxxxxxxxxxxxxxx) cvs 
+		cshow
+		/textmat matrix currentmatrix def
+
+	        PieDirection rotate
+	        0 setgray
+	        newpath
+	        NumbRadius 0 translate
+		gsave
+		  PieNumber abs
+		  PieRadius NumbRadius sub PieScale div mul
+		  0 translate
+		  0 0 moveto
+		  PieK 0 lt {
+		    10 45 lineto
+		    stroke
+		    20 60 moveto
+		  } {
+		    10 -45 lineto
+		    stroke
+		    20 -60 moveto
+		  } ifelse
+		  textmat setmatrix
+		  PieNumber (xxxxxxxxxxxx) cvs cshow
+	        grestore
+		PieRadius NumbRadius sub PieScale div 1 scale
+		/linemat matrix currentmatrix def
+		0 0 moveto
+		PieScale PieMul mul 0 lineto
+		0
+		PieScale 2 div ln ln2 div .5 add floor 2 exch exp
+		PieScale PieMul mul { /i exch def
+		  i 16 moveto
+		  0 -32 rlineto
+		  PieK 0 lt { i dup neg exch -24 } { i dup 24 } ifelse
+		  moveto
+		  textmat setmatrix
+		  (xxxxxxxxxxxxx) cvs cshow
+		  linemat setmatrix
+		} for
+	        stroke
+		
+		
+	      grestore
+	    } if
+          grestore
+	} if
+    } def
+
+    /popdown {
+      gsave
+        fboverlay setcanvas
+	erasepage
+      grestore
+      /popdown super send
+    } def
+
+    /SetMenuValue { % x y => - (Sets /MenuValue)
+        /PieDistance
+	  2 index cvr dup mul 2 index cvr dup mul add sqrt def
+	exch
+%	PieDistance PieRadius lt {
+	  atan /PieDirection exch def
+%	} { pop } ifelse
+
+        /PieK
+	  PieDistance NumbRadius sub 0 max
+	  PieRadius NumbRadius sub div
+	  PieDirection dup 90 lt exch 270 ge or not { neg } if
+	def
+
+	/PieScale
+	  PieDirection
+	  PieK 0 gt {
+	    dup 270 ge { 360 sub } if
+	  } {
+	    180 exch sub
+	  } ifelse
+
+	  PieRange mul
+	  -90 div
+	  2 exch exp
+        def
+
+	/PieNumber
+	  PieScale PieK mul
+	  PieScale 4 div
+	  ln ln2 div .5 add floor 2 exch exp
+	  exch 1 index div
+	.5 add floor
+	exch mul
+	def
+
+	/MenuValue
+	  PieDistance NumbRadius le
+% It could be that when the cursor is out past the menu radius,
+% nothing is selected. But I don't do it that way, because it wins
+% to be able to get arbitrarily more precision by moving out further.
+%	  PieDistance PieRadius gt or
+	  { null }
+	  { PieSliceWidth 2 div  PieInitialAngle
+	    Clockwise { add PieDirection sub } { sub PieDirection add } ifelse
+	    NormalAngle
+	    PieSliceWidth idiv } ifelse
+	def
+    } def
+
+    /RetainCanvas? true def
+
+    /PaintMenuFrame {
+      /PaintMenuFrame super send
+      gsave
+        0 setgray
+	PieRadius dup translate
+1 8 div dup scale
+	0 .2 360 { /ThisAngle exch def
+	  random .1 lt { pause } if
+	  gsave
+	    ThisAngle rotate
+	    NumbRadius 0 translate
+
+	    ThisAngle
+	    dup 90 ge {
+	      dup 270 ge {
+		360 sub
+	      } {
+		180 exch sub
+	      } ifelse
+	    } if
+
+	    PieRange mul
+	    -90 div
+	    2 exch exp % PieScale
+
+	    PieRadius NumbRadius sub 1 index div 1 scale
+
+	    0
+	    1 index 4 div ln ln2 div .5 add floor 2 exch exp
+	    3 -1 roll
+8 mul
+	    {
+		0 moveto  0 0 rlineto stroke
+	    } for
+	  grestore
+	} for
+    } def
+
+classend def
+
+/menu
+[(+1   )(+1/4 )(+1/8-)( -1/4)
+ (   -1)(   -4)(+-16)(+4   )
+]
+[{(Number: %\n) [PieNumber] dbgprintf}]
+/new NumberPieMenu send def
+menu /PieInitialAngle 0 put
+menu /Clockwise false put
+menu /SliceWedges false put
+menu /LabelMinRadius 50 put
+menu /LabelMinRadius 300 put
+
+/win framebuffer /new DefaultWindow send def
+{/ClientMenu menu def} win send
+/reshapefromuser win send
+/map win send

@@ -1,0 +1,86 @@
+SunFLASH Vol 23 #12					       November 1990 
+----------------------------------------------------------------------------
+
+           Package Includes Window System and Toolkits
+
+MOUNTAIN VIEW, Calif. -- November 13, 1990 -- Sun Microsystems
+announced today that the source code for its OpenWindows(TM)
+application development environment will now be available free of
+charge (cost of media only -- $995).  This means that hardware and
+software developers will now have a cost-effective way to incorporate
+OpenWindows -- including the easy-to-use OPEN LOOK(R) graphical user
+interface -- into applications developed or ported to many platforms
+>from different vendors.
+
+The package includes code for the X11/NeWs(TM) Window System, OPEN LOOK
+toolkits, and OpenFonts(TM) with its TypeScaler(TM) technology.  Before
+today, only OpenWindows binaries were available from Sun.
+
+"Offering free source code for the industry's most advanced,
+comprehensive window environment demonstrates our ongoing commitment to
+open systems," said Ed Zander, vice president of marketing at Sun.
+
+                     Advanced Imaging Model
+
+The X11/NeWS Window System that is part of the source package combines
+a fully compliant X implementation with Sun's NeWS(R) technology, which
+offers the most advanced PostScript(R) imaging model available today.
+NeWS lets developers work with interactive, on-screen PostScript
+graphics -- particularly useful for commercial applications such as
+desktop publishing and multimedia.
+
+Also part of the source code package is OpenFonts -- Sun's
+nonproprietary font technology, which includes 57 scalable fonts.
+
+             OPEN LOOK Toolkits Provide Portability
+
+The keys to OpenWindows' portability are two OPEN LOOK toolkits,
+XView(TM) and the OPEN LOOK Intrinsics Toolkit (OLIT). XView is Sun's
+X-based toolkit that gives developers an easy way to design new
+applications with the OPEN LOOK graphical user interface, as well as to
+migrate the 2,800 existing kernel-based SunView(TM) applications to the
+networked window environment of OPEN LOOK and X.
+
+The OLIT toolkit -- based on AT&T's OPEN LOOK toolkit (XT+) --
+implements the OPEN LOOK look and feel and supports MIT Intrinsics.
+The XView toolkit is also offered free on the X11 R4 tape available
+>from MIT. OpenWindows is a standard part of the industry's leading
+UNIX(R) operating system, UNIX System V Release 4 from AT&T.
+
+Since OPEN LOOK toolkits will be available for a range of platforms,
+developers can standardize on a single graphical interface.  Toolkits
+>from Sun and other vendors are available now or will be offered within
+three months for UNIX workstations from Digital Equipment Corp.,
+Hewlett-Packard and IBM, for VAX/VMS systems from Digital.
+
+                          Availability
+
+OpenWindows source code will be available January 1, 1991 on magnetic
+tape for $995 (which includes the cost of media and documentation)
+through Sun distributors.  The source license is included at no cost.
+There are no royalties for distributing applications developed with
+OpenWindows.  Hardware vendors will pay nominal royalties for systems
+they resell that run the OpenWindows environment.
+
+Sun Microsystems, Inc., headquartered in Mountain View, Calif., is a
+leading worldwide supplier of network-based distributed computing
+systems, including professional workstations, servers and UNIX
+operating system and productivity software.
+
+###
+
+OpenWindows, XView, X11/NeWS, OpenFonts and TypeScaler are trademarks
+and NeWS is a registered trademark of Sun Microsystems, Inc. OPEN LOOK
+and UNIX are registered trademarks of UNIX System Laboratories, Inc.
+PostScript is a registered trademark of Adobe Systems, Inc. All other
+products or services mentioned in this document are identified by the
+trademarks or service marks of their respective companies or
+organizations.
+
+
+FOR MORE INFORMATION:
+Cathleen Beall Garfield  (415) 336-6536 
+Diana Murray OpenWindows Licensing Manager (415) 336-1567
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+

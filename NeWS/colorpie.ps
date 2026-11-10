@@ -1,0 +1,161 @@
+systemdict begin
+
+% ------------------------------------ %
+% PieMenu
+systemdict /PieMenu known not {
+  systemdict /DontSetDefaultMenu true put
+  (piemenu.ps) runforemacs
+  framebuffer /GLCanvas known { % SGI 4Sight?
+    (sgipie.ps) runforemacs
+  } if
+  systemdict /DontSetDefaultMenu undef
+} if
+
+
+% ------------------------------------ %
+% ColorPieMenu
+
+/ColorPieMenu PieMenu
+dictbegin
+  /LabelMinRadius 60 def
+  /NumbRadius 25 def
+  /Hue 0 def
+  /Saturation 1 def
+  /Brightness 1 def
+  /Hues 20 def
+  /HueRot null def
+  /HueStep null def
+  /SelectClientColor null def
+  /RetainCanvas? false def
+  /UseOverlay? false def
+dictend
+classbegin
+  /new { % - => obj
+    [() {}]
+    /new super send
+    begin
+      /SelectClientColor exch def
+      currentdict
+    end
+  } def
+
+  /getmenuaction {
+    {select-color}
+  } def
+
+  /PaintMenuFrame {
+    MenuGSave
+      MenuFillColor fillcanvas
+
+      PieRadius dup translate
+
+      newpath
+      0 0 PieRadius 0 360 arc closepath
+      0 0 PieRadius Border sub 0 360 arc closepath
+%     0 0 NumbRadius 0 360 arc closepath
+      MenuBorderColor setcolor eofill
+    grestore
+  } def
+
+  /PaintMenuItems {
+    MenuGSave
+
+      PieRadius dup translate
+
+      /HueStep 1 Hues div def
+      /HueRot 360 HueStep mul def
+
+      gsave
+	newpath
+	0 0 NumbRadius 0 360 arc
+        0 0 NumbRadius Border add 0 360 arc
+        0 0 Brightness sethsbcolor
+	eofill
+        newpath
+        0 0 NumbRadius Border add 0 360 arc
+	closepath
+	0 0 PieRadius Border sub 0 360 arc
+	closepath
+ 	eoclip
+	HueRot -2 div rotate
+        0
+        Hues {
+	  dup 1 Brightness sethsbcolor
+          newpath
+	  0 0 moveto
+          0 0 PieRadius HueRot -2 div dup neg arc
+ 	  fill
+	  HueRot rotate
+	  HueStep add
+        } repeat
+       pop
+      grestore
+    grestore
+  } def
+
+  /cvfixed {
+    16384 mul floor cvi -14 bitshift
+  } def
+
+  /SetMenuValue { % x y => - (Sets /MenuValue)
+        /PieDistance
+	  2 index cvr dup mul 2 index cvr dup mul add sqrt def
+	exch atan /PieDirection exch def
+	/Hue PieDirection 360 div def
+ 	/Saturation
+	  PieDistance PieRadius min NumbRadius sub
+	  PieRadius NumbRadius sub div
+	  1.3 mul .3 sub 0 max
+	def
+	/MenuValue
+	  PieDistance NumbRadius le { null } {
+	    Hue cvfixed Saturation cvfixed Brightness cvfixed hsbcolor
+	  } ifelse
+	def
+    } def
+
+    /PaintMenuValue { % - => - (Hilite current item, un-hilite prev one.)
+	MenuValue        PaintSlice
+	/PaintedValue	 MenuValue store
+    } def
+
+  /showat {
+    /MenuValue null def
+    /showat super send
+  } def
+
+  /PaintSlice { % slice => -
+    MenuGSave
+      pop
+      PieRadius dup translate
+      newpath
+      MenuValue null eq {
+        0 0 NumbRadius 0 360 arc
+        MenuFillColor setcolor
+        fill
+      } {
+        0 0 NumbRadius Border sub 0 360 arc
+        MenuValue setcolor
+        fill
+        0 0 NumbRadius 0 360 arc
+        0 0 NumbRadius Border sub 0 360 arc
+	MenuBorderColor contrastswithcurrent 
+	MenuBorderColor MenuFillColor ifelse
+	setcolor
+	eofill
+      } ifelse
+    grestore
+  } def
+
+  /select-color {
+    MenuValue null ne {
+      SelectClientColor
+    } if
+  } def
+
+classend def
+
+/PieColorMenu ColorPieMenu def % for old times sake
+/ColorPie ColorPieMenu def % for older times sake
+
+end % systemdict

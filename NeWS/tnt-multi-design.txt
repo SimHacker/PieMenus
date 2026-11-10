@@ -1,0 +1,34 @@
+* The Problem:
+
+  TNT does not properly support multiple heads.
+
+  The problems include:
+
+	1. References to framebuffer
+	   Need to change uses of "framebuffer" to whichever is most
+	   appropriate:
+		framebuffer		default framebuffer defined in userdict
+					screen specified in $DISPLAY
+		framebufferof		framebuffer of the object in question
+		currentframebuffer	framebuffer under the cursor
+		globalroot		global coordinates
+	2. Shared menus
+	   Need to key shared menus off of "framebufferof".
+	   Factor out shared menu creation code to procedures that take
+	   framebuffer as argument and return menu. 
+	   named /<title>Menu that makes entire menu tree and replaces itself
+	   in class with shared class menu.
+	   
+	   Promote /Menu instance variable the first time it's used (/setmenu).
+	   Factor out menu initialization in ClassDrawable to MenuInit.
+	3. Window placement
+	   Need to key placement information off of "framebufferof" or window parent.
+	4. World crossing notification
+	   Track service notification if client asks for it in /TrackStart.
+	   Selection service drag notification.
+	5. Selecting a default display
+	   Need -display host:server.screen argument to pass down screen and set
+	   up framebuffer in userdict.
+	6. Default service
+	   Listen for properties on framebuffer 0.
+	   There may be some properties that are framebuffer specific.

@@ -1,0 +1,93 @@
+To: jag@sun.com, dshr@sun.com, owen@sun.com, jfarrell@sun.com
+Subject: Text selection in NeMACS.
+--text follows this line--
+Hi! I'm working on Emacs this summer at Unipress. It now supports
+menus, and text selection, with rubber banding in the server. It
+works, and is much fun to use, but I have a few questions about
+getting it RIGHT! 
+
+When you initiate a selection by clicking with the mouse, emacs
+replies with an array of the line widths in the current window, and
+the row of the window's top line.  Some code I stole from nterm rubber
+bands an outline around the text as you drag around the window. I
+modified it to show that a line's trailing newlines was selected by
+drawing the right edge with an arc or a slant.
+
+The feedback is capable of showing if the newline selected or not, but
+I'm still trying to figure out an easier way of drag-selecting a
+trailing newline than moving the mouse to the beginning of the next
+line. It's got to work naturally with Emacs's ideas of the cursor
+being between two characters, and the way dragging the dot around with
+the mouse works.  I tried out a few ideas and they were all
+disconcerting. Like going to the beginning of the next line if you're
+more than one character past the end of the line. The thing that seems
+to be most natural is to select leading newlines when cutting and
+pasting text around. But that's often not what I want when stuffing
+text into a shell window.  How about supporting both leading and a
+trailing newline flavors of selection?  (newline gravity? depending on
+if you're dragging up or down?) I was just playing around with psterm
+and discovered the way the extend button toggles whether the newline
+was selected or not. I'll have to try that out to see how it feels in
+emacs.
+
+I'm also having to translate nl's into cr's when stuffing text into
+emacs, or else the text gets indented way out to the right out the
+window into the middle of Raritan Ave. Stuffing mlisp into a buffer in
+elec-mlisp-mode is downright dangerous. Maybe stuff should be doing
+its stuff at a different level than that of keystrokes. 
+
+I want to make it use the request model instead of the buffer model
+that it's now using. When you select something (by dragging over it
+with the left button, or extending by shift-clicking the left button),
+it wraps the region around the text, and sends it to NeWS, making it
+the primary selection. I'm not sure if it's more obnoxious for the
+user to invoke "make the region the primary selection" separatly, or
+to do it every time. With the request model, do I want to save the
+selected region away in another buffer, or return the "live" region?
+How fuzzy a distinction should there be between the primary selection
+and the region? (Should the naive user have to know about it?) i.e.
+when you move into and around in a window, should the primary
+selection become that window's region, or is that taking it a bit too
+far? 
+
+Also, I want to make a psh interface that allows me to select
+PostScript objects, grab them into Emacs buffers as text, edit that,
+and stuff them back, either making changes to or replacing the object.
+Any advice on how to use LiteUI to do this? What can I do to make it
+work with the way NeWS/X handles selection?
+
+Other stuff we're working on include a menu compiler, which compiles
+nested menus described as linked info nodes into PostScript code and
+MLisp key bindings. (Menu keys are assigned keystroke sequences, with
+keytop names that identify them, which are bound to MLisp functions.
+Menu keys can invoke submenus or do anything else you want, too.) So
+you can make menus without touching PS or MLisp!  The menus all run in
+the server, so you can type into the emacs underneath while you're in
+the middle of completing a menu selection.  I changed getmenuaction to
+execute executable keywords, to support indirect submenu references,
+and magic functions that decide the submenu or menu action.
+
+There's a pie menu of text and fill colors to change, with distance
+controling the brightness. (Feedback in the menu center.) If you're on
+a color framebuffer, a hue(direction)/saturation(distance) color wheel
+pops up once you've selected the brightness.
+
+There's also a set of style(direction)/point(distance) font menus
+based on a new class of pie menu that has an array of Things per key, 
+like a cycle item per menu key, controled by distance.
+As you move around the menu, the selected Thing of the selected slice
+is displayed in the menu center. The font menus have Things like 
+"[(24 point) /Helvetica findfont 24 scalefont]", etc...
+
+I made a class of window that has thin borders, and a little handle
+sticking out the top right with its FrameLabel -- you can have a bunch
+of them overlapping, and their names all stick out to the right, where
+you can click on them to bring them to the top or get a frame menu.
+They work really well with multiple emacs frames!
+
+Thanks for all the neat toys!
+
+	-Don
+
+
+	

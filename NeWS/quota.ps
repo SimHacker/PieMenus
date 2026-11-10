@@ -1,0 +1,65 @@
+%!
+% Character quotas
+% Blame: Don Hopkins
+
+systemdict begin
+  /InitialQuota 20 def
+  /KeyQuotas 300 dict def
+
+  /ResetQuotas {
+    KeyQuotas begin
+      0 1 255 { InitialQuota def } for
+    end % KeyQuotas
+  } def
+  ResetQuotas
+
+  /~ { ResetQuotas } def
+
+  /OverQuota { % event key => event
+    gsave
+      1 index recallevent
+      framebuffer setcanvas
+      currentcursorlocation
+      [ (Over quota!)
+        5 -1 roll 1 string 0 2 index put (Character: % '%') sprintf
+      ] popmsg
+      {.5 60 div sleep killprocess} fork pop pop
+    grestore
+  } def
+
+  /CheckKeyQuota { % event => event
+    dup /Name get % event key
+    KeyQuotas 1 index get % event key count
+    dup 0 lt {
+      pop OverQuota % event
+    } {
+      1 sub % event key count-1
+      (Key % Count %\n) [3 index 3 index] dbgprintf
+      KeyQuota 3 1 roll put % event
+    } ifelse
+    end % KeyQuotas
+  } def
+
+  /KeyInterest createevent def
+  KeyInterest /Name 300 dict put
+  KeyInterest /Name get begin
+    0 1 255 { /CheckKeyQuota load def } for
+  end % Name
+  KeyInterest /Action /DownTransition put
+  KeyInterest /Priority 1 put
+
+  systemdict /QuotaProc known not {
+    /QuotaProc null def
+  } if
+
+  /StartQuotaProc {
+    QuotaProc null ne { QuotaProc killprocess } if
+    /QuotaProc {
+      createevent dup /Name /foobar put dup /Canvas framebuffer put expressinterest
+      KeyInterest expressinterest
+      { awaitevent (Got %\n) [3 -1 roll]dbgprintf } loop
+    } fork def
+  } def
+
+  StartQuotaProc
+end % systemdict

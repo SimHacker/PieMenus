@@ -1,0 +1,126 @@
+
+** What productivity gains do interactive programming environments provide over
+   batch compilers?
+
+A good interactive programming environment puts the full power of
+the extension language at your disposal, giving you immediate and
+direct access to the functions and data structures that compose the
+system.
+
+You can display and modify live data structures, and examine, call,
+and redefine functions from the keyboard. You can implement, test,
+analyze, and revise modules of code, without writing
+stand-alone drivers to test out each module, and without
+recompiling and relinking after every change.
+
+** Why use an interactive language rather than a graphical prototyping
+   system?
+
+Graphical prototyping systems are generally very good at what they're
+designed to do, but aren't applicable outside their narrow domain.
+
+Interactive programming environments are more widely applicable, and
+they can be extended to implement interfaces and communication
+protocols tailored to the needs of specific applications.  
+
+The NeWS window system and the Emacs text editor provide
+programmers with a high level of power and flexibility, to rapidly
+prototype, evaluate, and implement unconventional ideas. Much of
+the prototype code can be reused in the final system.
+
+Emacs and NeWS are especially useful for creating front ends for
+command line driven program. Operating system processes can be run
+under the control of Emacs, which can provide them with pre-processed
+input, and capture and manipulate their output. With NeWS, a
+programmer can use object oriented PostScript to build a graphical
+front end to an application that provides local input processing and
+feedback, resulting in low client/server network traffic and high
+interactive performance.
+
+** How expert must a user interface designer be in programming in general
+   to derive productivity gains from an interactive programming environment?
+
+The presence of an extension language in a rapid prototyping system
+does not preclude that the system is usable by non-programmers.
+Programmers can use the extension language to create a concise,
+application specific command language that is easy for
+non-programmers to use.
+
+Novice programmers can take advantage of pre-defined commands and
+objects, putting them together and customizing building blocks
+written by other people.  Experienced programmers can take full
+advantage of the power and flexibility of the extension language,
+creating their own building blocks, which others can use.
+
+** How expert must a user interface designer be in a specific interactive
+   language, to derive productivity gains from using that language?
+
+A language is easier to learn interactively that in a batch
+environment. Direct access and immediate feedback gives a programmer
+immersed in an interpretive environment intimate experience with the
+language, and incentive to experiment.
+
+Using object oriented programming in NeWS, programmers can utilize 
+pre-defined classes of objects without knowing about their internals,
+and they can make their own custom classes by subclassing already
+existing classes. NeWS supports this building block approach very
+well. 
+
+Emacs, which runs on dumb terminals as well as window systems,
+provides an integrated program development system, with online
+documentation, command name completion, and many packages of
+specialized editing functions that can be bound to key sequences,
+or used in building higher level packages.
+
+** How does one migrate from prototype to product?
+
+At one end of the spectrum, a prototype can be iteratively refined
+until it's solid enough to serve as the finished product.  At the
+other end, a prototype can be analyzed, written off as a learning
+experience, redesigned, and totally reimplemented. 
+
+A prototype can provide a supporting framework on top of which can
+be build modules that would be impossible to implement and test in
+a vacuum.  Even if parts of the prototype must eventually be
+rewritten, independent modules can still be reused.
+
+** How would you prioritize the importance to a user interface
+   designer's productivity among: use of an interactive environment,
+   the particular language chosen, and pre-existing library or
+   component packages?
+
+1) Use of an interactive environment.
+   You've got to be able to participate in the environment.
+
+2) The particular language chosen.
+   It's got to be an environment worth participating in.
+
+3) Pre-existing library or component packages.
+   You need a solid base on top of which to build,
+   and some concrete examples of how things are put together.
+
+** Once a user interface designer has elected to use an interactive language,
+   how does he select the language?
+
+Different languages are good at talking about different things. 
+Figure out what you want to talk about first, and then choose the
+language. 
+
+Here are some words used to describe concepts that certain
+interactive programming languages are good at manipulating.
+
+NeWS:
+	graphics, geometry, transformations, fonts, paths, images,
+	colors, lines, curves, regions, input devices, events,
+	canvases, processes, synchronization, remote procedure
+	calls, classes, objects, windows, menus, scroll bars
+Emacs:
+	text, strings, characters, words, lines, paragraphs,
+	windows, buffers, marks, streams, processes, files,
+	directories, databases, abbreviations, keystrokes,
+	bindings, macros, regular expressions, syntax
+Forth:
+	hardware, registers, interrupts, real time control,
+	diagnostics, integers, pointers, stacks, words, vocabularies,
+	control structuctures, interpreters, assemblers,
+	disassemblers, compilers, decompilers, meta compilers

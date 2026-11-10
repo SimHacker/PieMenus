@@ -1,0 +1,484 @@
+========================================================================
+
+* == printing an interest's /Canvas field:
+
+The == function does not handle events (interests) with /Canvas fields
+that are dictionaries. It tries to print out the dict of canvas as a canvas
+at an improbable location.
+
+ClassSharedInterest begin
+SharedEventMgr begin
+EventMgrProcess begin
+Interests aload pop
+dup ==
+interest(0x19e540, [0,0], name(/DoItEvent), action(dict[
+    /EventMgr: {/ClientData 'get' 'exec'}
+    ]))
+
+pop dup ==
+interest(0x19e600, [0,0], name(dict[
+    /Damaged: {/HandleFix packedarray{11} exec}
+    ]), action(null), canvas(0x23e368,70x28@24602,-11183))
+% Bogus canvas: ------^                     ????????????
+
+dup /Canvas get dup ==
+dict[
+    canvas(0x1adba0,516x900,parent,retained): canvas(0x1adba0,516x900,parent,ret
+ained)
+    canvas(0x1ada00,502x858,parent): canvas(0x1ada00,502x858,parent)
+    canvas(0x1acb60,149x286,parent,retained): canvas(0x1acb60,149x286,parent,ret
+ained)
+    canvas(0x1ad930,3x18): canvas(0x1ad930,3x18)
+    canvas(0x1ad860,1x1,unmapped,parent,retained): canvas(0x1ad860,1x1,unmapped,
+parent,retained)
+    canvas(0x35e0d0,64x18): canvas(0x35e0d0,64x18)
+    canvas(0x35e000,68x68,unmapped,parent,retained): canvas(0x35e000,68x68,unmap
+ped,parent,retained)
+    canvas(0x1ad450,574x488,parent,retained): canvas(0x1ad450,574x488,parent,ret
+ained)
+    canvas(0x1ad380,3x18): canvas(0x1ad380,3x18)
+    canvas(0x35ea90,60x18): canvas(0x35ea90,60x18)
+    canvas(0x1ad2b0,1x1,unmapped,parent,retained): canvas(0x1ad2b0,1x1,unmapped,
+parent,retained)
+    canvas(0x35e9c0,64x64,parent,retained): canvas(0x35e9c0,64x64,parent,retaine
+d)
+    canvas(0x1acea0,574x358,parent,retained): canvas(0x1acea0,574x358,parent,ret
+ained)
+    canvas(0x35e5b0,528x230,unmapped,parent,retained): canvas(0x35e5b0,528x230,u
+nmapped,parent,retained)]
+
+========================================================================
+
+* Mona Eyes:
+
+Hurray! This is the ultimate program for getting people to play with NeWS!
+But the eyes should cross more, when you move the cursor right between them.
+Also, there should be a property sheet that lets you adjust the eye color,
+pupil dialation, etc. Also a pallet of mustashes and funny noses you can 
+paste onto the picture.
+
+========================================================================
+
+* etc/NeWS/eventmgr.ps:
+
+The SharedEventMgr was accumulating a series of numbers on its stack: 1 2 
+3 4 5 ... each time a /paint proc had an error, because the stack 
+resetting code in RobustEventMgr fails if the event manager starts out 
+with *nothing* on the stack, i.e. like after clearing its context. 
+If the stack is clear. 1 is pushed, and because of the 'gt' test fails, 
+it is not cleared off with "count -1 roll pop", and it is left as the
+first element of the stack, it just it keeps growing, 2, 3, 4...
+
+Fix: Change the gt to ge? (untested)
+
+    %	Start another awaitevent-loop, inside a stopped context.
+    %	If the awaitevent gets an error (from one of its callbacks),
+    %	give a little indication of what went wrong, try to restore
+    %	the stack, and restart the loop.
+    %
+    /RobustEventMgrLoop { %  -  =>  -
+	{   %    mark the stack & run until you drop
+	    {   count 1 add dup 1 roll		%  n-to-save obj obj...
+		/awaitevent load loop	
+	    } stopped {				%  error
+		ExecutiveErrorHandler		%  report it
+		%  now try to take the stack back to its original state
+		count dup index			%  n  obj obj... m n
+		dup type /integertype eq {	%  n  obj obj... m n
+		    2 copy gt 2 index 1 gt and {
+%-------------------------------------????
+			sub { pop } repeat	%  n  obj1 ... objn-1
+			count -1 roll pop
+		    } {
+			pop pop
+		    } ifelse
+		} {
+		    pop pop
+		} ifelse
+	    } {
+		exit
+	    } ifelse
+	} loop
+    } def
+
+========================================================================
+
+* etc/NeWS/liteitem.ps:
+
+% ============================= SimpleScrollbar =============================
+/SimpleScrollbar ScrollbarItem []
+classbegin
+    /BoxSize		{ButtonSize} def		% height of box
+    /ArrowSize		16 def				% height of btn arrow
+    /ScrollDownArrow 16 16 1 { } { <
+% ---------------------------???
+        07F8 0FF8 0818 0818 0818 0818 781F F81F
+        8002 4004 2008 1010 0820 0440 0280 0100
+	> } buildimage def
+
+OOPS: The args to buildimage are: width height bits/sample matrix proc
+Evidently the matrix arg is not being ignored any more like in NeWS 1.1...
+Should be: [16 0 0 -16 0 16] instead of { }
+
+========================================================================
+
+* etc/NeWS/litemenu.ps, etc/NeWS/liteitem.ps:
+
+Need the change every instance of "type exec" to "realtype exec" because
+font type is dicttype!
+
+========================================================================
+
+* overlayerase, overlaydraw:
+
+Not defined!
+
+========================================================================
+
+* NDE scroll bars, Color Names demo:
+
+The NDE scrollbars repaint slowly and flashily when you drag them.
+It paints the whole cable, then paints the scroll bar over in, every time 
+you move the mouse.
+
+========================================================================
+
+* NDE Sliders:
+
+The NDE scrollbars repaint slowly and flashily when you drag them.
+It paints the whole cable, then paints the scroll bar over in, every time 
+you move the mouse.
+
+========================================================================
+
+* Journalling:
+
+No speed slider!
+
+========================================================================
+
+* etc/NeWS/debug.ps:
+
+To make the debugger useful again, so it does not catch /killprocess
+errors, comment out the /killprocess in the DbgErrorList array.
+
+/DbgErrorList  [ % the list of errors the debugger catches
+    /accept		/dictfull		/dictstackoverflow
+    /dictstackunderflow	/execstackoverflow	/interrupt
+    /invalidaccess	/invalidexit		/invalidfileaccess
+    /invalidfont	/invalidrestore		/ioerr
+    /limitcheck		/nocurrentpoint		/rangecheck
+    /stackoverflow	/stackunderflow		/syntaxerror
+    /timeout		/typecheck		/undefined
+    /undefinedfilename	/undefinedresult	/unimplemented
+    /unmatchedmark	/unregistered		/VMerror
+%    /killprocess % Causes immoral immortality! -Don
+] def
+
+========================================================================
+
+* textcan.ps:
+
+Core dumps on 386i X11/NeWS beta 2 while trying to make textcan.ps 
+work with X11/NeWS. (used by the cyber space deck application 
+(cyber.ps).)
+
+/MapCaret:
+Currently pending breakpoints are:
+    1: mapcaret called from process(0x2f6004, input_wait)
+de
+Can ==
+canvas(0x167860,0x0,unmapped,transparent,parent,retained)
+Caret ==
+canvas(0x167930,5x17,retained)
+
+Caret /Retained get = 
+true
+Caret /SaveBehind get = 
+false
+Caret /Transparent get = 
+false
+
+Can /Retained get =
+true
+Can /SaveBehind get = 
+false
+Can /Transparent get =
+true
+
+signal SEGV (segmentation violation) in fillscans at 0xbf28a
+fillscans+0x3d8:                repz stosl %eax,(%edi)
+(dbx) where
+fillscans(0x31d444, 0xffffffff, 0xc, 0xc6c6c6c6, 0x8, 0x0, 0x0, 0x31d16c) at 0xbf28a
+sh_386_fill_shape(0x31d108, 0x108c6c, 0x31d424) at 0xbe023
+sh_fb_render_path_shape(0x31cfb0, 0x31d108, 0x31d054) at 0x3b49a
+sh_fb_Path_Raster(0x31d108, 0x31d054, 0x31cfb0, 0x3) at 0x62efc
+renderPath(0x31cf70, 0x2) at 0x9e31
+cs_fill(0x6431cf70, 0x2dee40) at 0x2a819
+PostScript(0x31c004, 0x0) at 0x24488
+run_process(0x31c004, 0xfbde705c) at 0x2d519
+RunScheduler() at 0x44085
+main(0x1, 0xfbfffa98, 0xfbfffaa0) at 0x435fa
+(dbx) 
+
+(dbx) run
+Running: /j/i386-re/usr/bin/xnews 
+where
+StructItem: ItemBorder is duplicate instance variable.
+StructItem: ItemFrame is duplicate instance variable.
+StructItem: ItemRadius is duplicate instance variable.
+signal SEGV (segmentation violation) in sh_fb_Path_Transform at 0x2b80c
+sh_fb_Path_Transform+0x37:              movl   $whoops1!(%edx),%eax
+(dbx) sh_fb_Path_Transform(0x132bb0, 0x414914, 0x0) at 0x2b80c
+sh_fb_Area_Path(0x414914, 0x414870) at 0x899c
+sh_fb_Image_Raster(0x29c4d0, 0x3c969c, 0x135894, 0x8, 0x13598c, 0x14d8e0, 0xfbfff954, 0x168808, 0xffffffff, 0x16000c) at 0x65853
+cs_imagecanvas(0x64135854, 0x5c29c5f8, 0xffffffff) at 0x663c1
+imagemaskcanvas(0x3fa004, 0x3c64e0) at 0x5d54f
+PostScript(0x3fa004, 0x3fe004) at 0x296bf
+run_process(0x3fa004, 0xfbde705c) at 0x2d519
+RunScheduler() at 0x44085
+main(0x1, 0xfbfffac4, 0xfbfffacc) at 0x435fa
+(dbx) 
+
+StructItem: ItemFrame is duplicate instance variable.
+StructItem: ItemRadius is duplicate instance variable.
+StructItem: ItemBorder is duplicate instance variable.
+signal SEGV (segmentation violation) in etext at 0x4400040
+0x04400040:             movl   %edi,%edi
+(dbx) where
+etext(0x132bb0, 0x2d951c, 0x0) at 0x4400040
+sh_fb_Area_Path(0x2d951c, 0x2d9478) at 0x899c
+sh_fb_Image_Raster(0x3c1814, 0x319a30, 0x1347f8, 0x8, 0x1348f0, 0x14d8e0, 0xfbfff954, 0x168808, 0xffffffff, 0x16000c) at 0x65853
+cs_imagecanvas(0x641347b8, 0x5c3c1054, 0xffffffff) at 0x663c1
+imagemaskcanvas(0x400004, 0x3c5020) at 0x5d54f
+PostScript(0x400004, 0x406004) at 0x296bf
+run_process(0x400004, 0xfbde705c) at 0x2d519
+RunScheduler() at 0x44085
+main(0x1, 0xfbfffac4, 0xfbfffacc) at 0x435fa
+(dbx) 
+
+StructItem: ItemBorder is duplicate instance variable.
+StructItem: ItemFrame is duplicate instance variable.
+StructItem: ItemRadius is duplicate instance variable.
+Dbgbreak "foo" encountered with no debugger installed!
+signal SEGV (segmentation violation) in sh_fb_Path_Transform at 0x2b80c
+sh_fb_Path_Transform+0x37:              movl   $whoops1!(%edx),%eax
+(dbx) where
+sh_fb_Path_Transform(0x132bb0, 0x42ad18, 0x0) at 0x2b80c
+sh_fb_Area_Path(0x42ad18, 0x42ac74) at 0x899c
+sh_fb_Image_Raster(0x34bd54, 0x42903c, 0x54f7ec, 0x8, 0x54f8e4, 0x14d8e0, 0xfbfff954, 0x168808, 0xffffffff, 0x16000c) at 0x65853
+cs_imagecanvas(0x6454f7ac, 0x5c34be7c, 0xffffffff) at 0x663c1
+imagemaskcanvas(0x4be004, 0x0) at 0x5d54f
+PostScript(0x4be004, 0x0) at 0x296bf
+run_process(0x4be004, 0xfbde705c) at 0x2d519
+RunScheduler() at 0x44085
+main(0x1, 0xfbfffac4, 0xfbfffacc) at 0x435fa
+(dbx) 
+
+========================================================================
+
+* etc/NeWS/kbdcompat.ps:
+
+addfunctionnamesinterest, addfunctionstringsinterest, and addeditkeyinterests:
+
+If called with a canvas that does not have a /KbdCompat key defined in it,
+they just pops the canvas, and returns nothing, instead of an interest.
+
+The functions addfunctionnamesinterest, addfunctionstringsinterest,
+and addeditkeyinterests fail to return an interest if the canvas they
+are passed has not already had keyboard interests expressed in it
+(with addkbdinterest).
+
+% my comments are on the left
+
+/addfunctionnamesinterest {	% canvas => interest
+    dup /KbdCompat known {			%  cv
+        dup /KbdCompat get begin		%  cv
+% ... consumes canvas, & creates and pushes an interest
+	end
+    } {
+	pop
+% pops canvas, but doesn't return an interest!
+% Maybe the stuff that sets up /KbdCompat stuff in the canvas
+% should be broken out of addkbdinterest into a function that is
+% called from here (and move the code for the case that /KbdCompat 
+% is defined to just below here, as in addkbdinterests).
+    } ifelse
+} store
+
+I looked in the NeWS 1.1 manual section 5.3, and it says that you have 
+to express keyboard interests first before expressing these other 
+interests, but it should not be leaving the stack in an unexpected state 
+and not signaling an error. Either remove the restriction by putting the 
+code in there to make it work right, or flag an error (preferably the 
+former).
+
+
+========================================================================
+
+* etc/NeWS/compat.ps
+
+% Some clients decide if Lite is present by looking for /Selections, so:
+systemdict /Selections null put
+
+textcan.ps actually messes around with the Selections dict, so it should
+probably be:
+
+systemdict /Selections { /Selections ClassSelection send } put
+
+========================================================================
+
+* Copyright notices, in all PS files and client sources:
+
+The following copyright notice (which appears in most of the files) is 
+*bizarre*:
+
+% Copyright (c) 1989, Sun Microsystems, Inc.  RESTRICTED RIGHTS LEGEND:
+% Use, duplication, or disclosure by the Government is subject to
+% restrictions as set forth in subparagraph (c)(1)(ii) of the Rights in
+% Technical Data and Computer Software clause at DFARS 52.227-7013 and
+% in similar clauses in the FAR and NASA FAR Supplement.
+
+Please replace all of these copyright notices with the one below, by the 
+release!
+
+(Message xnews:38)
+Return-Path:  gnu
+ <gnu>
+To:  sun!dkmann
+Cc:  gnu
+Subject:  Revised copyright on NeWS client tree
+Date:  Wed, 28 Jun 89 14:02:59 -0700
+From:  gnu
+
+Here you go.  By the way, for whoever actually changes the files, I
+found the free "patch" program to be the easiest way to do it.
+
+        John Gilmore
+
+Date: Fri, 22 Jul 88 16:47:39 PDT
+From: sun!amyc (Amy Christen)
+Message-Id: <8807222347.AA15315@kauii.sun.uucp>
+To: hoptoad!grass
+Subject: NeWS client source copyright wording
+Cc: amyc, annep, arden, drach, keating, sevans, teitelma
+
+Dear Grasshopper Group:
+
+Sun legal and the Licensing Program has approved your proposed 
+wording changes for the NeWS client files. We agree that this
+new wording clarifies Sun's intent that these particular files
+be generally available and used without a license from Sun.  
+I have included the officially approved wording below.  
+
+Please feel free to replace the notice currently found
+on NeWS client files which says
+
+ * This file is a product of Sun Microsystems, Inc. and is provided for
+ * unrestricted use provided that this legend is included on all tape
+ * media and as a part of the software program in whole or part.  Users
+ * may copy or modify this file without charge, but are not authorized to
+ * license or distribute it to anyone else except as part of a product
+ * or program developed by the user.
+
+with the new wording
+
+ * This file is a product of Sun Microsystems, Inc. and is provided for
+ * unrestricted use provided that this legend is included on all tape
+ * media and as a part of the software program in whole or part.
+ * Users may copy, modify or distribute this file at will.
+
+on any distributions of those files you make.  We will be replacing
+the notice ourselves on the next release.
+
+Thanks for your suggestion.
+
+Amy Christen
+Windows Technology Licensing Manager
+
+========================================================================
+
+* LoadFile
+
+  It's nice that it tells about a file leaving things on the operand stack,
+  but I'd also appreciate it if it would tell me what they were!! (or at
+  least mention it briefly.)
+
+========================================================================
+
+* //name:
+
+  According to the Display PostScript manual, //foobar should signal
+  an undefinederror, if the name foobar is undefined. Instead, X11/NeWS
+  (and NeWS 1.1) just uses the executable name foobar instead. This can
+  cause hard-to-find errors!
+
+========================================================================
+
+* load:
+
+Load converts its argument to a name, and leaves it there if it fails:
+
+(foobar123) {load} stopped pstack
+/foobar123 true 
+
+========================================================================
+
+* liteitem.ps
+
+in class Item definition:
+
+    /EraseThing { % thing color x y textfont => -
+    gsave
+	4 index dup type /nametype eq exch { load } stopped pop xcheck and {
+	    5 -1 roll exch ThingSize rectpath setcolor fill
+	} {
+	    ShowThing
+	} ifelse
+    grestore
+    } def
+
+It should not do the load if it's not a name. See the above bug in load.
+If the Thing is a string, the same name as some function, then this
+will screw up.
+
+========================================================================
+
+* liteitem.ps, EraseThing:
+
+stopped and errored don't give the same results:
+
+{(foobar)load}stopped pstack
+/foobar 'load' true 
+clear
+{(foobar)load}errored pstack
+/foobar true 
+
+    /EraseThing { % thing color x y textfont => -
+    gsave
+% X11/NeWS: {load} stopped => ... `load` true, but {load} errored => ... true
+%	4 index dup type /nametype eq exch { load } stopped pop xcheck and {
+	4 index dup type /nametype eq exch { load } errored pop xcheck and {
+	    5 -1 roll exch ThingSize rectpath setcolor fill
+	} {
+	    ShowThing
+	} ifelse
+    grestore
+    } def
+
+========================================================================
+
+========================================================================
+
+========================================================================
+
+========================================================================
+
+* cyber.ps:
+
+Here are the X11/NeWS patches I had to make to get cyber.ps running:
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% X11/NeWS Compatibility
+
+[...insert fresh copy here...]

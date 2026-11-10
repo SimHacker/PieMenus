@@ -1,0 +1,148 @@
+Proposed: Slider label positioning offset methods
+
+    /minoffset % - => x y
+	at left end of hslider, at bottom of vslider
+    /maxoffset % - => x y
+	at right end of hslider, at top of vslider
+    /mintickoffset % - => x y
+        at left end below hslider, at top to right of vslider
+    /maxtickoffset % - => x y
+	at right end below hslider, at bottom to right of vslider
+
+    These methods return the (x,y) offset from the slider's lower left
+    corner to the point where a label should be justified. These offsets
+    are useful for positioning labels and text fields relative to sliders
+    in panels with calculated layout.
+
+
+Proposed: ClassLayout offset method name backstop
+
+    In a calculated layout specification, if a named offset is not
+    defined in the CornerPositions dict (not one of /North /East /West
+    /South /NorthWest /SouthWest /NorthEast /SouthEast /Center) then a
+    message of that name is sent to the object in question.  The
+    offset should be the name of a method returning an (x,y) offset
+    from the object's lower left corner. The offset method name will
+    work the in both contexts that the corner position names may
+    appear in calculated layout specifications.
+
+    Normal calculated layout usage, positioning an object's west edge along
+    the previous object's east edge:
+
+	/West {/East PREVIOUS POSITION}
+
+    Positioning a object's hot spot at the center of its parent:
+
+	/hotspotoffset {/Center PARENT POSITION}
+
+    Positioning an object's north edge below a slider's minimum tick mark:
+
+	/North {/minlabeloffset /slider position}
+
+    Positioning an object's left sidebearing at the previous object's right
+    sidebearing:
+
+	/leftbearingoffset {/rightbearingoffset PREVIOUS POSITION}
+
+
+Proposed: ClassLayout /SEND enhancement
+
+    There should be a convenient way to send a message to a named list
+    element.
+
+	/SEND { % ...args /method list-element => result...
+	    ResolveReference send
+	} def
+
+
+Proposed: ClassLayout /SIZE enhancement
+
+    Combination of the already existing methods: /WIDTH /HEIGHT
+    /WIDTH and /HEIGHT can be redefined in terms of /SIZE
+
+	/SIZE { % list-element => width height
+	    ResolveReference
+	    dup self eq InMinSize? and {
+	      pop 0 0
+	    } {
+	      Size
+	    } ifelse
+	} def
+
+	/WIDTH { % list-element => width
+	  SIZE pop
+	} def
+
+	/HEIGHT { % list-element => height
+	  SIZE exch pop
+	} def
+
+Proposed: ClassBag client names
+
+    There needs to be a way for a client to ask its parent bag for its name.
+    There also needs to be a way to ask a bag for the names of its clients.
+    These methods I am using in a subclass. They could be merged into
+    ClassBag.
+
+	/addclient { % name instance layout => -
+	  3 copy pop exch /SetClientName self send
+	  /addclient super send
+	} def
+
+	/removeclient { % name => client true  |  false
+	  /removeclient super send {
+	    dup /TNTClientName undef true
+	  } { false } ifelse
+	} def
+
+	/SetClientName { % client name => -
+	  /TNTClientName exch put
+	} def
+
+	/ClientName { % client => name
+	  /TNTClientName get
+	} def
+
+	/clientnames { % - => [ key1 key2 ... ]
+	  [ ClientDict { pop } forall ]
+	} def
+
+Proposal: Experimental panel souper-upper
+
+    To avoid interobject sends, teach ClassPanel to access the position
+    and size of canvas clients by hand.
+
+	/Move { % x y client => -
+	    dup type /canvastype eq {
+	      movecanvas
+	    } {
+	      /move exch send
+	    } ifelse
+	} def
+
+	/Size { % client => width height
+	    dup type /canvastype eq {
+	      false getbbox 4 2 roll pop pop
+	    } {
+	      /size exch send
+	    } ifelse
+	} def
+
+	/Location { % client => x y
+	    /location exch send
+	} def
+
+	/CellSize { % - => <cell width> <cell height>
+	    0 0
+	    /regionclientlist self send {
+		/size exch send
+		4 -1 roll max 3 1 roll max
+		pause
+	    } forall
+	    /children self send {
+		false getbbox 4 2 roll pop pop
+		4 -1 roll max 3 1 roll max
+		pause
+	    } forall
+	    exch
+	} def

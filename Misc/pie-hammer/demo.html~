@@ -1,0 +1,395 @@
+<html>
+
+  <head>
+
+    <title>jQuery Hammer Pie Demo</title>
+
+    <link rel="stylesheet" type="text/css" href="pie.css"/>
+
+    <script type="text/javascript" src="jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="jquery.hammer.js"></script>
+    <script type="text/javascript" src="jquery.hammer.pie.js"></script>
+
+    <style>
+
+      body {
+          position: relative;
+      }
+
+    </style>
+
+  </head>
+
+  <body style="margin: 0; border: 0;">
+
+    <div id="target"
+      style="width: 100%; height: 100%; background-color: #e0e0e0;"
+    >
+
+      <center>
+        <div style="font-size: 200%; font-weight: bold; padding: 10px;">
+          Pie Demo, by
+          <a target="_new" href="http://www.DonHopkins.com">Don Hopkins</a>.
+        </div>
+        <div style="font-size: 150%;" id="message">
+          Loading...
+        </div>
+      </center>
+
+    </div>
+
+    <div class="Pie" id="DomPie" style="display: none;" data-pie-rotateitems="true">
+      <div class="PieBackground PieBackground_Pan"></div>
+      <div class="PieSlices">
+        <div class="PieSlice PieSlice_North" data-pieslice-direction="North" data-pieslice-itemrotation="30">
+          <div class="PieSliceItems">
+            <div class="PieItem" onpieitemselect="console.log('DomPie Walk North')" data-pieitem-nextpie="DataPie" data-pieitem-itemrotation="-30">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Walk
+              </div>
+            </div>
+            <div class="PieItem" onpieitemselect="console.log('DomPie Run North')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Run
+              </div>
+            </div>
+            <div class="PieItem" onpieitemselect="console.log('DomPie Jump North')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Jump
+              </div>
+            </div>
+            <div class="PieItem" onpieitemselect="console.log('DomPie Fly North')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Fly
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="PieSlice PieSlice_South" data-pieslice-direction="South">
+          <div class="PieSliceItems">
+            <div class="PieItem" onpieitemselect="console.log('DomPie Walk South')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Walk
+              </div>
+            </div>
+            <div class="PieItem" onpieitemselect="console.log('DomPie Run South')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Run
+              </div>
+            </div>
+            <div class="PieItem" onpieitemselect="console.log('DomPie Jump South')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Jump
+              </div>
+            </div>
+            <div class="PieItem" onpieitemselect="console.log('DomPie Fly South')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Fly
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="PieSlice PieSlice_East" data-pieslice-direction="East">
+          <div class="PieSliceItems">
+            <div class="PieItem" onpieitemselect="console.log('DomPie Walk East')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Walk
+              </div>
+            </div>
+            <div class="PieItem" onpieitemselect="console.log('DomPie Run East')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Run
+              </div>
+            </div>
+            <div class="PieItem" onpieitemselect="console.log('DomPie Jump East')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Jump
+              </div>
+            </div>
+            <div class="PieItem" onpieitemselect="console.log('DomPie Fly East')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Fly
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="PieSlice PieSlice_West" data-pieslice-direction="West">
+          <div class="PieSliceItems">
+            <div class="PieItem" onpieitemselect="console.log('DomPie Walk West')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Walk
+              </div>
+            </div>
+            <div class="PieItem" onpieitemselect="console.log('DomPie Run West')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Run
+              </div>
+            </div>
+            <div class="PieItem" onpieitemselect="console.log('DomPie Jump West')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Jump
+              </div>
+            </div>
+            <div class="PieItem" onpieitemselect="console.log('DomPie Fly West')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Fly
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="PieSlice PieSlice_NorthWest" data-pieslice-direction="NorthWest">
+          <div class="PieSliceItems">
+            <div class="PieItem" onpieitemselect="console.log('DomPie Walk NorthWest')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Walk
+              </div>
+            </div>
+            <div class="PieItem" onpieitemselect="console.log('DomPie Run NorthWest')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Run
+              </div>
+            </div>
+            <div class="PieItem" onpieitemselect="console.log('DomPie Jump NorthWest')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Jump
+              </div>
+            </div>
+            <div class="PieItem" onpieitemselect="console.log('DomPie Fly NorthWest')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Fly
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="PieSlice PieSlice_NorthEast" data-pieslice-direction="NorthEast">
+          <div class="PieSliceItems">
+            <div class="PieItem" onpieitemselect="console.log('DomPie Walk NorthEast')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Walk
+              </div>
+            </div>
+            <div class="PieItem" onpieitemselect="console.log('DomPie Run NorthEast')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Run
+              </div>
+            </div>
+            <div class="PieItem" onpieitemselect="console.log('DomPie Jump NorthEast')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Jump
+              </div>
+            </div>
+            <div class="PieItem" onpieitemselect="console.log('DomPie Fly NorthEast')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Fly
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="PieSlice PieSlice_SouthWest" data-pieslice-direction="SouthWest">
+          <div class="PieSliceItems">
+            <div class="PieItem" onpieitemselect="console.log('DomPie Walk SouthWest')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Walk
+              </div>
+            </div>
+            <div class="PieItem" onpieitemselect="console.log('DomPie Run SouthWest')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Run
+              </div>
+            </div>
+            <div class="PieItem" onpieitemselect="console.log('DomPie Jump SouthWest')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Jump
+              </div>
+            </div>
+            <div class="PieItem" onpieitemselect="console.log('DomPie Fly SouthWest')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Fly
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="PieSlice PieSlice_SouthEast" data-pieslice-direction="SouthEast">
+          <div class="PieSliceItems">
+            <div class="PieItem" onpieitemselect="console.log('DomPie Walk SouthEast')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Walk
+              </div>
+            </div>
+            <div class="PieItem" onpieitemselect="console.log('DomPie Run SouthEast')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Run
+              </div>
+            </div>
+            <div class="PieItem" onpieitemselect="console.log('DomPie Jump SouthEast')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Jump
+              </div>
+            </div>
+            <div class="PieItem" onpieitemselect="console.log('DomPie Fly SouthEast')" data-pieitem-nextpie="DataPie">
+              <div class="PieItemBackground"></div>
+              <div class="PieItemLabel">
+                Fly
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="PieOverlay"></div>
+    </div>
+
+
+    <script>
+
+        var clickCount = 0;
+        var gHammer =
+            $('#target').hammer({
+                pie: true,
+                pies: {
+                    DomPie: '#DomPie',
+                    DataPie: {
+                        cssBackground: {
+                            width: 400,
+                            height: 400,
+                            marginLeft: -200,
+                            marginTop: -200,
+                            backgroundImage: 'url(PieBackground_Pan.png)'
+                        },
+                        rotateItems: false,
+                        slices: [
+                            {
+                                direction: 0,
+                                items: [
+                                    {
+                                        label: '<center>0<br/>degrees</center>',
+                                        pieitemselect: function(event) { console.log("DataPie item 0"); },
+                                        nextPie: 'DomPie',
+                                        itemRotation: 45
+                                    },
+                                ]
+                            },
+                            {
+                                direction: 90,
+                                items: [
+                                    {
+                                        label: '<center>90<br/>degrees</center>',
+                                        pieitemselect: function(event) { console.log("DataPie item 90"); },
+                                        nextPie: 'DomPie'
+                                    },
+                                ]
+                            },
+                            {
+                                direction: 180,
+                                items: [
+                                    {
+                                        label: '<center>180<br/>degrees</center>',
+                                        pieitemselect: function(event) { console.log("DataPie item 180"); },
+                                        nextPie: 'DomPie',
+                                        itemRotation: -45
+                                    },
+                                ]
+                            },
+                            {
+                                direction: 270,
+                                items: [
+                                    {
+                                        label: '<center>270<br/>degrees</center>',
+                                        pieitemselect: function(event) { console.log("DataPie item 270"); },
+                                        nextPie: 'DomPie'
+                                    },
+                                ]
+                            }
+                        ]
+                    }
+                },
+                defaultPie: 'DomPie',
+                trackPieItemSelect: function(event, hammer, pie, slice, item) {
+                    console.log("options trackPieItemSelect", "event", [event], "hammer", [hammer], "pie", [pie], "slice", [slice], "item", [item]);
+                }
+            })
+            .on('piedown', function(event, pie) {
+              console.log("on piedown", "event", event, "pie", pie);
+            })
+            .on('pieup', function(event, pie) {
+              console.log("on pieup", "event", event, "pie", pie);
+            })
+            .on('piestart', function(event, pie) {
+              console.log("on piestart", "event", event, "pie", pie);
+            })
+            .on('pieend', function(event, pie) {
+              console.log("on pieend", "event", event, "pie", pie);
+            })
+            .on('piepin', function(event, pie) {
+              console.log("on piepin", "event", event, "pie", pie);
+            })
+            .on('piecancel', function(event, pie) {
+              console.log("on piecancel", "event", event, "pie", pie);
+            })
+            .on('piechange', function(event, pie) {
+              console.log("on piechange", "event", event, "pie", pie);
+            })
+            .on('pieupdate', function(event, pie) {
+              console.log("on pieupdate", "event", event, "pie", pie);
+            })
+            .on('pieselect', function(event, pie) {
+              console.log("on pieselect", "event", event, "pie", pie);
+            })
+            .on('pieslicechange', function(event, pie, pieslice) {
+              console.log("on pieslicechange", "event", event, "pie", pie, "pieslice", pieslice);
+            })
+            .on('piesliceupdate', function(event, pie, pieslice) {
+              console.log("on piesliceupdate", "event", event, "pie", pie, "pieslice", pieslice);
+            })
+            .on('piesliceselect', function(event, pie, pieslice) {
+              console.log("on piesliceselect", "event", event, "pie", pie, "pieslice", pieslice);
+            })
+            .on('pieitemchange', function(event, pie, pieslice, pieitem) {
+              console.log("on pieitemchange", "event", event, "pie", pie, "pieslice", pieslice, "pieitem", pieitem);
+            })
+            .on('pieitemupdate', function(event, pie, pieslice, pieitem) {
+              console.log("on pieitemupdate", "event", event, "pie", pie, "pieslice", pieslice, "pieitem", pieitem);
+            })
+            .on('pieitemselect', function(event, pie, pieslice, pieitem) {
+              console.log("on pieitemselect", "event", event, "pie", pie, "pieslice", pieslice, "pieitem", pieitem);
+            });
+
+        console.log("gHammer", gHammer);
+
+        $('#message').html("Loaded.");
+
+    </script>
+
+  </body>
+
+</html>

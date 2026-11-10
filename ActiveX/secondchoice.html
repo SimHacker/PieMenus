@@ -1,0 +1,93 @@
+<HTML>
+
+  <HEAD>
+    <TITLE>Pie Menu Second Choice Guessing</TITLE>
+
+  </HEAD>
+
+  <BODY>
+
+    <DIV style="width:100%;height:100%;behavior:url(piemenu.htc)"
+      id="myPieTarget"
+      onselect="HandleSelect(event);"
+      oncancel="HandleSelect(event);"
+    >
+
+      <CENTER>
+	<H1>Pie Menu Second Choice Guessing</H1>
+
+        <BR/>
+        <H2>Click here to pop up a pie menu, and select your favorite color.<BR/>
+	I will try to guess your second favorite color.</H2>
+        <BR/>
+
+      </CENTER>
+
+      <HR/>
+
+      <DIV ID="Barf"/>
+
+      <XML src="secondchoice.xml"/>
+    </DIV>
+
+    <SCRIPT>
+
+function HandleSelect(event)
+{
+  var pie = event.result;
+  var firstChoice = pie.curItem;
+  var secondChoice = pie.penultimateItem;
+
+//  var maxTotalTime = -1;
+//  var itemCount = pie.items.length;
+//  var i;
+//  for (i = 0; i < itemCount; i++) {
+//    if (i != firstChoice) {
+//      var it = pie.items[i];
+//      var itTotalTime = it.totalTime;
+//      if ((itTotalTime > 0) &&
+//          (itTotalTime > maxTotalTime)) {
+//        maxTotalTime = itTotalTime;
+//	secondChoice = i;
+//      } // if
+//    } // if
+//  } // for i
+//
+//  if (firstChoice == -1) {
+//    firstChoice = secondChoice;
+//    secondChoice = -1;
+//  } // if
+
+  var msg
+
+  if (firstChoice == -1) {
+    if (secondChoice == -1) {
+      msg = "You didn't select your favorite color!"
+    } else {
+      var it = pie.items[secondChoice];
+      msg = "You didn't select your favorite color, but I guess it's " +
+            "<B style=\"background:gray;color:" + it.id + "\">" + it.id + "</B>.";
+    }
+  } else {
+    var it = pie.items[firstChoice];
+    msg = "Your favorite color is " +
+          "<B style=\"background:gray;color:" + it.id + "\">" + it.id + "</B>, ";
+    if (secondChoice == -1) {
+      msg += "but I just can't guess your second favorite color.";
+    } else {
+      it = pie.items[secondChoice];
+      msg += "and I guess your second favorite color is " +
+             "<B style=\"background:gray;color:" + it.id + "\">" + it.id + "</B>.";
+    } // if
+  } // if
+
+  Barf.innerHTML = "<H2>" + msg + "</H2>";
+}
+
+
+    </SCRIPT>
+
+  </BODY>
+
+</HTML>
+

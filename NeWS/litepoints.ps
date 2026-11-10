@@ -1,0 +1,188 @@
+%!
+% 1.0e+3 .'s of lite
+% Copyright (C) 1989
+% by Don Hopkins
+
+/LitePoints Object
+dictbegin
+  /Points null def
+  /X null def
+  /Y null def
+  /Tolerance 0 def
+dictend
+classbegin
+
+  /new { % - => obj
+    /new super send
+    /Points [ null null ] def
+  } def
+
+  /push-point { % x y val => -
+    3 1 roll find-space
+    push
+  } def
+
+  /push { % val container index => -
+    % [ happy emacs
+    2 copy get dup type /arraytype ne {
+      pop [ % happy emacs ]
+    } {
+      [ exch aload pop % happy emacs ]
+    } ifelse
+    counttomark 2 add -1 roll ]
+    put
+  } def
+
+  /pull { % container index => val
+    2 copy get % container index val
+    dup type /arraytype ne {
+      exch pop exch pop % val
+    } {
+      dup length 0 eq {
+        pop pop pop null % null
+      } {
+        dup length 1 sub 0 exch getinterval % container index stack stac
+	exch dup length 1 sub get % container index stac val
+	4 1 roll % val container index stac
+	put % val
+      } ifelse
+    } ifelse
+  } def
+
+  /find-space { % x y => container index
+    /Y exch def
+    /X exch def
+    Points search-space-x
+  } def
+
+  /search-space-x { % pointsx => container index
+    exec % xxx XXX x
+    dup X lt {
+      pop pop false % xxx false
+      search-space-y % container index
+    } {
+      X eq % xxx XXX x?
+      search-space-y % container index
+    } ifelse
+  } def
+
+  /search-space-y { % pointsy x=? => container index
+    { % pointsy
+      exec pop % yyy YYY y
+      Y lt { % yyy YYY
+	pop % yyy
+	search-space-x % container index
+      } { % yyy YYY
+	exch pop % YYY
+	search-space-x % container index
+      } ifelse
+    } { % pointsy
+      exec % yyy YYY y val
+      1 index Y eq {
+        4 1 roll pop pop pop
+      } {
+        pop Y lt {
+	  pop
+	  search-space-x % container index
+	} {
+	  exch pop
+	  search-space-y % container index
+	} ifelse
+      } ifelse
+    } ifelse
+  } def
+
+
+
+
+
+
+  /search-space-x { % pointsx => container index
+    exec % xxx XXX x
+    dup X lt {
+      pop pop false % xxx false
+      search-space-y % container index
+    } {
+      X eq % xxx XXX x?
+      search-space-y % container index
+    } ifelse
+  } def
+
+  /search-space-y { % pointsy x=? => container index
+    { % pointsy
+      exec pop % yyy YYY y
+      Y lt { % yyy YYY
+	pop % yyy
+	search-space-x % container index
+      } { % yyy YYY
+	exch pop % YYY
+	search-space-x % container index
+      } ifelse
+    } { % pointsy
+      exec % yyy YYY y val
+      1 index Y eq {
+        4 1 roll pop pop pop
+      } {
+        pop Y lt {
+	  pop
+	  search-space-x % container index
+	} {
+	  exch pop
+	  search-space-y % container index
+	} ifelse
+      } ifelse
+    } ifelse
+  } def
+
+  /get-point { % x y => false / val true
+    get-points dup {
+      dup length 1 sub get
+    } if
+  } def
+
+  /get-points { % x y => false / [vals] true
+
+  } def
+
+  /pop-point { % x y => false / val true
+
+  } def
+
+  % /proc % x y val => ...
+  /forall-points { % proc => -
+
+  } def
+
+classend def
+
+
+{ x:{ y:null Y:null #y $val } X:{ y:null Y:null #y $val } #x }
+
+
+/tree {
+  { % x<5
+    { % y<3
+      { % x<2
+	{ % y<1
+	  null
+	  null
+	} { % y>1
+	  null
+	  null
+	} % y=1
+	[(2,1)] 
+	1
+      } { % x>2
+	null null
+      } % x=2
+      2
+    } { % y<3
+      
+    } % y=3
+    [(5,3)]
+    3
+  } { x>5
+    
+  } % x=5
+  5
+} def

@@ -1,0 +1,67 @@
+From don@brillig.umd.edu Sat Apr  4 09:57:23 1987
+Date: Mon, 30 Mar 87 19:54:44 EST
+From: Don Hopkins <don@brillig.umd.edu>
+To: research!td@seismo.css.gov
+Cc: don@brillig.umd.edu
+Subject: Abstract for the 4th Computer Graphics Workshop
+
+Here's an abstract for a paper I'm working on and would like to
+present at the 4th Computer Graphics Workshop. The paper covers
+problems encountered and tricks learned in the implementation and
+testing of Pie Menus, philosophical discourse on choice grouping and
+placement, some proposed applications and techniques, and suggestions
+for further research.
+
+You can contact me by electronic mail (don@brillig.umd.edu,
+seismo!mimsy!don), by phone (H: (301) 474-8027, 474-7232; W: (301)
+454-1516, 454-7690), or by snail mail (5819 Ruatan St, College Park,
+Md. 20740).
+
+Please get in touch with me if you'd like to exchange details about
+the paper and/or the conference. Thanks a lot!
+
+	-Don
+
+------------------------------------------------------------------------
+
+	     Directional Selection is Easy as Pie Menus!
+
+			     Don Hopkins
+			University of Maryland
+
+		    Simple Simon popped a Pie Men-
+			u upon the screen;
+		    With directional selection,
+			all is peachy keen!
+
+	Pie Menus provide a practical, intuitive, efficient way for
+	people to interact with computers. They run circles around
+	buttoned-down square old pull down menus, in both capability
+	and convenience.
+
+	The choices of a Pie Menu are organized in a circle around the
+	cursor, so that the direction of movement makes the choice,
+	allowing the distance to be used in other ways; essentially,
+	they have two outputs: direction and distance. Pie Menus
+	encompass many forms of input: they can utilize various types
+	of hardware, and their two dimensions of output can represent
+	many types of data.
+
+	Their circular nature makes them especially well suited for
+	spatially oriented tasks. Menu choices can be positioned in
+	mnemonic directions, with complementary items across from each
+	other, orthogonal pairs at right angles, and other natural
+	arrangements. Pie Menus can make intuitively explicit the
+	symmetry, balance, and opposition between choices.
+
+	Choices can be made from Pie Menus in quick, easily remembered
+	strokes. When the direction of a selection in a Pie Menu is
+	known, it can be chosen without even looking. The use of 
+	familiar Pie Menus does not require any visual attention, as
+	the use of pull down menus demands.
+
+	Experiments comparing pull down menus and Pie Menus have shown
+	clearly that people can choose items faster and with fewer
+	errors from Pie Menus. They are straightforward and simple to
+	master, and facilitate a swift, fluent, natural style of human
+	computer interaction.

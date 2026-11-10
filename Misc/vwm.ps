@@ -1,0 +1,1579 @@
+
+% @(#)vwm.ps	1.9 91/10/11 
+%  Virtual Window Manager Prototype
+
+% 
+%%%%%%%%%% Overrides %%%%%%%%%%%%% %	@(#)window.ps 1.110 91/09/10
+%
+% I keep the SCCS ID around to make it easier for me to track changes to
+% the toolkit and keep this critter running...
+%
+% ClassWindow
+%    /map 
+%    /unmap 
+%    /destroy 
+%    /move 
+%    /totop 
+%    /tobottom 
+%    /validate
+%    /reshape 
+%    /MoveMotionSub 
+%    /MoveMotion 
+%    /MoveStop
+%    /MoveCancel
+%    /PaintWindow
+%    /ConstrainMotion
+% ClassBaseWindow
+%    /MakeWindowMenu
+%    /CheckMenuState
+% ClassPopupWindow
+%    /MakeWindowMenu
+%    /CheckMenuState
+%    /MenuInit
+% ClassMenu    @(#)menu.ps 1.71 91/08/21
+%    /PinNotify
+%    /UnpinNotify
+%    
+% Remind
+
+% Remember to submit a bug against what currentpath does to paths..
+%
+% Also, submit a RFE about getting notification when the menu
+% pops down (and get rid of that hack!)
+%
+% get rid of the "movecanvas" shit.. FIX JET!
+%
+% /MenuStart in ClassBag refers to "framebuffer"!
+%
+
+/NeWS 3 0 knownpackage not {
+    /NeWS 3 0 findpackage beginpackage
+} if
+
+/TNTCore 3 0 knownpackage not {
+    /TNTCore 3 0 findpackage beginpackage
+} if
+
+/TNT 3 0 knownpackage not {
+    /TNT 3 0 findpackage beginpackage
+} if
+
+/X11 3 0 knownpackage not {
+    /X11 3 0 findpackage beginpackage
+} if
+
+
+ClassWindow /VWM_Hidden false put
+ClassMenu /VWM_Hidden true put
+
+rootcanvases {
+    dup /ActiveRooms [0] put
+    dup /active_rooms 1 put
+    dup /room_list known not {
+	dup /room_list [ (room1) (room2) (room3) ] put
+    } if
+
+    dup /VirtualWindowPane known not {
+	/VirtualWindowPane null put
+    } { 
+	pop
+    } ifelse
+} forall
+
+/ClassVirtualCanvas ClassCanvas []
+classbegin
+    /do_paint true def
+
+    /suppress_paint {
+	/do_paint false promote
+    } def
+
+    /unsuppress_paint {
+	/do_paint true promote
+    } def
+
+    /preferredsize {
+	256 256
+    } def
+
+    /view_x 0 def
+    /view_y 0 def
+
+    /framebuffer {
+	/framebufferof self send
+	/framebuffer exch promote
+	framebuffer
+    } def
+
+    /framesize {
+	gsave
+	    framebuffer setcanvas
+	    /framesize [ /size framebuffer send ] cvx promote
+	    framesize
+	grestore
+    } def
+
+    /validate {
+	/validate super send
+	/the_scale unpromote
+    } def
+
+    /the_scale {
+	/the_scale [ 
+	    /initmatrix load 
+	    /view_size self send /size self send 3 -1 roll div 
+	    3 1 roll exch div exch /scale load
+	] cvx promote
+	the_scale
+    } def
+
+    /view_size {
+	DefaultsService /DefaultsDict get
+	dup /zwm.size known {
+	    gsave
+	      /framebufferof self send setcanvas
+	      /zwm.size get cvx exec
+	    grestore
+	} {
+	    /size /framebufferof self send send 2 mul exch 2 mul exch
+	} ifelse
+    } def
+
+    /Windows { % - => array
+	[
+	    framebuffer /TopChild get {
+		dup /CanvasBelow get exch
+		dup isobject? {
+		    dup /descendantof? ClassWindow send {
+			dup /VWM_Hidden exch send not {
+			    exch
+			} {
+			    pop
+			} ifelse
+		    } {
+			pop
+		    } ifelse
+		} {
+		    pop
+		} ifelse
+		dup null eq { 
+		    pop exit 
+		} if
+	    } loop
+	]
+    } def
+
+    /Paint {
+	do_paint {
+	    2 dict 
+	    begin
+		/black 0 0 0 rgbcolor def
+		
+		/framebuffer self send setcanvas
+		/w [
+		    /Windows self send {
+			dup /Mapped get {
+			    [ exch
+				view_x view_y {
+				    location xyadd size
+				} 3 index send /path 6 -1 roll
+			    ]
+			} {
+			    pop
+			} ifelse
+		    } forall
+		] def
+		
+		self setcanvas
+		/BackgroundColor /framebuffer self send send /FillCanvas self send
+		/the_scale self send
+		
+		% It is a bug that shaped windows are not correctly drawn
+		%
+		
+		w length 1 sub -1 0 {
+		    w exch get
+		    aload pop
+		    /BG self send setcolor
+		    send enum_path fill exec
+		    black setcolor stroke
+		} for
+		
+		view_x view_y /framesize self send
+		3D? self send {
+		    black setcolor
+		} {
+		    1 1 1 rgbcolor setcolor
+		} ifelse
+		/path /framebuffer self send send stroke
+	    end
+	} if
+    } def
+
+    /set_view { % x y => -
+	gsave
+	    5 dict 
+	    begin
+		/y exch def
+		/x exch def
+		/delta_x x view_x sub def
+		/delta_y y view_y sub def
+
+		/framebuffer self send setcanvas
+
+		/Windows self send {
+		    dup /Stuck known {
+			pop
+		    } {
+			/location 1 index send delta_x delta_y xysub 
+			3 -1 roll movecanvas
+		    } ifelse
+		} forall
+
+		/view_x x promote
+		/view_y y promote
+	    end
+	grestore
+	/paint self send
+    } def
+
+    /Trackable? true def
+
+    /Start /pop def
+    /Motion /pop def
+    /Stop /pop def
+    /Cancel /pop def
+    /Crossing /pop def
+
+    /TrackStopTime	timeval	def
+
+    /TrackStart { % event => false | [/label...] true | /name true
+	self setcanvas
+	/the_scale self send
+
+	dup InWindowFrame? {
+	    1 index /Name get PointButton eq {
+		/TargetWindow exch promote
+
+		dup /TimeStamp get 
+		TrackStopTime timeval subtimeval
+		UserProfile /MultiClickThresh get
+		cmptimeval -1 eq {
+		    /HandleDoubleClick TargetWindow send
+		    [] true
+		} {
+		    /Start /WindowStart promote
+		    /Motion /WindowMotion promote
+		    /Stop /WindowStop promote
+		    /Cancel /WindowCancel promote
+		    /Crossing /WindowCrossing promote
+		    Start self send
+		    /Default true
+		} ifelse
+	    } {
+		/SelectFromUser exch send
+		[] true
+	    } ifelse
+	} {
+	    dup InViewFrame? {
+		/Start /ViewStart promote
+		/Motion /ViewMotion promote
+		/Stop /ViewStop promote
+		/Cancel /ViewCancel promote
+		Start self send
+		/Default true
+	    } {
+		pop
+		/CleanupTracking self send
+		[] true
+	    } ifelse
+	} ifelse
+    } def
+
+    /TrackMotion { % event => -
+	Motion self send
+    } def
+
+    /TrackStop { % event => -
+	Stop self send
+
+	/CleanupTracking self send
+	self setcanvas
+    } def
+
+    /TrackCancel {
+	Cancel self send
+
+	/CleanupTracking self send
+	self setcanvas
+    } def
+
+    /TrackCrossing {
+	Crossing self send
+    } def
+
+    /CleanupTracking {
+	/Start unpromote
+	/Motion unpromote
+	/Stop unpromote
+	/Cancel unpromote
+	/Crossing unpromote
+	/TargetWindow unpromote
+    } def
+
+    %%%%%%%%%%%%%%%%%%%%
+    % View window tracking code
+    %%%%%%%%%%%%%%%%%%%%
+
+    % This assumes the canvas and scale is set correctly
+    /InViewFrame? { % event => bool
+	begin
+	    XLocation YLocation view_x view_y /framesize self send pointinrect?
+	end
+    } def
+
+    /ViewStart { % event => -
+	begin
+	    /Overlay self createoverlay promote
+	    Overlay setcanvas
+
+	    the_scale
+
+	    /x XLocation promote
+	    /y YLocation promote
+
+	    /xl x view_x sub promote
+	    /yl y view_y sub promote
+
+	    /xr 
+	      view_size pop x add view_x sub framesize pop sub 
+	    promote
+
+	    /yr 
+	      view_size exch pop y add view_y sub framesize exch pop sub 
+	    promote
+
+	    view_x view_y framesize
+	    0 0 0 rgbcolor setcolor
+	    /path framebuffer send stroke
+	end
+    } def
+
+    /constrain_view {
+	XLocation xl le {
+	    /XLocation xl store
+	} if
+	XLocation xr ge {
+	    /XLocation xr store
+	} if
+	YLocation yl le {
+	    /YLocation yl store
+	} if
+	YLocation yr ge {
+	    /YLocation yr store
+	} if
+    } def
+
+    /ViewMotion { % event => -
+	begin
+	    Overlay setcanvas
+	    erasepage
+
+	    the_scale
+	    constrain_view
+	    XLocation YLocation x y xysub view_x view_y xyadd framesize
+	    0 0 0 rgbcolor setcolor
+	    /path framebuffer send stroke
+	end
+    } def
+
+    /ViewStop { % event => -
+	dup 
+	begin
+	    the_scale 
+	    constrain_view
+	    XLocation YLocation 
+	end
+	x y xysub
+	view_x view_y xyadd /set_view self send
+
+	/ViewCancel self send
+    } def
+
+    /ViewCancel { % event => -
+	pop
+	Overlay setcanvas
+	erasepage
+	/Overlay unpromote
+	self setcanvas
+    } def
+
+    %%%%%%%%%%%%%%%%%%%%
+    % small window tracking code
+    %%%%%%%%%%%%%%%%%%%%
+
+    /InWindowFrame? { % event => false | can true
+	gsave
+	begin
+	    false
+	    /Windows self send {
+		dup /Mapped get {
+		    /framebuffer self send setcanvas
+		    view_x view_y {
+			location xyadd size 
+		    } 3 index send 
+		    self setcanvas /the_scale self send
+		    /path 5 index send XLocation YLocation pointinpath {
+			exch pop true exit
+		    } {
+			pop
+		    } ifelse
+		} {
+		    pop
+		} ifelse
+	    } forall
+	end
+	grestore
+    } def
+
+    /Window_Overlay {
+	/Window_Overlay self createoverlay promote
+	Window_Overlay
+    } def
+
+    /WindowStart { % event => -
+        true /inhibitfocus ClassFocus send
+	/basic /findcursor self send grabcursor
+
+	/MoveSelected? /SelectedWindows ClassWindow send TargetWindow known promote
+
+	self setcanvas
+	/the_scale self send
+
+	dup 
+	begin
+	    /x XLocation promote
+	    /y YLocation promote
+	end
+
+	/Overlay framebuffer createoverlay promote
+	/Window_Overlay self createoverlay promote
+	/InsideWindow? true promote
+
+	Overlay setcanvas
+	MoveSelected? {
+	    /SelectedWindows ClassWindow send { 
+		pop
+		1 index /MoveStartSub 3 -1 roll send
+	    } forall
+	    pop
+	} {
+	    /MoveStartSub TargetWindow send
+	} ifelse
+    } def
+
+    /enum_path { % - => path_proc
+	[ { 
+		/moveto load 
+	    } { 
+		/lineto load 
+	    } { 
+		/curveto load 
+	    } { 
+		/closepath load 
+	    } pathforall 
+	] cvx
+    } def
+
+    /WindowMotion { % event => -
+	InsideWindow? {
+	    self setcanvas
+	    /the_scale self send
+	} {
+	    framebuffer setcanvas
+	} ifelse
+	false exch 
+	begin
+	    XLocation YLocation x y xysub
+	end
+
+	InsideWindow? not {
+	    view_x view_y xyadd
+	} if
+
+	Overlay setcanvas
+%	newpath clipcanvas
+	erasepage
+	MoveSelected? {
+	    /SelectedWindows ClassWindow send {
+		pop 4 copy
+		/MoveMotionSub exch send pop
+	    } forall
+	    pop pop pop
+	} {
+	    /MoveMotionSub TargetWindow send
+	} ifelse
+	enum_path
+	stroke
+	/Display_Path self send
+    } def
+
+    /Display_Path { % path
+	gsave
+	    Window_Overlay setcanvas
+	    erasepage
+	    /the_scale self send
+
+	    view_x view_y translate
+
+	    exec stroke
+	grestore
+    } def
+
+    /Cleanup_Overlay {
+	gsave
+	    Window_Overlay setcanvas
+	    erasepage
+	    /Window_Overlay unpromote
+	grestore
+    } def
+
+    /WindowCrossing { % event => -
+	/Name get /EnterEvent eq {
+	    /InsideWindow? true promote
+	} {
+	    /InsideWindow? false promote
+	} ifelse
+    } def
+
+    /WindowStop { % event => -
+	begin
+	    dup /TimeStamp get /TrackStopTime exch promote
+
+	    Overlay setcanvas
+	    erasepage
+	    /Overlay unpromote
+
+	    /Cleanup_Overlay self send
+
+	    InsideWindow? {
+		self setcanvas
+		/the_scale self send
+	    } {
+		/framebuffer self send setcanvas
+	    } ifelse
+
+	    XLocation YLocation x y xysub abs /MoveThresh ClassWindow send le
+	    exch abs /MoveThresh ClassWindow send le and {
+		currentdict /SelectFromUser TargetWindow send
+
+		% This API might change... The /ForwardCanvas stuff is 
+		%   undocumented!!!
+
+		TargetWindow /ForwardCanvas ClassFocus send
+	    } {
+		XLocation YLocation x y xysub 
+		
+		InsideWindow? not {
+		    view_x view_y xyadd
+		} if
+		
+		/framebuffer self send setcanvas
+		
+		MoveSelected? {
+		    /suppress_paint self send
+		    /SelectedWindows ClassWindow send {
+			pop 2 index 2 index /MoveStopSub 4 -1 roll send
+		    } forall
+		    /unsuppress_paint self send
+		    /paint self send
+		    pop pop
+		} {
+		    /MoveStopSub TargetWindow send
+		} ifelse
+	    } ifelse
+	end
+	null grabcursor
+        false /inhibitfocus ClassFocus send
+    } def
+
+    /WindowCancel { % event => -
+	Overlay setcanvas
+	erasepage
+	/Overlay unpromote
+	Window_Overlay setcanvas
+	erasepage
+	/Window_Overlay unpromote
+
+	/framebuffer self send setcanvas
+
+	MoveSelected? {
+	    /SelectedWindows ClassWindow send {
+		/MoveCancelSub exch send
+	    } forall
+	} {
+	    /MoveCancelSub TargetWindow send
+	} ifelse
+	pop
+	null grabcursor
+        false /inhibitfocus ClassFocus send
+    } def
+
+    /activate {
+	/activate super send
+	framebuffer /VirtualWindowPane self soften put
+    } def
+
+    /destroy {
+	0 0 /set_view self send
+
+	framebuffer /VirtualWindowPane null put
+	/destroy super send
+    } def
+
+    /Menuable? true def
+
+    /MyMenu {
+	/MyMenu /Grid /framebufferof self send /new ClassMenu send promote 
+	{
+	    [   [ (Close)
+	            {exch pop /CloseFromUser   /sendtarget 2 index send} ]
+	        [ (Full Size)
+		    {exch pop /ZoomFromUser    /sendtarget 2 index send} ]
+	        [(Back)
+		    {exch pop /BackFromUser    /sendtarget 2 index send} ]
+	        [(Refresh)
+		    {exch pop /RefreshFromUser /sendtarget 2 index send} ]
+	        [(Quit)
+		    {exch pop /QuitFromUser    /sendtarget 2 index send} ]
+	    ] /setitemlist self send
+	    (vwm) /setlabel self send
+	    0 /setdefault self send
+	} MyMenu send
+	MyMenu
+    } def
+
+    /MenuStart { % invoker pos event => invoker' pos' event' menu true |
+		 % invoker pos event => invoker pos event false
+	Menu dup null eq {pop false} {
+	    self /target known {
+		/MenuInit target send 
+	    } {
+		/MenuInit self send 
+	    } ifelse
+	    true
+	} ifelse
+    } def
+
+    /Menu { % invoker pos event => invoker' pos' event' menu 
+            % invoker pos event => invoker pos event false
+	dup InWindowFrame? { % ... win
+	    /target exch promote
+	    /Menu target send
+	} {
+	    /Menu Parent send
+	    Parent /settarget 2 index send % menu
+	} ifelse
+    } def
+
+    /MenuStop {
+	/MenuStop super send
+	{
+	    [ 0 300000 ] sleep
+	    /target unpromote
+	} fork pop
+    } def
+
+    %%%%%%%%%%%%%%%%%%%%%
+    % function key handlers
+    %
+
+    /Openable?		true def
+    /Frontable?		true def
+
+    /HandleFront { % event => -
+	dup InWindowFrame? { % ... win
+	    /HandleFront exch send
+	} {
+	    /HandleFront Parent send
+	} ifelse
+    } def
+
+    /HandleOpen { % event => -
+	dup InWindowFrame? { % ... win
+	    /HandleOpen exch send
+	} {
+	    /HandleOpen Parent send
+	} ifelse
+    } def
+
+    %%%%%%%%%%% room stuff %%%%%%%%%%%
+    /room_notifier {% value settings
+	/framebufferof self send /ActiveRooms /value 3 index send put
+	/value exch send 0 exch {
+	    1 exch bitshift or
+	} forall /framebufferof self send /active_rooms 3 -1 roll put
+	pop
+
+	/suppress_paint self send
+	/Windows self send {
+	    /update_room_visability exch send
+	} forall
+	/unsuppress_paint self send
+	/paint self send
+    } def
+
+classend 
+def
+
+/rooms {
+    /rooms /framebufferof self send /ActiveRooms get 
+    dup length 0 eq {pop [0]} if promote rooms
+} /installmethod ClassWindow send
+
+/update_room_visability { % - => -
+    self /Stuck known not {
+	/rooms self send 0 exch {
+	    1 exch bitshift or
+	} forall  /framebufferof self send /active_rooms get and 0 ne {
+	    Mapped not {
+		self /room_state known {
+		    self /Mapped true put
+%		    /map self send
+		} if
+	    } if
+	} {
+	    Mapped {
+%		/unmap self send
+		self /Mapped false put
+		self /room_state true put
+	    } if
+	} ifelse
+    } if
+}  /installmethod ClassWindow send
+
+/RoomPlayer {
+    self /descendantof? ClassWindow send {
+	opened? {
+	    Pin? Pinned? and Close? or Label? and
+	} {
+	    false
+	} ifelse
+    } {
+	false
+    } ifelse
+} /installmethod ClassWindow send
+
+/map {
+    Mapped not
+    /map super send
+    {
+	VWM_Hidden not {
+	    gsave
+	    /paint Parent /Parent /VirtualWindowPane linkedget dup null ne {
+		send
+	    } {
+		pop pop
+	    } ifelse
+	    grestore
+	} if
+    } if
+    self /room_state undef
+    /RoomPlayer self send {
+	/update_room_visability self send
+    } if
+} /installmethod ClassWindow send
+
+/unmap {
+    Mapped
+    /unmap super send
+    {
+	VWM_Hidden not {
+	    gsave
+	    /paint Parent /Parent /VirtualWindowPane linkedget dup null ne {
+		send
+	    } {
+		pop pop
+	    } ifelse
+	    grestore
+	} if
+    } if
+    self /room_state undef
+} /installmethod ClassWindow send
+
+/destroy {
+    Mapped
+    self XCanvas? {
+	/X11 3 0 findpackage beginpackage   	%++%
+	XID xfreeresource   % For newXcanvas hack:
+    endpackage	    	    	    	    	%--%
+    } if
+    
+    % If we are selected, remove ourselves from the selection.
+    %
+    false /SetSelected self send
+    SuperWindow self ne {
+	self /removesubwindow SuperWindow send
+	% /SuperWindow unpromote % not needed; done by remove above.
+    } if
+    SubWindows {/destroy exch send} forall
+    /SubWindows unpromote
+    /UnFreeze self send
+    /HelpWindow unpromote
+    /NoHelp unpromote
+    /destroy super send
+    
+    {
+	VWM_Hidden not {
+	    gsave
+	    /paint Parent /Parent /VirtualWindowPane linkedget dup null ne {
+		send
+	    } {
+		pop pop
+	    } ifelse
+	    grestore
+	} if
+    } if
+} /installmethod ClassWindow send
+
+/move {
+    /move super send
+
+    Mapped {
+	VWM_Hidden not {
+	    gsave
+	    /paint Parent /Parent /VirtualWindowPane linkedget dup null ne {
+		send
+	    } {
+		pop pop
+	    } ifelse
+	    grestore
+	} if
+    } if
+} /installmethod ClassWindow send
+
+/totop {
+    /totop super send
+
+    Mapped {
+	VWM_Hidden not {
+	    gsave
+	    /paint Parent /Parent /VirtualWindowPane linkedget dup null ne {
+		send
+	    } {
+		pop pop
+	    } ifelse
+	    grestore
+	} if
+    } if
+} /installmethod ClassWindow send
+
+/tobottom {
+    /tobottom super send
+
+    Mapped {
+	VWM_Hidden not {
+	    gsave
+	    /paint Parent /Parent /VirtualWindowPane linkedget dup null ne {
+		send
+	    } {
+		pop pop
+	    } ifelse
+	    grestore
+	} if
+    } if
+} /installmethod ClassWindow send
+
+/reshape {
+    /reshape super send
+
+    Mapped {
+	VWM_Hidden not {
+	    gsave
+	    /paint Parent /Parent /VirtualWindowPane linkedget dup null ne {
+		send
+	    } {
+		pop pop
+	    } ifelse
+	    grestore
+	} if
+    } if
+
+    self /_SUN_DRAGDROP_INTEREST 	    	    	    %  can name
+    /xcheckproperty /X11 3 0 findpackage send { 	    %  -
+	/FixDragDropInterest self send		    %  -
+    } if						    %  -
+} /installmethod ClassWindow send
+
+/MoveMotionSub { % bool x y => -
+    MoveStartX MoveStartY xyadd
+    /ConstrainMotion self send
+    3 -1 roll DragFrame? xor {
+	/size self send
+	/path self send
+    } {
+	/DoMove self send
+    } ifelse
+} /installmethod ClassWindow send
+
+
+/MoveMotion { % event => -
+    TrackHasMoved? not {
+	/TrackHasMoved?
+	1 index 
+	begin 
+	    XLocation YLocation 
+	end 
+	TrackStartXY
+	xysub abs MoveThresh ge exch abs MoveThresh ge or store
+    } if
+    TrackHasMoved? {
+	false exch
+	TrackDictBegin				% c? s? m? x y
+	    Can					% s? x y can
+	TrackDictEnd
+	gsave setcanvas erasepage			% s? x y
+	    MoveSelected? {
+		SelectedWindows { 
+		    pop		% s? x y win
+		    4 copy				% s? x y w s? x y w
+		    /MoveMotionSub exch send pop	% s? x y
+		} forall				% s? x y
+		pop pop pop				%
+	    } {					% s? x y
+		/MoveMotionSub self send		%
+	    } ifelse
+	    Parent /Parent /VirtualWindowPane linkedget dup null ne {
+		/enum_path 1 index send
+		stroke
+		/Display_Path 3 -1 roll send
+	    } {
+		stroke
+	    } ifelse
+	grestore
+    } {
+	pop
+    } ifelse
+} /installmethod ClassWindow send
+
+/MoveStop { % event => -
+    TrackHasMoved? {
+	timeval /TrackStopTime exch store
+
+	/Control /modifierdown? ClassKeyboard send	% ev c?
+	exch					% c? ev
+	/Meta /modifierdown? ClassKeyboard send	% c? ev m?
+	exch TrackDictBegin				% c? m? x y
+	4 -1 roll {				% m? x y
+	    1 index abs 1 index abs gt		% m? x y axis?
+	    { 
+		pop 0 
+	    } { 
+		exch pop 0 exch 
+	    } ifelse% m? x|0 0|y
+	} if					% m? x y
+	3 -1 roll {
+	    SlowFactor mul exch SlowFactor mul exch
+	} if
+	Can					% x y can
+	TrackDictEnd
+
+	gsave setcanvas erasepage			% x y
+	    MoveSelected? {
+		SelectedWindows { 
+		    pop		% x y win
+		    2 index 2 index			% x y win x y
+		    /MoveStopSub 4 -1 roll send	% x y
+		} forall				% x y
+		pop pop				%
+	    } {					% x y
+		/MoveStopSub self send		%
+	    } ifelse
+	    stroke
+	grestore
+    } {
+	dup /HandleSingleClick self send
+	/TimeStamp get /TrackStopTime exch store
+    } ifelse
+    TrackDict cleanoutdict
+    null grabcursor
+    false /inhibitfocus ClassFocus send
+
+    Parent /Parent /VirtualWindowPane linkedget dup null ne {
+	/Cleanup_Overlay exch send
+    } {
+	pop
+    } ifelse
+} /installmethod ClassWindow send
+
+/MoveCancel { % event => -
+    TrackHasMoved? {
+	gsave
+	    pop TrackDict 
+	    begin 
+		Can 
+	    end
+	    setcanvas erasepage
+	    MoveSelected? {
+		SelectedWindows { 
+		    pop
+		    /MoveCancelSub exch send
+		} forall
+	    } {
+		/MoveCancelSub self send
+	    } ifelse
+	grestore
+    } if
+    /TrackStopTime timeval store
+    TrackDict cleanoutdict
+    null grabcursor
+    false /inhibitfocus ClassFocus send
+
+    Parent /Parent /VirtualWindowPane linkedget dup null ne {
+	/Cleanup_Overlay exch send
+    } {
+	pop
+    } ifelse
+} /installmethod ClassWindow send
+
+/PinNotify { % - => -
+    gsave
+    Parent setcanvas
+    self /addpinnedclient MenuService send
+    /open self send
+    /SaveBehind false def
+    [{true /PaintLabel self send}] /PaintWindow self send
+    self setcanvas
+    /PaintBorder self send
+    
+    /FindBaseWindow self send {
+	self soften /addsubwindow 3 -1 roll send
+    } if
+
+    /VWM_Hidden  false promote
+    /paint Parent /Parent /VirtualWindowPane linkedget dup null ne {
+	send
+    } {
+	pop pop
+    } ifelse
+    grestore
+} /installmethod ClassMenu send
+
+/UnpinNotify { % - => -
+    /unmap self send
+    false /SetSelected self send
+    self /removepinnedclient MenuService send
+    /CloseOrPinDepressed? unpromote
+    /SuperWindow promoted? {
+	self /removesubwindow SuperWindow send
+    } if
+    /VWM_Hidden  unpromote
+} /installmethod ClassMenu send
+
+/ConstrainMotion { % x y => x y
+    self /Stuck known {
+	10 dict begin % tempdict
+	    /bbox Parent send rect2points
+	    /Top exch def /Right exch def /Bottom exch def /Left exch def
+	    /size self send /h exch def /w exch def
+
+	    dup Bottom lt {
+		pop Bottom
+	    } {
+		dup h add Top gt {
+		    pop Top h sub
+		} if
+	    } ifelse
+	    exch
+	    dup Left lt {
+		pop Left
+	    } {
+		dup w add Right gt {
+		    pop Right w sub
+		} if
+	    } ifelse
+	    exch
+	end
+    } if
+} /installmethod ClassWindow send
+
+/MakeSticky {
+    self /Stuck known {
+	self /Stuck undef
+    } {
+	self /Stuck true put
+    } ifelse
+} /installmethod ClassWindow send
+
+/MakeWindowMenu { % - => menu
+    /Grid /framebufferof self send /new ClassBaseWindowMenu send {
+	[   [ (Close)
+	    {exch pop /CloseFromUser   /sendtarget 2 index send} ]
+	    [ (Full Size)
+		{exch pop /ZoomFromUser    /sendtarget 2 index send} ]
+	    [(Properties)
+		{exch pop /PropsFromUser   /sendtarget 2 index send} ]
+	    [(Back)
+		{exch pop /BackFromUser    /sendtarget 2 index send} ]
+	    [(Refresh)
+		{exch pop /RefreshFromUser /sendtarget 2 index send} ]
+	    [(Stick)
+		{exch pop /MakeSticky      /sendtarget 2 index send} ]
+	    [(Quit)
+		{exch pop /QuitFromUser    /sendtarget 2 index send} ]
+	] /setitemlist self send
+	(Window) /setlabel self send
+	0 /setdefault self send
+	2 /Inactive setvisualstate self send
+	true /sethelpable self send
+	0 (tnt.info:baseWindowMenuClose) /setitemhelpkeyword self send
+	1 (tnt.info:baseWindowMenuFull) /setitemhelpkeyword self send
+	3 (tnt.info:baseWindowMenuBack) /setitemhelpkeyword self send
+	4 (tnt.info:baseWindowMenuRefresh) /setitemhelpkeyword self send
+	5 (tnt.info:baseWindowMenuQuit) /setitemhelpkeyword self send
+	/MenuOpened? true promote
+	/MenuZoomed? false promote
+    } 1 index send
+} /installmethod ClassBaseWindow send
+
+/CheckMenuState {  % invoker pos event menu => invoker' pos' event' menu'
+    Close? {
+	gsave
+	self setcanvas
+	1 index InCloseArea? {
+	    3 -1 roll pop /NorthWest 3 1 roll
+	    1 index begin
+		/XLocation CloseX def
+		/size self send exch pop
+		HeaderDeltaY sub HeaderPad add
+		/YLocation exch def
+	    end
+	    false
+	} { true } ifelse
+	grestore
+    } { true } ifelse
+    /zoomed? self send /opened? self send
+    /checkmenustate 4 index send
+    Parent /Parent /VirtualWindowPane linkedget null ne {
+	5 self /Stuck known {
+	    [(Unstick)
+		{exch pop /MakeSticky      /sendtarget 2 index send} ]
+	} {
+	    [(Stick)
+		{exch pop /MakeSticky      /sendtarget 2 index send} ]
+	} ifelse
+	/replaceitem 3 index send
+    } {
+	5 /Inactive /setvisualstate 3 index send
+    } ifelse
+} /installmethod ClassBaseWindow send
+
+/MakeWindowMenu { % - => menu
+    /Grid /framebufferof self send /new ClassPopupWindowMenu send {
+	[   [ (Dismiss)
+	    /Grid /framebufferof self send /new ClassMenu send {
+		[   [ (This Window)
+		    {exch pop /DismissFromUser
+			/sendtarget 2 index send} ]
+		    [ (All Pop-ups)
+			{exch pop /DismissAllFromUser
+			    /sendtarget 2 index send} ]
+		] /setitemlist self send
+		0 /setdefault self send
+		true /sethelpable self send
+		0 (tnt.info:popupWindowMenuDismissThis) 
+		/setitemhelpkeyword self send
+		1 (tnt.info:popupWindowMenuDismissAll) 
+		/setitemhelpkeyword self send
+	    } 1 index send ]
+	    [ (Back)
+		{exch pop /BackFromUser    /sendtarget 2 index send} ]
+	    [(Refresh)
+		{exch pop /RefreshFromUser /sendtarget 2 index send} ]
+	    [(Owner?)
+		{exch pop /OwnerFromUser   /sendtarget 2 index send} ]
+	    [(Stick)
+		{exch pop /MakeSticky      /sendtarget 2 index send} ]
+	] /setitemlist self send
+	(Window) /setlabel self send
+	0 /setdefault self send
+	true /sethelpable self send
+	0 (tnt.info:popupWindowMenuDismiss) /setitemhelpkeyword self send
+	1 (tnt.info:popupWindowMenuBack) /setitemhelpkeyword self send
+	2 (tnt.info:popupWindowMenuRefresh) /setitemhelpkeyword self send
+	3 (tnt.info:popupWindowMenuOwner) /setitemhelpkeyword self send
+    } 1 index send
+} /installmethod ClassPopupWindow send
+
+/CheckMenuState { % invoker pos event menu => invoker' pos' event' menu'
+    Changed? /checkmenustate 2 index send
+
+    Parent /Parent /VirtualWindowPane linkedget null ne {
+	4 self /Stuck known {
+	    [(Unstick)
+		{exch pop /MakeSticky      /sendtarget 2 index send} ]
+	} {
+	    [(Stick)
+		{exch pop /MakeSticky      /sendtarget 2 index send} ]
+	} ifelse
+	/replaceitem 3 index send
+    } {
+	4 /Inactive /setvisualstate 3 index send
+    } ifelse
+} /installmethod ClassPopupWindow send
+
+/MenuInit { % invoker pos event menu => invoker' pos' event' menu'
+    /CheckMenuState self send
+} /installmethod ClassPopupWindow send
+
+%%%%%%%%%%%
+% Rooms Overrides
+
+ClassWindow /ClassRoomRegion ClassRegion []
+classbegin
+    /RoomMenus growabledict def
+    /Width 16 def
+    /Height 16 def
+    /X { /size Parent send pop 32 sub } def
+    /Y { /size Parent send exch pop 22 sub } def
+
+    /invalidate {
+	/invalidate super send
+	RoomMenus cleanoutdict
+    } def
+
+    /Toggle false def
+
+    /Mapped {
+	Parent /descendantof? ClassWindow send {
+	    /RoomPlayer Parent send
+	} {
+	    false
+	} ifelse
+    } def
+    
+    /Paint { % - => -
+	/RoomPlayer Parent send {
+	    0 0 Width Height Toggle
+	    /Paint3DBox self send
+	} if
+    } def
+
+    /Menuable? {
+	/Mapped self send
+    } def
+
+    /MenuStart {
+	/MenuStart super send
+	/Toggle true promote
+	/paint self send
+    } def
+
+    /Menu {
+	/MakeWindowMenu RoomMenus /FBFindMenu self send
+	Parent /settarget 2 index send % menu
+    } def
+
+    /MenuInit {  % invoker pos event menu => invoker' pos' event' menu'
+	/framebufferof self send /room_list get 
+	[ 
+	    exch {
+		1 array astore
+	    } forall
+	]
+	/setitemlist 2 index send
+	/rooms Parent send /setvalue 2 index send
+	/MenuInit super send
+    } def
+
+    /MenuStop {
+	/MenuStop super send
+	/Toggle false promote
+	/paint self send
+    } def
+
+    /MakeWindowMenu { % - => menu
+	/Grid /framebufferof self send /new ClassMenu send {
+	    (Rooms) /setlabel self send
+	    /room_menu_notifier /setnotifier self send
+
+	    /HandleDefaults {
+		1 index /zwm.exclusive_menus eq {
+		    /boolean /convert ClassDefaultsService send {
+			{
+			    /Exclusive
+			} {
+			    /NonExclusive
+			} ifelse
+			/setchoicemode self send
+		    } if
+		    pop
+		} {
+		    /HandleDefaults super send
+		} ifelse
+	    } /installmethod self send
+
+	    /NonExclusive /setchoicemode self send
+	    /zwm.exclusive_menus self /addclient DefaultsService send
+	} 1 index send
+    } def
+classend put
+
+/MyBaseWindow ClassBaseWindow []
+classbegin
+    /Footer? false def
+
+    /update_room_visability {}  def
+
+    /ConstrainMotion { % x y => x y
+	10 dict begin % tempdict
+	    /bbox Parent send rect2points
+	    /Top exch def /Right exch def /Bottom exch def /Left exch def
+	    /size self send /h exch def /w exch def
+	    
+	    dup Bottom lt {
+		pop Bottom
+	    } {
+		dup h add Top gt {
+		    pop Top h sub
+		} if
+	    } ifelse
+	    exch
+	    dup Left lt {
+		pop Left
+	    } {
+		dup w add Right gt {
+		    pop Right w sub
+		} if
+	    } ifelse
+	    exch
+	end
+    } def
+
+    /MenuInit {} def
+
+    /Menu {
+	/Grid framebuffer /new ClassMenu send 
+	{
+	    [   [ (Close)
+		{exch pop /CloseFromUser   /sendtarget 2 index send} ]
+		[(Back)
+		    {exch pop /BackFromUser    /sendtarget 2 index send} ]
+		[(Refresh)
+		    {exch pop /RefreshFromUser /sendtarget 2 index send} ]
+	    ] /setitemlist self send
+	    (vwm) /setlabel self send
+	    0 /setdefault self send
+	} 1 index send
+	/Menu 1 index promote
+    } def
+classend def
+/validate {
+    Label? {
+	Pin? Close? or {
+	    /room_menu /client self send {
+		pop
+	    } {
+		/room_menu framebuffer /new ClassRoomRegion send promote
+		/room_menu room_menu /addclient self send
+	    } ifelse
+	} if
+    } if
+    /validate super send
+} /installmethod ClassWindow send
+
+/PaintWindow { % array => -
+    gsave
+	self setcanvas
+	{self send} forall
+        /room_menu /client self send {
+	    {
+		Mapped {
+		    /PaintAll self send
+		} if
+	    } exch send
+	} if
+    grestore
+} /installmethod ClassWindow send
+
+
+/room_menu_notifier { % index menu => -
+    /value exch send 
+    dup length 0 eq {
+	pop beep
+    } {
+	/rooms exch promote
+    } ifelse
+    pop
+    /update_room_visability  self send
+} /installmethod ClassWindow send
+
+
+/addclient { % keyword newclient => -
+	soften					    % kw ncl
+	ClientData 2 index 2 copy known {	    % kw ncl cd kw
+	    get dup type /arraytype eq {	    % kw ncl [cls]
+		dup 2 index arraycontains? not {    % kw ncl [cls]
+		    1 index arrayappend		    % kw ncl [ncls]
+		} if
+	    } {					    % kw ncl cl
+		2 copy ne {			    % kw ncl cl
+		    1 index 2 array astore	    % kw ncl [ncls]
+		} if
+	    } ifelse
+	} {					    % kw ncl cd kw
+	    pop pop dup				    % kw ncl ncl
+	} ifelse
+	ClientData 3 index 3 -1 roll put	    % kw ncl
+	dup self /addclient ObsoleteService send    % kw ncl
+	DefaultsDict 2 index 2 copy known {	    % kw ncl dd kw
+	    get /HandleDefaults 3 -1 roll send	    % -
+	} {
+	    pop pop pop pop			    % -
+	} ifelse
+} /installmethod DefaultsService send
+
+/EventManager userdict /EventManager known {
+    EventManager
+} {
+    /new ClassEventMgr send 
+} ifelse def
+
+/VirtualWindows [
+    rootcanvases {
+	5 dict begin
+	    /framebuffer exch def
+	    
+	    /VirtualCanvas framebuffer /new ClassVirtualCanvas send def
+	    /VirtualWindow VirtualCanvas framebuffer /new MyBaseWindow send def
+
+	    /panel /Calculated framebuffer /new ClassPanel send def
+
+	    /rooms /Grid framebuffer /new ClassSettings send def
+
+	    /HandleDefaults {
+		exch {
+		    /zwm.rooms {
+			cvx exec 
+			/framebufferof self send /room_list 2 index put
+			setitemlist
+                        gsave
+                        /framebufferof self send setcanvas
+			/location self send /minsize self send /reshape self send
+			/location Parent send /minsize Parent send /reshape Parent send
+			/location /Parent Parent send send {
+			    minsize size 3 -1 roll max 3 1 roll max exch
+			    preferredsize 3 -1 roll max 3 1 roll max exch
+			} /Parent Parent send send /reshape /Parent Parent send send
+                        grestore
+		    }
+		    /zwm.exclusive_settings {
+			/boolean /convert ClassDefaultsService send {
+			    {
+				/Exclusive
+			    } {
+				/NonExclusive
+			    } ifelse
+			    /setchoicemode self send
+			} if
+		    }
+		} case
+	    } /installmethod rooms send
+
+	    framebuffer /room_list get /setitemlist rooms send
+
+	    /Centered /setjustification rooms send
+
+	    /room_notifier /setnotifier rooms send
+	    VirtualCanvas /settarget rooms send
+
+	    /rooms rooms [/SouthWest {0 0}] /addclient panel send
+
+	    /North panel /addclient VirtualWindow send
+
+	    /NonExclusive /setchoicemode rooms send
+	    /zwm.exclusive_settings rooms /addclient DefaultsService send
+	    /zwm.rooms rooms /addclient DefaultsService send
+
+	    [0] /setvalue rooms send
+
+	    /Windows VirtualCanvas send {
+		dup /Menu undef
+		dup /invalidate exch send
+		/rooms exch send pop
+	    } forall
+
+	    EventManager /activate VirtualWindow send
+	    /place VirtualWindow send
+
+	    (Virtual Universe) /setlabel VirtualWindow send
+	    /map VirtualWindow send
+	    VirtualWindow /Stuck true put
+
+	    VirtualWindow 
+	end
+    } forall
+] def
+
+ClassWindow /AutoSticky [] put
+ClassWindow /update_sticky {} put
+
+/DefaultsTarget ClassObject []
+classbegin
+    /HandleDefaults {
+	exch {
+	    /zwm.sticky {
+		cvx exec
+		ClassWindow /AutoSticky 3 -1 roll put
+		[
+		    framebuffer /TopChild get {
+			dup /CanvasBelow get exch
+			dup isobject? {
+			    dup /descendantof? ClassWindow send {
+				dup /VWM_Hidden exch send not {
+				    exch
+				} {
+				    pop
+				} ifelse
+			    } {
+				pop
+			    } ifelse
+			} {
+			    pop
+			} ifelse
+			dup null eq { 
+			    pop exit 
+			} if
+		    } loop
+		] {
+		    /update_sticky exch send
+		} forall
+	    }
+	    /zwm.paintroot {
+		/boolean /convert ClassDefaultsService send {
+		    {
+			false setxrootpattern
+			UserProfile /UsePaintRoot? true put
+		    } {
+			true setxrootpattern
+			UserProfile /UsePaintRoot? false put
+		    } ifelse
+		} if
+	    }
+	} case
+    } def
+classend def
+
+false setxrootpattern
+UserProfile /UsePaintRoot? true put
+
+[
+    /zwm.paintroot /zwm.sticky
+] {
+    DefaultsTarget /addclient DefaultsService send
+} forall
+
+
+/k {
+userdict cleanoutdict quit
+} def

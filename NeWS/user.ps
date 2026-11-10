@@ -1,0 +1,158 @@
+% Global user.ps file
+% Comments and complaints to don@brillig.umd.edu
+
+% frob cursor
+/beye /beye_m framebuffer setstandardcursor
+
+/popproc
+  clippath pathbbox 4 2 roll pop pop
+  2 div exch 2 div exch
+  [(Loading) (user.ps ...)] popmsg
+def
+
+% Load Debugger
+(NeWS/debug.ps) run
+
+% Debugger Aliases
+/dbe	{dbgbreakenter} def
+/dbx	{dbgbreakexit} def
+/dc	{dbgcontinue} def
+/dcb	{dbgcontinuebreak} def
+/dcc	{dbgcopystack dbgcontinue} def
+/dcs	{dbgcopystack} def
+/de	{dbgenter} def
+/deb	{dbgenterbreak} def
+/dgb	{dbggetbreak} def
+/dk	{dbgkill} def
+/dkb	{dbgkillbreak} def
+/dlb	{dbglistbreaks} def
+/dmp	{dbgmodifyproc} def
+/dp	{dbgpatch} def
+/dpe	{dbgprintfenter} def
+/dpx	{dbgprintfexit} def
+/dw	{dbgwhere} def
+/dwb	{dbgwherebreak} def
+/dx	{dbgexit} def
+
+% Useful aliases
+/fb	{framebuffer} def
+/?	{load ==} def
+/vl	{[currentdict {pop} forall] ==} def
+
+/setdefaultwindow { % class => -
+  /DefaultWindow exch store
+} def
+
+% Load pie menus
+%(NeWS/piemenu.ps) LoadFile pop
+
+/redefinemenu { % /menu parent (name) => 
+  /searchkey 2 index send {
+    exch /getmenuaction exch send
+    def
+  } {
+    pop pop
+  } ifelse
+} def
+
+% redefine menus in systemdict after flipstyle!
+
+%/applicationsmenu rootmenu (Applications =>) redefinemenu
+%/terminalmenu applicationsmenu (Terminals =>) redefinemenu
+%/fixedterminalmenu terminalmenu (Fixed =>) redefinemenu
+%/ntermmenu terminalmenu (Scrolling =>) redefinemenu
+%/rootdemomenu rootmenu (Demos =>) redefinemenu
+%/userinterfacemenu rootmenu (User Interface =>) redefinemenu
+%/lookandfeelmenu userinterfacemenu (Look & Feel =>) redefinemenu
+
+% Set up the application menu
+4 /deleteitem applicationsmenu send % remove journaling (loaded in explicitly)
+4 (MouSee)	{(mousee) RunDemoPshScript}
+/insertitem applicationsmenu send
+
+% make rlogin menu
+/netmenu
+  [ 6 24 32 48 ]
+  UserProfile /NetHosts known {
+    UserProfile /NetHosts get
+  } {
+    [ (brillig) (gyre) (ballast) (tumtum) (mimsy) (amanda) (bensun) (tove)  ]
+  } ifelse
+%  [ { (rsh % -n 'setenv NEWSSERVER % ; psterm -t h19 -bg -fl % -il % -li %')
+%      [ currentkey
+%	(NEWSSERVER) getenv (;) search {exch pop exch pop} if
+%        currentkey dup getmenuarg
+%      ] sprintf
+  [ { (echo "setenv NEWSSERVER % ; /usr/NeWS/bin/psterm -t h19 -bg -fl % -il % -li % </dev/null >&/dev/null" | rsh % /bin/csh -f)
+      [ (NEWSSERVER) getenv (;) search {exch pop exch pop} if
+        currentkey dup getmenuarg
+	currentkey
+      ] sprintf
+      forkunix } ]
+  /new LayeredPieMenu send
+  dup /LabelMinRadius 40 put
+def
+
+% add net menu
+2 (Net =>) netmenu /insertitem rootmenu send
+
+% fix lookandfeelmenu
+1 /deleteitem lookandfeelmenu send
+0 /deleteitem lookandfeelmenu send
+
+0 (NeWS) { LitePullRightMenu setdefaultmenu
+	   LiteWindow setdefaultwindow }
+/insertitem lookandfeelmenu send
+1 (SunView) { SunViewMenu setdefaultmenu
+	      SunViewWindow setdefaultwindow }
+/insertitem lookandfeelmenu send
+2 (Pie) { PieMenu setdefaultmenu
+	  QuickWindow setdefaultwindow }
+/insertitem lookandfeelmenu send
+
+% Load junk
+(NeWS/getanimated.ps) LoadFile pop
+(NeWS/quickwin.ps) LoadFile pop
+%(NeWS/term.ps) LoadFile pop
+%(NeWS/animator.ps) LoadFile pop
+
+/NetSecurityWanted false def
+
+/dragframe? true def
+
+% Set key repeat parameter
+UserProfile begin
+    /KeyRepeatThresh	1 60 div .8 mul userdefault
+    /KeyRepeatTime	1 60 div 10 div userdefault
+end
+
+(NeWS/journalling.ps) LoadFile pop
+
+(Journalling =>) /searchkey rootmenu send {
+  dup /getmenuaction rootmenu send
+  /journalmenu exch def
+  4 /deleteitem journalmenu send
+  /deleteitem rootmenu send
+  3 (Journalling =>) journalmenu
+  /insertitem applicationsmenu send
+} if
+
+/playdemo { % playbackfilename => -
+  Journal begin
+    State /Stopped eq {
+      { PlaybackFile
+	/PlaybackFile 3 -1 roll def
+        newprocessgroup
+        framebuffer setcanvas
+        journalplay
+	/PlaybackFile exch def
+      } fork pop
+    } if
+    pop
+  end 
+} def
+
+popproc killprocess
+/popproc null def
+
+(.NeWS) LoadFile pop

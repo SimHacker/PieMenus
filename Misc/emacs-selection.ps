@@ -1,0 +1,172 @@
+EmacsDict begin
+
+/start-selection { % top [line widths] => -
+  (foo: % %\n) [3 index 3 index] dbgprintf
+  /selection-widths exch def
+  /selection-top exch def
+  /selection-height selection-widths length def
+  /selection-bottom selection-top selection-height 1 sub add def
+  curDsp /StartSelectionEvent get dup null eq {pop} {
+    /StartSelection curDsp send
+    curDsp /StartSelectionEvent null put
+  } ifelse
+} def
+
+/selection-line-width { % y => width
+  selection-top sub selection-widths exch roll get
+  (slw %\n) [2 index] dbgprintf
+} def
+
+/finish-selection {
+  curDsp /Selecting? get {
+    /FinishSelection curDsp send
+  } if
+} def
+
+EmacsDsp begin
+
+   /DrawSelection { % state => -
+   % --- Make the selection area visible or invisible, depending on state.
+      10 dict begin 
+         /state exch def
+         %state {
+         %    SelectionPath null ne {
+         %       gsave
+         %          6 array identmatrix setmatrix
+         %          SelectionPath setpath
+         %          SelectionCan reshapecanvas
+         %          SelectionY SelectionY1 lt {
+         %             1 SelectionY SelectionY1 DrawSelectionText
+         %          } if 
+         %          SelectionY SelectionY1 gt {
+         %             1 SelectionY1 SelectionY DrawSelectionText
+         %          } if
+         %          SelectionY SelectionY1 eq {
+         %             SelectionX SelectionY1 SelectionY DrawSelectionText
+         %          } if
+         %          SelectionCan mapcanvas
+         %          /SelectionOn? true store
+         %       grestore
+         %    } if
+         %}{ % --- state = off
+         %   SelectionCan unmapcanvas
+         %   /SelectionOn? false store
+         %} ifelse
+         % --- XXX Use xor for now; SelectionCanvas in the future...
+         gsave
+            SelectionPath null ne SelectionOn? state xor and {
+               ClientCanvas setcanvas
+               cellMatrix setmatrix
+               5 setrasteropcode
+               SelectionPath setpath
+               fill
+               /SelectionOn? state store 
+            } if
+         grestore 
+      end
+   } def
+            
+    /StartSelection { % event => -
+      gsave
+	/Selecting? true def
+	SendClearSelection
+	false DrawSelection
+	SelDragCan setcanvas
+	cellMatrix setmatrix
+	begin
+          /SelectionY
+	    YLocation 1 add floor 1 max frameHeight min
+	    selection-top max selection-bottom min store
+          /SelectionY1 SelectionY store
+          /SelectionX
+	    XLocation floor 1 max frameWidth min
+	    YLocation selection-line-width min store
+          /SelectionX1 SelectionX store
+        end
+      grestore
+    } def
+
+    /DragSelection { % event => -
+      gsave
+        SelDragCan setcanvas
+	cellMatrix setmatrix
+	begin
+          /SelectionY1
+	    YLocation 1 add floor 1 max frameHeight min
+	    selection-top max selection-bottom min store
+          /SelectionX1
+	    XLocation floor 1 max frameWidth min
+	    YLocation selection-line-width min store
+	end
+        erasepage
+        ExtendSelection
+      grestore
+    } def
+
+   /ExtendSelection { % - => -
+   % --- Draw the selection bounding outline
+      10 dict begin
+       gsave
+	 SelDragCan setcanvas
+         cellMatrix setmatrix
+	 % l is the length of the line
+         /l SelectionY1 selection-line-width def
+	 % Is endpoint x past end of line? bring it back.
+         SelectionX1 l gt {
+            /SelectionX1 l def
+         } if
+	 % Is selection on one line? simple rectangle, else keep thinking
+         SelectionY SelectionY1 eq {
+            SelectionX SelectionY SelectionX1 SelectionY1 1 sub 
+            points2rect rectpath
+         }{ 
+	    % x,y <= top endpoint, x1,y1 <= bottom endpoint
+            SelectionY SelectionY1 gt {
+               /y SelectionY1 def /x SelectionX1 def
+               /y1 SelectionY def /x1 SelectionX def
+            }{ 
+               /y SelectionY def /x SelectionX def
+               /y1 SelectionY1 def /x1 SelectionX1 def
+            } ifelse
+	    % Start at bottom left of first line, and draw rectangle around it.
+            1 y moveto 
+            x y lineto
+            0 -1 rlineto
+            /l y selection-line-width def
+            l y 1 sub lineto
+            0 1 rlineto
+
+	    % Draw jagged right edge down right
+            /y y 1 add def
+            y 1 y1 1 sub {
+               /i exch def
+               /l i selection-line-width def
+               l i 1 sub lineto
+               l i lineto
+            } for
+
+	    % Draw right edge of last line.
+            x1 y1 1 sub lineto
+            x1 y1 lineto
+
+	    % Draw bottom and close path.
+            1 y1 lineto
+            closepath
+         } ifelse 
+         /SelectionPath currentpath store 
+         stroke
+        grestore
+       end
+   } def 
+
+  /FinishSelection { % - => -
+    gsave
+      SelDragCan setcanvas
+      erasepage
+    grestore
+    /Selecting? false def
+  } def
+
+end % EmacsDsp
+
+end % EmacsDict

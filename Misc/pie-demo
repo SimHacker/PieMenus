@@ -1,0 +1,175 @@
+This is typed in from the tape of a demo I did off the top of my head.
+
+========================================================================
+
+this is a demo of tab windows and pie menus under the NeWS toolkit
+these windows have tabs attached to them
+that you can click the left button on to bring the window to the top
+now these tabs make it very easy to get to all the overlapping windows
+while still actually being able to see titles
+
+you can click and drag on the tab to move the window
+
+and you can double click on the tab to zoom the window to full height
+and double click back again
+
+you can move the tab by pressing the middle button and dragging
+and the tab will move anywhere around the window you want
+
+when it's on the left or right edge
+it will drag the window up and down
+so that it stays aligned with its companions
+
+so it just keeps it tidy imposing no undue constraints
+
+now you can put it (the tab) on the bottom and move it horizontally
+
+and at any time you can just move it (the window) unconstrained 
+by grabbing the frame
+
+the resize corners allow you to grab two edges and move them
+
+the hands are just telling you which edges will move
+
+now you can press the right button to pop up a pie menu
+on the tab or on the frame itself
+
+and that has commonly used commands like front and back in mnemonic directions
+
+back is down
+and front is up
+
+when you make a menu selection by mousing ahead
+it doesn't display the menu
+as long as you're moving it supresses the menu display
+and it gives you feedback on the overlay plane
+of the slice that you're in and the label of that slice
+so you can actually see what you're going to get before you choose it
+without even seeing the menu itself
+and when you wait
+it pop up the menu
+once you stop moving
+so if you waste some time by just waiting around
+it will waste a bit more time by giving you some stupid animation
+this is meant to be negative reinforcement
+to encourage you to mouse ahead
+
+the submenu pops up
+this is "move two" which is unconstrained move
+you can always get that from the tab by mousing left and right
+that's an easy gesture
+just quickly
+
+or mouse there and wait
+there it is
+it pops up the one you're at first
+
+now this is constrained horizontal move
+and this is constrained vertical move
+
+so constrained horizontal
+and then we'll wait
+
+constrained vertical
+so ...
+
+I mean, once you're there and you know what you want, why wait?
+
+this is "beam me up"
+put it in the next layout position
+to tidy the windows
+
+so if you've clicked the menu up and haven't moved
+it'll just spin it
+because it's confused and it doesn't know what you're going to do
+
+push is something you do with your hand, not the cursor
+grab is something you do with your hand, not the cursor
+and grab lets you grab a corner or and edge
+
+resize the top edge
+grab the bottom edge
+
+now when you put the tab somewhere
+it will just stick to the proportional part of the window
+
+grab that corner
+it's showing you the corner that will move, the edges
+and a preview of where it will go
+
+now I can hold down shift keys to slow the movement
+go into granny gear
+and monster gear
+to accelerate the movement
+good for pushing it where you want 
+and then geting it exactly where you want
+without much mouse movement
+
+now if you hold down another key
+it will actually move the window
+and you can combine this with the granny gear
+or the monster gear
+wooah!
+
+and it also works with resizing
+granny gear
+monster
+and immediate
+
+now the frame menu lets you get the frame properties
+or quit
+now quit is in the other direction
+because it's purposefully harder to select
+you don't want to do that accidentally
+you got to mean to quit
+
+do the check mark motion
+and it goes away
+
+so grab
+get the bottom
+and I have just released the mouse
+I haven't pressed down again
+the clutch is still out
+so I can move back
+get a breath
+swing into it
+and press down
+engage the clutch
+and move it
+
+so I really don't have to move very far at all
+and if I really want to move a lot
+I'll pump it the other way
+monster gear and granny gear and monster gear
+
+so move horizontally constrained is on the horizontal axis
+because you're going to usually move in that direction anyway
+so
+same argument for vertically constrained
+
+and "push two", that is unconstrained movement
+is a pretty common one
+so it's just left right
+you end up where you started
+and that's pretty comfortable
+easy to do
+
+and in this case you're usually going to be moving
+in a direction similar to the one you selected 
+along the axis
+
+so with these
+you can expect to be able to manipulate any edge or corner
+of the window
+very easily
+with a minimum of hand movement
+
+and as soon as you're familiar with the menus
+it's very natural
+very quick
+and the tabs help a lot too
+
+that's iconify
+the tab serves as an icon
+

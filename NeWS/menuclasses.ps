@@ -1,0 +1,353 @@
+% Various classes of pie menus
+
+%systemdict begin
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/TimeMenu DefaultMenu
+dictbegin
+  /MenuFont /Helvetica-Bold findfont 21 scalefont def
+  /SliceWedges false def
+  /SliceArrows true def
+  /LabelRadiusPerKey 0 def
+  /LabelMinRadius 70 def
+dictend
+classbegin
+
+classend def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/BigMenu DefaultMenu
+dictbegin
+  /MenuFont /Times-Bold findfont 24 scalefont def
+dictend
+classbegin
+classend def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/NumberMenu DefaultMenu
+dictbegin
+  /MenuFont /Times-Bold findfont 14 scalefont def
+  /LabelRadiusPerKey 2 def
+dictend
+classbegin
+classend def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/BigNumberMenu DefaultMenu
+dictbegin
+  /MenuFont /Times-Bold findfont 14 scalefont def
+  /LabelRadiusPerKey 2 def
+  /NumbRadius 30 def
+dictend
+classbegin
+classend def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/NicePieMenu PieMenu
+dictbegin
+  /NumbHole false def
+  /MenuLineWidth 1.5 def
+  /MenuLineCap 1 def
+  /MenuArrowWidth 1 def
+  /MenuArrowCap 1 def
+  /SliceGray false def
+dictend
+classbegin
+    /PaintMenuFrame {
+      MenuGSave
+
+        MenuFillColor fillcanvas
+
+	PieRadius dup translate
+	
+	newpath
+	0 0 PieRadius 0 360 arc closepath
+	0 0 PieRadius Border sub 0 360 arc closepath
+%	0 0 NumbRadius 0 360 arc closepath
+	MenuBorderColor setcolor eofill
+      grestore
+    } def
+
+    /PaintMenuItems {
+      MenuGSave
+	false setprintermatch
+        PieRadius dup translate
+
+	  SliceGray {
+	    gsave
+	      0 .1 1 {
+	        /i exch def
+		0 0 LabelRadius dup NumbRadius sub i mul sub 0 360 arc
+		1 i sub setgray
+		closepath fill
+	      } for
+	    grestore
+	  } if
+
+        MenuItems {					% item
+	begin
+	  MenuTextColor setcolor
+	  /Key load X Y ShowThing
+
+% There seems to be a NeWS line clipping bug with lines with one 
+% endpoint the right of the hole in the center of the menu ... 
+
+	  2 setlinequality % Solves SOME of the line glitches ...
+          MenuLineWidth setlinewidth
+	  MenuLineCap setlinecap
+
+	  SliceWedges {
+	    gsave
+	      newpath
+	      ang PieSliceWidth 2 div sub rotate
+	      NumbRadius 0 moveto
+	      LabelRadius Gap sub 0 lineto
+              MenuBorderColor setcolor
+	      stroke
+ 	    grestore
+	  } if
+
+	  SliceArrows {
+	    gsave
+	      MenuArrowWidth setlinewidth
+	      MenuArrowCap setlinecap
+	      newpath
+	      ang rotate
+	      NumbRadius 0 moveto
+	      LabelRadius .5 mul 0 lineto
+	      currentpoint
+	      LabelRadius .4 mul LabelRadius .04 mul lineto
+	      moveto
+	      LabelRadius .4 mul LabelRadius -.04 mul lineto
+              MenuBorderColor setcolor
+	      stroke
+ 	    grestore
+	  } if
+        end
+        } forall
+      grestore
+    } def
+
+classend def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/SlicedPieMenu PieMenu
+dictbegin
+% instance variables
+  /StartAng 180 def
+  /EndAng 360 def
+  /Clockwise false def
+dictend
+classbegin
+% class variables
+
+% methods
+    /reshape {
+      MenuGSave
+	framebuffer setcanvas
+	newpath
+	PieRadius dup dup StartAng EndAng arc
+	closepath
+	NumbHole {
+ 	  PieRadius dup NumbRadius 1 sub EndAng StartAng arcn closepath } if
+	SplatFactor { 6 { PieRadius dup add random mul } repeat
+	              curveto } repeat
+	MenuCanvas eoreshapecanvas
+	/beye /beye_m MenuCanvas setstandardcursor
+	% So retained canvases don't have their old image upon popup:
+	RetainCanvas? {
+	    MenuCanvas setcanvas
+            MenuFillColor fillcanvas
+	} if
+      grestore
+    } def
+
+    /layout {
+      gsave MenuFont setfont initmatrix
+
+	/PieSliceWidth
+	  EndAng StartAng sub
+	  MenuKeys length 1 max div store
+
+        /PieInitialAngle 
+          PieSliceWidth 2 div
+          Clockwise { EndAng exch sub } { StartAng add } ifelse
+        def
+
+	/ThisAngle PieInitialAngle store
+	MenuItems {
+	  begin
+	    w null eq
+	      {/Key load ThingSize /h exch def /w exch def} if
+	    /ang ThisAngle def
+	    /dx ang cos def
+	    /dy ang sin def
+	    ang cos abs .05 lt { %  top or bottom
+	      /xoffset w -2 div def
+	      /yoffset ang 180 gt {h neg} {0} ifelse def
+	    } { %  left or right
+	      /xoffset ang 90 gt ang 270 lt and {w neg} {0} ifelse def
+	      /yoffset h -2 div def
+	    } ifelse
+	    /ThisAngle ThisAngle PieSliceWidth
+	      Clockwise {sub} {add} ifelse
+	      NormalAngle store
+	  end
+	} forall
+
+	/LabelRadius LabelMinRadius def
+	MenuItems length 1 gt {
+	  0 1 MenuItems length 1 sub {
+	    /i exch def
+	    /nexti i 1 add MenuItems length mod def
+	    { pause
+	      i calcrect
+	      nexti calcrect
+	      rectsoverlap not {exit} if
+	      /LabelRadius LabelRadius LabelRadiusStep add def
+	    } loop
+	  } for
+	} if
+	/LabelRadius LabelRadius LabelRadiusExtra add def
+
+	/PieRadius LabelRadius dup mul def
+        MenuItems {
+	  begin
+	    /x dx LabelRadius cvr mul def % XXX: cvr is for NeWS math bug
+	    /y dy LabelRadius cvr mul def
+
+	    /X x xoffset add def
+	    /Y y yoffset add def
+
+	    dx abs .05 lt { %  top or bottom
+	      x abs w 2 div add dup mul y abs h add dup mul add
+	    } { %  left or right
+	      x abs w add dup mul y abs h 2 div add dup mul add
+	    } ifelse
+	    PieRadius max /PieRadius exch store
+	  end
+	} forall
+	/PieRadius PieRadius sqrt Gap add Border add store
+
+        /MenuWidth
+	  PieRadius dup add store
+        /MenuHeight
+	  PieRadius dup add store
+
+      grestore
+    } def
+
+    /PaintMenuFrame {
+      MenuGSave
+
+        MenuFillColor fillcanvas
+
+	PieRadius dup translate
+	
+	newpath 0 0 PieRadius Border sub StartAng EndAng arc
+	0 0 PieRadius EndAng StartAng arcn closepath
+	MenuBorderColor setcolor eofill
+
+	6 setlinewidth 1 setlinequality
+	gsave
+	  StartAng rotate 
+	  newpath  0 0 moveto  PieRadius 0 lineto  stroke
+	grestore
+	gsave
+	  EndAng rotate 
+	  newpath  0 0 moveto  PieRadius 0 lineto  stroke
+	grestore
+
+        SliceWedges {
+	  newpath 0 0 LabelRadius Gap sub StartAng EndAng arc closepath
+          MenuBorderColor setcolor eofill
+	} if
+
+	newpath 0 0 NumbRadius StartAng EndAng arc closepath
+	SliceWedges {MenuFillColor} {MenuBorderColor} ifelse
+	setcolor fill
+      grestore
+    } def
+
+    /PaintMenuItems {
+      MenuGSave
+	false setprintermatch
+        PieRadius dup translate
+
+        MenuItems {					% item
+	begin
+	  /Key load X Y ShowThing
+
+% There seems to be a NeWS line clipping bug with lines with one 
+% endpoint the right of the hole in the center of the menu ... 
+
+	2 setlinequality % Solves SOME of the line glitches ...
+        1 setlinewidth
+
+	  SliceWedges {
+	    gsave
+	      newpath
+	      ang PieSliceWidth 2 div sub rotate
+	      NumbRadius 0 moveto
+	      LabelRadius Gap sub 0 lineto
+              MenuFillColor setcolor
+%	      1 setlinequality % Solves SOME of the line glitches ...
+	      stroke
+ 	    grestore
+	  } if
+
+	  SliceArrows {
+	    gsave
+	      newpath
+	      ang rotate
+	      NumbRadius 0 moveto
+	      LabelRadius .5 mul 0 lineto
+	      currentpoint
+	      LabelRadius .4 mul LabelRadius .04 mul lineto
+	      moveto
+	      LabelRadius .4 mul LabelRadius -.04 mul lineto
+              SliceWedges {MenuFillColor} {MenuBorderColor} ifelse
+	      setcolor
+	      stroke
+ 	    grestore
+	  } if
+        end
+        } forall
+      grestore
+    } def
+
+    /SetMenuValue { % x y => - (Sets /MenuValue)
+        /PieDistance
+	  2 index dup mul 2 index dup mul add sqrt store
+	exch atan /PieDirection exch store
+	/MenuValue
+	  PieDistance NumbRadius le
+% It could be that when the cursor is out past the menu radius,
+% nothing is selected. But I don't do it that way, because it wins
+% to be able to get arbitrarily more precision by moving out further.
+%	  PieDistance PieRadius gt or
+	  { null }
+	  { PieInitialAngle PieSliceWidth 2 div
+	    Clockwise { add PieDirection sub } { sub PieDirection add } ifelse
+	    NormalAngle
+	    PieSliceWidth idiv
+	    dup MenuKeys length ge { pop null } if
+	  } ifelse
+	def
+    } def
+
+classend def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+NicePieMenu setdefaultmenu
+%SlicedPieMenu setdefaultmenu
+
+% end % systemdict
+

@@ -1,0 +1,684 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% fakefish.ps
+% Image Composition Demo
+% Don Hopkins
+%
+
+systemdict /findpackage known {
+  /NeWS 3 0 findpackage beginpackage
+  /TNTCore 3 0 findpackage beginpackage
+  /TNT 3 0 findpackage beginpackage
+} if
+
+systemdict begin
+
+systemdict /RasterDict known not {
+  systemdict /RasterDict growabledict put
+} if
+
+/readcanvascache { % name => can
+    RasterDict 1 index known {
+        RasterDict exch get
+    } {
+        dup readcanvas
+	exch RasterDict exch 2 index put
+    } ifelse
+} def
+
+% Read an image canvas from the Open Windows demo directory.
+%
+/readnewscanvas { % name => canvas
+	(OPENWINHOME) getenv (/demo/images/) append exch append
+	(.im8) append readcanvascache
+} def
+
+% Read a more interesting image from the Sun images library.
+%
+/readdemocanvas { % name => canvas
+    (/net/calder/home/images/im8/) exch append
+    (.im8) append readcanvascache
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ClassFakeCanvas
+
+/ClassFakeCanvas ClassBag []
+classbegin
+
+  /demo {
+    userdict begin
+      /Mgr /new ClassEventMgr send def
+      Mgr /ProcessName (Fake Fish Manager) put
+      
+      /Fake framebuffer /new ClassFakeCanvas send def
+      /preferredsize {300 300} /installmethod Fake send
+      /Panel /Absolute framebuffer /new ClassFakePanel send def
+      framebuffer /Color get {
+        (stormy) readnewscanvas /setpicture Panel send
+      } if
+      /Panel Panel /addclient Fake send
+      /Window Fake framebuffer /new ClassBaseWindow send def
+      (Fake Fish) /setlabel Window send
+      (POINT moves!) (ADJUST stretches!) /setfooter Window send
+      /Overlay framebuffer /new ClassOverlayCanvas send def
+      /Underlay framebuffer /new ClassUnderlayCanvas send def
+
+      /FISHIMAGES (/net/cirrus/home/cirrus/hopkins/tnt/fish/images/) def
+
+      0 1 5 { /i exch def
+	i FISHIMAGES (%fish%.im8) sprintf readcanvascache
+	i FISHIMAGES (%mask%.im1) sprintf readcanvascache
+	framebuffer /new ClassMaskedCanvas send
+	.5 /setmag 2 index send
+	dup [random 256 mul round random 256 mul round]
+	/addclient Panel send
+
+	  framebuffer /new ClassHSlider send
+	  { true /setendboxes self send
+	    0 100 /setrange self send
+	    100 random mul /setvalue self send
+	    20 random mul round 10 add /settickmarks self send
+	    /preferredsize [
+	      /preferredsize self send exch pop
+	      200 random mul round 50 add exch
+	    ] cvx def
+	  } 1 index send
+	  dup [random 100 mul round i 60 mul random 10 mul add 20 add round]
+	  /addclient Panel send
+      } for
+      Mgr /activate Window send
+      /place Window send /map Window send
+    end % userdict
+  } def
+
+  /Layout {
+    gsave
+      self setcanvas
+      0 0 /size self send
+      [Panel Overlay Underlay] {
+        5 copy /reshape exch send pop
+      } forall
+      pop pop pop pop
+    grestore
+  } def
+classend def
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ClassUnderlayCanvas
+
+/ClassUnderlayCanvas ClassCanvas [
+] classbegin
+  /Transparent false def
+  /Retained true def
+  /Mapped false def
+
+  /copyimage { % can => -
+    gsave
+      self setcanvas
+      imagecanvas
+    grestore
+  } def
+
+  /imagelayer {
+    self imagecanvas
+  } def
+
+classend def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ClassOverlayCanvas
+
+/ClassOverlayCanvas ClassUnderlayCanvas [
+  /Mask /Shape /Width /Height
+] classbegin
+
+  /all {
+    gsave Mask setcanvas
+      1 setgray clippath fill
+      /Shape null def
+    grestore
+  } def
+
+  /none {
+    gsave Mask setcanvas
+      0 setgray clippath fill
+      /Shape null def
+    grestore
+  } def
+
+  /rect+ { % x y w h => -
+    gsave Mask setcanvas
+      rectpath 1 setgray fill
+    grestore
+  } def
+
+  /rect- { % x y w h => -
+    gsave Mask setcanvas
+      rectpath 0 setgray fill
+    grestore
+  } def
+
+  /mask+ { % can x y => -
+    gsave Mask setcanvas
+      translate
+      1 setgray true exch imagemaskcanvas
+    grestore
+  } def
+
+  /mask- { % can x y => -
+    gsave Mask setcanvas
+      translate
+      0 setgray true exch imagemaskcanvas
+    grestore
+  } def
+
+  /!mask+ { % can x y => -
+    gsave Mask setcanvas
+      translate
+      1 setgray false exch imagemaskcanvas
+    grestore
+  } def
+
+  /!mask- { % can x y => -
+    gsave Mask setcanvas
+      translate
+      0 setgray false exch imagemaskcanvas
+    grestore
+  } def
+
+  % reshape
+
+  /reshape { % x y w h => -
+    2 copy /Height exch def /Width exch def
+    /reshape super send
+    gsave
+      Mask null eq { true } {
+        Mask false getbbox 4 2 roll pop pop
+	Height eq exch Width eq and not
+      } ifelse {
+        /Mask Width Height 1 [1 0 0 -1 0 7 index] null buildimage def
+	/all self send
+      } if
+     grestore
+  } def
+
+  % Drawing the overlay
+
+  /imagelayer {
+    Shape null eq {
+      /Shape true Mask imagepath currentpath def
+    } if
+    gsave
+      Shape setpath clip
+      self imagecanvas
+    grestore
+  } def
+
+classend def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ClassFakePanel
+
+/ClassFakePanel ClassPanel [
+] classbegin
+  /Transparent true def
+  /Mapped true def
+
+  /IgnoreDamage? false def
+
+  /FixAll {
+    IgnoreDamage? not {
+      /FixAll super send
+    } if
+  } def
+
+  /hide {
+    /IgnoreDamage? true promote
+    /unmap self send
+    /Transparent false def
+    /Retained true def
+  } def
+
+  /reveal {
+    /IgnoreDamage? unpromote
+    /Retained false def
+    /Transparent true def
+    /Mapped true def
+  } def
+
+  /imagepanel {
+    gsave
+      Parent setcanvas
+      self imagecanvas
+    grestore
+  } def
+
+  /doublepaint {
+    /hide self send
+    /paint self send
+    /imagepanel self send
+    /reveal self send
+  } def
+
+  /Paint {
+    % Ultra-fake bubbles
+    gsave
+      Picture null eq {
+        random random random setrgbcolor clippath fill
+	/size self send max dup scale
+	32 {
+	  random random random .1 mul .01 add 0 360 arc
+	  random random random setrgbcolor fill
+	} repeat
+      } {
+        /size self send scale
+        Picture imagecanvas
+      } ifelse
+    grestore
+  } def
+
+  /Picture null def
+
+  /setpicture { % can => -
+    /Picture exch def
+  } def
+
+classend def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ClassMaskedCanvas
+
+/ClassMaskedCanvas ClassCanvas [
+  /PictureImage /PictureMask
+  /PictureWidth /PictureHeight
+  /ScreenImage /ScreenMask
+  /MaskPath
+] classbegin
+  /Transparent true def
+
+  /Cursor Cursors /target get def
+
+  /Mag .25 def
+
+  /setmag {
+    /Mag exch promote
+  } def
+
+  /mag {
+    Mag
+  } def
+
+  /preferredsize { % - => w h
+    PictureWidth Mag mul PictureHeight Mag mul
+  } def
+
+  /minsize { % - => w h
+    4 4
+  } def
+
+  /NewInit { % picture mask parent => -
+    /NewInit super send
+    /PictureMask exch def
+    /PictureImage exch def
+    PictureImage false getbbox
+    /PictureHeight exch def /PictureWidth exch def  pop pop
+    gsave
+      Parent setcanvas
+      0 0 /preferredsize self send /reshape self send
+    grestore
+  } def
+
+  /Shadow? true def
+  /ShadowX 10 def
+  /ShadowY -10 def
+
+  /setshadow { % bool => -
+    /Shadow? exch def
+  } def
+
+  /Paint {
+    gsave
+      MaskPath setpath clip newpath
+      Shadow? {
+        gsave
+	  ShadowX ShadowY /move self send
+	   {.6 mul} settransfer
+	   currentcanvas imagecanvas
+	  ShadowX neg ShadowY neg /move self send
+	grestore
+      } if
+      ScreenImage imagecanvas
+    grestore
+ } def
+
+  /OldWidth -1 def
+  /OldHeight -1 def
+
+  /Resize {
+    /size self send OldHeight ne exch OldWidth ne or {
+      gsave
+        /size self send /OldHeight exch promote /OldWidth exch promote
+	self setcanvas
+	/ScreenImage
+	  /size self send  Color { 8 } { 1 } ifelse
+	  [1 0 0 -1 0 7 index] null buildimage
+	def
+	/ScreenMask
+	  /size self send  1
+	  [1 0 0 -1 0 7 index] null buildimage
+	def
+	ScreenImage setcanvas
+	/size self send scale
+	PictureImage imagecanvas
+
+	% Draw a line around the bbox, to force the mask's
+	% imagepath bbox to equal mask's canvas bbox.
+	% (Otherwise the behavior of movecanvas is very strange)
+	ScreenImage setcanvas
+	0 setlinewidth
+	gsave
+	  0 1 /size self send -1 -1 xyadd rectpath
+	  gsave 0 setgray stroke grestore
+	  [4] 0 setdash 1 setgray stroke
+	grestore
+	ScreenMask setcanvas
+	0 setgray clippath fill
+	/size self send scale
+	PictureMask imagecanvas
+	ScreenMask setcanvas
+	0 1 /size self send -1 -1 xyadd rectpath
+	1 setgray stroke
+	/MaskPath true ScreenMask imagepath currentpath def
+      grestore
+    } if
+  } def
+
+  /reshape { % x y w h => -
+    /reshape super send
+    /Resize self send
+    % Comment this out for rectangular canvases
+%    gsave
+%      self setcanvas
+%      true ScreenMask imagepath
+%      self reshapecanvas
+%    grestore
+  } def
+
+  /moveabsolutelayout { % x y => -
+    /TNTLayout [ 4 -2 roll ] def
+  } def
+
+  /Menuable? true def
+  /Menu /Grid framebuffer /new ClassMenu send def
+  [ [ (To Top) /ToTop ]
+    [ (To Bottom) /ToBottom ]
+    [ (Shadow On) /ShadowOn ]
+    [ (Shadow Off) /ShadowOff ]
+  ] /setitemlist Menu send
+
+  /ShadowOn {
+    pop pop true setshadow
+    /doublepaint Parent send
+  } def
+
+  /ShadowOff {
+    pop pop false setshadow
+    /doublepaint Parent send
+  } def
+
+  /ToTop {
+    pop pop /totop self send
+    /doublepaint Parent send
+  } def
+
+  /ToBottom {
+    pop pop /tobottom self send
+    /doublepaint Parent send
+  } def
+
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  % Tracking
+
+  /Trackable? true def
+  /DragFrame? false def
+
+% from window.ps
+  % Given an anchor point (x1,y1) and some other point (x2,y2)
+  % return an (x,y,w,h) tuple that specifies a shape no smaller than
+  % minsize and still has (x1,y1) as a corner. Interactive reshaping
+  % uses this function to minsize against a fixed corner.
+  %
+  /AnchorBox { % x1 y1 x2 y2 -> x y w h
+      10 dict begin
+	  /y2 exch def /x2 exch def
+	  /y1 exch def /x1 exch def
+	  /minsize self send					% minw minh
+	  y2 y1 sub abs max /height exch def			% minw
+	  x2 x1 sub abs max /width exch def			% -
+	  x1 dup x2 gt {width sub} if				% x
+	  y1 dup y2 gt {height sub} if			% x y
+	  width height					% x y w h
+      end
+  } def
+
+  /TrackDict		growabledict def
+  /TrackDictInit { % x0 y0 => -
+      TrackDict begin
+	  /Y0 exch def /X0 exch def
+	  /Can currentcanvas def
+  } def
+  /TrackDictBegin { % event => x y
+      begin
+	  TrackDict begin
+	      Can setcanvas erasepage
+	      XLocation X0 sub YLocation Y0 sub	% x y
+  } def
+  /TrackDictEnd { % - => -
+	  end
+      end
+  } def
+
+  /BBoxStart { % event => -
+      gsave
+	  Parent createoverlay setcanvas
+	  begin XLocation YLocation end		% x y
+	  2 copy /FarthestCorner self send		% x y x1 y1
+	  2 copy 6 2 roll				% x1 y1 x y x1 y1
+	  /FarthestCorner self send xysub		% x1 y1 x0 y0
+	  TrackDictInit
+	      /Y1 exch def /X1 exch def
+	  end
+      grestore
+  } def
+  /BBoxMotion { % event => -
+      gsave
+	  TrackDictBegin		% x y
+	      X1 Y1 points2rect	% x y w h
+	  TrackDictEnd
+%	    /minsize self send xymax /path self send stroke
+	  /path self send stroke
+      grestore
+  } def
+  /BBoxStop { % event => -
+      gsave
+	  TrackDictBegin
+	      X1 Y1 % points2rect
+	  TrackDictEnd
+	  4 2 roll /AnchorBox self send /reshape self send
+      grestore
+      TrackDict cleanoutdict
+  } def
+% end window.ps
+
+  /TrackCancel { % event => -
+    pop
+  } def
+
+  /TrackStart { % event => /Default true
+    dup /Name get PointButton eq {
+      /TrackMotion {
+        MyMoveMotion
+      } def
+      /TrackStop {
+        [ exch /MyMoveStop self ] cvx /sendmanager /eventmgr self send send
+      } def
+      [ exch /MyMoveStart self ] cvx /sendmanager /eventmgr self send send
+    } {
+      /TrackMotion {
+        MyBBoxMotion
+      } def
+      /TrackStop {
+        [ exch /MyBBoxStop self ] cvx /sendmanager /eventmgr self send send
+      } def
+      [ exch /MyBBoxStart self ] cvx /sendmanager /eventmgr self send send
+    } ifelse
+    /Default true
+  } def
+
+  /InitTracking { % event => event x y
+    Cursors /hourg get grabcursor
+
+    gsave
+      self setcanvas
+      { .7 mul } settransfer
+      false ScreenMask imagepath
+      clip
+      self imagecanvas
+    grestore
+    
+    /siblings self send
+    dup self arrayindex pop
+    2 copy 1 add 1 index length 1 index sub getinterval
+    /Above exch def
+    0 exch getinterval
+    /Below exch def
+
+    Parent createoverlay setcanvas
+    dup begin XLocation YLocation end		% event x y
+  } def
+
+  /StartTracking { % event => event
+    Parent setcanvas
+    /hide Parent send
+
+    pause
+    {self setcanvas ?validate Paint}  Parent send
+
+    Below {
+      /paint exch send
+    } forall
+
+    Parent /copyimage Underlay send
+
+    /none Overlay send
+    Above {
+      { self /ScreenMask known {
+	  ScreenMask /location self send
+	  Shadow? {
+	    3 copy ShadowX ShadowY xyadd /mask+ Overlay send
+	  } if
+	  /mask+ Overlay send
+	} {
+	  /bbox self send /rect+ Overlay send
+	} ifelse
+	/paint self send
+      } exch send
+    } forall
+
+    Parent /copyimage Overlay send
+  } def
+
+  /StopTracking { % event => -
+    gsave
+      Parent setcanvas
+      /location self send
+      /moveabsolutelayout self send
+      /imagelayer Underlay send
+      /paint self send
+      Above {
+        /paint exch send
+      } forall
+      /imagepanel Parent send
+    grestore
+
+    /reveal Parent send
+    null grabcursor
+
+    TrackDict cleanoutdict
+    /Above null def
+    /Below null def
+  } def
+
+  /MyMoveStart { % event => -
+    gsave
+      /InitTracking self send			% event x y
+
+      /location self send xysub
+      TrackDictInit end				% event
+
+      /StartTracking self send			% event
+      Cursors /move get grabcursor
+    grestore
+
+    /MyMoveMotion self send			%
+  } def
+
+  /MyMoveMotion { % event => -
+    gsave
+	TrackDictBegin TrackDictEnd		% x y
+	/move self send
+	Parent setcanvas
+	/imagelayer Underlay send
+	/paint self send
+	/imagelayer Overlay send
+	/imagepanel Parent send
+    grestore
+  } def
+
+  /MyMoveStop { % event => -
+    /MyMoveMotion self send
+    /StopTracking self send			%
+  } def
+
+  /MyBBoxStart { % event => -
+    gsave
+      /InitTracking self send			% event x y
+
+      2 copy /FarthestCorner self send		% event x y x1 y1
+      2 copy 6 2 roll				% event x1 y1 x y x1 y1
+      /FarthestCorner self send xysub		% event x1 y1 x0 y0
+      TrackDictInit				% event x1 y1
+	  /Y1 exch def /X1 exch def		% event
+      end
+
+      /StartTracking self send			% event
+      Cursors /xhair get grabcursor
+    grestore
+
+    /MyBBoxMotion self send			%
+  } def
+
+  /MyBBoxMotion { % event => -
+    gsave
+      TrackDictBegin				% x y
+	X1 Y1 points2rect			% x y w h
+      TrackDictEnd
+      /reshape self send			%
+      Parent setcanvas
+      /imagelayer Underlay send
+      /paint self send
+      /imagelayer Overlay send
+      /imagepanel Parent send
+    grestore
+  } def
+
+  /MyBBoxStop { % event => -
+    /MyBBoxMotion self send
+    /StopTracking self send
+  } def
+
+classend def
+
+end % systemdict
+

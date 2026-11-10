@@ -1,0 +1,56 @@
+To: robin@sun.com, jfarrel@sun.com
+Subject: Questions for the X11/NeWS SIG
+--text follows this line--
+I told you I'd send some questions about X11/NeWS, for the SIG at
+CHI'88. Here they are! 
+
+- How does the NeWS selection service interact with that of X?
+  - Cut & Paste between NeWS and X windows?
+
+- What sort of access do NeWS processes have to X Properties?
+
+- How is color handled?
+  - Can NeWS processes manipulate the color map in the manner of X clients?
+
+- Does journalling work over both X and NeWS window?
+
+- Do you have direct access to Xlib from PostScript? 
+  - What lower level parts of the X server are exposed to PostScript
+    processes?
+
+- Describe the class heirarchy that the will be supplied with X11/NeWS!
+  - Tell all about class Canvas!
+
+- How does the NeWS window manager interact with X windows?
+  - Do you need to run a seperate X window manager, or can the NeWS server
+    handle window managment for X and NeWS windows?
+  - What are the advantages of having the window manager running in
+    the NeWS server?
+  - Can you run a normal X window manager, and have it manage NeWS
+    windows as well as X windows?
+
+- Can you emulate and prototype X extensions in PostScript?
+  - How about making X input extensions that use NeWS Items to
+    emulate different types of hardware, like knob and botton boxes,
+    n-dimensional pointing devices, etc.
+
+- What new PostScript extensions are there?
+  - "send" as a nice fast primitive???!
+  - dynamic loading of primitives?
+
+- Multitasking
+  - Will we ever have preemptive multitasking?
+  - How about timeouts for badly behaved processes that don't pause?
+
+- How complete is the PostScript implementation?
+  - Font model?
+  - charpath?
+  - Halftoning?
+
+- Describe the underlying graphics package that X11/NeWS is based on!!!
+  - Can canvases be positioned above or to the left of their parent?
+    (This does not work in NeWS 1.1!)
+
+- What's all this stuff about Open Look?
+  - What is the NDE toolkit?
+

@@ -1,0 +1,40 @@
+To: sun-spots@rice.edu, xpert@athena.mit.edu, hackers_guild@ucbvax.berkeley.edu, NeWS-makers@brillig.umd.edu, info-postscript@sushi.stanford.edu
+Cc: don@brillig.umd.edu
+Subject: NeWS-makers mailing list
+--text follows this line--
+
+This is to announce the inception of a mailing list for the discussion
+of NeWS: the Network/extensible Window System. Its Internet address is
+"NeWS-makers@brillig.umd.edu", and the uucp address is
+"...!seismo!mimsy!NeWS-makers". Administrivial matters (such as
+requests for additions to and deletions from the list) should be sent
+to NeWS-makers-request. The studly capitalization of the address is
+not necessary.
+
+NeWS, originally called SunDew, was written primarily by James
+Gosling, at Sun Microsystems, who is well known for his Unix Emacs. In
+a nutshell, NeWS is an extensible multitasking window system
+environment. It consists of a network based display server that is
+controlled and programmed in PostScript, Adobe's page description
+language. NeWS was designed to be a portable, device independent
+window system development platform that runs on a wide range of
+hardware, in a distributed heterogeneous environment.
+
+Within the address space of the NeWS server, lightweight PostScript
+processes communicate and interact with each other by sharing data,
+and passing around events and messages. Clients may communicate with
+processes by sending them PostScript commands and source code, that is
+interpreted and executed in the server, or by invoking functions in
+the server that communicate in different ways. PostScript running in
+the NeWS server can implement whatever protocols and data compression
+schemes are useful for communicating with clients. NeWS provides the
+tools to implement the user and programmer interfaces of other window
+systems, such as SunView, Apple Macintosh, Interlisp-D, MS Windows,
+and even the X window system.
+
+NeWS is to most other window systems as Emacs is to most other
+editors. There is no doubt that extensible systems allow degrees of
+freedom that "hard wired" systems simply cannot provide.
+
+	-Don
+	 (don@brillig.umd.edu, ...!seismo!mimsy!don)

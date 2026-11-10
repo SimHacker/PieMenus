@@ -1,0 +1,126 @@
+% Assumes we're running in the overlay plane on a cg4 with Don's
+% hacked server (-DCG4_ENABLE_HACK).
+
+systemdict begin
+
+systemdict /fb_overlay known not {
+  /fb_overlay (/dev/fb_overlay) createdevice def
+  fb_overlay /Retained true put
+  /fb_enable (/dev/fb_enable) createdevice def
+  fb_enable /Retained true put
+  gsave fb_enable setcanvas 0 fillcanvas grestore
+  /fb_color (/dev/fb_color) createdevice def
+} if
+
+/ColorWindow DefaultWindow 
+dictbegin
+  /EnableCanvas null def
+  /OverlayCanvas null def
+  /ColorCanvas null def
+  /OtherCanvas null def
+dictend
+classbegin
+  /CreateClientCanvas {
+    /CreateClientCanvas super send
+
+    framebuffer /Color get {
+      /OverlayCanvas ClientCanvas def
+      /ColorCanvas fb_color newcanvas def
+      /OtherCanvas ColorCanvas def
+      ColorCanvas /Mapped true put
+      ColorCanvas /Retained true put
+      ColorCanvas /Transparent false put
+    } {
+      /ColorCanvas ClientCanvas def
+      /OverlayCanvas fb_overlay newcanvas def
+      /OtherCanvas OverlayCanvas def
+      OverlayCanvas /Mapped true put
+      OverlayCanvas /Retained true put
+      OverlayCanvas /Transparent false put
+    } ifelse
+
+    /EnableCanvas fb_enable newcanvas def
+    EnableCanvas /Mapped true put
+    EnableCanvas /Retained true put
+    EnableCanvas /Transparent false put
+  } def
+
+  /ShapeClientCanvas {
+    /ShapeClientCanvas super send
+    gsave
+      ClientCanvas setcanvas
+      clippath OtherCanvas reshapecanvas
+      clippath EnableCanvas reshapecanvas
+      EnableCanvas setcanvas
+      1 fillcanvas
+    grestore
+  } def
+
+  /move {
+    /move super send
+    gsave
+      framebuffer setcanvas
+      ClientCanvas getcanvaslocation
+      2 copy OtherCanvas setcanvas movecanvas
+      EnableCanvas setcanvas movecanvas
+    grestore
+  } def
+
+  /map {
+    /map super send
+    OtherCanvas /Mapped true put
+    EnableCanvas /Mapped true put
+  } def
+
+  /unmap {
+    /unmap super send
+    OtherCanvas /Mapped false put
+    EnableCanvas /Mapped false put
+  } def
+
+  /totop {
+    /totop super send
+    OtherCanvas canvastotop
+    EnableCanvas canvastotop
+  } def
+
+  /tobottom {
+    /totop super send
+    OtherCanvas canvastobottom
+    EnableCanvas canvastobottom
+  } def
+
+  /PaintFocus {
+    /PaintFocus super send
+    gsave
+      EnableCanvas setcanvas
+      KeyFocus? .75 1 ifelse
+      fillcanvas
+    grestore
+  } def
+
+classend def
+
+end %  systemdict
+
+/win framebuffer /new ColorWindow send def
+
+/reshapefromuser win send
+{ /PaintClient {
+    ClientCanvas setcanvas 
+    0 fillcanvas
+    ColorCanvas setcanvas
+    random random random rgbcolor fillcanvas
+    clippath pathbbox scale pop pop
+    20 {
+      random random random setrgbcolor
+      random random moveto
+      random random random 2 div .25 add controlpoint
+      random random random 2 div .25 add controlpoint
+      random random lineto
+      stroke
+      pause
+    } repeat
+  } def
+} win send
+/map win send

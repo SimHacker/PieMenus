@@ -1,0 +1,92 @@
+%!
+% Warp an image.
+% By Don Hopkins and Rehmi Post
+% Input is a function to execute that produces the image in a unit square,
+% and two arrays of numbers describing the horizontal and vertical
+% partitioning of the source image.
+
+/warp	% hparts vparts showit ==> ---
+{   /showit exch def
+    /vparts exch normalize def
+    /hparts exch normalize def
+    /n hparts length def
+    /m vparts length def
+    /hstep 1 n div def
+    /vstep 1 m div def
+    /yloc 0 def
+
+    0  1  m 1 sub { /j exch def
+	/xloc 0 def
+
+        0  1  n 1 sub { /i exch def
+	    gsave showsquare grestore
+
+	    /xloc  xloc hpart add  def
+        } for
+
+	/yloc  yloc vpart add  def
+    } for
+} def
+
+/normalize  % array ==> normalized_array
+{   0  1 index  { add } forall
+    /total exch def
+    [ exch { total div } forall ]
+} def
+
+/showsquare % --- ==> ---
+{   /hloc  hstep i mul  def
+    /vloc  vstep j mul  def
+    /hpart  hparts i get  def
+    /vpart  hparts j get  def
+
+    % Clip to the destination square
+    newpath
+      hloc  vloc  moveto
+      hloc  vloc vstep add  lineto
+      hloc hstep add  vloc vstep add  lineto
+      hloc hstep add  vloc  lineto
+    closepath
+    clip
+
+    % Translate and scale so that the source square is mapped onto
+    % the destination square
+    hloc vloc translate
+    hpart  hstep  div
+    vpart  vstep  div  scale
+    xloc neg  yloc neg  translate
+
+    % Produce the image
+    showit
+} def
+
+/circles    % --- ==> ---
+{   newpath
+    0 .1 .5 {
+	.5 exch .5 exch 0 360 arc } for
+
+    0 setgray
+    .005 setlinewidth
+    stroke
+} def
+
+/grid    % --- ==> ---
+{   newpath
+    0 .1 1 { /x exch def
+        x 0 moveto  x 1 lineto  stroke
+        0 x moveto  1 x lineto  stroke
+    } for
+
+    0 setgray
+    .03 setlinewidth
+    stroke
+} def
+
+gsave
+  50 50 translate
+  300 300 scale
+  [2 5 3] [1 3 6] 
+  { grid circles } warp
+grestore
+
+showpage

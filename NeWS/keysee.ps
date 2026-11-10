@@ -1,0 +1,383 @@
+#!/usr/NeWS/bin/psh
+% From mimsy!haven!rutgers!bellcore!jcricket!sjs Tue Sep 27 23:14:54 EDT 1988
+% Article 816 of comp.windows.news:
+% Path: mimsy!haven!rutgers!bellcore!jcricket!sjs
+% From: sjs@jcricket.ctt.bellcore.com (Stan Switzer)
+% Newsgroups: comp.windows.news
+% Subject: KeySee: A program to monitor and display your keyboard
+% Message-ID: <10498@bellcore.bellcore.com>
+% Date: 27 Sep 88 18:37:01 GMT
+% Sender: news@bellcore.bellcore.com
+% Reply-To: sjs@ctt.bellcore.com (Stan Switzer)
+% Organization: Bellcore
+% Lines: 367
+% 
+% One good hack deserves another.  Ever since I got ahold of Don
+% Hopkins's MouSee I have been toying with writing something that does
+% for the Keyboard what MouSee does for the Mouse.  This is the result.
+% 
+% Among other things, KeySee demonstrates how to use dictionaries as
+% interest names, how to handle raw keyboard input, how to manage
+% canvases with LOTS of items, how to play games with the icon, how to
+% trick items into displaying other than where they really are (i.e.: in
+% the icon), and how to subclass items and windows.
+% 
+% Note that this program will only work on systems that have Sun-3 style
+% keyboards.  This includes, I believe, all Sun-3s and Sun-4s and
+% possibly even some of the newer Sun-2s.
+% 
+% Enjoy,
+% 
+% Stan Switzer  sjs@ctt.bellcore.com
+% 
+% --------------------------------------------------------------------
+% #!/usr/NeWS/bin/psh
+%
+% KeySee:
+%	 Display the keyboard.
+%
+% Copyright (C) 1988 by Stan Switzer. All rights reserved.
+% This program is provided for unrestricted use, provided that this 
+% copyright message is preserved. There is no warranty, and no author 
+% or distributer accepts responsibility for any damage caused by this 
+% program. 
+%
+
+/KeyItem LabeledItem dictbegin
+    /ItemDownColor   .5 .5 .5 rgbcolor def
+    /ItemRadius	     4		       def
+    /Station	     null	       def
+dictend classbegin
+    /new { % label canvas width height => instance
+	() /Center nullproc 6 3 roll /new super send begin
+	    ItemLabel /OU eq {  % over/under key label
+		/LowerLabel exch def
+		/UpperLabel exch def
+	    } if
+	    currentdict
+	end
+    } def
+    /ItemLabelFont   /Times-Roman findfont 10 scalefont def
+    /SetKeyValue { % bool => -   -- true == down, false == up
+	/ItemValue exch store
+	ItemValue ItemPaintedValue ne {/paint self send} if
+    } def
+    /JustSetKeyValue { % bool => -   -- true == down, false == up
+	/ItemValue exch store
+    } def
+    /KS 2 def
+    /PaintItem {
+	ItemRadius KS 2 idiv dup ItemWidth KS sub ItemHeight KS sub rrectpath
+	gsave
+	ItemFillColor ItemValue null ne {
+	    ItemValue { pop ItemDownColor } if
+	} if
+	setcolor fill
+	grestore
+	ItemBorderColor setcolor stroke
+	ShowLabel
+    } def
+    /OU { % over-under proc
+	% if the Label is a proc, it is executed passing "true" to draw it
+	%	and "false" to return the width and height.
+	% Hack: we pretend that the labels have no width and then
+	%       cshow them.
+	{ % draw it
+	    0 currentfont fontdescent 2 idiv rmoveto
+	    gsave 0 currentfont fontheight rmoveto UpperLabel cshow grestore
+	    LowerLabel cshow
+	} {
+	    0 currentfont fontheight 2 mul
+	} ifelse
+    } def
+    /reshape { % x y w h
+	/reshape super send
+	LabelSize % w h
+	ItemHeight exch sub 2 div /LabelY exch def
+	ItemWidth exch sub 2 div /LabelX exch def
+    } def
+    /SetStation { % stationcode => -
+	16#6F00 add		% This is magic
+	/Station exch def
+    } def
+	
+classend def
+
+/DummyKeyItem KeyItem [ ]
+classbegin
+    /new { % canvas width height => instance
+	() 4 1 roll
+	/new super send
+    } def
+    /PaintItem { } def
+    /SetStation { pop } def
+classend def
+
+/KeeSee DefaultWindow dictbegin
+    /Items	       null 	def
+    /ItemList	       null	def
+    /TmpDict	       null	def
+    /Watcher	       null	def
+    /IconKey	       null	def
+dictbegin
+dictend classbegin
+
+    /new {
+	/new super send begin
+	    /PaintClient {
+		ClientFillColor fillcanvas
+		ClientCanvas setcanvas
+		ItemList { paintitems } forall
+	    } def
+	    /TmpDict 20 dict def
+	    currentdict
+	end
+    } def
+    /FrameLabel (Key See) def
+    /IconLabel FrameLabel def
+    /KeyWidth 24 def	% Width (&Height) of Std Key
+    /Border 4 def   	% border around keyboard proper
+
+    /Key { % (Label) WidthFactor => item
+	KeyWidth mul 
+	ClientCanvas exch KeyWidth /new KeyItem send
+	pause
+    } def
+    /Dummy { % WidthFactor => item
+	KeyWidth mul ClientCanvas exch KeyWidth /new DummyKeyItem send
+    } def
+    
+    /CreateClientCanvas {
+	/CreateClientCanvas super send
+   
+	% various items:
+	/Items dictbegin
+	    (A) 0 get 1 (Z) 0 get {
+		1 string dup 0 4 -1 roll put
+		dup 1 string copy cvn exch 1 Key def
+	    } for
+	    /D1 (!)(1)/OU 1 Key def
+	    /D2 (@)(2)/OU 1 Key def
+	    /D3 (#)(3)/OU 1 Key def
+	    /D4 ($)(4)/OU 1 Key def
+	    /D5 (%)(5)/OU 1 Key def
+	    /D6 (^)(6)/OU 1 Key def
+	    /D7 (&)(7)/OU 1 Key def
+	    /D8 (*)(8)/OU 1 Key def
+	    /D9 (\()(9)/OU 1 Key def
+	    /D0 (\))(0)/OU 1 Key def
+	    /Caps (Caps) 1.25 Key def
+	    /Left (Left) 1.5 Key def
+	    /Space () 9 Key def
+	    /SPC (Space) 2.25 Key def 0 0 /move SPC send
+	    /Right (Right) 1.5 Key def
+	    /Alt (Alt) 1.75 Key def
+	    /LShift (Shift) 2.25 Key def
+	    /RShift (Shift) 1.75 Key def
+	    /LF (LF) 1 Key def
+	    /L-C (<)(,)/OU 1 Key def
+	    /G-P (>)(.)/OU 1 Key def
+	    /Q-S (?)(/)/OU 1 Key def
+	    /Ctl (Ctl) 1.75 Key def
+	    /C-S (:)(;)/OU 1 Key def
+	    /Q-Q (")(')/OU 1 Key def
+	    /Ret (Return) 2.25 Key def
+	    /Tab (Tab) 1.5 Key def
+	    /O-B ({)([)/OU 1 Key def
+	    /C-B (})(])/OU 1 Key def
+	    /Del (Del) 1.5 Key def
+	    /Esc (Esc) 1 Key def
+	    /U-D (_)(-)/OU 1 Key def
+	    /P-E (+)(=)/OU 1 Key def
+	    /V-B (|)(\\)/OU 1 Key def
+	    /T-Q (~)(`)/OU 1 Key def
+	    /F1 (F1) 1 Key def
+	    /F2 (F2) 1 Key def
+	    /F3 (F3) 2 Key def
+	    /F4 (F4) 2 Key def
+	    /F5 (F5) 2 Key def
+	    /F6 (F6) 2 Key def
+	    /F7 (F7) 2 Key def
+	    /F8 (F8) 1 Key def
+	    /F9 (F9) 1 Key def
+	    /BS (BS) 1 Key def
+	    /L1 (L1) 1 Key def /L2 (L2) 1 Key def /X1 .5 Dummy def
+	    /L3 (L3) 1 Key def /L4 (L4) 1 Key def /X2 .5 Dummy def
+	    /L5 (L5) 1 Key def /L6 (L6) 1 Key def /X3 .5 Dummy def
+	    /L7 (L7) 1 Key def /L8 (L8) 1 Key def /X4 .5 Dummy def
+	    /L9 (L9) 1 Key def /L10 (L10) 1 Key def /X5 .5 Dummy def
+	    /X0 2.5 Dummy def
+	    /X6 .5 Dummy def /R1 (R1) 1 Key def
+	        /R2 (R2) 1 Key def /R3 (R3) 1 Key def
+	    /X7 .5 Dummy def /R4 (R4) 1 Key def
+	        /R5 (R5) 1 Key def /R6 (R6) 1 Key def
+	    /X8 .5 Dummy def /R7 (R7) 1 Key def
+	        /R8 (R8) 1 Key def /R9 (R9) 1 Key def
+	    /X9 .5 Dummy def /R10 (R10) 1 Key def
+	        /R11 (R11) 1 Key def /R12 (R12) 1 Key def
+	    /X10 .5 Dummy def /R13 (R13) 1 Key def
+	        /R14 (R14) 1 Key def /R15 (R15) 1 Key def
+	dictend store
+
+	% Display order
+	/ItemList Items begin [ % Key rows from bottom to top
+	    [ X0 119 Caps Left Space Right 19 Alt ] Station
+	    [ 95 L9 97 L10 X5 99 LShift Z X C
+		V B N M L-C G-P Q-S RShift LF
+	        X10 112 R13 R14 R15 ] Station
+	    [ 72 L7 L8 X4 76 Ctl A S D F G H J K L C-S Q-Q 89 Ret
+	        X9 91 R10 R11 R12 ] Station
+	    [ 49 L5 51 L6 X3 53 Tab Q W E R T Y U I O P O-B C-B Del
+	        X8 68 R7 R8 R9 ] Station
+	    [ 25 L3 L4 X2 29 Esc D1 D2 D3 D4 D5 D6 D7 D8 D9 D0
+		U-D P-E 88 V-B 42 T-Q
+	        X7 45 R4 R5 R6 ] Station
+	    [ 1 L1 3 L2 X1 5 F1 F2 8 F3 10 F4 12 F5
+		14 F6 16 F7 F8 F9 43 BS
+		X6 21 R1 R2 R3 ] Station
+	] end store
+    } def
+
+    /PaintIconKey { 	% paints IconKey centered in icon
+	IconKey null ne {
+	    { ItemHeight ItemWidth } IconKey send
+	    IconWidth exch sub 2 idiv exch
+	    IconHeight exch sub 2 idiv
+	    gsave translate  /PaintItem IconKey send  grestore
+	} if
+    } def
+    
+    /PaintIcon { gsave IconCanvas setcanvas
+	IconFillColor fillcanvas IconBorderColor strokecanvas
+	IconTextColor setcolor
+	PaintIconKey
+	PaintIconLabel
+    grestore } def
+
+    /flipiconic {
+	/flipiconic super send
+	Iconic? { painticon } if    % update icon image
+    } def
+	
+    /SetIconKey { gsave IconCanvas setcanvas
+	IconKey null ne {	   % erase previous key image
+	    { ItemWidth ItemHeight } IconKey send
+	    IconWidth 2 index sub 2 idiv
+	    IconHeight 2 index sub 2 idiv
+	    moveto rect
+	    IconFillColor setshade fill
+	} if
+	JustSetIconKey
+	IconTextColor setcolor PaintIconKey
+    grestore } def
+    
+    /JustSetIconKey {
+	Items begin
+	    dup Space eq {  % normal space bar is too big!
+		/ItemValue get SPC dup /ItemValue 4 -1 roll put
+	    } if
+	end
+	/IconKey exch def
+    } def
+
+    /watch {	% start event loop
+	Watcher null ne { Watcher killprocess } if
+	/Watcher {
+	    createevent dup begin	
+		/Name dictbegin	% dict: keycode => item
+		    Items {
+			exch pop dup /Station get
+			dup null eq { pop pop } { exch def } ifelse
+		    } forall
+		dictend def
+		/Priority 10 def
+	    end expressinterest
+	    {
+		awaitevent begin
+		    % Note: Name is key item because of interest /Name dict
+		    
+		    pause % perhaps this will let us do real work first
+		    
+		    % "self /foo exch send" keeps the method compiler
+		    % from removing self send.  This is important to that
+		    % when (Just)SetIconKey is invoked it will end up
+		    % setting IconKey in the object, not in the event.
+		    % failing to do this results in having the interest
+		    % (which is apparently reused for all keyboard events)
+		    % referencing an item and consequently its parent (the
+		    % ClientCanvas), causing the canvas to just stick around
+		    % forever.  Probably defing bogus entries in events should
+		    % be an error.  This was no fun to find.
+		    
+		    Action /DownTransition eq
+		    Iconic? {
+			/JustSetKeyValue Name send
+			Name self /SetIconKey exch send
+		    } {
+			/SetKeyValue Name send
+			Name self /JustSetIconKey exch send
+		    } ifelse
+		end
+	    } loop
+	} fork def
+    } def
+
+    /Station { % [ KeyItems-and-indexes ] => [ KeyItems ]
+	% sets the station codes in the array's items.
+	mark exch 0 exch { % [ item item ... n currentitem
+	    dup type /integertype eq {
+		exch pop
+	    } {
+		2 copy /SetStation exch send
+		exch 1 add
+	    } ifelse
+	} forall
+	pop ]
+    } def
+
+    /ShapeClientCanvas {
+	% This is a real good way to position items!
+	/ShapeClientCanvas super send
+	Recalc	% recalc layout params
+	ClientCanvas setcanvas
+
+	% now, move the items to their rightful places
+	TmpDict begin
+	    /SepX 0 def /SepY 0 def
+	    /Y Border def
+            ItemList {
+		/X Border def
+		/MaxH 0 def
+		{
+		    X Y /move 3 index send
+		    /ItemHeight 1 index send dup MaxH gt
+			{ /MaxH exch def } { pop } ifelse
+		    /ItemWidth exch send X add SepX add /X exch store
+		} forall
+		/Y Y MaxH SepY add add def
+	    } forall
+	end
+	Watcher null eq { watch } if
+    } def
+
+    /placeit {	% one click placement and sizing
+	gsave fboverlay setcanvas getclick grestore
+	BorderLeft BorderRight add 21 KeyWidth mul add Border 2 mul add
+	BorderTop BorderBottom add 6 KeyWidth mul add Border 2 mul add
+	3 -1 roll 1 index sub 3 1 roll % % ulx uly w h => llx lly w h
+	reshape
+    } def
+
+    /Recalc { % - => -  -- recalculates various layout parameters
+	% for when I decide to handle resizing!
+    } def
+
+classend def
+
+/win framebuffer /new KeeSee send def
+/placeit win send
+/map win send
+
+% ----- If anything follows this line it is not part of the program -----
+
+

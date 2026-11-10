@@ -1,0 +1,451 @@
+Date: Sun, 14 Jan 90 07:43:40 -0500
+From: don (Don Hopkins)
+To: rxb@ASC.SLB.COM, owen@sun.com, db@East.Sun.COM, sjs@ctt.bellcore.com,
+        wm@cse.ogc.edu
+Cc: don
+Subject: LispScript
+
+Does anybody know out about LispScript, or how get in touch with David
+Singer? (fingering singer@asc.slb.com does not find him.)
+
+David Singer posted a message to NeWS-makers back in Nov 87 about
+LispScript, showing a lisp-like program and the PostScript code that
+it produced. I think it's an excellent idea! I have been experimenting
+around with Scheme recently, with the idea of making an interactive
+client side programming environment not unlike WINTERP, with an event
+queue like NeWS, and an object oriented interface to the NeWS toolkit.
+Something like LispScript would be *extremely* useful in such a
+system.
+
+I examined the code that David Singer posted, and LispScript seems to
+translate variable bindings and references into pure stack
+manipulation, which I would think is a more efficient approach than
+always defining names in dictionaries (which is what UniPress's c2ps
+compiler does -- it's a back end to (a modified version of) the
+Amsterdam compiler).
+
+Something like LispScript probably wouldn't be terribly hard to write
+in Scheme. It might be harder to implement lexical scoping in
+PostScript, but not entirely necessary, but then again it would be
+interesting to see what you could do based on class.ps, making
+closures by packing up the dict stack into the ParentDictArray of an
+on-the-fly instance.  If the source to LispScript is not available, I
+would still love to hear about any lessons learned from its
+implementation and use!
+
+PostScript is often compared to Forth, but what it lacks in relation
+to Forth is a user-extensible compiler. You can write your own
+PostScript control structures and whatnot, like case and cond, to
+which you pass procedures as arguments on the stack, but the
+PostScript scanner is not smart -- but there is no preprocessing done
+to the PostScript text being read in, like the way immediate words in
+Forth can take control and manipulate the contents of the dictionary
+and stack while the text source is being read in and compiled, or like
+the way Lisp macros work.  This is one of the things I would like to
+be able to do with something like LispScript.
+
+	-Don
+
+Here is David Singer's message of 28 Nov 87. I have indented the
+PostScript code at the end for readability. 
+
+========================================================================
+
+>From NeWS-makers-request@brillig.umd.edu  Sat Nov 28 00:07:48 1987
+Date: Sat, 28 Nov 87 00:07:48 EST
+To: NeWS-makers@brillig.umd.edu
+Subject: Finding circularities in your postscript
+Summary: Help with the garbage!
+From: singer@spar.SPAR.SLB.COM (David Singer)
+Sender: NeWS-makers-request@brillig.umd.edu (Don Hopkins)
+
+
+It seems that circular structures can remain un-reclaimed by the garbage
+collector even when you have discarded all pointers into them.  I wrote this
+slow, simple, piece of code to help find such circularities (and thus,
+one hopes, work out how to remove them).  It's written in LispScript, but
+since the LispScript program isn't available generally, I've included the
+generated postscript.  Have fun.
+
+;;
+;; Routine to find circular structures in postscript.  A top-level
+;;  structure is searched, with its children, to the specified depth.
+;;  Circular structures are reported by printing a description of them.
+
+(defun circular-member (v ar depth k)
+  (let ((l (length ar))
+	(ans (false)))
+    (for (add depth 1) 1 (sub l 1)
+	 (lambda (x)
+	   (if (eq (get ar x) v)
+	       (let ()
+		 (printf "Circularity from key %:
+" [ k ])
+		 (for (add depth 1) 1 x
+		      (lambda (y)
+			(printf "  % %
+" [ (get ar y) (typeof (get ar y)) ])))))
+	   (setq ans (or ans (eq (get ar x) v)))))
+    ans))
+
+(defun circular-follow (item depth ar v k)
+  (foreign circular-1 (item depth ar) ())
+  ;;(pause)
+  (put ar depth v)
+  (if (and (not (circular-member v ar depth k))
+	   (gt depth 0))
+      (circular-1 v (sub depth 1) ar)))
+
+(defun circular-1 (item depth ar)
+  (if (eq (type item) 'arraytype)
+      (for 0 1 (sub (length item) 1)
+	   (lambda (k)
+		(circular-follow item depth ar (get item k) k)))
+    (if (or* (eq (type item) 'dicttype)
+	     (eq (type item) 'eventtype)
+	     ;;(eq (type item) 'canvastype)
+	     )
+	     (forall item
+		     (lambda (k v)
+		       (circular-follow item depth ar v k))))))
+
+;;; Here's the user entry point.  Item is any structured item (array, dict,
+;;;   event or canvas).
+;;;
+(defun circular (item depth)
+  (let ((ar (array (add 1 depth))))
+    (put ar depth item)
+    (circular-1 item (sub depth 1) ar)))
+
+--------
+%! Lispscript generated file
+
+/circular-member { % v ar depth k => bool
+  false
+  3 index length
+  3 index 1 add  1  2 index 1 sub {
+    5 index 1 index get 7 index eq {
+      (Circularity from key %:\n) [ 5 index ] printf
+      4 index 1 add  1  2 index {
+        ( % %\n)
+	[ 8 index 3 index get 9 index 4 index get typeof ]
+	printf
+	pop
+      } for
+    } if
+    2 index 6 index 2 index get 8 index eq or
+    4 -1 roll pop 3 1 roll pop 
+  } for
+  pop mark 6 2 roll cleartomark 
+} def
+
+/circular-follow { % item depth ar v k => -
+  2 index 4 index 3 index put
+  1 index 3 index 5 index 3 index circular-member not
+  4 index 0 gt and {
+    1 index 4 index 1 sub 4 index circular-1 
+  } if
+  5 { pop } repeat
+} def
+
+/circular-1 {
+  2 index type /arraytype eq {
+    0  1  4 index length 1 sub {
+      3 index 3 index 3 index 6 index 4 index get 4 index
+      circular-follow pop
+    } for
+  } {
+    2 index type /dicttype eq
+    3 index type /eventtype eq or {
+      2 index {
+        4 index 4 index 4 index 3 index 5 index circular-follow pop
+	pop
+      } forall
+    } if
+  } ifelse
+  pop pop pop
+} def
+
+/circular {
+  1 1 index add array
+  dup 2 index 4 index put
+  2 index 2 index 1 sub 2 index circular-1
+  pop pop pop
+} def 
+
+%%
+
+Date: Sun, 14 Jan 90 08:55:12 -0500
+From: don (Don Hopkins)
+To: db@East.Sun.COM, owen@sun.com, sjs@ctt.bellcore.com
+Cc: don
+Subject: Scheme and NeWS
+
+   Date: Sun, 7 Jan 90 11:12:35 EST
+   From: db@East.Sun.COM (David Brownell)
+
+   Actually, I've been thinking of putting together Scheme and NeWS/TNT
+   as an interpretive end-user sort of environment.  I have Scheme talking
+   to NeWS, but haven't put any event handling framework around it; I
+   think Scheme is a lot better for that than any Common Lisp since it's
+   got continuations.  I'll be proposing to my management next week that
+   I be given some time to prototype a Scheme/NeWS environment.
+
+And it's **SMALL**! I just picked up a book on Scheme called "Scheme
+and the Art of Programming" (by George Springer and Daniel P.
+Friedman), that has a forward by the Great Quux himself, Guy Steele.
+In the forward, he compares the number of pages in the standard for
+several programming languages. Common Lisp was at the top, with 1000
+or more pages, and Scheme was at the bottom, with ~50 pages! (The copy
+of R^3 I pilfered from the MIT publication department has another
+paper appended to the end, because the R^3 report on its own was too
+darn thin to be published in a paper binder, so they had to fatten it
+up!)
+
+   See, I'm in the "let's see NeWS justify itself" camp.  Like (I think)
+   most programmers, I don't _need_ that much in the way of graphics,
+   and so the fact that to start in NeWS you need to learn a lot of
+   PostScript (in fact, any at all!) is a MAJOR drawback.  On the other
+   hand, I also have no allegiance to toolkit -- so if I have a real
+   "native" toolkit, I could be really glad to have advanced capabilities
+   in some alien language to investigate.
+
+I agree that it should work with any toolkit. It should have a way of
+making an interface to any code in the NeWS server at all. For
+example, it would be nice to have a GoodNeWS interface, such that
+scheme could dump structured graphic objects down to NeWS that you
+could paste into the drawing editor!
+
+   I was pretty amused to see WINTERP come up -- very similar to my idea,
+   but with X not NeWS, and a minimally flexible LISP rather than Scheme.
+   Of course, it's done already, and that counts for something ...
+
+I think it could be done better in NeWS than with with X though,
+especially if it had something like the LispScript Lisp=>PostScript
+compiler described in my previous message. They you could write event
+handlers and callbacks in a lisp-like language that would be compiled
+into PostScript, transmitted to the NeWS server, and executed there,
+drastically reducing network traffic!
+
+   - Dave
+   -- 
+       David Brownell			db@east.sun.com.
+       Sun Desktop Systems Software	sun!suneast!db
+
+       "I woke up this morning with somebody else's blues ..."
+
+What Scheme interpreter are you using? I am using ELK, which is public
+domain, and it seems like a very nice system, with lots of goodies,
+although I'm don't know enough about Scheme implementation to say much
+about its efficiency, and I haven't done any benchmarks. 
+
+What kind of Scheme<=>PS interface do you have? There is a public
+domain package called "lps" that does for Lisp what "cps" does for
+Scheme, that you might find of some use. I will send you a copy if you
+like.  It's part of the public domain NeWS software collection that
+I've put together, included on the latest SUG tape.
+
+What kind of an event dispatching framework are you thinking about? I
+want to take a look at WINTERP and the GWM lisp extensible X window
+manager to see what they do (to steal their ideas or learn from their
+mistakes). Ultimatly, I would like to have the same kind of event
+queue that is in NeWS, that you can use for interprocess
+communication, with interests, and ClientData fields that you can hang
+Lisp objects off of, sorted by time, with the ability to broadcast to
+multiple processes, etc.  You could have a sort of high level event
+bridge that would send events both ways between NeWS and Scheme.
+Toolkit objects in the NeWS server could send out events that would be
+caught by one end of the event bridge in the NeWS server, sent over a
+network connection, and put into the event queue on the Scheme side,
+to be serviced by the appropriate scheme process(s), which could reply
+in a symmetric manner. That way NeWS and Scheme could communicate
+asynchronously, without Scheme having to block waiting for a CPS token
+of a particular flavor (and throwing away or not knowing what to do
+with tokens that tasted wrong). NeWS and Scheme processes could just
+send out or express interests in events, without worrying if they were
+serviced or generated locally or remotely, events would just be routed
+to wherever they needed to go, through the event queue and over an
+event bridge if needed.
+
+What do you think about light weight Scheme processes? You can do it
+with continuations, but wouldn't that be somewhat expensive, depending
+on the implementation? Could you design a Scheme interpreter with
+cheap lwp's, without resorting to a giant switch statement with all
+the primatives that might block on I/O the way the PostScript
+interpreter in NeWS is structured?
+
+Networking support is important, it should have the ability to listen
+for incoming connections on sockets, and make outgoing connections. It
+would be nice if the scanner did not cause the whole system to freeze
+up until it read a complete expression. The NeWS scanner stores all
+the state it needs in the process struct, and it's embeded in the
+infamous giant switch statement (that broke early OS/2 compilers
+because it wouldn't fit in a segment) so NeWS processes can block
+politely while they're waiting to read a complete expression.
+
+Is there an object oriented programming package for Scheme that is
+well matched with the one used in NeWS? The oop scheme described in
+"Scheme and the Art of Programming" uses "case", but I was thinking of
+something more dynamic and data driven using association lists, so you
+could do kinky stuff like promoting methods and class variables to
+instance variables the way you can in NeWS.
+
+Enclosed is a message on the subject of Scheme and NeWS that I sent to
+Russell Brand. 
+
+	-Don
+
+Date: Mon, 8 Jan 90 16:47:07 -0500
+From: don (Don Hopkins)
+To: gyro@reasoning.com, lazarus@reasoning.com, wuthel!brand@lll-crg.llnl.gov
+Cc: don
+Subject: [wuthel!brand@lll-crg.llnl.gov: wuthel wisp klote]
+
+Wuthel suggested I talk to you, in the message enclosed at the end of
+this one.  Have you dudes investigated ELK, or can you give me any
+tips on a hot free scheme implementation? I want to use it in
+conjection with NeWS, as a multitasking event driven programming
+environment similar to WINTERP (xlisp with a Motif interface). The
+NeWS toolkit lives in the server, so I would like to make a
+client-side object oriented interface to the server-side toolkit, like
+WINTERP is an object oriented interface to the client-side toolkit.
+(The client in these cases is the lisp or scheme interpreter.)
+
+I understand that you can implement multitasking (and more) using
+continuations, but I'm wondering how efficient that is. The way light
+weight PostScript processes are implemented in NeWS, just changing the
+execution environment pointer to switch tasks, is much more efficient
+than copying continuations in and out of the C return stack the way
+ELK does. (On the SPARC you have to do a system call to flush the
+register windows to real stack memory, before fucking with the stack,
+so that's even more overhead.) Is there a better way to get the effect
+of light weight scheme processes, or a more efficient way to implement
+continuations than copying the C return stack in and out of a buffer?
+I need to be able to easily add primatives written in C that can let
+the garbage collector know about local references to Scheme objects,
+and call the Scheme evaluator recursivly (you can do that in ELK).
+
+I'd want to implement a nice high level event queue (one that you can
+send lisp objects through, not just a raw window system event queue),
+and replace the read-eval-print loop with an event loop, with a select
+on multiple files, causing events when there was input available, with
+a reader process for each port that would not block reading input
+until a balancing paren was read, so that the system would not stop
+servicing events when it reads "(foobar" from a port. Maybe there
+should be "input available" events that reader processes service, and
+when they read entire expressions, they would evaluate them, send
+out "evaluate expression" events, or whatever.
+
+In other words, I'd like an interactive Scheme environment that looks
+pretty much like the NeWS environment.
+
+I have taken an implementation of Emacs-like buffers (with a gap) from
+Gosling's "ched" [cheap editor], that has markers with /width/ (more
+like regions) that follow text insertions and deletions around like
+you would expect. I have put buffers and markers into ELK as data
+types, so you can treat markers like buffer subintervals (like the way
+string subintervals work in PostScript), and I frobbed the i/o code so
+you can open a marker as a port that you can read from and write to!
+
+	-Don
+
+Date: Sun, 7 Jan 90 10:36:44 PST
+From: Russell Brand <wuthel!brand@lll-crg.llnl.gov>
+To: don@cs.UMD.EDU
+Subject: wuthel wisp klote
+
+   Somebody quoted you as saying something along the lines of "Lisp is
+   the langage for people who want everything, and are willing to pay for
+   it." Is that how you put it?
+
+The quote is exactly right.  It is from a panel I led on the
+differences between Lisp, C, Ada, Pascal, Forth and Rex.
+
+   Do you keep up with the public domain lisp and scheme implementations?
+   I grabbed a copy of ELK (Extension Language Kit, a scheme interpreter)
+   off uunet have it working on the Sun-4. It seems pretty nifty to me --
+   I'm wondering how efficient an interpreter it is, and if it's a good
+   choice to work with. If you've had time to look at it I'd appreciate
+   your insight and impressions. (I'm just shopping around for something
+   sexy, fast, and free.) I heard somebody at DEC had a lovely Scheme=>C
+   compiler, but I'm not sure it's totally free...
+
+I don't keep up with public domain stuff very well.  Two people at my
+company do look very carefully at scheme  and even more carefully at
+scheme to c converters.  You have met one of them.
+
+	Scott Burson (formerly layson) gyro@reasoning.com
+	eric lazarus lazarus@reasoning.com
+
+AI Expert had a review of different lisp and schemes and their
+relative performances about 8 months ago.
+
+Back issues are stored on some BBS.  
+
+	51735533276 
+
+Is where I used to pull them from.
+
+In terms of efficiency, I would trying running a couple of the gabriel
+bench marks (this was done in the AI Expert article) and use that for
+comparison.  
+
+There are some very small Scheme interpreters (less than 3 pages of C
+source) and it is posssible the the scheme-->c compiler is really just
+a tree compactor a small run time interprettor.....  (sorta' like
+kyoto lisp only much smaller)
+
+/w
+
+Date: 15 Jan 1990 08:31-CST
+From: Rafael Bracho <rxb@ASC.SLB.COM>
+Subject: Re: LispScript
+To: don@cs.UMD.EDU (Don Hopkins)
+Cc: owen@sun.com, db@east.sun.com, sjs@ctt.bellcore.com, Wm@cseogc.edu,
+        rxb@ASC.SLB.COM
+
+Don,
+
+Ever since Dave left Schlumberger, more than two years ago, I've been
+taking care of LispScript, which we use for our project (we have over
+13K lines of LispScript in our system).  LispScript may be used in two
+different modes of operation: like a compiler which produces PostScript,
+and a run-time translator.
+
+As a compiler, it allows one to write PostScript with prefix notation,
+using local variables which, indeed, translate to stack variables.  In
+addition, as you note, one can use the full power of Common Lisp macros.
+The LispScript user has no way (short of cheating) to manipulate the
+stack, which makes it very hard to get stack-related errors in your code
+-- an experienced PostScript programmer working in my section was
+surprised that when he moved to LispScript, his programs were running
+without errors the first time.  LispScript also checks for argument and
+result counts, warning when a mismatch occurs (yes, it allows variable
+number of arguments and/or returns, plus functions which return two
+different number of arguments, depending on the state of a boolean --
+like 'where').  LispScript tries hard to produce good code in this mode,
+going through peephole optimizations to avoid redundancy.  On the down
+side, the PostScript produced is hard to read (better if we use
+psindent) and one-level removed from any PostScript debugger; we've
+toyed with the idea of building a debugger in Lisp but nothing has
+happen.
+
+If you use LispScript as a run-time translator, it is possible to write
+Lisp functions that translate their arguments and ship PostScript across
+the lispscript::*news-output* stream (which could point to NeWS, or to a
+LaserWriter, for example).  This is a 'cps-like' mode and we use it to
+implement a 'twin-object' protocol between NeWS objects and Class (a
+Schlumberger Object-oriented extension of Common Lisp) objects.  We also
+have the converse facility where we write a PostScript function that
+produces Lisp and ships it up the stdout of the NeWS process (we have a
+Lisp lightweight process listening at all times and evaluating any Lisp
+forms NeWS sends).
+
+As for availability of the code, Schlumberger was very protective of it
+in the past; I'll re-inquire since some policies have changed.  I'll
+mail you a LaTeX document that talks about LispScript; I've fixed a few
+bugs and added a couple of features since the document was last revised,
+but it'll give you an idea.  You'll also need two TeX macro files to
+process the document.
+
+					Rafael Bracho

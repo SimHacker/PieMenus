@@ -1,0 +1,475 @@
+From gedye@Sun.COM Wed Nov 29 19:31:16 1989
+Date: Wed, 29 Nov 89 00:18:15 PST
+From: gedye@Sun.COM (Dave Gedye)
+To: don@cs.UMD.EDU
+Subject: Pie menus in TNT
+
+Owen forwarded your code around to our group. Good stuff.
+
+Your point about Thing ==> Good, Graphic ==> send ==> Bad is well taken. We
+are currently overhauling all our objects which manage a group of visuals
+(menus, settings, and the newly created button groups) so that they mix
+the Thing-handling code in, and just manage an array of Things.
+
+Up a closely related alley -- when I saw your Cyberspace demo, god when
+was it? back in August perhaps?, it hit me what opportunities there were
+for `non-canvas canvases' which you'd implemented for the browser. Well,
+I got thinking, and came up with the following proposal. I'd appreciate your
+comments if you can wade through it.
+
+Cheers, Dave.
+------------------------------------------------
+
+Regions
+========
+
+Below I explain my idea for a new `value added' component in tNt. I
+describe what it would do; the rough structure of its interfaces; what
+current toolkit problems it would solve, roughly how long it might
+take to build and integrate, and open issues.
+
+I call these objects "regions". They're the same thing that we
+used to call "trellises", so don't get phased by the new name if you've
+heard of them before.
+
+Warning: this memo is about 10 pages long, and includes just about
+everything I could pump out of my brain on the subject. You might like
+to print it out and mull over it in the environment of your choice.
+
+If you just want to play with a demo you'll have to wait a few
+more days. My current world is broken, but I'll have the demo
+posted out by Monday night.
+
+
+What is it?
+-----------
+A Region is a cheap replacement for a canvas. It is implemented
+entirely in PostScript, and thus has to be *very* simple to perform
+well.
+
+At its simplest a region is a rectangular region laid on top of a
+canvas that can handle its own painting and hit detection.
+
+The power of regions though, is that they can nest to form a tree
+structure, just like canvases. One region can contain several others,
+each of which can contain others, and so on. Painting proceeds from the
+root of the region-tree to the leaves. Hit detection turns into the
+problem of finding the path from the root to the leaf region that
+suffered the hit.
+
+
+What are the important ideas?
+-----------------------------
+
+Arbitrary Layout, Arbitrary Nesting:
+	Below is an example of a region hierarchy (such as might be
+	used in the future to implement a control area, and set of
+	controls). The root region contains four subregions, three of
+	which contain further substructure. Layout inside the outer
+	most region is completely arbitrary (a la AbsoluteBag), but
+	they are also optimized to handle regular arrays (a la
+	RowColumBag) as is illustrated inside two of the subregions.
+
+	
+         _______________________________________________________
+        |                                                       |
+        |     __________________________________     _______    |
+        |    |  |---- | |-------------| |-----| |   |_______|   |
+        |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~   |_______|   |
+        |     ____________________                  |_______|   |
+        |    |____|____|____|_____|      _____      |_______|   |
+        |    |____|____|____|_____|     |     |                 |
+        |                               |_____|                 |
+        |_______________________________________________________|
+             
+             
+Zero Interests:
+	Since there are no canvases in the above picture, there are no
+	interests either. The other side of this coin is that it **only
+	makes sense to put object in a region hierarchy that want to
+	respond to the same set of events.** You express interests for
+	these events on the canvas over which you lay this region
+	structure.
+	
+Leaf Manager Subclass:
+	An important question is: how many objects (instances of some
+	subclass of Region) are there in the above picture? The simple
+	answer is 20 (1 + 4 + 3 + 4 + 8); too many! The solution is to
+	make a subclass of Region that *explicitly manages a set of
+	leaf rectangles*.  Since this management is explicit, these
+	leaf rectangles need not be fully fledged region objects. They
+	just exist as data structures held by the leaf manager. How
+	many full objects are in the picture? 5 (1 + 4).
+	
+	Reducing the number of objects reduces the number of
+	interobject sends, a very time consuming procedure. To paint
+	the above picture only 5 inter-object sends are required. (1
+	from the canvas to the root region, and 4 from the root region
+	to its subregions).
+
+	The other benefit of factoring at the Leaf Manager level is
+	that one level up from the leaves is exactly the right place to
+	put painting knowledge that we used to keep in ClassGraphic.
+	Chris Warth proved this in the 3D Exclusive Setting code he
+	sent around a few weeks back. It was fast because 1. there were
+	no interobject sends, and 2. because it had the built-in
+	knowledge that everything it was going to paint was an
+	exclusive setting.
+	
+Coherent Tracking:
+	There's a justifiable fear that doing mouse tracking across a
+	complex picture in PostScript will be too slow. That's what
+	canvases are good at, right? Obviously the final answer will
+	come from measurement of a large realistic example, but I've
+	got reason to be optimistic. Using what I call "coherent
+	tracking" on a scene of 17 regions, nested to an average depth
+	of 3, including no leaf managers, and no easy-to-resolve grid
+	layout, I was able to resolve from a canvas coordinate to a
+	leaf region in an average of 9.24 ms on a 3/160. This stands up
+	very well, even as a prototype, against the 4.59ms that the
+	current OpenLookMenu takes to execute the much much simpler
+	operation of doing hit detection inside its fixed grid.
+	
+	Coherent tracking works on the assumption that successive calls
+	to /track are very likely to end up resolving to the same leaf
+	region. This is definitely true when the user is dragging
+	around a scene. Cute note: the faster the machine, the truer it
+	is.  The tracking code in my Region prototype caches
+	information each time it is called, and does a quick check the
+	next time it is called.
+
+Who keeps X, Y, W, and H?
+	Regions manage their own size (W and H), but in general do not
+	need to know their position (X, Y) inside their parent region
+	or on the canvas.  I say *in general*, because prototypes I
+	have built don't need this information. I suspect though that
+	when all the details of integrating regions into the Bag world
+	are worked out, we may choose, at least for some subclasses, to
+	let regions know about their X and Y. The only good reason I
+	can think of at the moment to have their positions externally
+	managed is that this allows the *same* region to be used
+	simultaneously in two places; either on the same canvas or on
+	different ones. I'm hard pressed right now to say why this
+	might be important.
+	
+	
+Where will Regions be used?
+----------------------------
+The Region concept is important both for performance reasons (it'll
+allow us to get rid of some canvases and interests), and also
+simplicity of interface.
+
+I anticipate regions being used everywhere in our toolkit where simple
+down/drag/up tracking is required. These should include:
+
+	Menus:		Simple single-grid menus, as we now offer them
+			can be built from a single region layed on top
+			of the menu canvas. More general menu layout
+			(such as separated blocks of exclusive
+			settings) can be achieved by nesting other
+			regions inside the menu's root region. Such
+			layout is required by OpenLook, but neither
+			XView nor the current tNt can provide it.
+			
+	Settings:       Groups of exclusive, non-exclusive, choggle,
+			and checkbox settings will each be a subclass
+			of Region. As with menus, we'll be able to go
+			beyond our restrictive fixed grid layout, and
+			implement arbitrary layout for the items within
+			a group.
+			
+			Even better: since the setting classes will not
+			have their own canvas, I'm hopeful that the
+			interface we'll offer to settings in menus will
+			simply be: build your own setting group, and
+			insert it in the menu's root region. This is much
+			cleaner than the current confusing duplication.
+			
+	Buttons, Menu Buttons (aka button stacks):
+	
+			Individual buttons will not have a canvas;
+			they'll be inserted in a region structure that
+			is layed onto a control area canvas. Apart from
+			the space savings, having them all on the one
+			canvas will allow us to do "Menu Bar" style
+			menu tracking a la Mac.  (I have mail waiting
+			for Scott Ritchie about the legal implications
+			of this.)
+			
+Where is a Region Appropriate; Where a Canvas?
+----------------------------------------------
+You must use a set of canvases instead of a region structure when any
+of the following conditions hold:
+
+	Different objects are interested in different events. This was
+	explained above.
+
+	Your regions are non rectangular. (This may not be strictly
+	necessary; I could imagine a whole lot of complex pointinpath
+	stuff going on, but I don't think we want to concern ourselves
+	with this at the moment.  Another argument is that most of the
+	cost of a nonrectangular canvas is its path object. If you're
+	going to keep the path, you might as well have the canvas as
+	well.)
+	
+	You want to do nontrivial animation in response to tracking.
+	Sliders and scrollbars are the obvious examples of this condition. 
+
+
+What Are The Important Interfaces?
+----------------------------------
+The files ~gedye/play/region/region.ps contain these interfaces plus quite a
+few more that I've been experimenting with. Below I've listed what I think
+is a minimal subset of them.
+
+	/new { % - -> region		    No surprises here.
+	
+	/addclient { % <args> region -> -  Nest one inside the other. Args
+					    depend on layoutstyle (see below).
+						
+	/client { % n -> region	    Retrieve the nth region inserted
+					    in this region. I don't yet see
+					    the need for named access.
+						
+	/setsize {% w h -> -		    Set and get the rectangular sizes.
+	/size {% - -> w h
+	
+	/paint {% x y -> -		    These two are a recursive pair
+	/PaintRegion {% x y -> -	    just like /paint and /PaintCanvas
+					    Note that (x,y) are needed because
+					    the region doesn't know where it is.
+						
+	/clientat {% x y -> <x' y' n>|null  This method does single level point
+					    resolution. It returns an index to
+					    the resulting region and an x,y
+					    offset within it. If no child covers
+					    the given point, null is returned.
+						
+	/track {% x y -> -		    The canvas hanging on to a region
+	/TrackNotify {% n|null m|null -> -  structure calls the /track method
+					    of its root region on mouse down,
+					    and on each drag. /TrackNotify is
+	called (by the region code) whenever the tracking enters or leaves a
+	child of this region. Entrances have arguments <null m>, and exits
+	<n, null>. If successive calls to /track jump completely from one
+	child to another the  arguments are <n, m>. /track is of course
+	recursive.
+	
+	/setlayoutstyle { % /name -> -	    Two styles of layout are understood
+	/setlayoutparams { % [stuff] -> -   by all regions. These are /Absolute
+					    and /Grid. Subclasses may choose to
+	add to this list. For example, OpenLook settings can be layed out in
+	what I would call a /ShrinkAndAbut style (again, see Chris' demos). The
+	arguments to /setlayoutparams vary depending on the layoutstyle.
+	/Absolute style may require no parameters, whereas /Grid will probably
+	take the <bool rows cols> interface that we already have for the current
+	implementation of menus and settings. The arguments to /addclient also
+	depend on the layoutstyle. Absolute layout requires an (x,y) pair. Grid
+	layout requires nothing.
+						
+	
+Rough Class Structure
+---------------------
+Here's my first cut at the org chart of these beasts:
+
+
+	Region
+	  |
+	  |____LeafManagerRegion
+	  |	    	|
+	  |		|_______ExclusiveSetting (including choggles)
+	  |		|
+	  |		|_______NonExclusiveSetting_____CheckBoxes
+	  |		|	
+	  |		|_______Buttons
+	  |		|
+	  |		|_______AbbreviatedButtons
+	  |		|
+	  |		|_______MenuItems
+	  |
+	  |____ComplexMenu
+	  
+	  
+Region we've discussed. LeafManagerRegion (horrible name) would not
+offer any new interfaces, but overrides all the recursive ones (/paint,
+/track) so it can hide the fact that the regions it is managing are not
+full blooded objects.
+
+ExclusiveSetting would override /newinit to gobble up an array of
+Glyphs and a callback proc, /paint to do its group painting, and
+/TrackNotify to handle its highlighting.
+
+Ditto for NonExclusiveSetting.
+
+The Buttons subclass would handle normal buttons *and* menu buttons
+(aka button stacks.) This is desirable because app programmers often
+wish to intermix these two object types. It is reasonable (I hope) to
+do this because the painting differences between buttons and menu
+buttons are small. The /newinit interface to this class might look
+like:
+
+	/newinit { % [ <glyph proc|menu> ...] -> -
+	
+A proc argument would indicate that this was a normal button, a menu
+implies that it is a menu button.  If we were feeling really friendly,
+we could even allow the outside level of bracketting to be removed if
+there was only a single button or menu button involved. This way, we
+offer all of the advantages of "composite objects" while maintaining a
+simple interface when the number of objects being "clumped" is 1. This
+idea should be considered for all subclasses of class LeafManagerRegion.
+
+AbbreviatedButtons I haven't thought too much about. My first idea is
+that like Buttons, this class should include both OpenLook Abbreviated
+Buttons and Abbreviated Menu Buttons. Nice symmetry.
+
+MenuItems is the class that will usually be layed on top of the menu's
+canvas. It will allow regular command items as well as submenus, and
+should present exactly the same interfaces as the Buttons class above.
+In my region-crazed state I can *almost* imagine that two separate
+classes aren't necessary ... but I think we don't want all the `if'
+statements that this would imply. On the other hand, I *do* think that
+you should be able to slam an instance of ExclusiveSetting straight
+onto the menu, or into a ComplexMenu (see below). The same goes for
+NonExclusiveSetting.
+
+ComplexMenu is the class that you would insert into your menu canvas
+when you wanted to achieve the "block layout" look shown for example on
+pages 6-5, 6-7 of the OL Reference Manual, and 6-3, 6-4 of the Style
+Guide.  It would layout its subregions down the canvas leaving a nice
+gap between each of them. If you want even more flexibility than this
+in your menus, we'll let you build it yourself easily and cheaply. Make
+your own region, and make *it* the one hung onto by the menu's canvas.
+<I'm getting a little excited here. I predict audiences will wet
+themselves if we can demo a menu as complex as the picture at the
+beginning of this document that tracks seemlessly. I know, I know --
+there's not too much call for it in a strictly OpenLook menu, but Jesus
+it would make the whole thing worthwhile. I'll try to control myself
+now.>
+
+			
+Problems and Open Issues
+------------------------
+
+Bag Interraction:
+	Think of a control area or a property sheet. These bags are
+	going to contain a mixture of canvases (for sliders, text
+	controls, and scrolling lists) and regions (for buttons,
+	settings, and perhaps labels). My feeling is that they have to
+	play together in something like the current AbsoluteBag, as
+	well as something like the current FlexBag. (Even if GUIDE
+	obviates the need for humans to ever use FlexBags again, I
+	suggest that GUIDE itself will probably grow to allow real
+	relative alignment in the future.)
+
+	So, what options do we have? Something like the way graphics
+	are currently handled in bags might work. They'd just need to
+	be taught to hang onto some baggage...
+
+	Another option that I don't like is to force a real canvas
+	behind every region root in the bag. That way the bag could
+	always just deal with canvases. To my mind this would lead to
+	clumsy interfaces, as well as waste some canvases.
+
+	To be good bag clients, regions will have to play the /minsize
+	game.  My gut feeling is that they can get away without also
+	playing the /preferredsize game, but we might bite this just
+	for consistency.
+	 
+Jerry Interraction:
+	An interesting question posed by the proposed global event
+	manager / application event manager split is "where will region
+	tracking take place". If the answer isn't "in the global event
+	manager", then I think its time to go back to Australia. I also
+	assert that the /TrackNotify callback should almost always be
+	handled in the GEM. (This is the code that is going to
+	dehighlight one menu item, and highlight the next as the mouse
+	sweeps down the menu.) What about when we detect a pullright?
+	Hmmm. I guess that one *has* to execute in the GEM because it
+	changes the state of input distribution.
+
+	What about application-specific subclasses of Region. Do we
+	tell them "you can't get at your userdict inside your
+	/TrackNotify code". I'm hoping we don't have to say stuff like
+	this.
+	
+Damage:
+	How are we going to do fast trivial rejection for damage repair
+	on these suckers? Given that we don't have path intersection
+	operators in the server, I'd say its a lsot cause. On the other
+	hand, regions paint themselves so quickly that it might not
+	matter; at least in our first cut at it.
+	
+Parent Links:
+	Does a subregion need to be able to reference its parent? Does
+	the root of a region tree need to be able to reference its
+	canvas? My simple prototypes don't display this need, but I can
+	imagine that we might stumble across a reason why this is
+	important pretty soon. This will add an extra instance variable
+	to each region, and complicate region destruction a little. We
+	should hold off as long as we can on this one I think.
+	
+Overlap:
+	Should we worry about what happens when two child regions
+	overlap?  My prototype demo actually has regions that do this.
+	The rule I use in point location is "return the region that was
+	inserted first". This falls out naturally from the point
+	location code (the search stops as soon as it finds a subregion
+	that contains the point.). *However*, the coherent tracking stuff
+	gets very confused by overlaps. The region that you resolve to at
+	any point will depend on the route you used to get there!
+	
+
+Different reasons to track:
+	The way I've currently organized the tracking stuff a canvas
+	starts the tracking but some deeply nested region gets notified
+	whenever a boundary gets crossed. How does this region know how
+	it should respond to this? Currently I've assumed that there's
+	only one reason to call /track -- the user has pressed SELECT
+	and is about to choose some control object to let up on. What
+	about the difference between menu tracking with the DEFAULT key
+	down, and normal tracking?
+
+	Maybe the answer is to set some kind of /TrackReason when
+	tracking commences, and let the leaf regions query this if
+	they wanted to.  Of course, without parent references, how
+	would they find it?  Hmmmm.
+	
+	
+Tasks/Schedule
+--------------
+I guess that there should be 4 phases of work associated with regions,
+the middle two of which can be overlapped.
+
+	1. Complete prototype to a level sufficient to demo "Menu Bar"
+	functionality, where the menus themselves are implemented using
+	regions. Many corners can be cut with the menu implementation
+	(no need for submens, no need for stayup mode...), and with the
+	button group prototype. But SELECT and MENU button tracking
+	should work over the whole group. Doing this much in a
+	prototype will force us up against a lot of the unresolved
+	questions. Deliverables: a working demo of the above AND A
+	SOLID INTERFACE PROPOSAL/DESIGN DOCUMENT, WRITTEN UP TO A LEVEL
+	ALLOWING THE WRITERS TO DERIVE THE REFERENCE MANUAL ENTRIES
+	FROM IT. Suggested manopwer:  two people x three weeks.
+
+	
+	2. Get sign-off from the architecture committee on the
+	interface and the demo, then turn the prototype into real
+	implementations for Region and LeafManagerRegion. Suggested
+	manopwer: if the prototype goes well, this could take as little
+	as two weeks for a single engineer; if badly 4 or more weeks
+	could be absorbed here.
+	
+	3. (Can be done concurrently with 2.) Create prototypes for
+	*all* OL objects that will use regions. Submit the demos and
+	interface proposals/design documents (one for menus, one for
+	button groups, etc.) to the architecture committee for review.
+	Suggested Manpower:
+		Menus:					1 person x 3 weeks.
+		Settings (x, nonx, checkboxes)		1 person x 2 weeks.
+		Button Groups (inc. abbr buttons):	1 person x 3 weeks.
+
+	4. Get sign-off from the architecture committee on all the
+	interfaces and demos, then turn the prototypes into the real
+	thing. See the estimates from the OpenLook review that Greg and
+	I carried out for times on this.

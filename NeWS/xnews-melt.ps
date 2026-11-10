@@ -1,0 +1,47 @@
+%!
+%
+% Date: Tue, 26 Jul 88 21:25:03 EDT
+% To: NeWS-makers@brillig.umd.edu
+% Subject: NeWS meltdown
+% From: eagle!icdoc!Ist!jh@ucbvax.Berkeley.EDU  (Jeremy Huxtable)
+% 
+% I thought it was time one of these appeared as well....
+
+% NeWS screen meltdown
+%
+% Jeremy Huxtable
+%
+% Mon Jul 25 17:36:06 BST 1988
+
+% The procedure "melt" implements the ever-popular screen meltdown feature.
+
+% Modified for X11/NeWS by Don Hopkins
+
+/melt {
+    3 dict begin
+	/c framebuffer newcanvas def
+	framebuffer setcanvas clippath c reshapecanvas
+	clippath pathbbox /height exch def /width exch def pop pop
+	c /Transparent true put
+	c /Mapped true put
+	c setcanvas
+
+	1 1 200 {
+	    /w random 20 mul 5 add def
+	    /h random 20 mul 5 add def
+	    /x width w sub random mul def
+	    /y height h sub random mul def
+	    x y w h rectpath
+	    random width mul width 2 div sub
+	    random height mul height 2 div sub
+	    copyarea
+	    pause
+	} for
+
+	framebuffer setcanvas
+	c /Mapped false put
+	/c null def
+    end
+} def
+
+melt

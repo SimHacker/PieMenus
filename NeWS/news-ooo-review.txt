@@ -1,0 +1,64 @@
+Here is a brief overview of a few aspects of NeWS, based on a
+demonstration I was given at Sun, my discussions with the
+authors, and the literature passed out at workshops at the
+Sun Users Group meeting.
+
+
+
+It's the NeWS (Ooo!) review
+
+NeWS is a provocative new window system development platform that is
+the outcome of more than a year of painstaking effort by James
+Gosling, the creator of Unix Emacs, in collaboration with Dave
+Rosenthal, and other seasoned experts in window systems.
+
+NeWS embodies the culmination of many facets of window system
+technology. It consists of a device independant display server that
+provides an extensable multitasking PostScript environment. Instead of
+having to adhere to a rigid, predefined protocol or interface, clients
+control the server by sending PostScript code to be executed within
+the window system environment. The code itsself may implement any
+protocol that may be convenient to the specific application.
+PostScript code is run as light weight processes within the server,
+having access to all of the data structures and processes therein. The
+processes may interact with each other by message passing, using
+events, or by sharing data. Any part of the system may be reconfigured
+oon the fly to behave in any manner. The PostScript language uses the
+high level Stencil/Paint imaging model, which provides device
+independance, while allowing advanced hardware features to be taken
+advantage of. This can result in astonishingly high performance.
+
+NeWS is as flexable as Silly Putty. You can stretch it and pull it
+into any shape you want, and it does stunning impressions! (While the
+Lisp Machine window system could be compared to an enormous wad of
+half dried Play Dough with thumbtacks and staples sticking out of it.)
+NeWS is to window systems what Emacs is to text editors, except to a
+much higher degree. NeWS is to X as Unix is to MS-DOS. It's
+multitasking, extensable, portable, and can have any user interface
+you desire.
+
+PostScript is a very powerful,
+clean language. Like Forth, it's an interpretive, interactive
+programming environment that encourages prototyping and
+experimentation: You can try functions out as you're writing them,
+instead of having to wait until everything's implemented and put
+together before ever seeing any results. It's got the beauty and
+simplicity of Lisp, by the clean data structures that the language is
+built out of. As with Lisp, it is natural to manipulate the structures
+that your code and binding environment are comprised of.
+
+Such a programmer interface might be in the form of a library
+of calls that parallel those of some window system, which perform
+remote procedure calls to PostScript code running in the NeWS server.
+That code in the server would emulate the other window system. In
+the case of the X window system emulation, the PostScript X server
+listens on the appropriate sockets, and talks the X protocol with
+unmodified clients. Recompilation of X clients is not even necessary. 
+
+Making an interface to PostScript libraries in other languages
+involves writing stubs that specify the functional arguments and the
+corresponding PostScript to be invoked. There is a stub compiler for C
+that makes .h files, so you can call the functions directly from C.
+The functions send their arguments and PostScript commands to the NeWS
+server. 
+

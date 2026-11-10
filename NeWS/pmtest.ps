@@ -1,0 +1,9 @@
+/win framebuffer /new DefaultWindow send def
+{ /ClientMenu
+  [12 24 32 44]
+  [(foo) (bar) (baz) (bletch)]
+  [{ (val % arg %\n) [currentkey MenuArg] dbgprintf}]
+  /new PullPieMenu send def
+} win send
+/reshapefromuser win send
+/map win send

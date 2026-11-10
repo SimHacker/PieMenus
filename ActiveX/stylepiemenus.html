@@ -1,0 +1,93 @@
+<HTML>
+
+  <HEAD>
+    <TITLE>Pie Menu Behavior Test</TITLE>
+
+  </HEAD>
+
+  <BODY>
+
+    <CENTER>
+      <H1>Style Pie Menus</H1>
+
+      <HR/>
+    </CENTER>
+
+    <DIV
+      ID="Barf">
+    </DIV>
+
+    <DIV STYLE="width:100%;height:100%;behavior:url(piemenu.htc)"
+	onpreview="PreviewTargetStyle(event)"
+	onchange="ChangeTargetStyle(event)">
+      <CENTER>
+
+        <BR/>
+	This is a sample of text<BR/>
+	that will pop up a pie menu<BR/>
+	when you click on it,<BR/>
+	that allows you to edit<BR/>
+	properties of the text!<BR/>
+        <BR/>
+
+	<XML src="stylepiemenus.xml"/>
+
+      </CENTER>
+    </DIV>
+
+    <SCRIPT>
+
+function PreviewTargetStyle(event)
+{
+  var pie =
+    event.result;
+  var target =
+    pie.target;
+
+  if (pie.id == "FontSize") {
+    var fontSize =
+      Math.floor((pie.distance / 5) + 5);
+
+    pie.centerDiv.children(0).innerHTML =
+      fontSize + "<BR/>Point";
+    target.style.fontSize =
+      fontSize;
+  } // if
+}
+
+function ChangeTargetStyle(event)
+{
+  var pie =
+    event.result;
+  var curItem = 
+    pie.curItem;
+
+  if (curItem == -1) {
+    return;
+  } // if
+  
+  var item =
+    pie.items[curItem];
+
+  var target =
+    pie.target;
+
+  if (pie.id == "FontEmphesis") {
+    target.style.fontStyle =
+      item.id;
+  } else if (pie.id == "FontWeight") {
+    target.style.fontWeight =
+      item.id;
+  } else if (pie.id == "FontColor") {
+    target.style.color =
+      item.id;
+  } // if
+
+}
+
+    </SCRIPT>
+
+  </BODY>
+
+</HTML>
+

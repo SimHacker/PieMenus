@@ -1,0 +1,57 @@
+%!
+% mag.ps
+% Magnifying glass
+% Don Hopkins
+
+systemdict /screenbuffer known not {
+  systemdict /screenbuffer (/dev/fb) createdevice put
+} if
+
+gsave
+  screenbuffer setcanvas
+  clippath pathbbox points2rect 
+  /ScreenH exch def  /ScreenW exch def
+  pop pop
+grestore
+
+/TempCan framebuffer newcanvas def
+TempCan /Transparent false put
+TempCan /Retained true put
+
+/FromWin framebuffer /new DefaultWindow send def
+/ToWin framebuffer /new Animator send def
+
+{
+  /ShapeFrameCanvas {
+    gsave
+      ParentCanvas setcanvas
+      FrameX FrameY translate 
+      0 0 FrameWidth FrameHeight FramePath
+      BorderLeft BorderBottom ClientWidth ClientHeight ClientPath
+      FrameCanvas eoreshapecanvas
+    grestore
+  } def
+  /flipiconic {
+    scale-picture
+  } def
+} FromWin send
+
+/scale-picture {
+  gsave
+    framebuffer setcanvas
+    { FrameX BorderLeft add neg  FrameY BorderBottom add neg
+      0 0 ClientWidth ClientHeight
+      } FromWin send
+    rectpath
+    TempCan reshapecanvas
+    TempCan setcanvas
+    translate
+    ScreenW ScreenH scale
+    screenbuffer imagecanvas
+
+    TempCan /copy-page ToWin send
+  grestore
+} def
+
+/reshapefromuser FromWin send  /map FromWin send
+/reshapefromuser ToWin send  /map ToWin send

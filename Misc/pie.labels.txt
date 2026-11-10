@@ -1,0 +1,38 @@
+To: likewise!research!cvw@uunet.UU.NET
+Cc: likewise!research!td@uunet.UU.NET, don
+In-reply-to: <likewise!research!td@uunet.UU.NET>'s message of Tue, 13 Oct 87 18:05:41 edt <8710132205.AA09964@likewise.ENGNET>
+Subject: How hard can it be to draw a pie chart?
+--text follows this line--
+   From: <likewise!research!td@uunet.UU.NET>
+   Date: Tue, 13 Oct 87 18:05:41 edt
+   Apparently-To: uunet!brillig.umd.edu!don
+
+   I found the paper.  It's called `How hard can it be to draw a pie chart?'
+   by Diane L. Souvaine (Rutgers University) and Christopher J. Van Wyk
+   (research!cvw)
+
+   It shows that when the order of sectors is not fixed, the problem of
+   arranging a list of sectors of given size so that each contains a
+   horizontal line of given length is NP-hard.
+
+Great -- thanks for the reference! I'd appreciate a copy of the paper.
+I've been thinking about how to do more intelligent pie menu label
+placement, that minimizes menu size while keeping the labels from
+overlapping. As the giant 360 item pie menu shown in my video tape
+demonstrated, positioning the labels around an inner radius that is a
+linear function of the number of labels can end up demanding more real
+estate than Jim Bakker shopping for amusement parks. (Not that
+everybody shouldn't have a screen big enough to display such menus!)
+One thing I was thinking of experimenting with was "2 1/2 dimensional
+dynamics", where labels are attracted to their places by springs, but
+are pushed away from each other when they overlap. This could also be
+applied to speech balloons, used to annotate a picture. There would be
+"uphill" regions of the picture that should not be covered up, and the
+balloons, which are anchored in place by rubber-band-like pointers,
+fight it out until none of them overlap. I think it would be neat to
+use with graphical hypertext, and other things that need dynamically
+positioned popup windows that don't obscure each other. There's a lot
+to be done with arbitrarily shaped windows! (Just leaf through a MAD
+Magazine!)
+
+	-Don

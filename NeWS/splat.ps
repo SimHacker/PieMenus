@@ -1,0 +1,55 @@
+%!
+% Splat!
+% 
+% Warning:
+% 
+% This does weird things if there are SunView1 windows on the screen.
+% When you run this your SunView1 windows will dissappear. (good riddance!)
+% Whenever any of the SunView1 windows move or change size, the NeWS
+% framebuffer is reshaped so there are holes in it for the SunView1 
+% windows to show through. But since this code reshapes the framebuffer 
+% without taking into consideration any of the SunView1 windows, NeWS
+% starts drawing on top where they would be. But fortunatly, they still 
+% seem to be there. When you move one of them around, it will reset the 
+% framebuffer shape, and undo our little bit of vandalism. 
+% 
+% Nobody's responsible for anything done with this program!
+% Don't use this on unsuspecting people, that would be naughty.
+
+/inner 30 def
+/outer 200 def
+/spaz 20 def
+/twist 20 def
+
+% Make another framebuffer not subjected to clipping restrictions.
+{(FRAMEBUFFER) getenv} errored {pop (/dev/fb)} if createdevice
+setcanvas
+
+clippath pathbbox points2rect /h exch def /w exch def
+pop pop
+
+matrix currentmatrix
+w random mul h random mul translate
+
+inner random mul inner add 0 moveto
+360 twist idiv 2 mul {
+  outer random mul inner add spaz dup add random mul spaz sub 
+  lineto
+  inner random mul inner add 0 lineto
+  twist rotate
+} repeat
+
+closepath 
+
+setmatrix
+gsave
+  0 0 w h rectpath
+  framebuffer eoreshapecanvas
+grestore
+gsave
+  random random random dup mul sethsbcolor
+  fill
+  grestore
+0 setgray
+4 setlinewidth
+stroke

@@ -1,0 +1,179 @@
+To: hugh@toad.com, gnu@toad.com, erik@toad.com
+Subject: NeWS portability
+--text follows this line--
+[hugh, gnu, erik: I'm writing a summary of my week at grasshopper to
+post to NeWS-makers. Here's a rough sketch. There are some <delimited
+comments> that I'd like to give you a chance to comment on before I
+send the message. Thanks!! I sure had a great time!]
+
+* Introduction
+
+I recently spent a week out with the Grasshopper Group in San
+Francisco, trying to break their Mac II A/UX NeWS server.  I tried out
+many of the programs in the NeWS software collection (which is
+available via anonymous ftp from tumtum.cs.umd.edu), the CyberSpace
+deck, and UniPress Emacs (the definitive NeWS server stress test!),
+and I was pleased to find that most everything worked just fine --
+MacNeWS is a solid and complete NeWS server! The only hitch was with
+programs that depended on mouse buttons and the keyboard.  More on
+that below.
+
+* Operating system
+
+I ran most of the NeWS clients remotely on the Sun-4 at the other end
+of the ethernet cable, since what I was testing was the NeWS server,
+not the operating system.  The NeWS server performed quite well, but
+A/UX does have its problems...
+
+Porting NeWS clients to A/UX is trivial, with respect to the NeWS
+client/server interface.  It's the client's operating system interface
+that you have to worry about.  Programs that use pty's, or peek into
+kmem, or expect certain daemons to be running, are going to have to be
+adapted, of course.  But cps and the NeWS client library, libcps.a,
+shouldn't give you any headaches.
+
+Fortunatly, if you don't want to deal with A/UX at all, you can just
+NFS-mount all your favorite file systems, and run your clients
+remotely on machines with politically correct operating systems.
+
+* Hardware
+
+** pondscum
+8 <?> meg Mac II with a megapixel display <is that 1024 x 1024?>,
+running A/UX 1.1 beta.
+
+Fast! A very comfortable NeWS environment, much nicer than a 3/50.
+(it's the memory, and all those pixels!)
+
+** grasshopper
+5 <?> meg Mac II with a <dimensions?> color display, running A/UX 1.1
+beta.  Requires A/UX 1.1 for color support.
+
+** hoptoad
+8 <?> meg Sun 4/260, SunOS 4.0. Running the clients.
+
+* Software
+
+** Contributed software
+<describe things that caused problems>
+<breakout: arrow function keys>
+<keysee>
+<mousee>
+<pie menus use setcursorlocation>
+<brett's clock>
+<...>
+
+** CyberSpace
+<function keys -- changed to control & meta characters>
+<meta mouse clicks>
+
+** Emacs
+<list all the fancy features that worked first shot>
+<meta mouse click stuff -- just rebind keys>
+<how can emacs find out it's talking to a MacNeWS server, and bind
+ the keys appropriatly?>
+<discuss problems with SGI 4Sight Emacs port>
+<once you've ported to one system with drastically different hardware,
+ the next port is much easier>
+
+* Bugs
+
+** setcursorlocation
+setcursorlocation doesn't work because of A/UX Mac mouse tracking
+brain damage. <...?> 
+<pie menus>
+<journalling>
+<can you at least make it move the cursor where you tell it, until
+ such a time as the Mac mouse actually moves (if ever)? That way
+ journalling will work, and it will be easy to plug a serial 3 button
+ mouse in and unplug the Mac mouse!>
+
+** key repeat
+Keystrokes not timestamped by kernel at interrupt time. Causes
+keyboard repeat problems when the server's busy. Frobbed the repeat
+time defaults, and fixed the repeat code to be more forgiving by stopping
+the repetition immediatly when you release the key.
+<does it seem to work OK now?>
+
+* Features
+
+** error checking
+They put some error checking and popup error messages into init.ps so
+you aren't left in the dark if something goes wrong when loading NeWS.
+<what other such amenities are there?>
+
+** rearranged root menus
+<summary, hugh? or send me the .ps file>
+
+** clients
+
+Standard NeWS client tree runs under A/UX. 
+<anything missing?>
+Grasshopper Group has fixed bugs and made enhancements.
+<anything I missed?>
+
+*** psterm
+MacNeWS comes with the latest, greatest psterm installed.
+<synopsis of features?>
+
+*** paper
+Much improved PostScript previewer.
+<do you ship that?>
+
+* Portability issues
+
+** Keyboard layout
+Fact of life: Keyboards come in all shapes and sizes. They're all
+different and most of them don't make any sense. So why bother typing?
+
+Fact of life: There's no standard set of function keys, and there
+never will be. 
+
+*** Idealistic <good> long term solution: 
+Don't depend on anything about the keyboard, let the user rebind
+everything. 
+
+*** Realistic <evil> short term solution:
+A virtual function key utility. Define a new shift key: "Function",
+put it on the "Command" key on the Mac (usurping the other meta key).
+<or is there a better key for that?> Hold it down and type a letter
+then a digit, to send a function key, i.e. "Command-L 7" sends
+FunctionL7, "Command-R 0" sends FunctionR10, "Command-F !" sends
+FunctionF11, etc...  If you use shifted numbers to mean numbers > 10,
+that means the virtual function key events that are sent will also be
+shifted (Shift in the KeyState).  (Unless we redistribute the
+Command-L event instead of the shifted ! event.)  Command-X,
+Command-C, and Command-V should be mapped to corresponding high level
+cut/copy/paste events.  Some key sequence should pop up a dialog box
+that gives you help, tells you what's defined, allows you to define
+new key sequences to function key mappings, and saves them out to a
+file.
+
+** Mouse buttons
+Caps lock key (which physically toggles) switches between the one
+mouse button being the PointButton (left) or MenuButton (right). 
+It also functions as an actual caps-lock key.
+The modifier keys Command and Splat get two other buttons. 
+The other two buttons are always metafied (Meta in KeyState) because both
+Command and Splat are meta keys.
+<how about also being able to use two (or three) of the keys on the keyboard as
+mouse buttons, any of your choosing? ~don/n/NeWS/keypad.ps does this
+with shifted function keys (and it has the same shifted mouse click
+problem), but it depends on the FunctionR## keypad! c(-;>
+<any other ideas?>
+
+** File names:
+There is a problem with clients that send file names to a remote NeWS
+server, and expect NeWS to be able to open those files.  If the client
+is running on a different machine as the server, then it's got a
+different view of the file system than the NeWS server does.  So
+passing file names (especially ones like "/tmp/foobar.ps") from the
+client to the server may not work. The client should be prepared to
+send the whole file over the network, if the server cannot get to it.
+If you nfs-mount the appropriate file systems in the appropriate
+places, then passing file names from client to server works in certain
+situations (except in the case of references to files in /tmp, since
+each host usually has its own private /tmp directory), but it's a bad
+idea to depend on the NeWS server being able to access the same files
+as the client, especially if you want your client to be able to run
+over the phone, or a SLIP connection, or a long haul network. 

@@ -1,0 +1,140 @@
+Gauges Design Document
+------------------------------------------------------------------------
+
+* THE PROBLEM:
+
+Gauges display a read-only linear numeric value, not unlike a
+thermometer.  They did not exist in tNt 1.0, but now they exist for
+tNt 2.0.  Gauges are implemented as a subclass of ClassControl and
+ClassRegion, since they're so simple and don't require any input.
+Their interface is pretty much a subset of the slider interface.
+
+* THE MODEL:
+
+Range
+  The numbers between the minimum and maximum values.
+Normalization
+  The granularity of possible gauge values.
+Tick Marks
+  Regularly spaced lines below the gauge.
+  (Not necessarily tied to the delta or normalization)
+
+A gauge is a linear control with a numerical value bounded by minimum
+and maximum values.  The granularity of gauge values is
+specified by a procedure called the "normalizer", which takes an
+unconstrained value on the stack and leaves a constrained value on the
+stack. A typical normalizer might be "{round cvi}", to constrain the
+value to the closest integer.  By default the normalizer does not
+change the value.  Values are also constrained to be between the
+minimum and maximum values, after being normalized.  You can have tick
+marks drawn at regular intervals below a gauge, by specifying the
+distance in gauge value units between consecutive tick marks. If you
+don't want tick marks, you can specify a distance of 0, which is the
+default. By default, there are no tick marks.
+
+* THE INTERFACE:
+
+** API:
+
+  /value { % - => value
+  /setvalue { % val => -
+	The number returned by /value is always normalized and in range.
+	Any number can be given to /setvalue and it will be normalized
+	and forced in range. The gauge is updated to reflect the new value.
+
+  /range { % - => min max
+  /setrange { % min max => -
+	Defines the minimum and maximum value of the gauge
+	(inclusive).  The gauge is updated to reflect the new range.
+	The default range is 0 to 100.  You should reshape the gauge
+	to its preferred size after changing the range.
+	
+  /normalizer { % - => proc
+  /setnormalizer { % proc => -
+        The normalizer function controls the gauge granularity.
+	The granularity of gauge values is specified by a procedure
+	called the "normalizer", which takes the unconstrained value on
+	the stack and leaves a constrained value on the stack. A typical
+	normalizer would be "{round cvi}", to constrain the value to
+	integers. By default the normalizer does not change the value.  
+
+  /tickmarks { % - => distance
+  /settickmarks { % distance => -
+	You can specifify that you want tick marks to be drawn below
+	the gauge by giving the distance in gauge value units
+	between consecutive tick marks, or 0 for no tick marks (the
+	default).  You should reshape the gauge to its preferred size
+	after changing the tickmarks.
+
+  /offset { % name => x y
+	Returns the offset from the gauge's lower left corner, to the
+	named point on the gauge. You may refer to the names during a
+	calculated layout. Gauges know about the following four
+	offset names: /MinEnd, /MaxEnd, /MinTick, and /MaxTick. The
+	min and max end offsets tell where the minimum and maximum end
+	labels should be positioned, and the min and max tick marks
+	offsets tell where the minumum and maximum tick mark labels
+	should be positioned.
+
+  /minsize { % - => w h
+	Returns the minumum size of the Gauge.  Tries to make the
+	gauge big enough to have one pixel per unit gauge value. (It
+	has no way of telling what your normalizer constrains the
+	values to, so this is just a convenient guess.)
+
+  /setvisualstate { % state => -
+  /visualstate { % - => state
+	Controls the visual state of the gauge.  [To be done]
+
+  /demo { % - => gauge
+	Gauge demo. Lots of fun.
+
+
+** Level of Open Look compliance:
+  To be done.
+
+* THE IMPACT:
+
+  To be done, about external differences, not internal.
+
+* THE PROTOTYPE:
+
+(in no particular order)
+
+TODO 1: Implement /setvisualstate /visualstate /VisualState.
+        Replaces /enable /disable /enabled?.
+	/active /inactive /busy
+TODO 2: Remove dependancy of Min<Max.
+
+* THE PERFORMANCE:
+
+** Space/Time comparisons:
+  To be done.
+    Size.
+    Speed.
+
+* DESIGN CHOICES:
+
+  Gauges were implemented on top of ClassRegion instead of being
+  intertwingled with any of the the slider classes, because the
+  drawing procedures were different enough that it was not worth
+  trying to share code.  ClassVGauge is a subclass of ClassHGauge, so
+  they share most of the same code except the drawing and offset
+  procedures. ClassVGauge (a subclass of ClassHGauge) does not
+  translate and rotate the coordinate system the way ClassVSlider (a
+  subclass of ClassHSlider) does. ClassVSlider's /reshape method
+  translates and rotates the coordinate system in an attempt to share
+  some of the ClassVSlider tracking, drawing, and offset code.  As it
+  turns out, ClassHSlider and ClassVSlider don't share much drawing
+  and offset code at all, since the olglyph font does not rotate and
+  the glyphs and their positions as well as the fake-3d shadow colors
+  are quite different, and the rotation introduces a strange
+  off-by-one bug because of the mysterious way canvas coordinate
+  systems work. The tracking code is still shared, but that's not so
+  hard to do by hand instead of rotating. So it was clear that since
+  gauges don't need any tracking, the easiest thing to do was not to
+  have the subclass rotate the coordinate system. This is quite
+  fortunate, since Gauges are regions, not canvases, and regions can't
+  have rotated coordinate systems anyway.
+
+========================================================================

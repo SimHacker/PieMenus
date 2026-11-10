@@ -1,0 +1,37 @@
+active icon
+built in pssys (think about this)
+  an easy way to manage command line driven programs
+  multiple shell windows to a client
+  connected to each by socket -- popen() or whatever
+  write on socket: goes to stdin of shell (use -input flag)
+  read from socket: comes from stdout of shell (use -output flag)
+
+When the process talking to a terminal window goes away, the terminal
+window should not immediatly dissappear. The user may still want to
+select text off of it. There should be a way to save the contents of
+the window to a file. Extend it to work with a growable array of lines
+and scroll bars. Put max and min to scroll bar window everywhere, make
+sure loops through the lines all cancel out right. Just translate to
+handle the x scrollbar offset. Display the whole lines and let the
+window system worry about the horizontal clipping. 
+
+Should selection should ignore trailing blanks on a line string if the
+strings are all the screen width long? Or should do we need to store
+line length? 
+Need lines of arbitrary length. 
+An array of line string subintervals that parallels the array of screen
+width line string. 
+
+How can we handle variable width fonts?
+Arrays of character x in pixel coordinates that parallel the line strings.
+
+Function keys to operate the scroll bars.
+Popup function key help window. Allows you to rebind keys, too.
+Escape codes to bind keys, create conrol panel buttons, menus, etc.
+Scroll bar, function keys, etc, send events that can be journaled.
+Use function keys to invoke termulator commands. (as well as menus)
+Save state function. (makes file that can be read in upon initialization 
+to clone this terminal)
+Make some of these modules autoloaded. Auto-unloaded, when not used for
+a while?
+

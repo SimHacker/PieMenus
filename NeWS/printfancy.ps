@@ -1,0 +1,81 @@
+initmatrix initclip
+
+% This is a Thing:
+
+/arrows { % true => (draw) / false => width height
+  {  
+  /paint
+    { gsave
+      currentpoint translate
+      12 12 translate
+      8 { 
+	newpath
+	0 0 moveto
+        11 0 lineto
+	stroke
+	8 2 moveto
+        11 0 lineto
+	8 -2 lineto
+    	closepath
+	fill
+	45 rotate
+      } repeat
+      grestore }
+  /size
+    {24 24}
+  } case
+pstack
+} def
+
+/wedges { % true => (draw) / false => width height
+  {
+  /paint
+    { gsave
+      currentpoint translate
+      12 12 translate
+      8 { 
+	newpath
+	1 0 moveto
+        1 0 11 -22.5 22.5 arc
+    	closepath
+	fill
+	45 rotate
+      } repeat
+      grestore }
+  /size
+    {24 24}
+  } case
+} def
+
+(making mymenu\n) print
+/mymenu
+  [
+%    {wedges}
+%    {arrows}
+[(=) 0 -10] % equal
+[(\243) 0 5] % less than or equal
+[(<) 0 5] % less than
+[(\273)] % approx equal
+[(\271) 0 10] % not equal
+[(\272)] % equivalence
+[(>) 0 5] % greater than
+[(\263) 0 5] % greater than or equal
+  ]
+  [{(Yow!!!!!!!\n) print}]
+  /new NicePieMenu send
+def
+{ /MenuFont /Symbol findfont 32 scalefont def
+} mymenu send
+
+/showmenu { % x y => -
+  { /showat exch send } stopped pop
+} def
+
+(done!\n\n) print
+300 300 /showat mymenu send
+/Damaged null 0 0 E
+MouseDragged null 10 20 E
+MenuButton UpTransition 10 20 E
+initmatrix 310 320 showmouse showpage stop
+
+

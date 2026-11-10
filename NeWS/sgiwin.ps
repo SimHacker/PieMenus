@@ -1,0 +1,86 @@
+
+
+%
+% SGI version of a window.  We subclass LiteWindow and make our
+% variations.
+% (I have init.ps load this right after litewin.ps)
+%
+%       Mark Callow     24 July 1987
+%
+/SGIWindow LiteWindow []
+classbegin
+    /FrameFillColor     0.73 0.73 0.73 rgbcolor def
+    /IconFillColor      FrameFillColor def
+    /KeyFocusColor      1 1 0 rgbcolor def
+
+    /BorderWidth        6 def
+    /BorderLeft         BorderWidth def
+    /BorderBottom       BorderWidth def
+    /BorderRight        BorderWidth def
+    /BorderTop          20 def
+
+    /FrameFont          /Times-Roman findfont 14 scalefont def
+    /IconFont           /Times-Roman findfont 14 scalefont def
+    /IconFontHeight     IconFont fontheight def
+
+    /CreateFrameControls { % - => - (Create frame control canvases/items)
+    gsave
+	FrameCanvas setcanvas
+	/CloseControl FrameCanvas newcanvas dup begin
+	    /Mapped true def
+	    /EventsConsumed /AllEvents def
+	end def
+	0 0 BorderTop BorderTop rectpath CloseControl reshapecanvas
+	/StretchControl FrameCanvas newcanvas dup begin
+	    /Mapped true def
+	    /EventsConsumed /AllEvents def
+	end def
+	0 0 BorderTop BorderTop rectpath StretchControl reshapecanvas
+    grestore
+    } def
+
+    /MoveFrameControls { % - => - ([Re]set frame control shapes)
+    gsave
+	CloseControl setcanvas
+	BorderLeft BorderTop eq {0} {BorderLeft 2 sub} ifelse
+	  FrameHeight BorderTop sub 2 add dup 3 1 roll movecanvas
+
+	StretchControl setcanvas
+	FrameWidth BorderTop sub 1 sub exch movecanvas
+    grestore
+    } def
+
+    /PaintFrameControls { % - => - (Paint frame control areas)
+    gsave
+	CloseControl setcanvas 0 3 moveto /panel_choice_on showicon
+	StretchControl setcanvas 0 1 moveto /stretchNE showicon
+    grestore
+    } def
+
+    /PaintFrameLabel { % - => - (Paint frame text label)
+	BorderTop 10 add FrameHeight BorderTop sub 5 add moveto
+	FrameLabel show
+    } def
+
+    /PaintFocus {
+	gsave
+	FrameCanvas setcanvas
+	FrameFont setfont
+	KeyFocus? {KeyFocusColor} {FrameTextColor} ifelse setcolor
+	/PaintFrameLabel self send
+	grestore
+    } def
+
+    /PaintIconLabel { % - => - (Paint icon text label)
+	gsave
+	IconTextColor setcolor IconFont setfont
+	IconImage null eq {
+	    IconWidth 2 div IconHeight IconFontHeight sub 3 sub
+	} {
+	    IconWidth 2 div 3
+	} ifelse
+	moveto IconLabel cshow
+	grestore
+    } def
+classend def
+

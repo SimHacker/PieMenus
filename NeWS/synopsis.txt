@@ -1,0 +1,55 @@
+Date: Thu, 14 Aug 86 06:08:43 edt
+From: don@borax.lcs.mit.edu (Donald E. Hopkins)
+To: mark@mimsy.umd.edu, mgrant@mimsy.umd.edu, don@mimsy.umd.edu,
+        chris@mimsy.umd.edu, adam@borax.lcs.mit.edu
+Subject: Brief incoherent synopsis ... (not brief, actually)
+
+
+I am at Bandy's, typing on his Mac. I am having a wonderful time. Too
+busy to type in as many details as there are, but today Gosling gave
+me a demo of SunDew, his awesome new window system that's programmed
+in PostScript. It's got light weight multitasking, and is very fast.
+You've got COMPLETE control over everything, and can do things
+you would never think possible. Windows of ANY shape, even with holes,
+that you can scale to any size. He's got a terminal emulator window
+that does an 80x24 terminal. When you stretch it, it scales the
+font for whatever size you made it. I mean WHATEVER size. You can make it
+as small as an icon and still see the text as dots. It can display
+full color digitized pictures in any size, even ditherizing for black
+and white if you want. He had a picture of the Sun founders standing in
+front of a beautiful sunset, and stretched it all around, and they got
+short and tall, and it processed the picture to any size. He made
+it iconic, and it looked like a full color passport photo.
+All this was automagic! He could do the same thing to a CAD/CAM window
+that was on the screen! And the whole thing was lightning fast! I could
+not believe something THAT sophisticated could run with such speed. It is
+DEFINITLY faster than X, not to mention SunStools.
+Excuse the raving incoherentness of this, but I am too completely
+flabbergasted to disguise my enthusiasm. I read the PostScript manual
+on the train to NJ and on the plane, and have not had a chance to
+partake in any hands-on molestation of a postscript environment. I plan to
+remidy that soon. I had an amusing time in a hot tub.
+I got a tour of DECWRL from Brian Reid. Also got a tape with a map of
+the world. Only 140 megabytes or so. Very detailed. We may stay till
+Wednesday, and try to catch the Sun Local Users Group Meeting. Met Walter
+Breen at the Chicago Airport going out west to SF! Stayed with Mitch
+Bradley, who's got a Sun at home, which has hardware with very low
+serial numbers, that he knows how to maintain due to having designed some
+of it. He's integrated MicroEmacs with his incredible 68000 Forth system.
+I've got a copy for the Amiga. He is porting SunDew to the Amiga. I saw it
+running. He's working on keyboard and mouse input now, but the sun can make
+it do things now over a serial port. PostScript is a religiously correct
+language, and from what I have seen it do is damn powerful. One
+contributing factor to the organization of this message is that I am
+typing it into mail instead of using emacs. If I was in emacs, I would
+stay there all night, so I will resist the temptation and bamboozle
+you with with intense discontinuity instead.
+At DECWRL there was room with more than 24 gigabytes of disk storage,
+and a Vax with 128 Meg of Semiconductor memory, not to mention the 25
+MIPS RISC workstations that they had just put together a few of. About 7
+Vax 780, 780-5, and 785's. And in that room there was just one token VMS
+machine, a 750. Eeeeeeeew!
+I must stop myself from flaming on, so that I may sleep. I will
+forward more details later. As you may guess, I am busy busy.
+
+        -Don
